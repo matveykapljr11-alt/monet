@@ -838,6 +838,11 @@ header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgb
 .mb-sold .v{font-family:var(--font-d);font-weight:600;font-size:16px;color:var(--txt);display:inline-flex;align-items:center;gap:7px}
 .mb-est{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gold);background:rgba(200,162,75,.14);border:1px solid rgba(200,162,75,.4);padding:2px 6px;border-radius:7px}
 .attr-inputs{display:flex;flex-direction:column;gap:9px}
+.attr-selects{display:flex;flex-direction:column;gap:9px}
+.attr-sel{display:flex;align-items:center;gap:10px}
+.attr-sel>label{font-family:var(--font-d);font-weight:600;font-size:14px;color:var(--txt-2);width:66px;flex:none}
+.attr-sel>select.big{flex:1;margin:0;font-size:15px;padding:13px 16px}
+.attr-sel>select.big:disabled{opacity:.6}
 .attr-in{position:relative;display:flex;align-items:center;gap:10px}
 .attr-in>label{font-family:var(--font-d);font-weight:600;font-size:14px;color:var(--txt-2);width:54px;flex:none}
 .attr-in>input.big{flex:1;margin:0;padding-right:34px}
@@ -1946,11 +1951,12 @@ function inputHTML(cat, idp){
          '<div class="gift-none" id="'+idp+'none" style="display:none;text-align:center;color:var(--txt-3);font-size:12.5px;padding:14px 2px">—</div>'+
          '<input class="big" id="'+idp+'floor" inputmode="numeric" placeholder="'+t('phFloor')+'" style="margin:0 0 10px;display:none" oninput="giftLiveEval(\''+idp+'\')">'+
          '<input class="big" id="'+idp+'serial" inputmode="numeric" placeholder="'+t('phGiftSerial')+'" style="margin-bottom:12px" oninput="giftLiveEval(\''+idp+'\')">'+
-         '<div class="attr-inputs">'+
-           '<div class="attr-in"><label>'+t('attrBackdrop')+'</label><input class="big" id="'+idp+'rback" inputmode="decimal" placeholder="'+t('phRarity')+'" oninput="giftLiveEval(\''+idp+'\')"><span class="attr-suf">%</span></div>'+
-           '<div class="attr-in"><label>'+t('attrPattern')+'</label><input class="big" id="'+idp+'rpat" inputmode="decimal" placeholder="'+t('phRarity')+'" oninput="giftLiveEval(\''+idp+'\')"><span class="attr-suf">%</span></div>'+
+         '<div class="attr-selects">'+
+           '<div class="attr-sel"><label>'+t('attrModel')+'</label><select class="big" id="'+idp+'rmodel" onchange="giftLiveEval(\''+idp+'\')"><option value="">'+(S.lang==='ru'?'— любая —':'— any —')+'</option></select></div>'+
+           '<div class="attr-sel"><label>'+t('attrBackdrop')+'</label><select class="big" id="'+idp+'rback" onchange="giftLiveEval(\''+idp+'\')"><option value="">'+(S.lang==='ru'?'— любой —':'— any —')+'</option></select></div>'+
+           '<div class="attr-sel"><label>'+t('attrPattern')+'</label><select class="big" id="'+idp+'rpat" onchange="giftLiveEval(\''+idp+'\')"><option value="">'+(S.lang==='ru'?'— любой —':'— any —')+'</option></select></div>'+
          '</div>'+
-         '<div class="hint dim" style="margin:9px 2px 0">'+t('attrHintNew')+'</div>';
+         '<div class="hint dim" style="margin:9px 2px 0">'+(S.lang==='ru'?'Модель, фон и узор — выбери из списка коллекции. Реже = дороже. Необязательно.':'Pick model, backdrop & symbol from the collection. Rarer = pricier. Optional.')+'</div>';
 }
 const RBUCKETS=[{v:'',k:'rkNone'},{v:'1.5',k:'rkRare'},{v:'0.5',k:'rkEpic'},{v:'0.15',k:'rkLegendary'},{v:'0.03',k:'rkMythic'}];
 function attrRow(idp,trait,labelKey){
@@ -2003,8 +2009,48 @@ function pickGift(prefix, id){
   const grid=document.getElementById(prefix+'grid');
   if(grid) grid.querySelectorAll('.gift-tile').forEach(b=>b.classList.toggle('on', b.dataset.id===id));
   const f=document.getElementById(prefix+'floor'); if(f){ f.style.display = id==='other' ? '' : 'none'; if(id==='other') setTimeout(()=>f.focus(),50); }
+  loadGiftTraits(prefix, giftColById(id));   // load real models/backdrops/symbols for this collection
   if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}}
   // live re-evaluate if a result is already shown for the eval panel
+  if(prefix==='e_' && lastResult) doEvaluate();
+}
+/* fetch real traits (model/backdrop/symbol + rarity) from changes.tg, fill the selects */
+const TRAITS_CACHE={};
+function fillTraitSelect(sel, arr){
+  if(!sel) return;
+  const anyTxt=S.lang==='ru'?'— любая —':'— any —';
+  if(!arr||!arr.length){ sel.innerHTML='<option value="">'+anyTxt+'</option>'; sel.disabled=false; return; }
+  const list=arr.slice().sort((a,b)=>(a.rarityPermille||9999)-(b.rarityPermille||9999));
+  sel.innerHTML='<option value="">'+anyTxt+'</option>'+list.map(o=>{
+    const pct=Math.round((o.rarityPermille!=null?o.rarityPermille/10:(o.rarity||0))*100)/100;
+    return '<option value="'+pct+'">'+escapeHTML(o.name)+' · '+pct+'%</option>';
+  }).join('');
+  sel.disabled=false;
+}
+async function loadGiftTraits(prefix, col){
+  const sm=document.getElementById(prefix+'rmodel'), sb=document.getElementById(prefix+'rback'), sp=document.getElementById(prefix+'rpat');
+  if(!sm&&!sb&&!sp) return;            // not the gift form
+  if(!col||!col.slug){ [sm,sb,sp].forEach(s=>fillTraitSelect(s,[])); return; }
+  const loadTxt=S.lang==='ru'?'загрузка…':'loading…';
+  [sm,sb,sp].forEach(s=>{ if(s){ s.innerHTML='<option value="">'+loadTxt+'</option>'; s.disabled=true; } });
+  const slug=col.slug; let data=TRAITS_CACHE[slug];
+  if(!data){
+    try{
+      const base='https://api.changes.tg/';
+      const [m,b,p]=await Promise.all([
+        fetch(base+'models/'+slug).then(r=>r.json()),
+        fetch(base+'backdrops/'+slug).then(r=>r.json()),
+        fetch(base+'symbols/'+slug).then(r=>r.json())
+      ]);
+      data={ m:Array.isArray(m)?m:[], b:Array.isArray(b)?b:[], p:Array.isArray(p)?p:[] };
+      TRAITS_CACHE[slug]=data;
+    }catch(e){ data={m:[],b:[],p:[]}; }
+  }
+  // collection may have changed while fetching
+  const cur=document.getElementById(prefix+'col'); if(cur && cur.value!==col.id) return;
+  fillTraitSelect(document.getElementById(prefix+'rmodel'), data.m);
+  fillTraitSelect(document.getElementById(prefix+'rback'), data.b);
+  fillTraitSelect(document.getElementById(prefix+'rpat'),  data.p);
   if(prefix==='e_' && lastResult) doEvaluate();
 }
 function onCollectionChange(prefix){
@@ -2015,6 +2061,7 @@ function buildEvaluateInput(){
   document.getElementById('inputField').innerHTML=inputHTML(curCat,'e_');
   const m=document.getElementById('e_main');
   if(m){ m.addEventListener('input', onInputChange); m.addEventListener('keydown',e=>{if(e.key==='Enter')doEvaluate();}); }
+  if(curCat==='gifts'){ const col=document.getElementById('e_col'); loadGiftTraits('e_', giftColById(col?col.value:COLLECTIONS.gifts[0].id)); }
   onInputChange();
 }
 function onInputChange(){
