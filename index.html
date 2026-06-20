@@ -3209,7 +3209,14 @@ window.PF = (function(){
   function addAsset(a){ if(!a||!a.display) return; if(!Array.isArray(S.portfolio))S.portfolio=[];
     const cat=({gifts:'gift',usernames:'username'})[a.cat]||a.cat;
     const ex=S.portfolio.find(h=>h.cat===cat && h.display===a.display);
-    if(ex){ ex.qty=(ex.qty||1)+(a.qty||1); } else { S.portfolio.push({cat, display:a.display, priceTON:Math.round(a.priceTON||0), qty:a.qty||1, ts:Date.now()}); }
+    // a specific NFT number is unique in the world -> can only be held once
+    const unique = /#\s*\d+/.test(String(a.display)) || cat==='username' || cat==='numbers';
+    if(ex){
+      if(unique){ toast(S.lang==='ru'?'Уже в портфеле — он уникален (1 из 1)':'Already in portfolio — it is 1-of-1'); return; }
+      ex.qty=(ex.qty||1)+(a.qty||1);
+    } else {
+      S.portfolio.push({cat, display:a.display, priceTON:Math.round(a.priceTON||0), qty:unique?1:(a.qty||1), ts:Date.now()});
+    }
     snapshot(); save(); if(window.BANK) window.BANK.award(5);
     if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
     toast(t('pfInPf')+' ✓');
