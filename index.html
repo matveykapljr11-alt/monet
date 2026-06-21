@@ -1327,7 +1327,7 @@ ru:{
   fGiftFloor:'Floor коллекции', fSerialTop:'Низкий серийный №', fSerialGood:'Хороший серийный №',
   fSerialRound:'Красивый №', fRarityHigh:'Высокая редкость', fRarityMid:'Средняя редкость',
   fBackdrop:'Редкий фон', fPattern:'Редкий узор', fModel:'Редкая модель', fAttrCap:'Сглаживание редкости',
-  fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №',
+  fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка',
   drawerTitle:'Меню', tabHistory:'История', tabFav:'Мои', tabTop:'Топ', drActions:'Действия', drLists:'Списки', drSettings:'Настройки', drLanguage:'Язык',
   emptyHistory:'Здесь появятся ваши оценки', emptyFav:'Добавьте оценки в избранное звёздочкой',
   lockedHistory:'История ограничена 3 записями. 👑 Premium — без лимитов',
@@ -1425,7 +1425,7 @@ en:{
   fGiftFloor:'Collection floor', fSerialTop:'Low serial #', fSerialGood:'Good serial #',
   fSerialRound:'Beautiful #', fRarityHigh:'High rarity', fRarityMid:'Medium rarity',
   fBackdrop:'Rare backdrop', fPattern:'Rare pattern', fModel:'Rare model', fAttrCap:'Rarity smoothing',
-  fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #',
+  fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration',
   drawerTitle:'Menu', tabHistory:'History', tabFav:'Mine', tabTop:'Top', drActions:'Actions', drLists:'Lists', drSettings:'Settings', drLanguage:'Language',
   emptyHistory:'Your evaluations will appear here', emptyFav:'Star evaluations to save them',
   lockedHistory:'History capped at 3. 👑 Premium — unlimited',
@@ -1888,10 +1888,22 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     // MARKET-TRUE: an item is worth at least the floor of its most-valued trait.
     // value = max(collection floor, model floor, backdrop floor, symbol floor).
     F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
-    price=base;
-    if(fM>0){ F.push({i:'🧬',k:'fModelFl',v:Math.round(fM)+' TON',cls:'plus'}); if(fM>price) price=fM; }
-    if(fB>0){ F.push({i:'🎨',k:'fBackFl', v:Math.round(fB)+' TON',cls:'plus'}); if(fB>price) price=fB; }
-    if(fP>0){ F.push({i:'🌀',k:'fPatFl',  v:Math.round(fP)+' TON',cls:'plus'}); if(fP>price) price=fP; }
+    const tf=[];
+    if(fM>0){ tf.push(fM); F.push({i:'🧬',k:'fModelFl',v:Math.round(fM)+' TON',cls:'plus'}); }
+    if(fB>0){ tf.push(fB); F.push({i:'🎨',k:'fBackFl', v:Math.round(fB)+' TON',cls:'plus'}); }
+    if(fP>0){ tf.push(fP); F.push({i:'🌀',k:'fPatFl',  v:Math.round(fP)+' TON',cls:'plus'}); }
+    // the most-valued trait sets the floor; a SPECIFIC combination of several
+    // above-floor traits is scarcer than any single one -> diminishing premium.
+    const extra=tf.filter(v=>v>base).sort((a,b)=>b-a);
+    if(extra.length){
+      price=extra[0];
+      const w=[0,0.30,0.16,0.09];   // weight of 2nd, 3rd, 4th trait above floor
+      let prem=0; for(let i=1;i<extra.length;i++){ prem+=extra[i]*(w[i]||0.05); }
+      if(prem>0){ price+=prem; F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(prem)+' TON',cls:'plus'}); }
+      price=Math.round(price);
+      // floors are the LOWEST asks; actual deals clear ~12% higher -> calibrate
+      price=Math.round(price*1.12); F.push({i:'📈',k:'fMktCal',v:'+12%',cls:'plus'});
+    } else { price=base; }
     // low edition number still commands a real (modest) premium on top
     if(!isNaN(serial)&&serial>0){
       let m=1, kk='fLowSerial';
