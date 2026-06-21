@@ -1873,7 +1873,7 @@ function attrMult(pct, strength){
   else base=1;
   return 1+(base-1)*strength;
 }
-function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, fPat, fModel){
+function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, fPat, fModel, sBack, sPat, sModel){
   const list=COLLECTIONS[cat];
   const col=list.find(c=>c.id===colId)||list[list.length-1];
   const F=[];
@@ -1885,24 +1885,28 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
   const haveTraitFloors = (fM>0)||(fB>0)||(fP>0);
   let price;
   if(haveTraitFloors){
-    // MARKET-TRUE: an item is worth at least the floor of its most-valued trait.
-    // value = max(collection floor, model floor, backdrop floor, symbol floor).
+    // MARKET-TRUE: an item is worth ~the floor of its most-valued trait — BUT a
+    // trait floor backed by only 1–2 listings is a noisy outlier (often a single
+    // overpriced lot). Down-weight thin floors toward the collection floor by the
+    // number of listings (supply): supply≥6 → trust fully, supply=1 → mostly floor.
     F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
+    const rel=(s)=>{ s=parseFloat(s)||0; return Math.max(0.25, Math.min(1, s/6)); };
+    const eff=(f,s)=> base + rel(s)*(f-base);   // reliability-weighted effective floor
     const tf=[];
-    if(fM>0){ tf.push(fM); F.push({i:'🧬',k:'fModelFl',v:Math.round(fM)+' TON',cls:'plus'}); }
-    if(fB>0){ tf.push(fB); F.push({i:'🎨',k:'fBackFl', v:Math.round(fB)+' TON',cls:'plus'}); }
-    if(fP>0){ tf.push(fP); F.push({i:'🌀',k:'fPatFl',  v:Math.round(fP)+' TON',cls:'plus'}); }
+    if(fM>0){ tf.push(eff(fM,sModel)); F.push({i:'🧬',k:'fModelFl',v:Math.round(fM)+' TON',cls:'plus'}); }
+    if(fB>0){ tf.push(eff(fB,sBack));  F.push({i:'🎨',k:'fBackFl', v:Math.round(fB)+' TON',cls:'plus'}); }
+    if(fP>0){ tf.push(eff(fP,sPat));   F.push({i:'🌀',k:'fPatFl',  v:Math.round(fP)+' TON',cls:'plus'}); }
     // the most-valued trait sets the floor; a SPECIFIC combination of several
     // above-floor traits is scarcer than any single one -> diminishing premium.
-    const extra=tf.filter(v=>v>base).sort((a,b)=>b-a);
+    const extra=tf.filter(v=>v>base+0.5).sort((a,b)=>b-a);
     if(extra.length){
       price=extra[0];
       const w=[0,0.30,0.16,0.09];   // weight of 2nd, 3rd, 4th trait above floor
       let prem=0; for(let i=1;i<extra.length;i++){ prem+=extra[i]*(w[i]||0.05); }
       if(prem>0){ price+=prem; F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(prem)+' TON',cls:'plus'}); }
       price=Math.round(price);
-      // floors are the LOWEST asks; actual deals clear ~12% higher -> calibrate
-      price=Math.round(price*1.12); F.push({i:'📈',k:'fMktCal',v:'+12%',cls:'plus'});
+      // floors are the LOWEST asks; actual deals clear ~10% higher -> calibrate
+      price=Math.round(price*1.10); F.push({i:'📈',k:'fMktCal',v:'+10%',cls:'plus'});
     } else { price=base; }
     // low edition number still commands a real (modest) premium on top
     if(!isNaN(serial)&&serial>0){
@@ -2081,15 +2085,16 @@ function pickGift(prefix, id){
 }
 /* fetch real traits (model/backdrop/symbol + rarity) from changes.tg, fill the selects */
 const TRAITS_CACHE={};
-function fillTraitSelect(sel, arr, fmap){
+function fillTraitSelect(sel, arr, fmap, smap){
   if(!sel) return;
   const anyTxt=S.lang==='ru'?'— любая —':'— any —';
   if(!arr||!arr.length){ sel.innerHTML='<option value="">'+anyTxt+'</option>'; sel.disabled=false; return; }
   const list=arr.slice().sort((a,b)=>(a.rarityPermille||9999)-(b.rarityPermille||9999));
   sel.innerHTML='<option value="">'+anyTxt+'</option>'+list.map(o=>{
     const pct=Math.round((o.rarityPermille!=null?o.rarityPermille/10:(o.rarity||0))*100)/100;
-    const fl=fmap?fmap[String(o.name||'').toLowerCase()]:0;
-    const flAttr=fl>0?(' data-floor="'+fl+'"'):'';
+    const key=String(o.name||'').toLowerCase();
+    const fl=fmap?fmap[key]:0; const sup=smap?smap[key]:0;
+    const flAttr=fl>0?(' data-floor="'+fl+'" data-supply="'+(sup||0)+'"'):'';
     const flTxt=fl>0?(' · '+Math.round(fl)+' TON'):'';
     return '<option value="'+pct+'"'+flAttr+'>'+escapeHTML(o.name)+' · '+pct+'%'+flTxt+'</option>';
   }).join('');
@@ -2113,22 +2118,22 @@ async function loadGiftTraits(prefix, col){
         fetch(base+'symbols/'+slug).then(r=>r.json()).catch(()=>[]),
         tfUrl?fetch(tfUrl).then(r=>r.json()).catch(()=>null):Promise.resolve(null)
       ]);
-      // real per-trait floors -> {modelnameLower:floor}
-      const fm={},fb={},fp={};
+      // real per-trait floors + listing counts -> {nameLower:floor}, {nameLower:supply}
+      const fm={},fb={},fp={}, qm={},qb={},qp={};
       try{
         const node=tf&&tf.traits&&tf.traits.collections&&tf.traits.collections[slug];
-        const put=(map,list)=>{ (list||[]).forEach(o=>{ const v=parseFloat(o.floor_price); if(o.name&&v>0) map[String(o.name).toLowerCase()]=v; }); };
-        if(node){ put(fm,node.models); put(fb,node.backdrops); put(fp,node.symbols); }
+        const put=(map,qmap,list)=>{ (list||[]).forEach(o=>{ const v=parseFloat(o.floor_price); if(o.name&&v>0){ const k=String(o.name).toLowerCase(); map[k]=v; qmap[k]=parseInt(o.supply,10)||0; } }); };
+        if(node){ put(fm,qm,node.models); put(fb,qb,node.backdrops); put(fp,qp,node.symbols); }
       }catch(e){}
-      data={ m:Array.isArray(m)?m:[], b:Array.isArray(b)?b:[], p:Array.isArray(p)?p:[], fm,fb,fp };
+      data={ m:Array.isArray(m)?m:[], b:Array.isArray(b)?b:[], p:Array.isArray(p)?p:[], fm,fb,fp, qm,qb,qp };
       TRAITS_CACHE[slug]=data;
-    }catch(e){ data={m:[],b:[],p:[],fm:{},fb:{},fp:{}}; }
+    }catch(e){ data={m:[],b:[],p:[],fm:{},fb:{},fp:{},qm:{},qb:{},qp:{}}; }
   }
   // collection may have changed while fetching
   const cur=document.getElementById(prefix+'col'); if(cur && cur.value!==col.id) return;
-  fillTraitSelect(document.getElementById(prefix+'rmodel'), data.m, data.fm);
-  fillTraitSelect(document.getElementById(prefix+'rback'), data.b, data.fb);
-  fillTraitSelect(document.getElementById(prefix+'rpat'),  data.p, data.fp);
+  fillTraitSelect(document.getElementById(prefix+'rmodel'), data.m, data.fm, data.qm);
+  fillTraitSelect(document.getElementById(prefix+'rback'), data.b, data.fb, data.qb);
+  fillTraitSelect(document.getElementById(prefix+'rpat'),  data.p, data.fp, data.qp);
   if(prefix==='e_' && lastResult) doEvaluate();
 }
 function onCollectionChange(prefix){
@@ -2178,13 +2183,16 @@ function valueFor(cat, prefix){
   if(cat==='numbers')  return scoreNumber(document.getElementById(prefix+'main').value);
   const fEl=document.getElementById(prefix+'floor');
   const g=document.getElementById.bind(document);
-  const selFloor=(id)=>{ const s=g(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const f=o&&o.getAttribute('data-floor'); return f?parseFloat(f):0; };
+  const selAttr=(id,attr)=>{ const s=g(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const f=o&&o.getAttribute(attr); return f?parseFloat(f):0; };
+  const selFloor=(id)=>selAttr(id,'data-floor');
+  const selSup=(id)=>selAttr(id,'data-supply');
   return scoreGift(cat, g(prefix+'col').value, g(prefix+'serial').value,
     g(prefix+'rback')?g(prefix+'rback').value:null,
     g(prefix+'rpat')?g(prefix+'rpat').value:null,
     g(prefix+'rmodel')?g(prefix+'rmodel').value:null,
     fEl?fEl.value:null,
-    selFloor(prefix+'rback'), selFloor(prefix+'rpat'), selFloor(prefix+'rmodel'));
+    selFloor(prefix+'rback'), selFloor(prefix+'rpat'), selFloor(prefix+'rmodel'),
+    selSup(prefix+'rback'), selSup(prefix+'rpat'), selSup(prefix+'rmodel'));
 }
 function fmtTON(n){ n=Math.round(n); return n>=1000?n.toLocaleString('en-US'):String(n); }
 function fmtFiat(ton){ const v=Math.round(ton*RATE[S.currency]); return FX_LABEL[S.currency]+v.toLocaleString('en-US'); }
