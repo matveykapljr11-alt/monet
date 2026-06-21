@@ -1277,7 +1277,7 @@ function save(){ lsSet('monet', JSON.stringify(S)); }
 ======================================================================== */
 const I18N = {
 ru:{
-  tagline:'оценочный дом · TON', heroSub:'Оценка по реальным сделкам Fragment · TON',
+  tagline:'оценочный дом · TON', heroSub:'Оценка по реальным сделкам · TON',
   heroPitch:'Оценка · Рынок · Капитал · TON', confLabel:'Уверенность', confHigh:'высокая', confMid:'средняя', confLow:'низкая',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель',
   pfTitle:'Мой портфель', pfTotal:'Стоимость портфеля', pfEmpty:'Добавьте свои Telegram-активы и следите за их стоимостью',
@@ -1376,7 +1376,7 @@ ru:{
   lotsTitle:'На рынке сейчас', lotsBuy:'купить', lotCheapest:'дешевле всех', lotsEmpty:'Активных лотов нет', lotsLoading:'Загружаю лоты…', lotsNoProxy:'Подключи прокси в «Live-флоры»', lotsErr:'Не удалось загрузить'
 },
 en:{
-  tagline:'appraisal house · TON', heroSub:'Valued on real Fragment deals · TON',
+  tagline:'appraisal house · TON', heroSub:'Valued on real market deals · TON',
   heroPitch:'Appraise · Market · Capital · TON', confLabel:'Confidence', confHigh:'high', confMid:'medium', confLow:'low',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio',
   pfTitle:'My portfolio', pfTotal:'Portfolio value', pfEmpty:'Add your Telegram assets and track their value',
@@ -2096,7 +2096,7 @@ function fillTraitSelect(sel, arr, fmap, smap){
     const fl=fmap?fmap[key]:0; const sup=smap?smap[key]:0;
     const flAttr=fl>0?(' data-floor="'+fl+'" data-supply="'+(sup||0)+'"'):'';
     const flTxt=fl>0?(' · '+Math.round(fl)+' TON'):'';
-    return '<option value="'+pct+'"'+flAttr+'>'+escapeHTML(o.name)+' · '+pct+'%'+flTxt+'</option>';
+    return '<option value="'+pct+'" data-name="'+escapeHTML(o.name)+'"'+flAttr+'>'+escapeHTML(o.name)+' · '+pct+'%'+flTxt+'</option>';
   }).join('');
   sel.disabled=false;
 }
@@ -2210,7 +2210,49 @@ function doEvaluate(){
   syncFavButton();
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.impactOccurred('medium');}catch(e){} }
   if(curCat==='username' && proxyURL()) loadUserComps(r.display);
+  if(curCat==='gifts' && proxyURL()) loadGiftCross(r);
   setTimeout(()=>document.getElementById('result').scrollIntoView({behavior:'smooth',block:'nearest'}),60);
+}
+/* cross-market: fetch the live Fragment floor for the picked collection+traits and,
+   if it's cheaper than our Portals-based estimate, show it as the true price + buy link. */
+function selName(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return ''; const o=s.options[s.selectedIndex]; return (o&&o.getAttribute('data-name'))||''; }
+async function loadGiftCross(r){
+  const proxy=proxyURL(); if(!proxy) return;
+  const colEl=document.getElementById('e_col'); if(!colEl) return;
+  const c=giftColById(colEl.value); if(!c||c.id==='other'||!c.slug) return;
+  const m=selName('e_rmodel'), b=selName('e_rback'), p=selName('e_rpat');
+  let url=proxy.replace(/\/+$/,'')+'/?fragment='+encodeURIComponent(c.n);
+  if(m)url+='&model='+encodeURIComponent(m);
+  if(b)url+='&backdrop='+encodeURIComponent(b);
+  if(p)url+='&symbol='+encodeURIComponent(p);
+  const stamp=r.ts;
+  try{
+    const res=await fetch(url,{cache:'no-store'}); if(!res.ok) return;
+    const d=await res.json();
+    if(!d||!d.ok||!(d.floor>0)) return;
+    if(lastResult!==r || r.ts!==stamp) return;   // user moved on
+    applyGiftCross(r, d);
+  }catch(e){}
+}
+function applyGiftCross(r, d){
+  // price by real Fragment deals (live floor for the exact collection + traits)
+  const frag=Math.round(d.floor);
+  if(!(frag>0)) return;
+  r.priceTON=frag; r.fragFloor=frag;
+  const num=document.getElementById('ptonNum'); if(num) num.textContent=fmtTON(frag);
+  const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(frag);
+  // re-fit the Est. range around the new price
+  const sp=estSpread(r);
+  const pr=document.getElementById('prange'); if(pr) pr.textContent='Est. '+fmtTON(Math.round(frag*(1-sp)))+'–'+fmtTON(Math.round(frag*(1+sp)))+' TON';
+  // discreet buy CTA -> collection page (not the exact lot), neutral label, no ref
+  const box=document.getElementById('xmkt');
+  if(box && d.slug){
+    const ru=S.lang==='ru';
+    const link=refLink('https://fragment.com/gifts/'+d.slug+'?filter=sale&sort=price_asc');
+    box.innerHTML='<a href="'+link+'" target="_blank" rel="noopener" style="position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.95);background:rgba(255,255,255,.14);padding:8px 14px;border-radius:999px;text-decoration:none">'+
+      '<span style="width:6px;height:6px;border-radius:50%;background:#9be9c4;display:inline-block"></span>'+(ru?'Купить на рынке ↗':'Buy on market ↗')+'</a>';
+  }
+  syncFavButton();
 }
 const COMP_CACHE={};
 async function loadUserComps(display){
@@ -2322,7 +2364,8 @@ function resultCardHTML(r){
       '<div class="arow"><div class="asset">'+escapeHTML(r.display)+'</div></div>'+
       '<div class="sub">'+subline+'</div>'+
       '<div class="price-ton"><span id="ptonNum">'+fmtTON(r.priceTON)+'</span><span class="u">TON</span></div>'+
-      '<div class="price-range">Est. '+fmtTON(lo)+'–'+fmtTON(hi)+' TON</div>'+
+      '<div class="price-range" id="prange">Est. '+fmtTON(lo)+'–'+fmtTON(hi)+' TON</div>'+
+      (r.cat==='gifts'?'<div id="xmkt"></div>':'')+
       '<div class="price-fiat"><span class="v" id="fiatVal">'+fmtFiat(r.priceTON)+'</span>'+
         '<span class="cur-toggle"><button class="'+(S.currency==='usd'?'on':'')+'" onclick="setCurrency(\'usd\')">USD</button><button class="'+(S.currency==='eur'?'on':'')+'" onclick="setCurrency(\'eur\')">EUR</button></span></div>'+
       '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+'</div>'+
