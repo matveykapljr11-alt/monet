@@ -2243,12 +2243,14 @@ function applyGiftCross(r, d, hasTrait){
   if(hasTrait && d.matchLevel==='collection') return;
   const frag=Math.round(d.floor);
   if(!(frag>0)) return;
-  r.priceTON=frag; r.fragFloor=frag;
+  r.priceTON=frag; r.fragFloor=frag; r.fragExact=!!d.exact;
   countUp('ptonNum', frag);   // via countUp so a running animation ends on the right number
   const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(frag);
-  // re-fit the Est. range around the new price
+  // re-fit the Est. range around the new price (tight when it's an exact live match)
   const sp=estSpread(r);
   const pr=document.getElementById('prange'); if(pr) pr.textContent='Est. '+fmtTON(Math.round(frag*(1-sp)))+'–'+fmtTON(Math.round(frag*(1+sp)))+' TON';
+  // bump confidence: an exact live listing is a fact -> show it as high
+  const cw=document.getElementById('confChipWrap'); if(cw) cw.innerHTML=confChipHTML(r);
   // discreet buy CTA -> collection page (not the exact lot), neutral label, no ref
   const box=document.getElementById('xmkt');
   if(box && d.slug){
@@ -2349,6 +2351,8 @@ function confChipHTML(r){ const c=confOf(r);
   return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
 /* honest estimate spread — wider for pricier / rarer / less-liquid assets */
 function estSpread(r){
+  // an exact live match on the market = a hard fact, not a guess -> tight band, high confidence
+  if(r&&r.fragExact) return 0.06;
   const p=r.priceTON;
   let s = p<80?0.14 : p<1500?0.18 : p<40000?0.30 : 0.45;
   if(r&&r.rarity&&r.rarity.oneIn){ s += Math.min(0.15, Math.log10(Math.max(1,r.rarity.oneIn))*0.03); }
@@ -2376,7 +2380,7 @@ function resultCardHTML(r){
       '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+'</div>'+
     '</div>'+
     '<div class="rbody">'+
-      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:'+tier.c+'"><span class="tier-badge"><span class="dot"></span>'+t(tier.k)+'</span>'+confChipHTML(r)+'</div>'+
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:'+tier.c+'"><span class="tier-badge"><span class="dot"></span>'+t(tier.k)+'</span><span id="confChipWrap">'+confChipHTML(r)+'</span></div>'+
       (r.rarity?'<div class="rarity-line"><span class="rrank" style="background:'+r.rarity.color+'1f;color:'+r.rarity.color+'"><span class="rd" style="background:'+r.rarity.color+'"></span>'+t(r.rarity.key)+'</span><span class="rone">'+t('rarityOneIn')+' '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')+'</span></div>':'')+
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
