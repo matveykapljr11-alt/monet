@@ -919,7 +919,7 @@ header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgb
   .mk-sheet{ max-width:600px; border-radius:26px }
 
   /* breathing room */
-  .hero-card{ aspect-ratio:2.3/1; min-height:230px }
+  .hero-card{ aspect-ratio:2.8/1; min-height:175px }
   /* catalogue scrolls inside its own bounded section so "Оценить" stays in view */
   .gift-grid{ grid-template-columns:repeat(4,1fr); max-height:360px }
   .pf-bankrow{ grid-template-columns:repeat(2,1fr) }
@@ -939,15 +939,21 @@ header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgb
 /* livelier active evaluate button */
 #evalBtn:not([disabled]){background:linear-gradient(180deg,#2E7D52,#1A4636);box-shadow:0 16px 34px -12px rgba(31,77,61,.6)}
 #evalBtn:not([disabled]):hover{background:linear-gradient(180deg,#287049,#163A2C)}
+#evalBtn[disabled]{opacity:1;background:#A6BCAB;color:rgba(255,255,255,.92);box-shadow:none}
 /* desktop: two-column evaluate (form left, result right) to fill the space */
+/* report-card placeholder shown on the right before evaluation (desktop 2-col) */
+.eval-ph{display:none}
+.eval-ph-ic{font-size:32px;opacity:.4}
+.eval-ph-t{font-family:var(--font-d);font-weight:600;font-size:16px;color:var(--txt-2)}
+.eval-ph-s{font-size:12.5px;color:var(--txt-3);font-weight:600;max-width:240px;line-height:1.5}
 @media (min-width:1340px){
   body[data-view="evaluate"] .wrap{ max-width:980px; margin-left:max(332px, calc((100% - 980px)/2)); margin-right:24px }
   #view-evaluate .hero-card{ max-width:600px }
-  #eval-single{ display:grid; grid-template-columns:minmax(0,440px) minmax(0,1fr); gap:22px; align-items:start }
+  #eval-single{ display:grid; grid-template-columns:minmax(0,440px) minmax(0,1fr); gap:22px; align-items:stretch }
   #eval-single .cats{ grid-column:1 / -1 }
-  #eval-single #result{ margin-top:0 }
-  #eval-single #result:empty{ min-height:340px; border:1.6px dashed var(--line-2); border-radius:24px; display:flex; align-items:center; justify-content:center }
-  #eval-single #result:empty::before{ content:"🔍"; font-size:38px; opacity:.35 }
+  #eval-single .panel{ align-self:stretch }
+  #eval-single #result{ margin-top:0; display:flex; flex-direction:column }
+  #eval-single .eval-ph{ display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; min-height:340px; border:1.6px dashed var(--line-2); border-radius:24px; padding:24px }
 }
 </style>
 </head>
@@ -2075,11 +2081,18 @@ function onCollectionChange(prefix){
   const sel=document.getElementById(prefix+'col'), f=document.getElementById(prefix+'floor');
   if(sel && f) f.style.display = sel.value==='other' ? '' : 'none';
 }
+function evalPlaceholder(){
+  const ru=S.lang==='ru';
+  return '<div class="eval-ph"><div class="eval-ph-ic">🔎</div>'+
+    '<div class="eval-ph-t">'+(ru?'Рыночный отчёт появится здесь':'Market report appears here')+'</div>'+
+    '<div class="eval-ph-s">'+(ru?'Оценка · Уверенность · Сравнимые · Портфель':'Estimate · Confidence · Comparables · Portfolio')+'</div></div>';
+}
 function buildEvaluateInput(){
   document.getElementById('inputField').innerHTML=inputHTML(curCat,'e_');
   const m=document.getElementById('e_main');
   if(m){ m.addEventListener('input', onInputChange); m.addEventListener('keydown',e=>{if(e.key==='Enter')doEvaluate();}); }
   if(curCat==='gifts'){ const col=document.getElementById('e_col'); loadGiftTraits('e_', giftColById(col?col.value:COLLECTIONS.gifts[0].id)); }
+  const res=document.getElementById('result'); if(res && !lastResult) res.innerHTML=evalPlaceholder();
   onInputChange();
 }
 function onInputChange(){
@@ -2796,7 +2809,7 @@ function rebuildAll(){
   updatePremiumUI();
   updateHeroRate();
 }
-function pickCat(id){ curCat=id; renderCatTabs('catTabs',curCat,pickCat); buildEvaluateInput(); document.getElementById('result').innerHTML=''; lastResult=null; }
+function pickCat(id){ curCat=id; lastResult=null; renderCatTabs('catTabs',curCat,pickCat); buildEvaluateInput(); document.getElementById('result').innerHTML=evalPlaceholder(); }
 function pickCatCmp(id){ curCatCmp=id; renderCatTabs('catTabsCmp',curCatCmp,pickCatCmp); buildCompareInputs(); document.getElementById('cmpResult').innerHTML=''; }
 function toggleTheme(){ S.theme=S.theme==='dark'?'light':'dark'; applyTheme(); save(); }
 function applyTheme(){ document.documentElement.dataset.theme=S.theme; const b=document.getElementById('themeBtn'); if(b) b.textContent=S.theme==='dark'?'☀️':'🌙'; }
