@@ -2244,7 +2244,7 @@ function applyGiftCross(r, d, hasTrait){
   const frag=Math.round(d.floor);
   if(!(frag>0)) return;
   r.priceTON=frag; r.fragFloor=frag;
-  const num=document.getElementById('ptonNum'); if(num) num.textContent=fmtTON(frag);
+  countUp('ptonNum', frag);   // via countUp so a running animation ends on the right number
   const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(frag);
   // re-fit the Est. range around the new price
   const sp=estSpread(r);
@@ -2395,8 +2395,13 @@ function resultCardHTML(r){
     '</div></div>';
 }
 function countUp(id, target){
-  const el=document.getElementById(id); if(!el) return; const dur=620, t0=performance.now();
-  const step=(now)=>{ const p=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-p,3); el.textContent=fmtTON(Math.round(target*e)); if(p<1) requestAnimationFrame(step); else el.textContent=fmtTON(target); };
+  const el=document.getElementById(id); if(!el) return;
+  el._ct=target;            // latest target — a running loop ends here (prevents stale overwrite)
+  if(el._ctRun) return;     // already animating; it will pick up the new target
+  el._ctRun=true; const dur=620, t0=performance.now();
+  const step=(now)=>{ const p=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-p,3);
+    el.textContent=fmtTON(Math.round(el._ct*e));
+    if(p<1) requestAnimationFrame(step); else { el.textContent=fmtTON(el._ct); el._ctRun=false; } };
   requestAnimationFrame(step);
 }
 function addEvalToPortfolio(){ if(lastResult && window.PF){ window.PF.addAsset({cat:lastResult.cat, display:lastResult.display, priceTON:lastResult.priceTON, qty:1}); } }
