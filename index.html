@@ -933,6 +933,22 @@ header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgb
   .wrap{ max-width:1140px }
   #view-market, #view-portfolio{ max-width:1000px; margin-left:auto; margin-right:auto }
 }
+/* confidence pill in the result */
+.conf-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-b);font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid currentColor}
+.conf-pill .cd{width:7px;height:7px;border-radius:50%;background:currentColor}
+/* livelier active evaluate button */
+#evalBtn:not([disabled]){background:linear-gradient(180deg,#2E7D52,#1A4636);box-shadow:0 16px 34px -12px rgba(31,77,61,.6)}
+#evalBtn:not([disabled]):hover{background:linear-gradient(180deg,#287049,#163A2C)}
+/* desktop: two-column evaluate (form left, result right) to fill the space */
+@media (min-width:1340px){
+  body[data-view="evaluate"] .wrap{ max-width:980px; margin-left:max(332px, calc((100% - 980px)/2)); margin-right:24px }
+  #view-evaluate .hero-card{ max-width:600px }
+  #eval-single{ display:grid; grid-template-columns:minmax(0,440px) minmax(0,1fr); gap:22px; align-items:start }
+  #eval-single .cats{ grid-column:1 / -1 }
+  #eval-single #result{ margin-top:0 }
+  #eval-single #result:empty{ min-height:340px; border:1.6px dashed var(--line-2); border-radius:24px; display:flex; align-items:center; justify-content:center }
+  #eval-single #result:empty::before{ content:"🔍"; font-size:38px; opacity:.35 }
+}
 </style>
 </head>
 <body data-view="evaluate">
@@ -962,7 +978,7 @@ header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgb
         <svg class="hero-wifi" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round"><path d="M8 7a8 8 0 0 1 0 10"/><path d="M12 4.5a12 12 0 0 1 0 15"/><path d="M16 2a16 16 0 0 1 0 20"/></svg>
       </div>
       <div class="hero-chip"><span></span><span></span><span></span></div>
-      <div class="hero-title" data-i18n="tagline"></div>
+      <div class="hero-title" data-i18n="heroPitch"></div>
       <div class="hero-foot">
         <span class="hero-sub" data-i18n="heroSub"></span>
         <span class="hero-rate" id="heroRate">1 TON ≈ $1.76</span>
@@ -1256,6 +1272,7 @@ function save(){ lsSet('monet', JSON.stringify(S)); }
 const I18N = {
 ru:{
   tagline:'оценочный дом · TON', heroSub:'Оценка по реальным сделкам Fragment · TON',
+  heroPitch:'Оценка · Рынок · Капитал · TON', confLabel:'Уверенность', confHigh:'высокая', confMid:'средняя', confLow:'низкая',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель',
   pfTitle:'Мой портфель', pfTotal:'Стоимость портфеля', pfEmpty:'Добавьте свои Telegram-активы и следите за их стоимостью',
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
@@ -1353,6 +1370,7 @@ ru:{
 },
 en:{
   tagline:'appraisal house · TON', heroSub:'Valued on real Fragment deals · TON',
+  heroPitch:'Appraise · Market · Capital · TON', confLabel:'Confidence', confHigh:'high', confMid:'medium', confLow:'low',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio',
   pfTitle:'My portfolio', pfTotal:'Portfolio value', pfEmpty:'Add your Telegram assets and track their value',
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
@@ -2198,6 +2216,13 @@ function sealSVG(){ const c='#E7CE92'; return '<svg class="seal-svg" viewBox="0 
   '<text font-family="Fraunces,serif" font-size="7.4" letter-spacing="1.7" fill="'+c+'"><textPath href="#sealc" startOffset="2%">·  MONET  ·  ОЦЕНОЧНЫЙ ДОМ  ·  EST. 2026  </textPath></text>'+
   '<path d="M39 61V43c0-1.7 2.1-2.5 3.1-1.1L50 52l7.9-10.1c1-1.4 3.1-.6 3.1 1.1v18" fill="none" stroke="'+c+'" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'+
   '<path d="M50 55.6l2.3 2.3-2.3 2.3-2.3-2.3z" fill="'+c+'"/></svg>'; }
+/* confidence from how tight the estimate is */
+function confOf(r){ const s=estSpread(r);
+  if(s<=0.20) return {k:'confHigh',c:'var(--good)'};
+  if(s<=0.32) return {k:'confMid',c:'var(--warn)'};
+  return {k:'confLow',c:'var(--bad)'}; }
+function confChipHTML(r){ const c=confOf(r);
+  return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
 /* honest estimate spread — wider for pricier / rarer / less-liquid assets */
 function estSpread(r){
   const p=r.priceTON;
@@ -2226,7 +2251,7 @@ function resultCardHTML(r){
       '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+'</div>'+
     '</div>'+
     '<div class="rbody">'+
-      '<div style="color:'+tier.c+'"><span class="tier-badge"><span class="dot"></span>'+t(tier.k)+'</span></div>'+
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:'+tier.c+'"><span class="tier-badge"><span class="dot"></span>'+t(tier.k)+'</span>'+confChipHTML(r)+'</div>'+
       (r.rarity?'<div class="rarity-line"><span class="rrank" style="background:'+r.rarity.color+'1f;color:'+r.rarity.color+'"><span class="rd" style="background:'+r.rarity.color+'"></span>'+t(r.rarity.key)+'</span><span class="rone">'+t('rarityOneIn')+' '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')+'</span></div>':'')+
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
