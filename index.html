@@ -2221,6 +2221,7 @@ async function loadGiftCross(r){
   const colEl=document.getElementById('e_col'); if(!colEl) return;
   const c=giftColById(colEl.value); if(!c||c.id==='other'||!c.slug) return;
   const m=selName('e_rmodel'), b=selName('e_rback'), p=selName('e_rpat');
+  const hasTrait=!!(m||b||p);
   let url=proxy.replace(/\/+$/,'')+'/?fragment='+encodeURIComponent(c.n);
   if(m)url+='&model='+encodeURIComponent(m);
   if(b)url+='&backdrop='+encodeURIComponent(b);
@@ -2231,11 +2232,15 @@ async function loadGiftCross(r){
     const d=await res.json();
     if(!d||!d.ok||!(d.floor>0)) return;
     if(lastResult!==r || r.ts!==stamp) return;   // user moved on
-    applyGiftCross(r, d);
+    applyGiftCross(r, d, hasTrait);
   }catch(e){}
 }
-function applyGiftCross(r, d){
-  // price by real Fragment deals (live floor for the exact collection + traits)
+function applyGiftCross(r, d, hasTrait){
+  // Fragment price is the real deal for THIS item only if it matched the item's
+  // traits. If traits were chosen but Fragment fell back to the collection floor
+  // (matchLevel 'collection'), it has no listing for this variation -> keep the
+  // trait-aware Portals estimate instead of under-valuing a rare item.
+  if(hasTrait && d.matchLevel==='collection') return;
   const frag=Math.round(d.floor);
   if(!(frag>0)) return;
   r.priceTON=frag; r.fragFloor=frag;
