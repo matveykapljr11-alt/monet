@@ -1608,7 +1608,7 @@ const COLLECTIONS = {
     {id:'hypnolollipop', n:'Hypno Lollipop', floor:0, ic:'🍭', slug:'hypnolollipop'},
     {id:'bdaycandle', n:'B-Day Candle', floor:0, ic:'🕯️', slug:'bdaycandle'},
     {id:'bunnymuffin', n:'Bunny Muffin', floor:0, ic:'🧁', slug:'bunnymuffin'},
-    {id:'astralshard', n:'Astral Shard', floor:680, ic:'💠', slug:'astralshard'},
+    {id:'astralshard', n:'Astral Shard', floor:70, ic:'💠', slug:'astralshard'},
     {id:'flyingbroom', n:'Flying Broom', floor:0, ic:'🧹', slug:'flyingbroom'},
     {id:'crystalball', n:'Crystal Ball', floor:0, ic:'🔮', slug:'crystalball'},
     {id:'eternalcandle', n:'Eternal Candle', floor:0, ic:'🕯️', slug:'eternalcandle'},
@@ -1689,7 +1689,7 @@ const COLLECTIONS = {
    свой URL в «Ещё → Live-флоры».
    Пример: const DEFAULT_PROXY='https://monet-proxy.ВАШ-САБДОМЕН.workers.dev';
    ============================================================ */
-const DEFAULT_PROXY = '';
+const DEFAULT_PROXY = 'https://monet-proxy.matvey-kapljr11.workers.dev';
 function proxyURL(){ return (S.floorProxy||'').trim() || DEFAULT_PROXY; }
 /* ===== AFFILIATE — твои реф-коды по площадкам. Заполни code; пусто = чистая ссылка. =====
    Каждая кнопка «купить»/площадка тегается, чтобы зарабатывать на приведённых сделках. */
@@ -1785,13 +1785,21 @@ function rerenderFloors(){
   try{ if(window.MK&&window.MK.refresh) window.MK.refresh(); }catch(e){}
 }
 async function refreshFloors(manual){
-  const url=proxyURL();
-  if(!url){ FLOORS_SRC=FLOORS_TS?'cache':'demo'; updateFloorBadge(); if(manual) openFloorCfg(); return; }
+  const base=proxyURL();
+  if(!base){ FLOORS_SRC=FLOORS_TS?'cache':'demo'; updateFloorBadge(); if(manual) openFloorCfg(); return; }
   if(manual) toast(t('flrLoading'));
   try{
-    const res=await fetch(url,{cache:'no-store'}); if(!res.ok) throw 0;
-    const {floors,counts,meta,sales}=parseFloors(await res.json());
+    // live floors endpoint: { ok, count, floors:{<shortname>:<TON>}, usdRate }
+    const fl=base.replace(/\/+$/,'')+'/?floors';
+    const res=await fetch(fl,{cache:'no-store'}); if(!res.ok) throw 0;
+    const j=await res.json();
+    const raw=(j&&j.floors&&typeof j.floors==='object')?j.floors:j;  // accept either shape
+    const {floors,counts,meta,sales}=parseFloors(raw);
     if(!Object.keys(floors).length) throw 0;
+    // Portals keys are shortnames (e.g. "astralshard"); mirror each onto the
+    // collection's full lowercased name so name-based lookups (gifts + Market) match.
+    COLLECTIONS.gifts.forEach(c=>{ const s=c.slug||String(c.n).toLowerCase().replace(/[^a-z0-9]/g,'');
+      if(floors[s]!=null) floors[String(c.n).toLowerCase()]=floors[s]; });
     FLOORS_LIVE=floors; FLOORS_COUNT=counts; FLOORS_SALE=sales||{}; NUMBERS_FLOOR=meta.numbersFloor||0; FLOORS_TS=Date.now(); FLOORS_SRC='live';
     updateFloorSnapshots(floors);
     try{ localStorage.setItem('monet_floors',JSON.stringify({map:floors,counts,meta,sales,ts:FLOORS_TS})); }catch(e){}
@@ -2846,7 +2854,7 @@ window.MK = (function(){
   const RAW = {
     gifts:[
       ['Plush Pepe','🐸',11000,2812,3.2,12.4],["Durov's Cap",'🧢',1150,1000,1.1,5.0],
-      ['Precious Peach','🍑',920,8000,-2.1,8.0],['Astral Shard','💠',680,5000,6.7,22.0],
+      ['Precious Peach','🍑',920,8000,-2.1,8.0],['Astral Shard','💠',70,5000,6.7,22.0],
       ['Ion Gem','💎',590,7000,2.0,9.0],['Signet Ring','💍',530,6000,4.5,18.0],
       ['Genie Lamp','🪔',470,8500,1.5,6.0],['Vintage Cigar','🚬',440,9000,-1.2,2.4],
       ['Scared Cat','🐱',410,13000,-3.4,-8.0],['Perfume Bottle','🧴',305,15000,0.4,-1.1],
