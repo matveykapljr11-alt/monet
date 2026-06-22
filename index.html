@@ -42,7 +42,7 @@
 -->
 <style>
 :root{
-  --ton:#1F4D3D; --ton-soft:#2E6B54; --gold:#C8A24B; --gold-soft:#D9BC77;
+  --ton:#1F4D3D; --ton-soft:#2E6B54; --gold:#C8A24B; --gold-soft:#D9BC77; --gold-2:#E7CE92; --hair-gold:rgba(200,162,75,.32);
   --bg:#DFE8D6; --bg2:#D1DCC5; --glow:rgba(31,77,61,.2);
   --surface:#EFF4E9; --surface-2:#DDE7D2;
   --line:#C9D7BD; --line-2:#B4C6A6;
@@ -71,8 +71,9 @@ html{overflow-x:hidden}
 body::before{
   content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
   background:
+    radial-gradient(680px 360px at 50% -12%, rgba(200,162,75,.12), transparent 62%),
     radial-gradient(900px 620px at 88% -10%, var(--glow), transparent 60%),
-    radial-gradient(760px 560px at 0% 108%, rgba(31,77,61,.08), transparent 60%);
+    radial-gradient(760px 560px at 0% 108%, rgba(31,77,61,.10), transparent 60%);
   transition:opacity .5s;
 }
 .wrap{max-width:680px; margin:0 auto; padding:14px 16px 130px; position:relative}
@@ -82,8 +83,8 @@ header{display:flex; align-items:center; gap:10px; padding:6px 2px 16px}
 .brand{display:flex; align-items:center; gap:11px; margin-right:auto; cursor:pointer; user-select:none}
 .logo{
   width:46px; height:46px; border-radius:15px; flex:none; position:relative;
-  background:linear-gradient(180deg,#226B4E 0%,#163A2C 100%);
-  box-shadow:0 8px 20px -8px rgba(20,45,30,.45);
+  background:linear-gradient(180deg,#1F6B4C 0%,#143A2C 100%);
+  box-shadow:0 8px 20px -8px rgba(20,45,30,.45), 0 0 0 1.5px rgba(200,162,75,.4);
   display:grid; place-items:center;
 }
 .logo svg{width:27px;height:27px}
@@ -124,8 +125,8 @@ header{display:flex; align-items:center; gap:10px; padding:6px 2px 16px}
 /* ---------- hero card (Plata payment card) ---------- */
 .hero-card{
   position:relative; overflow:hidden; border-radius:26px; padding:22px 24px 20px; margin-bottom:18px;
-  color:#fff; background:linear-gradient(180deg,#226B4E 0%,#163A2C 100%);
-  box-shadow:0 28px 56px -20px rgba(31,77,61,.6), inset 0 1px 0 rgba(255,255,255,.35);
+  color:#fff; background:linear-gradient(180deg,#1F6B4C 0%,#143A2C 100%);
+  box-shadow:0 28px 56px -20px rgba(31,77,61,.6), inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 1px rgba(231,206,146,.22);
   aspect-ratio:1.62/1; min-height:200px; display:flex; flex-direction:column;
 }
 .hero-card::after{content:""; position:absolute; right:-80px; top:-100px; width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.10)}
@@ -141,7 +142,7 @@ header{display:flex; align-items:center; gap:10px; padding:6px 2px 16px}
 .hero-title{position:relative; z-index:1; font-family:var(--font-d); font-weight:700; font-size:clamp(22px,6.4vw,30px); line-height:1.05; letter-spacing:-1px; margin-top:auto; max-width:90%}
 .hero-foot{position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px}
 .hero-sub{font-size:12px; font-weight:500; opacity:.9; flex:1; min-width:0}
-.hero-rate{font-family:var(--font-m); font-size:11px; font-weight:700; background:rgba(255,255,255,.22); padding:6px 12px; border-radius:999px; backdrop-filter:blur(6px); white-space:nowrap}
+.hero-rate{font-family:var(--font-m); font-size:11px; font-weight:700; background:rgba(255,255,255,.22); padding:6px 12px; border-radius:999px; backdrop-filter:blur(6px); white-space:nowrap; box-shadow:inset 0 0 0 1px rgba(231,206,146,.45)}
 
 /* ---------- category chips ---------- */
 .cats{display:flex; gap:8px; margin-bottom:16px}
@@ -152,7 +153,7 @@ header{display:flex; align-items:center; gap:10px; padding:6px 2px 16px}
 .cat .ic{font-size:16px; line-height:1; color:var(--ton); display:grid; place-items:center}
 .cat .cico{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; display:block}
 .cat .nm{font-size:12.5px; font-weight:600; color:var(--txt-2)}
-.cat.on{border-color:transparent; background:#1F4D3D; box-shadow:0 8px 18px -10px rgba(31,77,61,.45)}
+.cat.on{border-color:transparent; background:#1F4D3D; box-shadow:0 8px 18px -10px rgba(31,77,61,.45), inset 0 0 0 1px rgba(231,206,146,.32)}
 .cat.on .ic, .cat.on .nm{color:#fff}
 
 /* ---------- panel / glass ---------- */
@@ -228,7 +229,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .btn{
   width:100%; border:0; border-radius:999px; padding:18px; font-family:var(--font-d);
   font-weight:600; font-size:15px; cursor:pointer; color:#fff; letter-spacing:.3px;
-  background:#1F4D3D;
+  background:linear-gradient(180deg,#27795A 0%,#1F4D3D 100%);
   box-shadow:0 12px 26px -12px rgba(31,77,61,.55);
   transition:transform .18s ease, box-shadow .25s ease, background .2s;
 }
@@ -247,7 +248,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 .asset-disp{
   padding:26px 24px 28px; position:relative; overflow:hidden; color:#fff;
-  background:linear-gradient(180deg,#226B4E 0%,#163A2C 100%);
+  background:linear-gradient(180deg,#1F6B4C 0%,#143A2C 100%);
 }
 .asset-disp::after{content:""; position:absolute; right:-60px; top:-80px; width:230px; height:230px; border-radius:50%; background:rgba(255,255,255,.12)}
 .asset-disp .arow{display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1}
@@ -320,7 +321,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .cmp-vs{align-self:center;font-family:var(--font-d);font-weight:800;font-size:13px;color:var(--txt-3);flex:none}
 .cmp-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px}
 .cmp-col{border:1px solid var(--line); border-radius:22px; background:var(--surface-2); padding:18px 14px; text-align:center; animation:rise .5s; box-shadow:var(--shadow)}
-.cmp-col.win{border-color:transparent; color:#fff; background:linear-gradient(180deg,#226B4E 0%,#163A2C 100%); box-shadow:0 20px 40px -18px rgba(31,77,61,.6)}
+.cmp-col.win{border-color:transparent; color:#fff; background:linear-gradient(180deg,#1F6B4C 0%,#143A2C 100%); box-shadow:0 20px 40px -18px rgba(31,77,61,.6)}
 .cmp-col .ca{font-family:var(--font-d); font-weight:700; font-size:18px; word-break:break-all; color:var(--txt)}
 .cmp-col.win .ca{color:#fff}
 .cmp-col .cp{font-family:var(--font-d); font-weight:700; font-size:22px; color:var(--ton); margin-top:10px; letter-spacing:-.5px}
@@ -331,7 +332,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 
 /* ---------- game ---------- */
 .g-hero{text-align:center;padding:6px 4px 18px}
-.g-hero-ic{width:64px;height:64px;border-radius:20px;margin:0 auto 13px;display:grid;place-items:center;font-size:32px;background:linear-gradient(180deg,#226B4E,#163A2C);box-shadow:0 16px 32px -14px rgba(31,77,61,.6)}
+.g-hero-ic{width:64px;height:64px;border-radius:20px;margin:0 auto 13px;display:grid;place-items:center;font-size:32px;background:linear-gradient(180deg,#1F6B4C,#163A2C);box-shadow:0 16px 32px -14px rgba(31,77,61,.6)}
 .g-hero h2{font-family:var(--font-d);font-weight:800;font-size:23px;margin:0 0 6px;letter-spacing:-.5px}
 .g-hero p{color:var(--txt-2);font-size:13.5px;font-weight:500;margin:0 auto;max-width:320px;line-height:1.5}
 .g-modes{display:flex;flex-direction:column;gap:11px;margin-bottom:14px}
@@ -349,14 +350,14 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .g-timer{flex:1;height:12px;border-radius:999px;background:var(--bg2);overflow:hidden}
 .g-timer i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#2E6B54,#163A2C);transition:width .25s linear}
 .g-score{font-family:var(--font-d);font-weight:800;font-size:20px;color:var(--txt);white-space:nowrap;min-width:42px;text-align:right}
-.g-q{position:relative;overflow:hidden;text-align:center;padding:28px 18px;border-radius:22px;background:linear-gradient(180deg,#226B4E,#163A2C);color:#fff;margin-bottom:14px;box-shadow:0 22px 44px -20px rgba(31,77,61,.55)}
+.g-q{position:relative;overflow:hidden;text-align:center;padding:28px 18px;border-radius:22px;background:linear-gradient(180deg,#1F6B4C,#163A2C);color:#fff;margin-bottom:14px;box-shadow:0 22px 44px -20px rgba(31,77,61,.55)}
 .g-q .sheen{position:absolute;inset:0;background:linear-gradient(115deg,transparent,rgba(255,255,255,.18) 45%,transparent 62%);pointer-events:none}
 .g-q .qc{position:relative;z-index:1;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.85}
 .g-q .qa{position:relative;z-index:1;font-family:var(--font-d);font-weight:800;font-size:clamp(26px,8vw,40px);letter-spacing:-1px;word-break:break-all;margin-top:8px;line-height:1.05}
 .g-q .qask{position:relative;z-index:1;font-size:13px;font-weight:600;opacity:.9;margin-top:12px}
 .g-fb{text-align:center;min-height:24px;font-weight:800;font-size:15px;margin-top:12px;color:var(--txt-2)}
 .g-fb.up{color:var(--up)} .g-fb.down{color:var(--down)}
-.g-over-card{position:relative;overflow:hidden;text-align:center;background:linear-gradient(180deg,#226B4E,#163A2C);color:#fff;border-radius:24px;padding:30px 20px;box-shadow:0 26px 52px -22px rgba(31,77,61,.55);margin-bottom:14px}
+.g-over-card{position:relative;overflow:hidden;text-align:center;background:linear-gradient(180deg,#1F6B4C,#163A2C);color:#fff;border-radius:24px;padding:30px 20px;box-shadow:0 26px 52px -22px rgba(31,77,61,.55);margin-bottom:14px}
 .g-over-card .sheen{position:absolute;inset:0;background:linear-gradient(115deg,transparent,rgba(255,255,255,.16) 45%,transparent 62%);pointer-events:none}
 .g-over-card .lbl{position:relative;z-index:1;font-size:11px;font-weight:800;opacity:.85;text-transform:uppercase;letter-spacing:.6px}
 .g-over-card .big{position:relative;z-index:1;font-family:var(--font-d);font-weight:800;font-size:60px;line-height:1;margin-top:6px;letter-spacing:-2px}
@@ -463,14 +464,14 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .subseg button.on{background:var(--surface-2);color:var(--ton);box-shadow:0 4px 12px -6px rgba(31,77,61,.3)}
 
 /* ---------- portfolio ---------- */
-.pf-hero{position:relative;overflow:hidden;border-radius:26px;padding:24px;margin-bottom:16px;color:#fff;background:linear-gradient(180deg,#226B4E,#163A2C);box-shadow:0 26px 56px -22px rgba(31,77,61,.55)}
+.pf-hero{position:relative;overflow:hidden;border-radius:26px;padding:24px;margin-bottom:16px;color:#fff;background:linear-gradient(180deg,#1F6B4C,#163A2C);box-shadow:0 26px 56px -22px rgba(31,77,61,.55)}
 .pf-hero::after{content:"";position:absolute;right:-70px;top:-90px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.10)}
 .pf-hero .lbl{position:relative;z-index:1;font-size:12px;font-weight:700;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
 .pf-hero .tot{position:relative;z-index:1;font-family:var(--font-d);font-weight:800;font-size:clamp(34px,11vw,52px);letter-spacing:-1.5px;line-height:1;margin-top:8px}
 .pf-hero .fiat{position:relative;z-index:1;font-size:15px;font-weight:600;opacity:.92;margin-top:6px}
 .pf-hero .chg{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:rgba(255,255,255,.2);padding:6px 12px;border-radius:999px;font-weight:800;font-size:13px;backdrop-filter:blur(6px)}
 .pf-chart{position:relative;z-index:1;margin-top:16px}
-.pf-sec-h{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 12px}
+.pf-sec-h{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 12px;padding-bottom:10px;border-bottom:1px solid var(--hair-gold)}
 .pf-sec-h b{font-family:var(--font-d);font-weight:700;font-size:16px}
 .pf-addbtn{border:0;background:var(--ton);color:#fff;font-family:var(--font-b);font-weight:700;font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer;box-shadow:0 8px 18px -8px rgba(31,77,61,.5)}
 .pf-empty{text-align:center;padding:40px 20px;background:var(--surface-2);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
@@ -539,7 +540,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .dr-profile .pstar{width:13px;height:13px;fill:#fff;stroke:none}
 .tbadge{width:15px;height:15px;vertical-align:-3px;display:inline-block;flex:none;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.28))}
 .tbadge.big{width:18px;height:18px;vertical-align:-4px}
-.dr-sec{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--txt-3);margin:0 4px 11px;opacity:.85}
+.dr-sec{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);margin:0 4px 11px;opacity:.95}
 .dr-card{background:var(--surface-2);border:1px solid var(--line);border-radius:20px;box-shadow:0 16px 40px -22px rgba(120,60,20,.3),0 2px 6px -2px rgba(120,60,20,.08);overflow:hidden;margin-bottom:22px}
 .dr-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:transparent;padding:15px 16px;cursor:pointer;font-family:var(--font-b);transition:background .15s}
 .dr-item:not(:last-child){box-shadow:inset 0 -1px 0 var(--line)}
@@ -633,7 +634,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .wz-cur b{font-weight:800;font-size:15px;color:var(--txt)}
 .wz-cur svg{width:15px;height:15px;stroke:var(--txt-3);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .wz-swapwrap{display:flex;justify-content:center;margin:-15px 0 9px;position:relative;z-index:2}
-.wz-swap{display:grid;place-items:center;border:4px solid var(--bg);background:linear-gradient(180deg,#226B4E,#163A2C);color:#fff;width:50px;height:50px;border-radius:50%;cursor:pointer;box-shadow:0 12px 24px -10px rgba(31,77,61,.6)}
+.wz-swap{display:grid;place-items:center;border:4px solid var(--bg);background:linear-gradient(180deg,#1F6B4C,#163A2C);color:#fff;width:50px;height:50px;border-radius:50%;cursor:pointer;box-shadow:0 12px 24px -10px rgba(31,77,61,.6)}
 .wz-swap svg{width:21px;height:21px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .wz-swap:active{transform:scale(.9)}
 .wz-pick{position:absolute;inset:0;background:var(--bg);border-radius:22px;z-index:5;display:none;flex-direction:column;padding:4px 2px}
@@ -983,17 +984,18 @@ header{border-bottom:0;background:none}
 @keyframes onbdrift1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,30px)}}
 @keyframes onbdrift2{0%,100%{transform:translate(0,0)}50%{transform:translate(-44px,-26px)}}
 @keyframes onbdrift3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.25)}}
-.onb-fl{position:absolute;border-radius:50%;display:grid;place-items:center;box-shadow:0 18px 40px -12px rgba(0,0,0,.6),0 0 30px rgba(255,255,255,.14),inset 0 2px 6px rgba(255,255,255,.4),inset 0 -8px 14px rgba(0,0,0,.28);animation:onbfloat 6s ease-in-out infinite,onbpop .6s cubic-bezier(.2,1.2,.3,1) both;will-change:transform;z-index:2}
+.onb-fl{position:absolute;border-radius:28%;display:grid;place-items:center;box-shadow:0 18px 40px -12px rgba(0,0,0,.6),0 0 24px rgba(255,255,255,.1),inset 0 2px 6px rgba(255,255,255,.4),inset 0 -8px 14px rgba(0,0,0,.28);animation:onbfloat 6s ease-in-out infinite,onbpop .55s cubic-bezier(.2,.78,.25,1) both;will-change:transform;z-index:2}
 .onb-fl span{filter:drop-shadow(0 3px 5px rgba(0,0,0,.45))}
+.onb-fl .gimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:28%}
 .onb-fl.back{z-index:1;opacity:.5;filter:blur(2px)}
-.onb-pill{position:absolute;display:flex;align-items:center;gap:6px;padding:9px 13px;border-radius:14px;font-family:var(--font-b);font-weight:800;font-size:13.5px;color:#fff;white-space:nowrap;background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.05));backdrop-filter:blur(8px);box-shadow:0 14px 30px -12px rgba(0,0,0,.55),0 0 26px rgba(255,255,255,.12),inset 0 0 0 1px rgba(255,255,255,.18);animation:onbfloat 6s ease-in-out infinite,onbpop .6s cubic-bezier(.2,1.2,.3,1) both;z-index:2}
+.onb-pill{position:absolute;display:flex;align-items:center;gap:6px;padding:9px 13px;border-radius:14px;font-family:var(--font-b);font-weight:800;font-size:13.5px;color:#fff;white-space:nowrap;background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.05));backdrop-filter:blur(8px);box-shadow:0 14px 30px -12px rgba(0,0,0,.55),0 0 26px rgba(255,255,255,.12),inset 0 0 0 1px rgba(255,255,255,.18);animation:onbfloat 6s ease-in-out infinite,onbpop .55s cubic-bezier(.2,.78,.25,1) both;z-index:2}
 .onb-pill.back{z-index:1;opacity:.5;filter:blur(2px)}
 .onb-pill.num{background:linear-gradient(180deg,rgba(46,168,124,.32),rgba(46,168,124,.12));box-shadow:0 14px 30px -12px rgba(0,0,0,.55),0 0 26px rgba(46,168,124,.4),inset 0 0 0 1px rgba(155,233,196,.45)}
 .onb-pill .pu{letter-spacing:.2px}
 .onb-pill .p8{font-size:10px;font-weight:900;letter-spacing:.4px;color:#9be9c4}
 .onb-pill .pn{font-variant-numeric:tabular-nums;letter-spacing:1px}
 @keyframes onbfloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-16px) rotate(4deg)}}
-@keyframes onbpop{0%{opacity:0;transform:scale(.4)}100%{opacity:1;transform:scale(1)}}
+@keyframes onbpop{0%{opacity:0;transform:scale(.64)}100%{opacity:1;transform:scale(1)}}
 .onb-ring{position:absolute;top:50%;left:50%;width:280px;height:280px;border-radius:50%;transform:translate(-50%,-50%);z-index:1;background:conic-gradient(from 0deg, rgba(255,255,255,0),rgba(255,255,255,.28),rgba(255,255,255,0) 40%);filter:blur(6px);opacity:.6;animation:onbspin 9s linear infinite}
 @keyframes onbspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 .onb-center{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 24px;z-index:3;animation:onbrise .5s ease both}
@@ -1015,18 +1017,42 @@ header{border-bottom:0;background:none}
 .onb-nw .v{font-family:var(--font-d);font-weight:700;font-size:34px;letter-spacing:-1px;margin-top:4px}
 .onb-nw .t{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;background:rgba(255,255,255,.18);padding:5px 12px;border-radius:999px}
 .onb-cl{font-size:14px;font-weight:700;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);padding:7px 16px;border-radius:999px;backdrop-filter:blur(6px)}
-.onb-cap{position:relative;z-index:3;padding:24px 28px 8px;background:linear-gradient(180deg,rgba(12,23,17,0),#0C1711 34%)}
-.onb-cap h2{font-family:var(--font-d);font-weight:700;font-size:30px;letter-spacing:-.8px;margin:0 0 8px;line-height:1.06}
-.onb-cap p{margin:0;color:rgba(255,255,255,.66);font-size:15.5px;line-height:1.5;font-weight:500;max-width:360px}
-.onb-ctl{background:#0C1711;padding:8px 22px calc(20px + env(safe-area-inset-bottom))}
-.onb-dots{display:flex;gap:7px;justify-content:center;margin-bottom:16px}
-.onb-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.26);transition:.25s}
-.onb-dot.on{background:#fff;width:24px;border-radius:99px}
-.onb-row{display:flex;gap:12px}
-.onb-btn{flex:1;border:0;border-radius:999px;padding:17px;font-family:var(--font-d);font-weight:600;font-size:16px;cursor:pointer;transition:transform .15s}
-.onb-btn:active{transform:scale(.97)}
-.onb-btn.pri{background:linear-gradient(180deg,#349168,#1F6B4C);color:#fff;box-shadow:0 16px 34px -14px rgba(46,125,82,.9)}
-.onb-btn.gho{background:rgba(255,255,255,.09);color:#fff}
+.onb-mcard{width:252px;max-width:80vw;cursor:pointer;animation:onbpulse 3.4s ease-in-out infinite}
+.onb-mcard:active{transform:scale(.98)}
+.onb-mcard .mcard{aspect-ratio:auto;height:auto;transform:none}
+.onb-mcard .mface{position:relative;inset:auto}
+.onb-card{position:relative;width:268px;height:170px;border-radius:20px;padding:17px 20px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;overflow:hidden;background:linear-gradient(135deg,#23744F 0%,#134A35 52%,#0E3527 100%);box-shadow:0 32px 60px -22px rgba(0,0,0,.72),0 0 54px rgba(46,125,82,.5),inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(231,206,146,.3);animation:onbpulse 3.4s ease-in-out infinite}
+.onb-card::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 32%,rgba(255,255,255,.18) 48%,transparent 62%);background-size:240% 100%;animation:onbshine 5s linear infinite;pointer-events:none}
+@keyframes onbshine{0%{background-position:240% 0}100%{background-position:-240% 0}}
+.onb-card::after{content:"";position:absolute;right:-34px;bottom:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(231,206,146,.18),transparent 70%);pointer-events:none}
+.onb-card .cardtop{display:flex;align-items:flex-start;justify-content:space-between;z-index:2}
+.onb-card .wm{font-family:var(--font-d);font-weight:700;font-size:19px;letter-spacing:.4px;line-height:1}
+.onb-card .wm span{color:#E7CE92}
+.onb-card .net{margin-top:3px;font-size:8.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,255,255,.68)}
+.onb-card .chip{width:36px;height:27px;border-radius:6px;background:linear-gradient(135deg,#F1DEA4,#C49A3C);box-shadow:inset 0 0 0 1px rgba(0,0,0,.22);position:relative}
+.onb-card .chip::after{content:"";position:absolute;inset:5px 5px;border-radius:3px;background:linear-gradient(90deg,transparent 44%,rgba(0,0,0,.28) 46%,rgba(0,0,0,.28) 54%,transparent 56%),linear-gradient(0deg,transparent 30%,rgba(0,0,0,.28) 46%,rgba(0,0,0,.28) 54%,transparent 70%)}
+.onb-card .bal{z-index:2}
+.onb-card .bal .l{font-size:8.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.onb-card .bal .v{font-family:var(--font-d);font-weight:700;font-size:31px;letter-spacing:-.5px;line-height:1.04}
+.onb-card .bal .v .u{font-size:.46em;color:#E7CE92;margin-left:5px;font-family:var(--font-b);font-weight:700}
+.onb-card .cardbot{display:flex;align-items:flex-end;justify-content:space-between;z-index:2}
+.onb-card .hold{font-family:var(--font-b);font-weight:700;font-size:13.5px;letter-spacing:.6px}
+.onb-card .tier{font-size:10.5px;font-weight:800;background:linear-gradient(180deg,#EFDDA4,#C9A659);color:#3A2A08;padding:4px 12px;border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+.onb-cap{position:relative;z-index:3;padding:26px 30px 6px;background:linear-gradient(180deg,rgba(12,23,17,0),#0C1711 40%)}
+.onb-kicker{font-family:var(--font-b);font-weight:700;font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:rgba(231,206,146,.74);margin:0 0 13px;display:flex;align-items:center;gap:9px;animation:onbcapin .55s .04s ease both}
+.onb-kicker::after{content:"";flex:0 0 22px;height:1px;background:linear-gradient(90deg,rgba(231,206,146,.6),transparent)}
+.onb-cap h2{font-family:var(--font-d);font-weight:600;font-size:29px;letter-spacing:-.5px;margin:0 0 9px;line-height:1.1;color:#fff;animation:onbcapin .55s .1s ease both}
+.onb-cap p{margin:0;color:rgba(255,255,255,.58);font-size:15px;line-height:1.56;font-weight:400;max-width:330px;animation:onbcapin .55s .16s ease both}
+@keyframes onbcapin{0%{opacity:0;transform:translateY(9px)}100%{opacity:1;transform:translateY(0)}}
+.onb-ctl{background:#0C1711;padding:10px 22px calc(22px + env(safe-area-inset-bottom))}
+.onb-dots{display:flex;gap:6px;justify-content:center;margin-bottom:18px}
+.onb-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.22);transition:.3s cubic-bezier(.2,.8,.2,1)}
+.onb-dot.on{background:#E7CE92;width:22px;border-radius:99px;box-shadow:0 0 12px rgba(231,206,146,.5)}
+.onb-row{display:flex;gap:10px}
+.onb-btn{flex:1;border:0;border-radius:15px;padding:16px;font-family:var(--font-d);font-weight:600;font-size:16px;letter-spacing:.1px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+.onb-btn:active{transform:scale(.975)}
+.onb-btn.pri{flex:1.4;background:linear-gradient(180deg,#35966B,#1E6849);color:#fff;box-shadow:0 14px 30px -14px rgba(46,125,82,.95),inset 0 1px 0 rgba(255,255,255,.22)}
+.onb-btn.gho{background:rgba(255,255,255,.05);color:rgba(255,255,255,.9);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
 </style>
 </head>
 <body data-view="evaluate">
@@ -1117,7 +1143,7 @@ header{border-bottom:0;background:none}
     <div class="mk-movers" id="mk-movers"></div>
     <div class="mkt-listhead"><span id="mk-listcount"></span><span class="mkt-listlbl" id="mk-sortlbl"></span></div>
     <div class="mc-ledger" id="mk-list"></div>
-    <p class="mk-foot" data-i18n="mkFoot">Подарки — live через твой Tonnel-прокси (floor, листинги, 24ч). Ники и номера — демо-порядки величин. Не оферта.</p>
+    <p class="mk-foot" data-i18n="mkFoot">Подарки — live с рынка (флор, листинги, 24ч). Ники и номера — демо-порядки величин. Не оферта.</p>
   </section>
 
   <section id="view-portfolio" class="hidden"></section>
@@ -1143,9 +1169,6 @@ header{border-bottom:0;background:none}
   <div class="card-wrap" id="card-wrap"></div>
 </div>
 
-<div class="mk-scrim" id="flr-scrim" onclick="if(event.target===this)closeFloorCfg()">
-  <div class="mk-sheet" id="flr-sheet"></div>
-</div>
 
 <div class="mk-scrim" id="vf-scrim" onclick="if(event.target===this)VF.close()">
   <div class="mk-sheet" id="vf-sheet"></div>
@@ -1219,7 +1242,6 @@ header{border-bottom:0;background:none}
       <button class="dr-item dr-deskhide" onclick="closeDrawer();BANK.openCard()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18M7 14.5h3"/></svg></span><b data-i18n="myCard"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="dr-item dr-deskhide" onclick="closeDrawer();setView('converter')"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v15M7 19l-3-3.5M7 19l3-3.5M17 20V5M17 5l-3 3.5M17 5l3 3.5"/></svg></span><b data-i18n="conv"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="dr-item dr-deskhide" onclick="closeDrawer();setView('game')"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.2"/></svg></span><b data-i18n="navGame"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-      <button class="dr-item" onclick="closeDrawer();openFloorCfg()"><span class="qic g4"><svg class="ico" viewBox="0 0 24 24"><path d="M5 13a14 14 0 0 1 14 0M8 16.5a9 9 0 0 1 8 0M12 20h.01M2 9.5a20 20 0 0 1 20 0"/></svg></span><b data-i18n="flrCfgTitle"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="dr-item" onclick="closeDrawer();openNotifyCfg()"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><b data-i18n="ntfTitle"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
     <div class="dr-sec" data-i18n="drSettings"></div>
@@ -1423,9 +1445,6 @@ ru:{
   flrLive:'live-флоры', flrDemo:'демо-флоры', flrCache:'из кэша',
   flrNow:'только что', flrMin:' мин', flrHr:' ч', flrDay:' дн',
   flrLoading:'Обновляю флоры…', flrOk:'Флоры обновлены: {n}', flrErr:'Не удалось обновить флоры',
-  flrCfgTitle:'Live-флоры', flrCfgHint:'Вставь URL своего прокси (Cloudflare Worker), который отдаёт флоры Tonnel. Без него — демо-цены.',
-  flrCfgSave:'Сохранить и обновить', flrCfgRefresh:'Обновить сейчас',
-  flrCfgNote:'Прокси нужен из-за CORS и приватного authData Tonnel. Ожидаемый ответ: JSON-карта {"Plush Pepe": 11000, …} или ответ filterStats Tonnel. Кэш хранится локально 6 ч.',
   compsTitle:'Сравнимые на Fragment', compsLoading:'Ищу похожие объявления…', compsAds:'объявл.', compsMedian:'медиана',
   compsNone:'Похожих объявлений на продаже не нашлось', compsErr:'Не удалось получить данные Fragment',
   compsNote:'Ориентир по похожим никам на продаже (Fragment). Не точная цена — у каждого ника своя ценность.',
@@ -1433,16 +1452,16 @@ ru:{
   vfOpen:'Найти вариацию · где дешевле',
   mgiTitle:'Monet Gift Index', mgiH:'ч', mgiCols:'коллекций', mgiListed:'на продаже',
   mkHeld:'В портфеле', mkPcs:'шт', mkAddMore:'Добавить ещё',
-  ntfTitle:'Уведомления', ntfSub:'ежедневный дайджест', ntfDesc:'Раз в день бот пришлёт в Telegram, как изменился твой капитал и Monet Gift Index. Чтобы заходить и не пропускать движения рынка.', ntfToggle:'Ежедневный дайджест', ntfToggleSub:'капитал + индекс, раз в сутки', ntfOn:'Дайджест включён', ntfOff:'Дайджест выключен', ntfNoProxy:'Сначала подключи прокси в «Live-флоры»', ntfNoTg:'Открой приложение через Telegram', ntfErr:'Не удалось сохранить', ntfNote:'Нужен задеплоенный воркер с ботом (BOT_TOKEN + KV + cron). Портфель синхронизируется автоматически.',
+  ntfTitle:'Уведомления', ntfSub:'ежедневный дайджест', ntfDesc:'Раз в день бот пришлёт в Telegram, как изменился твой капитал и Monet Gift Index. Чтобы заходить и не пропускать движения рынка.', ntfToggle:'Ежедневный дайджест', ntfToggleSub:'капитал + индекс, раз в сутки', ntfOn:'Дайджест включён', ntfOff:'Дайджест выключен', ntfNoProxy:'Live-данные рынка недоступны', ntfNoTg:'Открой приложение через Telegram', ntfErr:'Не удалось сохранить', ntfNote:'Нужен задеплоенный воркер с ботом (BOT_TOKEN + KV + cron). Портфель синхронизируется автоматически.',
   mkPillGifts:'Подарки', mkPillU:'Ники', mkPillN:'Номера', mkSearchPh:'Поиск по каталогу…',
   sortCap:'По капитализации', sortFloor:'По флору', sort24:'По 24ч', sort7:'По 7д', sortVol:'По объёму',
-  mkFoot:'Подарки — live через твой Tonnel-прокси (floor, листинги, 24ч). Ники и номера — демо-порядки. Не оферта.',
+  mkFoot:'Подарки — live с рынка (флор, листинги, 24ч). Ники и номера — демо-порядки. Не оферта.',
   moverUp:'Лидер роста', moverDown:'Лидер падения', mkOnSale:'на продаже', mkUType:'username', mkNType:'+888 номер',
   mkColls:'коллекций', mkPositions:'позиций', mkEmpty:'Ничего не найдено',
   mktEbGifts:'Floor-репорт', mktEbU:'Каталог · ники', mktEbN:'Каталог · номера',
   kvCap:'Капитализация', kvVol24:'Объём 24ч', kvSupply:'Предложение', kvOnSale:'На продаже', kvHolders:'Холдеры', kvAth:'ATH (оцен.)', kvTicker:'Тикер', kvValue:'Оценка', kvType:'Тип', kvMint:'Тираж',
   sheetSubColl:'Коллекция', numFloorName:'+888 …… (флор)', mkHeldTip:'в портфеле',
-  lotsTitle:'На рынке сейчас', lotsBuy:'купить', lotCheapest:'дешевле всех', lotsEmpty:'Активных лотов нет', lotsLoading:'Загружаю лоты…', lotsNoProxy:'Подключи прокси в «Live-флоры»', lotsErr:'Не удалось загрузить'
+  lotsTitle:'На рынке сейчас', lotsBuy:'купить', lotCheapest:'дешевле всех', lotsEmpty:'Активных лотов нет', lotsLoading:'Загружаю лоты…', lotsNoProxy:'Live-лоты временно недоступны', lotsErr:'Не удалось загрузить'
 },
 en:{
   tagline:'appraisal house · TON', heroSub:'Valued on real market deals · TON',
@@ -1520,9 +1539,6 @@ en:{
   flrLive:'live floors', flrDemo:'demo floors', flrCache:'cached',
   flrNow:'just now', flrMin:'m', flrHr:'h', flrDay:'d',
   flrLoading:'Refreshing floors…', flrOk:'Floors updated: {n}', flrErr:'Couldn’t refresh floors',
-  flrCfgTitle:'Live floors', flrCfgHint:'Paste your proxy URL (Cloudflare Worker) that serves Tonnel floors. Without it — demo prices.',
-  flrCfgSave:'Save & refresh', flrCfgRefresh:'Refresh now',
-  flrCfgNote:'A proxy is needed due to CORS and Tonnel’s private authData. Expected response: a JSON map {"Plush Pepe": 11000, …} or a Tonnel filterStats payload. Cache is kept locally for 6h.',
   compsTitle:'Comparable on Fragment', compsLoading:'Finding similar listings…', compsAds:'ads', compsMedian:'median',
   compsNone:'No similar listings on sale', compsErr:'Couldn’t fetch Fragment data',
   compsNote:'Orientation from similar usernames on sale (Fragment). Not an exact price — each handle has its own value.',
@@ -1530,16 +1546,16 @@ en:{
   vfOpen:'Find variation · where cheapest',
   mgiTitle:'Monet Gift Index', mgiH:'h', mgiCols:'collections', mgiListed:'on sale',
   mkHeld:'In portfolio', mkPcs:'pcs', mkAddMore:'Add one more',
-  ntfTitle:'Notifications', ntfSub:'daily digest', ntfDesc:'Once a day the bot pings you on Telegram with how your capital and the Monet Gift Index moved. So you come back and never miss the market.', ntfToggle:'Daily digest', ntfToggleSub:'capital + index, once a day', ntfOn:'Digest on', ntfOff:'Digest off', ntfNoProxy:'Connect a proxy in “Live floors” first', ntfNoTg:'Open the app via Telegram', ntfErr:'Couldn’t save', ntfNote:'Requires a deployed worker with a bot (BOT_TOKEN + KV + cron). Your portfolio syncs automatically.',
+  ntfTitle:'Notifications', ntfSub:'daily digest', ntfDesc:'Once a day the bot pings you on Telegram with how your capital and the Monet Gift Index moved. So you come back and never miss the market.', ntfToggle:'Daily digest', ntfToggleSub:'capital + index, once a day', ntfOn:'Digest on', ntfOff:'Digest off', ntfNoProxy:'Live market data unavailable', ntfNoTg:'Open the app via Telegram', ntfErr:'Couldn’t save', ntfNote:'Requires a deployed worker with a bot (BOT_TOKEN + KV + cron). Your portfolio syncs automatically.',
   mkPillGifts:'Gifts', mkPillU:'Usernames', mkPillN:'Numbers', mkSearchPh:'Search the catalogue…',
   sortCap:'By market cap', sortFloor:'By floor', sort24:'By 24h', sort7:'By 7d', sortVol:'By volume',
-  mkFoot:'Gifts — live via your Tonnel proxy (floor, listings, 24h). Usernames & numbers — demo magnitudes. Not an offer.',
+  mkFoot:'Gifts — live from the market (floor, listings, 24h). Usernames & numbers — demo magnitudes. Not an offer.',
   moverUp:'Top gainer', moverDown:'Top loser', mkOnSale:'on sale', mkUType:'username', mkNType:'+888 number',
   mkColls:'collections', mkPositions:'items', mkEmpty:'Nothing found',
   mktEbGifts:'Floor report', mktEbU:'Catalogue · usernames', mktEbN:'Catalogue · numbers',
   kvCap:'Market cap', kvVol24:'24h volume', kvSupply:'Supply', kvOnSale:'On sale', kvHolders:'Holders', kvAth:'ATH (est.)', kvTicker:'Ticker', kvValue:'Estimate', kvType:'Type', kvMint:'Mint',
   sheetSubColl:'Collection', numFloorName:'+888 …… (floor)', mkHeldTip:'in portfolio',
-  lotsTitle:'On the market now', lotsBuy:'buy', lotCheapest:'cheapest', lotsEmpty:'No active listings', lotsLoading:'Loading listings…', lotsNoProxy:'Connect the proxy in “Live floors”', lotsErr:'Couldn’t load'
+  lotsTitle:'On the market now', lotsBuy:'buy', lotCheapest:'cheapest', lotsEmpty:'No active listings', lotsLoading:'Loading listings…', lotsNoProxy:'Live listings unavailable', lotsErr:'Couldn’t load'
 }};
 function t(k){ return I18N[S.lang][k] !== undefined ? I18N[S.lang][k] : k; }
 
@@ -1756,8 +1772,7 @@ const COLLECTIONS = {
    ВСТРОЕННЫЙ ПРОКСИ — вставь сюда URL своего задеплоенного
    Cloudflare Worker (tonnel-floor-proxy.js). Тогда ВСЕ пользователи
    получают live-флоры / листинги / last-sold СРАЗУ, без настройки.
-   Пусто = демо-режим (как раньше). Пользователь может переопределить
-   свой URL в «Ещё → Live-флоры».
+   Пусто = демо-режим. Прокси встроен, настройка пользователю не нужна.
    Пример: const DEFAULT_PROXY='https://monet-proxy.ВАШ-САБДОМЕН.workers.dev';
    ============================================================ */
 const DEFAULT_PROXY = 'https://monet-proxy.matvey-kapljr11.workers.dev';
@@ -1857,7 +1872,7 @@ function rerenderFloors(){
 }
 async function refreshFloors(manual){
   const base=proxyURL();
-  if(!base){ FLOORS_SRC=FLOORS_TS?'cache':'demo'; updateFloorBadge(); if(manual) openFloorCfg(); return; }
+  if(!base){ FLOORS_SRC=FLOORS_TS?'cache':'demo'; updateFloorBadge(); return; }
   if(manual) toast(t('flrLoading'));
   try{
     // live floors endpoint: { ok, count, floors:{<shortname>:<TON>}, usdRate }
@@ -1879,21 +1894,6 @@ async function refreshFloors(manual){
     if(manual) toast(t('flrOk').replace('{n}',n));
   }catch(e){ FLOORS_SRC=FLOORS_TS?'cache':'demo'; updateFloorBadge(); if(manual) toast(t('flrErr')); }
 }
-function openFloorCfg(){
-  const cur=escapeHTML(S.floorProxy||'');
-  const srcTxt=FLOORS_SRC==='live'?t('flrLive'):(FLOORS_SRC==='cache'?t('flrCache'):t('flrDemo'));
-  const ago=FLOORS_TS?(' · '+fmtAgo(FLOORS_TS)):'';
-  const cnt=Object.keys(FLOORS_LIVE).length;
-  document.getElementById('flr-sheet').innerHTML=
-    '<div class="mk-sheet-h"><div class="ic">📡</div><div class="nm"><b>'+t('flrCfgTitle')+'</b><span>'+srcTxt+ago+(cnt?(' · '+cnt):'')+'</span></div><button class="x" onclick="closeFloorCfg()">✕</button></div>'+
-    '<div class="hint dim" style="margin:14px 2px 8px">'+t('flrCfgHint')+'</div>'+
-    '<input class="big" id="flrProxyInput" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="https://your-worker.workers.dev" value="'+cur+'" style="margin-bottom:12px">'+
-    '<button class="btn" style="width:100%" onclick="saveFloorProxy()">'+t('flrCfgSave')+'</button>'+
-    '<button class="btn ghost" style="width:100%;margin-top:9px" onclick="refreshFloors(true)">'+t('flrCfgRefresh')+'</button>'+
-    '<div class="hint dim" style="margin:14px 2px 0;line-height:1.5">'+t('flrCfgNote')+'</div>';
-  document.getElementById('flr-scrim').classList.add('open');
-}
-function closeFloorCfg(){ document.getElementById('flr-scrim').classList.remove('open'); }
 function openNotifyCfg(){
   const hasTg=!!(tg&&tg.initData); const hasProxy=!!proxyURL(); const on=!!S.notify;
   let warn='';
@@ -1922,7 +1922,6 @@ async function syncNotify(manual){
     if(manual) toast(S.notify? t('ntfOn') : t('ntfOff'));
   }catch(e){ if(manual) toast(t('ntfErr')); }
 }
-function saveFloorProxy(){ const el=document.getElementById('flrProxyInput'); if(el){ S.floorProxy=(el.value||'').trim(); save(); } closeFloorCfg(); refreshFloors(true); }
 const GIFT_GRADS=['linear-gradient(135deg,#E7F0DA,#CFE2BC)','linear-gradient(135deg,#EAF1DC,#D3E3B9)','linear-gradient(135deg,#E2EFD8,#C6DDB4)','linear-gradient(135deg,#EDF2DF,#D8E6C2)','linear-gradient(135deg,#E5F0D6,#CADEB2)','linear-gradient(135deg,#E9F1DE,#D0E2C0)'];
 function giftGrad(i){ return GIFT_GRADS[i%GIFT_GRADS.length]; }
 function giftColById(id){ return COLLECTIONS.gifts.find(c=>c.id===id)||COLLECTIONS.gifts[0]; }
@@ -3722,7 +3721,7 @@ window.VF = (function(){
       '<div class="mk-lots" id="vf-lots" style="margin-top:14px"></div>';
     lookup(); }
   function lookup(){ const box=document.getElementById('vf-lots'); if(!box) return; const url=proxyURL(); const my=++reqId;
-    if(!url){ box.innerHTML='<div class="lots-h">'+(RU()?'На рынке сейчас':'On the market')+'</div><div class="lots-note">'+(RU()?'Подключи прокси в «Live-флоры», чтобы видеть живые листинги по площадкам.':'Connect the proxy in “Live floors” to see live cross-market listings.')+'</div>'; return; }
+    if(!url){ box.innerHTML='<div class="lots-h">'+(RU()?'На рынке сейчас':'On the market')+'</div><div class="lots-note">'+(RU()?'Живые листинги по площадкам временно недоступны.':'Live cross-market listings are temporarily unavailable.')+'</div>'; return; }
     box.innerHTML='<div class="lots-h">'+(RU()?'Ищу листинги…':'Finding listings…')+'</div>';
     fetch(url+(url.includes('?')?'&':'?')+'listings='+encodeURIComponent(cur)+'&n=8').then(r=>r.json()).then(d=>{ if(my!==reqId) return;
       let items=(d&&Array.isArray(d.items))?d.items:[]; if(!items.length){ box.innerHTML='<div class="lots-h">'+(RU()?'На рынке сейчас':'On the market')+'</div><div class="lots-note">'+(RU()?'Активных листингов нет':'No active listings')+'</div>'; return; }
@@ -3745,12 +3744,13 @@ window.VF = (function(){
 window.ONB = (function(){
   let i=0; const N=4;
   // denser, varied scatter — gifts + usernames + +888 numbers
-  const POS=[ {t:'3%',l:'5%',s:70,d:0,b:0},{t:'6%',l:'60%',s:60,d:.5,b:0},{t:'17%',l:'85%',s:52,d:1.1,b:1},
-    {t:'23%',l:'-3%',s:58,d:.3,b:1},{t:'39%',l:'81%',s:64,d:1.4,b:0},{t:'45%',l:'2%',s:54,d:1.8,b:0},
-    {t:'11%',l:'32%',s:46,d:.9,b:1},{t:'57%',l:'72%',s:50,d:1.0,b:0},{t:'63%',l:'12%',s:58,d:2.2,b:0},
-    {t:'33%',l:'41%',s:40,d:2.4,b:1},{t:'73%',l:'48%',s:48,d:1.3,b:1},{t:'52%',l:'52%',s:38,d:.7,b:1} ];
+  const POS=[ {t:'4%',l:'6%',s:56,d:0,b:0},{t:'7%',l:'58%',s:46,d:.5,b:0},{t:'15%',l:'83%',s:52,d:1.0,b:0},
+    {t:'30%',l:'-4%',s:44,d:.3,b:1},{t:'33%',l:'86%',s:42,d:1.3,b:1},{t:'53%',l:'3%',s:52,d:1.7,b:0},
+    {t:'57%',l:'83%',s:48,d:1.0,b:0},{t:'9%',l:'32%',s:36,d:.9,b:1},{t:'71%',l:'12%',s:48,d:1.4,b:0},
+    {t:'73%',l:'70%',s:44,d:1.1,b:0},{t:'80%',l:'42%',s:36,d:2.0,b:1},{t:'23%',l:'68%',s:34,d:2.3,b:1} ];
   function coin(it,p,k){ const fs=Math.round(p.s*0.5);
-    return '<div class="onb-fl'+(p.b?' back':'')+'" style="top:'+p.t+';left:'+p.l+';width:'+p.s+'px;height:'+p.s+'px;background:radial-gradient(circle at 35% 28%, '+it.c+', '+it.c+'cc 60%, '+it.c+'88);animation-delay:'+p.d+'s,'+(k*0.06)+'s"><span style="font-size:'+fs+'px;line-height:1">'+it.e+'</span></div>'; }
+    const img = it.img ? '<img class="gimg" src="'+it.img+'" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="this.remove()">' : '';
+    return '<div class="onb-fl'+(p.b?' back':'')+'" style="top:'+p.t+';left:'+p.l+';width:'+p.s+'px;height:'+p.s+'px;background:radial-gradient(circle at 35% 28%, '+it.c+', '+it.c+'cc 60%, '+it.c+'88);animation-delay:'+p.d+'s,'+(k*0.06)+'s"><span style="font-size:'+fs+'px;line-height:1">'+it.e+'</span>'+img+'</div>'; }
   function pill(it,p,k){ const cls=p.b?' back':'';
     const inner = it.k==='u' ? '<span class="pu">'+it.t+'</span>'
       : '<span class="p8">+888</span><span class="pn">'+it.t+'</span>';
@@ -3758,7 +3758,9 @@ window.ONB = (function(){
   function floaters(list){ return list.map((it,k)=>{ const p=POS[k%POS.length];
     return it.k==='g' ? coin(it,p,k) : pill(it,p,k); }).join(''); }
   function decor(c1,c2,c3){ return '<div class="onb-blob onb-b1" style="background:'+c1+'"></div><div class="onb-blob onb-b2" style="background:'+c2+'"></div><div class="onb-blob onb-b3" style="background:'+c3+'"></div>'; }
-  const G=(e,c)=>({k:'g',e,c}), U=(t)=>({k:'u',t}), Nm=(t)=>({k:'n',t});
+  const FSLUG={'🧸':'toybear','🎩':'tophat','💎':'astralshard','🌹':'eternalrose','🔮':'magicpotion','💍':'signetring','👑':'durovscap','🦋':'lootbag','🪙':'swisswatch','🪅':'genielamp'};
+  const FIMG=(e)=>{ const s=FSLUG[e]; return s?('https://nft.fragment.com/gift/'+s+'-1.medium.jpg'):''; };
+  const G=(e,c)=>({k:'g',e,c,img:FIMG(e)}), U=(t)=>({k:'u',t}), Nm=(t)=>({k:'n',t});
   function heroes(ru){ return [
     '<div class="onb-logo">'+sealSVG()+'</div><div class="onb-cl">'+(ru?'оценщик активов Telegram':'Telegram asset appraiser')+'</div>',
     '<div class="onb-badge">≈ 165<span class="u">TON</span></div>',
@@ -3766,21 +3768,21 @@ window.ONB = (function(){
     '<div class="onb-nw"><div class="l">'+(ru?'Твой капитал':'Net worth')+'</div><div class="v">12 480 <span style="font-size:.5em;opacity:.8">TON</span></div><div class="t">🥇 Elite</div></div>'
   ]; }
   function slides(){ const ru=S.lang==='ru'; const H=heroes(ru); return [
-    {bg:'s0', dc:['#43A87C','#2E7D5E','#7FE0B4'], hero:H[0],
+    {bg:'s0', kr:(ru?'01 · ОЦЕНОЧНЫЙ ДОМ':'01 · APPRAISAL HOUSE'), dc:['#43A87C','#2E7D5E','#7FE0B4'], hero:H[0],
       fl:[G('🧸','#E86FA6'),U('@durov'),G('💎','#6B8BE8'),Nm('0142'),G('🌹','#E05670'),G('👑','#D9A441'),U('@nft'),G('🔮','#A06BE8'),G('🦋','#3FA9C2'),Nm('8888'),G('🪅','#E07FB0'),U('@gift')],
       t:ru?'Добро пожаловать в Monet':'Welcome to Monet', s:ru?'Оценивай подарки, юзернеймы и +888-номера Telegram по реальной цене.':'Appraise Telegram gifts, usernames and +888 numbers at real value.'},
-    {bg:'s1', dc:['#D9A441','#C8A24B','#F0D27A'], hero:H[1],
+    {bg:'s1', kr:(ru?'02 · ОЦЕНКА':'02 · APPRAISAL'), dc:['#D9A441','#C8A24B','#F0D27A'], hero:H[1],
       fl:[G('💎','#6B8BE8'),G('💍','#D9A441'),U('@whale'),G('🔮','#A06BE8'),Nm('0007'),G('🧸','#E86FA6'),G('🎩','#46B27E'),U('@crypto'),G('🪙','#D9A441'),G('🌹','#E05670'),Nm('1337'),G('👑','#D9A441')],
-      t:ru?'Оценка за секунды':'Instant appraisal', s:ru?'Выбери предмет и трейты — стоимость считается по реальным сделкам Fragment.':'Pick an item and traits — value comes from real Fragment deals.'},
-    {bg:'s2', dc:['#2F9EA8','#2F7E86','#7FD8E0'], hero:H[2],
+      t:ru?'Оценка за секунды':'Instant appraisal', s:ru?'Выбери предмет и трейты — стоимость считается по реальным сделкам рынка.':'Pick an item and traits — value comes from real market deals.'},
+    {bg:'s2', kr:(ru?'03 · РЫНОК':'03 · MARKET'), dc:['#2F9EA8','#2F7E86','#7FD8E0'], hero:H[2],
       fl:[G('🦋','#3FA9C2'),G('💎','#6B8BE8'),U('@durov'),G('🌹','#E05670'),Nm('0142'),G('🎩','#46B27E'),G('🪅','#E07FB0'),U('@monet'),G('🔮','#A06BE8'),G('🪙','#D9A441'),Nm('8888'),G('🧸','#E86FA6')],
       t:ru?'Дешевле всего по рынку':'Cheapest across markets', s:ru?'Сравниваем площадки и показываем, где купить выгоднее — со ссылкой на сделку.':'We compare markets and show where it is cheapest — with a link to buy.'},
-    {bg:'s3', dc:['#43A87C','#3A7D63','#7FE0B4'], hero:H[3],
+    {bg:'s3', kr:(ru?'04 · КАПИТАЛ':'04 · CAPITAL'), dc:['#43A87C','#3A7D63','#7FE0B4'], hero:H[3],
       fl:[G('👑','#D9A441'),G('🧸','#E86FA6'),U('@durov'),G('🪙','#D9A441'),Nm('0007'),G('💎','#6B8BE8'),G('🦋','#3FA9C2'),U('@nft'),G('🌹','#E05670'),G('🎩','#46B27E'),Nm('1337'),G('🔮','#A06BE8')],
       t:ru?'Твой Telegram-капитал':'Your Telegram net worth', s:ru?'Собери портфель активов и следи за капиталом, статусом и целью.':'Build a portfolio and track your capital, status and goals.'}
   ]; }
   function render(){ const ru=S.lang==='ru'; const sl=slides(); const last=i===N-1;
-    const cards=sl.map(s=>'<div class="onb-slide '+s.bg+'"><div class="onb-stage"><div class="onb-bg"></div>'+decor(s.dc[0],s.dc[1],s.dc[2])+'<div class="onb-stars"></div><div class="onb-ring"></div>'+floaters(s.fl)+'<div class="onb-center">'+s.hero+'</div></div><div class="onb-cap"><h2>'+s.t+'</h2><p>'+s.s+'</p></div></div>').join('');
+    const cards=sl.map(s=>'<div class="onb-slide '+s.bg+'"><div class="onb-stage"><div class="onb-bg"></div>'+decor(s.dc[0],s.dc[1],s.dc[2])+'<div class="onb-stars"></div><div class="onb-ring"></div>'+floaters(s.fl)+'<div class="onb-center">'+s.hero+'</div></div><div class="onb-cap"><div class="onb-kicker">'+s.kr+'</div><h2>'+s.t+'</h2><p>'+s.s+'</p></div></div>').join('');
     const dots=sl.map((_,k)=>'<span class="onb-dot'+(k===i?' on':'')+'"></span>').join('');
     const back=i>0?'<button class="onb-btn gho" onclick="ONB.goto('+(i-1)+')">'+(ru?'Назад':'Back')+'</button>':'';
     document.getElementById('onb').innerHTML=
@@ -3798,8 +3800,9 @@ window.ONB = (function(){
   function open(){ i=0; const el=document.getElementById('onb'); if(!el) return; el.style.display='flex'; render(); }
   function next(){ if(i<N-1){ i++; render(); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} } else finish(); }
   function goto(k){ i=Math.max(0,Math.min(N-1,k)); render(); }
-  function finish(){ S.onboarded=true; S.onbVer=3; save(); const el=document.getElementById('onb'); if(!el)return; el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; el.style.opacity=''; },350); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('medium');}catch(e){}} }
-  return { open, next, goto, finish };
+  function openRealCard(){ try{finish();}catch(e){} setTimeout(function(){ try{ if(window.BANK) BANK.openCard(); }catch(e){} },400); }
+  function finish(){ S.onboarded=true; S.onbVer=13; save(); const el=document.getElementById('onb'); if(!el)return; el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; el.style.opacity=''; },350); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('medium');}catch(e){}} }
+  return { open, next, goto, finish, openRealCard };
 })();
 function initTelegram(){
   if(!tg) return;
@@ -3837,7 +3840,7 @@ function init(){
   initTelegram();
   refreshRate();
   updateFloorBadge(); refreshFloors(false);
-  if(window.ONB && (S.onbVer||0) < 3) ONB.open();   // first-launch onboarding (once)
+  if(window.ONB && (S.onbVer||0) < 13) ONB.open();   // first-launch onboarding (once)
 }
 init();
 </script>
