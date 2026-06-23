@@ -109,6 +109,11 @@ header{display:flex; align-items:center; gap:10px; padding:6px 2px 16px}
   font-size:12px; font-weight:700; padding:0 11px; cursor:pointer; transition:.2s;
 }
 .lang-toggle button.on{background:var(--ton); color:#fff}
+/* ===== banking: aligned tabular figures + clean ledger numerals ===== */
+body{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1,"lnum" 1}
+.mc-price,.mc-deltas .mk-delta,.mk-delta,.mk-stat .v,.mk-stat .d,.hero-rate,.price-range,.mc-sub,.pf-ins .v,.mk-mover .v{font-family:var(--font-m)!important;font-variant-numeric:tabular-nums}
+.mc-price{font-weight:700!important;letter-spacing:0!important}
+.mk-stat .v{font-weight:800!important;letter-spacing:-.2px!important}
 
 /* ---------- main nav ---------- */
 .mainnav{
