@@ -260,6 +260,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .asset-disp .price-ton{font-family:var(--font-d); font-weight:700; font-size:clamp(38px,12vw,60px); color:#fff; letter-spacing:-2px; line-height:1; margin-top:22px; position:relative; z-index:1}
 .asset-disp .price-ton .u{font-size:.32em; color:rgba(255,255,255,.85); margin-left:8px; letter-spacing:0; font-weight:600}
 .price-fiat{display:flex; align-items:center; gap:10px; margin-top:12px; position:relative; z-index:1}
+.price-stars{margin-top:6px; font-family:var(--font-m); font-weight:700; font-size:12.5px; color:var(--txt-3); position:relative; z-index:1}
 .price-range{position:relative;z-index:1;font-size:12px;font-weight:600;color:rgba(255,255,255,.82);margin-top:6px}
 .act.portf{color:var(--ton)}
 .price-fiat .v{font-family:var(--font-m); font-size:15px; color:rgba(255,255,255,.95); font-weight:700}
@@ -445,7 +446,42 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
   border:1px solid var(--line); border-radius:30px;
   box-shadow:0 20px 46px -18px rgba(31,77,61,.30), 0 6px 16px -10px rgba(40,20,0,.18);
 }
-[data-theme="dark"] .tabbar{background:rgba(255,255,255,.9)}
+/* ===== dark green theme — dark shell, paper cards ===== */
+[data-theme="dark"]{background:#0C1711}
+[data-theme="dark"] body{background:transparent!important;color:#EAF1EC}
+[data-theme="dark"]{
+  --surface:#163A26; --surface-2:#122C1E;
+  --bg:#0F2417; --bg2:#173320;
+  --line:#284A37; --line-2:#365C45;
+  --txt:#EAF1EC; --txt-2:#B4C7BB; --txt-3:#86A091;
+  --glow:rgba(46,125,82,.26);
+  --good:#46B07E; --bad:#E27063; --up:#46B07E; --down:#E27063; --warn:#E7CE92;
+  --up-bg:rgba(70,176,126,.16); --down-bg:rgba(226,112,99,.16);
+  --shadow:0 26px 60px -30px rgba(0,0,0,.6), 0 8px 20px -12px rgba(0,0,0,.45);
+}
+[data-theme="dark"] .wz-row.soft{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .cur-toggle button.on,[data-theme="dark"] .pf-crange button.on{background:#E7CE92;color:#143A2C}
+[data-theme="dark"] input,[data-theme="dark"] textarea{color:var(--txt)}
+[data-theme="dark"] ::placeholder{color:rgba(180,199,187,.6)}
+[data-theme="dark"]{background:radial-gradient(125% 85% at 50% -8%, #2E7D5E 0%, #1C4632 44%, #0C1711 100%)!important;background-attachment:fixed!important}
+[data-theme="dark"] body::before{background:radial-gradient(680px 380px at 50% -12%, rgba(200,162,75,.16), transparent 62%),radial-gradient(900px 620px at 88% -8%, rgba(46,125,82,.28), transparent 60%),radial-gradient(760px 560px at 0% 110%, rgba(20,58,44,.5), transparent 60%)}
+[data-theme="dark"] .brand-txt h1{color:#F4EFE3}
+[data-theme="dark"] .brand-txt p{color:rgba(231,237,228,.6)}
+[data-theme="dark"] .hbtn{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14);color:#EAF1EC}
+[data-theme="dark"] .subseg{background:rgba(255,255,255,.06)}
+[data-theme="dark"] .subseg button{color:rgba(231,237,228,.7)}
+[data-theme="dark"] .subseg button.on{background:rgba(255,255,255,.12);color:#fff}
+[data-theme="dark"] .pf-sec-h b{color:#EAF1EC}
+[data-theme="dark"] .pf-sec-h{border-bottom-color:rgba(231,206,146,.28)}
+[data-theme="dark"] .mk-foot{color:rgba(231,237,228,.55)}
+[data-theme="dark"] .tabbar{background:rgba(16,38,28,.86);border-color:rgba(231,206,146,.18);box-shadow:0 20px 46px -18px rgba(0,0,0,.6)}
+[data-theme="dark"] .tab{color:rgba(231,237,228,.65)}
+[data-theme="dark"] .tab.on{background:linear-gradient(180deg,#27795A,#1F4D3D);color:#fff}
+[data-theme="dark"] .drawer{background:#0E2419;border-left-color:rgba(231,206,146,.18)}
+[data-theme="dark"] .drawer-head h2{color:#F4EFE3}
+[data-theme="dark"] .drawer-head .hbtn{color:#EAF1EC}
+[data-theme="dark"] .dtabs button{color:rgba(231,237,228,.7)}
+[data-theme="dark"] .evp-pulse{color:rgba(231,237,228,.55)}
 .tab{
   flex:1; border:0; background:transparent; cursor:pointer; color:var(--txt-3);
   display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 2px;
@@ -945,15 +981,30 @@ header{border-bottom:0;background:none}
 .conf-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-b);font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid currentColor}
 .conf-pill .cd{width:7px;height:7px;border-radius:50%;background:currentColor}
 /* livelier active evaluate button */
-#evalBtn:not([disabled]){background:linear-gradient(180deg,#2E7D52,#1A4636);box-shadow:0 16px 34px -12px rgba(31,77,61,.6)}
-#evalBtn:not([disabled]):hover{background:linear-gradient(180deg,#287049,#163A2C)}
-#evalBtn[disabled]{opacity:1;background:#A6BCAB;color:rgba(255,255,255,.92);box-shadow:none}
+#evalBtn:not([disabled]){background:linear-gradient(180deg,#1F6B4C,#143A2C);box-shadow:0 16px 34px -12px rgba(31,77,61,.6), inset 0 0 0 1px rgba(231,206,146,.28)}
+#evalBtn:not([disabled]):hover{background:linear-gradient(180deg,#23734F,#102E22)}
+#evalBtn[disabled]{opacity:1;background:#CAD7CD;color:rgba(255,255,255,.9);box-shadow:none}
 /* desktop: two-column evaluate (form left, result right) to fill the space */
 /* report-card placeholder shown on the right before evaluation (desktop 2-col) */
 .eval-ph{display:none}
 .eval-ph-ic{font-size:32px;opacity:.4}
 .eval-ph-t{font-family:var(--font-d);font-weight:600;font-size:16px;color:var(--txt-2)}
 .eval-ph-s{font-size:12.5px;color:var(--txt-3);font-weight:600;max-width:240px;line-height:1.5}
+.evp-badge{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;font-size:25px;background:linear-gradient(180deg,#1F6B4C,#143A2C);color:#fff;box-shadow:0 14px 28px -14px rgba(31,77,61,.6), inset 0 0 0 1px rgba(231,206,146,.3)}
+.evp-t{font-family:var(--font-d);font-weight:700;font-size:20px;letter-spacing:-.4px;color:var(--txt)}
+.evp-s{font-size:13.5px;color:var(--txt-2);font-weight:500;max-width:300px;line-height:1.55}
+.evp-ex{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:4px}
+.evp-chip{border:1px solid var(--line-2);background:var(--surface-2);color:var(--txt);font-family:var(--font-m);font-weight:700;font-size:13px;padding:9px 14px;border-radius:999px;cursor:pointer;transition:.18s}
+.evp-chip:hover{border-color:var(--ton-soft);color:var(--ton);box-shadow:0 8px 18px -10px rgba(31,77,61,.4);transform:translateY(-1px)}
+.evp-foot{margin-top:6px;font-family:var(--font-b);font-weight:800;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.why-line{margin:14px 2px 2px;font-size:13.5px;line-height:1.55;color:var(--txt-2)}
+.why-line .wl{font-weight:800;color:var(--txt)}
+.cert-specs{margin:2px 0 0;border-top:1px solid var(--hair-gold);border-bottom:1px solid var(--hair-gold)}
+.cs-row{display:flex;align-items:center;justify-content:space-between;padding:10px 2px;border-bottom:1px solid var(--line)}
+.cs-row:last-child{border-bottom:0}
+.cs-l{font-family:var(--font-b);font-weight:800;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3)}
+.cs-v{font-family:var(--font-d);font-weight:700;font-size:15.5px;color:var(--txt)}
+.evp-pulse{margin-top:2px;font-family:var(--font-m);font-size:11.5px;font-weight:700;color:var(--txt-3)}
 @media (min-width:1340px){
   body[data-view="evaluate"] .wrap{ max-width:980px; margin-left:max(332px, calc((100% - 980px)/2)); margin-right:24px }
   #view-evaluate .hero-card{ max-width:600px }
@@ -961,7 +1012,7 @@ header{border-bottom:0;background:none}
   #eval-single .cats{ grid-column:1 / -1 }
   #eval-single .panel{ align-self:stretch }
   #eval-single #result{ margin-top:0; display:flex; flex-direction:column }
-  #eval-single .eval-ph{ display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; min-height:340px; border:1.6px dashed var(--line-2); border-radius:24px; padding:24px }
+  #eval-single .eval-ph{ display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:13px; min-height:340px; border:1px solid var(--line); border-radius:24px; padding:34px 26px; background:var(--surface); box-shadow:var(--shadow) }
 }
 /* ---------- onboarding (first launch, immersive Portals-style) ---------- */
 .onb-scrim{position:fixed;inset:0;z-index:90;background:#0C1711;display:flex;flex-direction:column;overflow:hidden;color:#fff;transition:opacity .35s}
@@ -1056,7 +1107,7 @@ header{border-bottom:0;background:none}
 </style>
 </head>
 <body data-view="evaluate">
-<script>(function(){try{var L='#E7EDE3';document.documentElement.style.setProperty('background',L,'important');var b=document.body;if(b)b.style.setProperty('background',L,'important');}catch(e){}})();</script>
+<script>(function(){try{var t='dark';try{var r=localStorage.getItem('monet');if(r){var o=JSON.parse(r);if(o&&o.themeSet&&o.theme)t=o.theme;}}catch(e){}try{document.documentElement.setAttribute('data-theme',t);}catch(e){}var dk=(t==='dark');var G='radial-gradient(125% 85% at 50% -8%, #2E7D5E 0%, #1C4632 44%, #0C1711 100%)';var de=document.documentElement;de.style.setProperty('background', dk?G:'#E7EDE3','important');de.style.setProperty('background-attachment','fixed','important');var b=document.body;if(b)b.style.setProperty('background', dk?'transparent':'#E7EDE3','important');}catch(e){}})();</script>
 <div class="wrap">
   <header>
     <div class="brand" onclick="goHome()">
@@ -1254,6 +1305,14 @@ header{border-bottom:0;background:none}
           <button id="langEn" onclick="setLang('en')">EN</button>
         </div>
       </div>
+      <div class="dr-item dr-row">
+        <span class="qic g4"><svg class="ico" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></span>
+        <b data-i18n="drTheme"></b>
+        <div class="lang-toggle">
+          <button id="themeLight" onclick="setTheme('light')" data-i18n="thLight">Светлая</button>
+          <button id="themeDark" onclick="setTheme('dark')" data-i18n="thDark">Тёмная</button>
+        </div>
+      </div>
     </div>
     <div class="dr-sec" data-i18n="drLists"></div>
   </div>
@@ -1289,6 +1348,7 @@ header{border-bottom:0;background:none}
 ======================================================================== */
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 const RATE = { usd: 1.76, eur: 1.63 };           // TON -> fiat (calibrated May 2026; refreshed at runtime)
+const STAR_USD = 0.013;                          // ~USD value of one Telegram Star (reference)
 const FX_LABEL = { usd:'$', eur:'€' };
 // Converter currencies (value bridged through TON). flag + symbol + name.
 const CURRENCIES = [
@@ -1345,7 +1405,7 @@ function tierBadge(idx,cls){ idx=idx||0;
 recomputeFX();
 
 const DEFAULTS = {
-  lang: 'ru', theme: 'light', currency: 'usd', premium: false,
+  lang: 'ru', theme: 'dark', themeSet: false, currency: 'usd', premium: false,
   history: [], favorites: [], dail: { date:'', count:0 },
   best: { fun:0, chal:0 }, portfolio: [], pfHistory: [], hideBalance:false, goal:0,
   points:0, streak:0, lastSeen:'', cardName:'', floorProxy:'', notify:false, onboarded:false, onbVer:0
@@ -1369,7 +1429,7 @@ function save(){ lsSet('monet', JSON.stringify(S)); }
 const I18N = {
 ru:{
   tagline:'оценочный дом · TON', heroSub:'Оценка по реальным сделкам · TON',
-  heroPitch:'Оценка · Рынок · Капитал · TON', confLabel:'Уверенность', confHigh:'высокая', confMid:'средняя', confLow:'низкая',
+  heroPitch:'Оценка · Рынок · Капитал · TON', confLabel:'Уверенность', confHigh:'высокая', confMid:'средняя', confLow:'низкая', estLabel:'Ориентир', liqLabel:'Ликвидность', liqLow:'низкая', liqMid:'средняя', liqHigh:'высокая', whyLabel:'Почему', tierLabel:'Категория',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель',
   pfTitle:'Мой портфель', pfTotal:'Стоимость портфеля', pfEmpty:'Добавьте свои Telegram-активы и следите за их стоимостью',
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
@@ -1419,7 +1479,7 @@ ru:{
   fSerialRound:'Красивый №', fRarityHigh:'Высокая редкость', fRarityMid:'Средняя редкость',
   fBackdrop:'Редкий фон', fPattern:'Редкий узор', fModel:'Редкая модель', fAttrCap:'Сглаживание редкости',
   fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка',
-  drawerTitle:'Меню', tabHistory:'История', tabFav:'Мои', tabTop:'Топ', drActions:'Действия', drLists:'Списки', drSettings:'Настройки', drLanguage:'Язык',
+  drawerTitle:'Меню', tabHistory:'История', tabFav:'Мои', tabTop:'Топ', drActions:'Действия', drLists:'Списки', drSettings:'Настройки', drLanguage:'Язык', drTheme:'Тема', thLight:'Светлая', thDark:'Тёмная',
   emptyHistory:'Здесь появятся ваши оценки', emptyFav:'Добавьте оценки в избранное звёздочкой',
   lockedHistory:'История ограничена 3 записями. 👑 Premium — без лимитов',
   lockedFav:'Избранное ограничено 3 записями. 👑 Premium — без лимитов',
@@ -1465,7 +1525,7 @@ ru:{
 },
 en:{
   tagline:'appraisal house · TON', heroSub:'Valued on real market deals · TON',
-  heroPitch:'Appraise · Market · Capital · TON', confLabel:'Confidence', confHigh:'high', confMid:'medium', confLow:'low',
+  heroPitch:'Appraise · Market · Capital · TON', confLabel:'Confidence', confHigh:'high', confMid:'medium', confLow:'low', estLabel:'Range', liqLabel:'Liquidity', liqLow:'low', liqMid:'medium', liqHigh:'high', whyLabel:'Why', tierLabel:'Tier',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio',
   pfTitle:'My portfolio', pfTotal:'Portfolio value', pfEmpty:'Add your Telegram assets and track their value',
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
@@ -1514,7 +1574,7 @@ en:{
   fSerialRound:'Beautiful #', fRarityHigh:'High rarity', fRarityMid:'Medium rarity',
   fBackdrop:'Rare backdrop', fPattern:'Rare pattern', fModel:'Rare model', fAttrCap:'Rarity smoothing',
   fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration',
-  drawerTitle:'Menu', tabHistory:'History', tabFav:'Mine', tabTop:'Top', drActions:'Actions', drLists:'Lists', drSettings:'Settings', drLanguage:'Language',
+  drawerTitle:'Menu', tabHistory:'History', tabFav:'Mine', tabTop:'Top', drActions:'Actions', drLists:'Lists', drSettings:'Settings', drLanguage:'Language', drTheme:'Theme', thLight:'Light', thDark:'Dark',
   emptyHistory:'Your evaluations will appear here', emptyFav:'Star evaluations to save them',
   lockedHistory:'History capped at 3. 👑 Premium — unlimited',
   lockedFav:'Favorites capped at 3. 👑 Premium — unlimited',
@@ -2209,9 +2269,21 @@ function onCollectionChange(prefix){
 }
 function evalPlaceholder(){
   const ru=S.lang==='ru';
-  return '<div class="eval-ph"><div class="eval-ph-ic">🔎</div>'+
-    '<div class="eval-ph-t">'+(ru?'Рыночный отчёт появится здесь':'Market report appears here')+'</div>'+
-    '<div class="eval-ph-s">'+(ru?'Оценка · Уверенность · Сравнимые · Портфель':'Estimate · Confidence · Comparables · Portfolio')+'</div></div>';
+  return '<div class="eval-ph"><div class="evp-badge">🔎</div>'+
+    '<div class="evp-t">'+(ru?'Проверьте Telegram-актив':'Check a Telegram asset')+'</div>'+
+    '<div class="evp-s">'+(ru?'Username, +888-номер или подарок — получите оценку, уверенность и диапазон цены.':'A username, +888 number or gift — get an estimate, confidence and price range.')+'</div>'+
+    '<div class="evp-ex">'+
+      '<button class="evp-chip" onclick="evalExample(\'username\',\'pavel\')">@pavel</button>'+
+      '<button class="evp-chip" onclick="evalExample(\'numbers\',\'77777777\')">+888 777 7777</button>'+
+      '<button class="evp-chip" onclick="evalExample(\'gift\',\'plushpepe\')">Plush Pepe</button>'+
+    '</div>'+
+    '<div class="evp-pulse">'+(ru?'Рынок: ':'Market: ')+'Plush Pepe 11 000 · Heroic Helmet 215 · Signet Ring 45 TON</div>'+'<div class="evp-foot">'+(ru?'Оценка · Рынок · Капитал · TON':'Value · Market · Capital · TON')+'</div></div>';
+}
+function evalExample(kind,val){
+  if(kind==='gift'){ pickCat('gifts'); try{ pickGift('e_', val); }catch(e){} setTimeout(function(){ try{doEvaluate();}catch(e){} },90); return; }
+  pickCat(kind==='numbers'?'numbers':'username');
+  var m=document.getElementById('e_main'); if(m){ m.value=val; onInputChange(); }
+  try{ doEvaluate(); }catch(e){}
 }
 function buildEvaluateInput(){
   document.getElementById('inputField').innerHTML=inputHTML(curCat,'e_');
@@ -2263,6 +2335,7 @@ function valueFor(cat, prefix){
 }
 function fmtTON(n){ n=Math.round(n); return n>=1000?n.toLocaleString('en-US'):String(n); }
 function fmtFiat(ton){ const v=Math.round(ton*RATE[S.currency]); return FX_LABEL[S.currency]+v.toLocaleString('en-US'); }
+function fmtStars(ton){ const n=Math.round(ton*RATE.usd/STAR_USD); return n.toLocaleString('en-US').replace(/,/g,' '); }
 
 let lastResult=null;
 function doEvaluate(){
@@ -2315,9 +2388,9 @@ function applyGiftCross(r, d, hasTrait){
   const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(frag);
   // re-fit the Est. range around the new price (tight when it's an exact live match)
   const sp=estSpread(r);
-  const pr=document.getElementById('prange'); if(pr) pr.textContent='Est. '+fmtTON(Math.round(frag*(1-sp)))+'–'+fmtTON(Math.round(frag*(1+sp)))+' TON';
+  const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(frag*(1-sp)))+'–'+fmtTON(Math.round(frag*(1+sp)))+' TON';
   // bump confidence: an exact live listing is a fact -> show it as high
-  const cw=document.getElementById('confChipWrap'); if(cw) cw.innerHTML=confChipHTML(r);
+  const cv=document.getElementById('confVal'); if(cv){ const c=confOf(r); cv.textContent=t(c.k); cv.style.color=c.c; } const lv=document.getElementById('liqVal'); if(lv){ const l=liqOf(r); lv.textContent=t(l.k); lv.style.color=l.c; } const sv=document.getElementById('starsVal'); if(sv) sv.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
   // discreet buy CTA -> collection page (not the exact lot), neutral label, no ref
   const box=document.getElementById('xmkt');
   if(box && d.slug){
@@ -2416,6 +2489,9 @@ function confOf(r){ const s=estSpread(r);
   return {k:'confLow',c:'var(--bad)'}; }
 function confChipHTML(r){ const c=confOf(r);
   return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
+function liqOf(r){ let lvl; if(r&&r.fragExact) lvl=2; else { const p=r?r.priceTON:0; lvl=p<150?2:(p<3000?1:0); } if(r&&r.rarity&&r.rarity.oneIn>500&&lvl>0) lvl--; return [{k:'liqLow',c:'var(--bad)'},{k:'liqMid',c:'var(--warn)'},{k:'liqHigh',c:'var(--good)'}][lvl]; }
+function liqChipHTML(r){ const c=liqOf(r); return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('liqLabel')+': '+t(c.k)+'</span>'; }
+function whyText(r){ const plus=r.factors.filter(f=>f.cls==='plus').map(f=>t(f.k).toLowerCase()); if(plus.length) return plus.slice(0,3).join(', '); const neu=r.factors.slice(0,2).map(f=>t(f.k).toLowerCase()); return neu.join(', ')||(S.lang==='ru'?'базовая рыночная оценка':'baseline market estimate'); }
 /* honest estimate spread — wider for pricier / rarer / less-liquid assets */
 function estSpread(r){
   // an exact live match on the market = a hard fact, not a guess -> tight band, high confidence
@@ -2433,6 +2509,7 @@ function resultCardHTML(r){
   // honest uncertainty: liquid/cheap = tight, expensive/rare/illiquid = wide
   const spread=estSpread(r);
   const lo=Math.round(r.priceTON*(1-spread)), hi=Math.round(r.priceTON*(1+spread));
+  const cc=confOf(r), lq=liqOf(r);
   return '<div class="rcard">'+
     '<div class="asset-disp">'+
       '<div class="wax-seal">'+sealSVG()+'</div>'+
@@ -2440,14 +2517,15 @@ function resultCardHTML(r){
       '<div class="arow"><div class="asset">'+escapeHTML(r.display)+'</div></div>'+
       '<div class="sub">'+subline+'</div>'+
       '<div class="price-ton"><span id="ptonNum">'+fmtTON(r.priceTON)+'</span><span class="u">TON</span></div>'+
-      '<div class="price-range" id="prange">Est. '+fmtTON(lo)+'–'+fmtTON(hi)+' TON</div>'+
+      '<div class="price-range" id="prange">'+t('estLabel')+': '+fmtTON(lo)+'–'+fmtTON(hi)+' TON</div>'+
       (r.cat==='gifts'?'<div id="xmkt"></div>':'')+
       '<div class="price-fiat"><span class="v" id="fiatVal">'+fmtFiat(r.priceTON)+'</span>'+
         '<span class="cur-toggle"><button class="'+(S.currency==='usd'?'on':'')+'" onclick="setCurrency(\'usd\')">USD</button><button class="'+(S.currency==='eur'?'on':'')+'" onclick="setCurrency(\'eur\')">EUR</button></span></div>'+
+      ((r.cat==='gifts'||r.cat==='stickers')?'<div class="price-stars" id="starsVal">\u2248 '+fmtStars(r.priceTON)+' \u2b50</div>':'')+
       '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+'</div>'+
     '</div>'+
     '<div class="rbody">'+
-      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:'+tier.c+'"><span class="tier-badge"><span class="dot"></span>'+t(tier.k)+'</span><span id="confChipWrap">'+confChipHTML(r)+'</span></div>'+
+      '<div class="cert-specs">'+'<div class="cs-row"><span class="cs-l">'+t('confLabel')+'</span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+t(cc.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('liqLabel')+'</span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+t(lq.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('tierLabel')+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+
       (r.rarity?'<div class="rarity-line"><span class="rrank" style="background:'+r.rarity.color+'1f;color:'+r.rarity.color+'"><span class="rd" style="background:'+r.rarity.color+'"></span>'+t(r.rarity.key)+'</span><span class="rone">'+t('rarityOneIn')+' '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')+'</span></div>':'')+
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
@@ -2457,8 +2535,8 @@ function resultCardHTML(r){
       (r.cat==='username' && proxyURL() ? '<div class="comps" id="usernameComps"><div class="comps-load">'+t('compsLoading')+'</div></div>' : '')+
       '<div class="acts">'+
         '<button class="act portf" onclick="addEvalToPortfolio()"><span>📁</span>'+t('pfAddBtn')+'</button>'+
-        '<button class="act fav" id="favBtn" onclick="toggleFav()"><span>⭐</span><span id="favLbl">'+t('favAdd')+'</span></button>'+
         '<button class="act" onclick="exportCard()"><span>📤</span>'+t('share')+'</button>'+
+        '<button class="act fav" id="favBtn" onclick="toggleFav()"><span>⭐</span><span id="favLbl">'+t('favAdd')+'</span></button>'+
         '<button class="act" onclick="toggleExplain()"><span>💡</span>'+t('explainBtn')+'</button>'+
         '<button class="act frag" onclick="openFragment()"><span>🌐</span>'+t('checkFrag')+'</button>'+
       '</div>'+
@@ -2827,7 +2905,7 @@ async function exportCard(){
   x.fillText(fmtTON(r.priceTON),540,600);
   x.fillStyle='#19211A'; x.font='600 50px "Fraunces", serif'; x.fillText('TON',540,688);
   const _sp=estSpread(r), elo=Math.round(r.priceTON*(1-_sp)), ehi=Math.round(r.priceTON*(1+_sp));
-  x.fillStyle='#7E8C78'; x.font='600 33px "Hanken Grotesk", sans-serif'; x.fillText('Est. '+fmtTON(elo)+'–'+fmtTON(ehi)+' TON  ·  '+fmtFiat(r.priceTON),540,748);
+  x.fillStyle='#7E8C78'; x.font='600 33px "Hanken Grotesk", sans-serif'; x.fillText(t('estLabel')+': '+fmtTON(elo)+'–'+fmtTON(ehi)+' TON  ·  '+fmtFiat(r.priceTON),540,748);
   // factors (room kept on the right for the seal)
   x.textAlign='left'; let fy=858;
   r.factors.filter(f=>f.cls==='plus').slice(0,3).forEach(f=>{
@@ -3000,7 +3078,18 @@ function rebuildAll(){
 function pickCat(id){ curCat=id; lastResult=null; renderCatTabs('catTabs',curCat,pickCat); buildEvaluateInput(); document.getElementById('result').innerHTML=evalPlaceholder(); }
 function pickCatCmp(id){ curCatCmp=id; renderCatTabs('catTabsCmp',curCatCmp,pickCatCmp); buildCompareInputs(); document.getElementById('cmpResult').innerHTML=''; }
 function toggleTheme(){ S.theme=S.theme==='dark'?'light':'dark'; applyTheme(); save(); }
-function applyTheme(){ document.documentElement.dataset.theme=S.theme; const b=document.getElementById('themeBtn'); if(b) b.textContent=S.theme==='dark'?'☀️':'🌙'; }
+function applyTheme(){ document.documentElement.dataset.theme=S.theme; const dark=S.theme==='dark';
+  const b=document.getElementById('themeBtn'); if(b) b.textContent=dark?'☀️':'🌙';
+  const rl=document.getElementById('themeLight'), rd=document.getElementById('themeDark');
+  if(rl) rl.classList.toggle('on',!dark); if(rd) rd.classList.toggle('on',dark);
+  const tgCol=dark?'#163A2C':'#E7EDE3';
+  const grad='radial-gradient(125% 85% at 50% -8%, #2E7D5E 0%, #1C4632 44%, #0C1711 100%)';
+  try{ if(window.tg){ if(tg.setBackgroundColor)tg.setBackgroundColor(tgCol); if(tg.setHeaderColor)tg.setHeaderColor(tgCol); if(tg.setBottomBarColor)tg.setBottomBarColor(tgCol);} }catch(e){}
+  try{ const de=document.documentElement, bd=document.body;
+    de.style.setProperty('background', dark?grad:'#E7EDE3','important'); de.style.setProperty('background-attachment','fixed','important');
+    if(bd) bd.style.setProperty('background', dark?'transparent':'#E7EDE3','important'); }catch(e){}
+}
+function setTheme(v){ S.theme=v; S.themeSet=true; applyTheme(); save(); if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} }
 function escapeHTML(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 let toastTimer;
 function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2400); }
@@ -3770,16 +3859,16 @@ window.ONB = (function(){
   function slides(){ const ru=S.lang==='ru'; const H=heroes(ru); return [
     {bg:'s0', kr:(ru?'01 · ОЦЕНОЧНЫЙ ДОМ':'01 · APPRAISAL HOUSE'), dc:['#43A87C','#2E7D5E','#7FE0B4'], hero:H[0],
       fl:[G('🧸','#E86FA6'),U('@durov'),G('💎','#6B8BE8'),Nm('0142'),G('🌹','#E05670'),G('👑','#D9A441'),U('@nft'),G('🔮','#A06BE8'),G('🦋','#3FA9C2'),Nm('8888'),G('🪅','#E07FB0'),U('@gift')],
-      t:ru?'Добро пожаловать в Monet':'Welcome to Monet', s:ru?'Оценивай подарки, юзернеймы и +888-номера Telegram по реальной цене.':'Appraise Telegram gifts, usernames and +888 numbers at real value.'},
+      t:ru?'Твой Telegram-капитал начинается здесь':'Your Telegram capital starts here', s:ru?'Оцени gifts, usernames и +888-номера по рыночным данным.':'Value gifts, usernames and +888 numbers on real market data.'},
     {bg:'s1', kr:(ru?'02 · ОЦЕНКА':'02 · APPRAISAL'), dc:['#D9A441','#C8A24B','#F0D27A'], hero:H[1],
       fl:[G('💎','#6B8BE8'),G('💍','#D9A441'),U('@whale'),G('🔮','#A06BE8'),Nm('0007'),G('🧸','#E86FA6'),G('🎩','#46B27E'),U('@crypto'),G('🪙','#D9A441'),G('🌹','#E05670'),Nm('1337'),G('👑','#D9A441')],
-      t:ru?'Оценка за секунды':'Instant appraisal', s:ru?'Выбери предмет и трейты — стоимость считается по реальным сделкам рынка.':'Pick an item and traits — value comes from real market deals.'},
+      t:ru?'Узнай цену за секунды':'Know the price in seconds', s:ru?'Получай диапазон, уверенность и причины оценки.':'Get a range, confidence and the reasons behind it.'},
     {bg:'s2', kr:(ru?'03 · РЫНОК':'03 · MARKET'), dc:['#2F9EA8','#2F7E86','#7FD8E0'], hero:H[2],
       fl:[G('🦋','#3FA9C2'),G('💎','#6B8BE8'),U('@durov'),G('🌹','#E05670'),Nm('0142'),G('🎩','#46B27E'),G('🪅','#E07FB0'),U('@monet'),G('🔮','#A06BE8'),G('🪙','#D9A441'),Nm('8888'),G('🧸','#E86FA6')],
-      t:ru?'Дешевле всего по рынку':'Cheapest across markets', s:ru?'Сравниваем площадки и показываем, где купить выгоднее — со ссылкой на сделку.':'We compare markets and show where it is cheapest — with a link to buy.'},
+      t:ru?'Покупай не дороже рынка':'Never overpay the market', s:ru?'Сравниваем площадки и показываем, где актив дешевле.':'We compare marketplaces and show where an asset is cheaper.'},
     {bg:'s3', kr:(ru?'04 · КАПИТАЛ':'04 · CAPITAL'), dc:['#43A87C','#3A7D63','#7FE0B4'], hero:H[3],
       fl:[G('👑','#D9A441'),G('🧸','#E86FA6'),U('@durov'),G('🪙','#D9A441'),Nm('0007'),G('💎','#6B8BE8'),G('🦋','#3FA9C2'),U('@nft'),G('🌹','#E05670'),G('🎩','#46B27E'),Nm('1337'),G('🔮','#A06BE8')],
-      t:ru?'Твой Telegram-капитал':'Your Telegram net worth', s:ru?'Собери портфель активов и следи за капиталом, статусом и целью.':'Build a portfolio and track your capital, status and goals.'}
+      t:ru?'Собери свой портфель':'Build your portfolio', s:ru?'Следи за капиталом, статусом и движением рынка в TON.':'Track your capital, status and the market — in TON.'}
   ]; }
   function render(){ const ru=S.lang==='ru'; const sl=slides(); const last=i===N-1;
     const cards=sl.map(s=>'<div class="onb-slide '+s.bg+'"><div class="onb-stage"><div class="onb-bg"></div>'+decor(s.dc[0],s.dc[1],s.dc[2])+'<div class="onb-stars"></div><div class="onb-ring"></div>'+floaters(s.fl)+'<div class="onb-center">'+s.hero+'</div></div><div class="onb-cap"><div class="onb-kicker">'+s.kr+'</div><h2>'+s.t+'</h2><p>'+s.s+'</p></div></div>').join('');
@@ -3789,7 +3878,7 @@ window.ONB = (function(){
       '<button class="onb-skip" onclick="ONB.finish()">'+(ru?'Пропустить':'Skip')+'</button>'+
       '<div class="onb-viewport"><div class="onb-track" id="onb-track" style="transform:translateX(-'+(i*100)+'%)">'+cards+'</div></div>'+
       '<div class="onb-ctl"><div class="onb-dots">'+dots+'</div><div class="onb-row">'+back+
-        '<button class="onb-btn pri" onclick="ONB.next()">'+(last?(ru?'Поехали!':'Get started'):(ru?'Далее':'Next'))+'</button></div></div>';
+        '<button class="onb-btn pri" onclick="'+(last?'ONB.startEval()':'ONB.next()')+'">'+(last?(ru?'Оценить первый актив':'Value your first asset'):(ru?'Далее':'Next'))+'</button></div></div>';
     bindSwipe();
   }
   function bindSwipe(){ const vp=document.getElementById('onb-track'); if(!vp) return; let x0=null;
@@ -3800,9 +3889,10 @@ window.ONB = (function(){
   function open(){ i=0; const el=document.getElementById('onb'); if(!el) return; el.style.display='flex'; render(); }
   function next(){ if(i<N-1){ i++; render(); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} } else finish(); }
   function goto(k){ i=Math.max(0,Math.min(N-1,k)); render(); }
+  function startEval(){ finish(); setTimeout(function(){ try{ if(typeof setView==='function') setView('evaluate'); var m=document.getElementById('e_main'); if(m){ m.focus(); m.scrollIntoView({behavior:'smooth',block:'center'}); } }catch(e){} },430); }
   function openRealCard(){ try{finish();}catch(e){} setTimeout(function(){ try{ if(window.BANK) BANK.openCard(); }catch(e){} },400); }
-  function finish(){ S.onboarded=true; S.onbVer=13; save(); const el=document.getElementById('onb'); if(!el)return; el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; el.style.opacity=''; },350); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('medium');}catch(e){}} }
-  return { open, next, goto, finish, openRealCard };
+  function finish(){ S.onboarded=true; S.onbVer=14; save(); const el=document.getElementById('onb'); if(!el)return; el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; el.style.opacity=''; },350); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('medium');}catch(e){}} }
+  return { open, next, goto, finish, openRealCard, startEval };
 })();
 function initTelegram(){
   if(!tg) return;
@@ -3810,17 +3900,14 @@ function initTelegram(){
     tg.ready(); tg.expand();
     try{ if(tg.disableVerticalSwipes) tg.disableVerticalSwipes(); }catch(e){}   /* stop the app from being dragged/shifted */
     try{ if(tg.isVerticalSwipesEnabled!==undefined) tg.isVerticalSwipesEnabled=false; }catch(e){}
-    S.theme='light';
-    try{ if(tg.setBackgroundColor) tg.setBackgroundColor('#E7EDE3'); }catch(e){}
-    try{ if(tg.setHeaderColor) tg.setHeaderColor('#E7EDE3'); }catch(e){}
-    try{ if(tg.setBottomBarColor) tg.setBottomBarColor('#E7EDE3'); }catch(e){}
+    try{ applyTheme(); }catch(e){}
     if(tg.CloudStorage){
-      tg.CloudStorage.getItem('monet',(err,val)=>{ if(!err && val && !lsGet('monet')){ try{ Object.assign(S,JSON.parse(val)); S.theme='light'; setLang(S.lang); }catch(e){} } });
+      tg.CloudStorage.getItem('monet',(err,val)=>{ if(!err && val && !lsGet('monet')){ try{ Object.assign(S,JSON.parse(val)); if(!S.themeSet) S.theme='dark'; setLang(S.lang); applyTheme(); }catch(e){} } });
     }
   }catch(e){}
 }
 function init(){
-  S.theme='light';
+  if(!S.themeSet) S.theme='dark';
   applyTheme();
   document.getElementById('langRu').classList.toggle('on',S.lang==='ru');
   document.getElementById('langEn').classList.toggle('on',S.lang==='en');
@@ -3840,7 +3927,7 @@ function init(){
   initTelegram();
   refreshRate();
   updateFloorBadge(); refreshFloors(false);
-  if(window.ONB && (S.onbVer||0) < 13) ONB.open();   // first-launch onboarding (once)
+  if(window.ONB && (S.onbVer||0) < 14) ONB.open();   // first-launch onboarding (once)
 }
 init();
 </script>
