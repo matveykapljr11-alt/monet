@@ -855,6 +855,9 @@ header{border-bottom:0;background:none}
 .mgi-val{font-family:var(--font-d);font-weight:600;font-size:30px;letter-spacing:-.5px;color:var(--txt);line-height:1;white-space:nowrap}
 .mgi-val .u{font-size:.4em;font-weight:700;color:var(--txt-3);font-family:var(--font-b);margin-left:2px}
 .mgi-spark .mk-spark{width:120px;height:42px}
+.mgi-chart{margin:11px -2px 7px;height:118px;overflow:hidden}
+.mgi-chart svg{height:118px}
+.mgi-range{margin:0 0 2px}
 .mgi-sub{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
 .mgi-d{font-weight:800;font-size:13px}
 .mgi-meta{font-size:11.5px;color:var(--txt-3);font-weight:600;text-align:right}
@@ -3332,18 +3335,45 @@ async function refreshRate(){
    MARKET MODULE (MK) — TONCAP integrated; isolated namespace
 ======================================================================== */
 window.MK = (function(){
-  let cur='ton', cat='gifts', sortKey='cap', sortAsc=false, started=false;
+  let cur='ton', cat='gifts', sortKey='cap', sortAsc=false, started=false, idxRange=30;
   const RAW = {
     gifts:[
       ['Plush Pepe','🐸',11000,2812,3.2,12.4],["Durov's Cap",'🧢',1150,1000,1.1,5.0],
-      ['Precious Peach','🍑',920,8000,-2.1,8.0],['Astral Shard','💠',70,5000,6.7,22.0],
-      ['Ion Gem','💎',590,7000,2.0,9.0],['Signet Ring','💍',530,6000,4.5,18.0],
+      ['Precious Peach','🍑',920,8000,-2.1,8.0],['Ion Gem','💎',590,7000,2.0,9.0],
+      ['Signet Ring','💍',530,6000,4.5,18.0],['Loot Bag','💰',480,3000,0,0],
       ['Genie Lamp','🪔',470,8500,1.5,6.0],['Vintage Cigar','🚬',440,9000,-1.2,2.4],
-      ['Scared Cat','🐱',410,13000,-3.4,-8.0],['Perfume Bottle','🧴',305,15000,0.4,-1.1],
-      ['Eternal Rose','🌹',260,20000,0.9,3.0],['Heart Locket','💟',175,12000,0.8,-3.2],
-      ['Toy Bear','🧸',150,25000,-0.5,-2.0],['Spiced Wine','🍷',120,22000,1.8,4.5],
-      ['Diamond Ring','💎',98,28000,-1.0,-4.0],['Jelly Bunny','🐰',95,30000,0.2,1.0],
-      ['Santa Hat','🎅',42,60000,0.3,0.5],['Lol Pop','🍭',16,90000,-0.8,-1.5]
+      ['Scared Cat','🐱',410,13000,-3.4,-8.0],['Magic Potion','🧪',320,8000,0,0],
+      ['Perfume Bottle','🧴',305,15000,0.4,-1.1],['Eternal Rose','🌹',260,20000,0.9,3.0],
+      ['Swiss Watch','⌚',230,18000,0,0],['Mini Oscar','🏆',220,4000,0,0],
+      ['Heroic Helmet','🪖',215,16000,0,0],['Neko Helmet','😺',180,20000,0,0],
+      ['Heart Locket','💟',175,12000,0.8,-3.2],['Toy Bear','🧸',150,25000,-0.5,-2.0],
+      ['Nail Bracelet','💅',140,18500,0,0],['Light Sword','⚔️',130,19000,0,0],
+      ['Sharp Tongue','👅',130,20000,0,0],['Spiced Wine','🍷',120,22000,1.8,4.5],
+      ['Pearl Necklace','📿',120,20000,0,0],['Electric Skull','💀',110,22000,0,0],
+      ['Record Player','🎙️',100,23000,0,0],['Diamond Ring','💎',98,28000,-1.0,-4.0],
+      ['Jelly Bunny','🐰',95,30000,0.2,1.0],['Love Potion','💗',90,24000,0,0],
+      ['Cupid Charm','💘',88,24500,0,0],['Westside Sign','🤟',84,25000,0,0],
+      ['Crystal Ball','🔮',80,25000,0,0],['Mad Pumpkin','🎃',75,26000,0,0],
+      ['Astral Shard','💠',70,5000,6.7,22.0],['Top Hat','🎩',68,27000,0,0],
+      ['Voodoo Doll','🪆',65,28000,0,0],['Skull Flower','🌺',60,35000,0,0],
+      ['Snake Box','🐍',55,40000,0,0],['Witch Hat','🧙',52,44000,0,0],
+      ['Sakura Flower','🌸',48,47000,0,0],['Trapped Heart','💔',46,48000,0,0],
+      ['Star Notepad','📒',45,50000,0,0],['Sleigh Bell','🛎️',44,49000,0,0],
+      ['Santa Hat','🎅',42,60000,0.3,0.5],['Spy Agaric','🍄',41,50000,0,0],
+      ['Flying Broom','🧹',40,50000,0,0],['Snow Globe','❄️',39,51000,0,0],
+      ['Holiday Drink','🍹',38,52000,0,0],['Winter Wreath','🎄',37,52000,0,0],
+      ['Ionic Dryer','💨',36,53000,0,0],['Love Candle','🕯️',36,53000,0,0],
+      ['Evil Eye','🧿',35,55000,0,0],['Tama Gadget','🎮',34,56000,0,0],
+      ['Jack-in-the-box','📦',33,58000,0,0],['Restless Jar','🫙',31,59000,0,0],
+      ['Hanging Star','⭐',30,60000,0,0],['Pet Snake','🐍',29,60000,0,0],
+      ['Bunny Muffin','🧁',28,60000,0,0],['Jester Hat','🃏',27,61000,0,0],
+      ['Hex Pot','🪴',26,62000,0,0],['Snow Mittens','🧤',25,64000,0,0],
+      ['Ginger Cookie','🍪',24,65000,0,0],['Jingle Bells','🔔',23,67000,0,0],
+      ['Berry Box','🫐',22,70000,0,0],['Hypno Lollipop','🍭',21,72000,0,0],
+      ['Easter Egg','🥚',20,75000,0,0],['Homemade Cake','🍰',19,78000,0,0],
+      ['B-Day Candle','🎂',18,80000,0,0],['Lunar Snake','🐍',17,82000,0,0],
+      ['Lol Pop','🍭',16,90000,-0.8,-1.5],['Cookie Heart','🍪',16,90000,0,0],
+      ['Party Sparkler','🎉',13,98000,0,0],['Desk Calendar','📅',12,100000,0,0]
     ],
     usernames:[
       ['@news','📰',994000,1,0.0,0.0],['@auto','🚗',900000,1,1.2,3.4],['@bank','🏦',850000,1,-0.6,2.0],
@@ -3396,13 +3426,15 @@ window.MK = (function(){
     if(arrs.length){ const L=Math.min.apply(null,arrs.map(a=>a.length)); ser=[];
       for(let i=0;i<L;i++){ let s=0,n=0; arrs.forEach(a=>{ const v=a[a.length-L+i]; if(v!=null){s+=v;n++;} }); ser.push(n?s/n:0); } }
     return { cap, ch24:c24/wc, ch7:c7/wc, count:g.length, listed, live, ser:ser||[1,1.02,1.01,1.03] }; }
-  function indexHTML(){ const x=gindex(); const up=x.ch24>=0;
+  function indexHTML(){ const x=gindex(); const up=x.ch24>=0; const ser=idxRange===7?x.ser.slice(-7):x.ser; const chR=idxRange===7?x.ch7:x.ch24; const upR=chR>=0;
+    const ru=S.lang==='ru';
     return '<div class="mgi">'+
       '<div class="mgi-lab">'+t('mgiTitle')+(x.live?' <span class="comps-live"><span class="flr-dot" style="background:var(--up)"></span>live</span>':'')+'</div>'+
       '<div class="mgi-row"><div class="mgi-val">'+fmtCompact(x.cap)+' <span class="u">TON</span></div>'+
-        '<div class="mgi-spark">'+spark(x.ser,up)+'</div></div>'+
-      '<div class="mgi-sub"><span class="mgi-d" style="color:'+(up?'var(--up)':'var(--down)')+'">'+fmtD(x.ch24)+' · 24'+t('mgiH')+'</span>'+
-        '<span class="mgi-meta">'+x.count+' '+t('mgiCols')+(x.listed?(' · ~'+grp(x.listed)+' '+t('mgiListed')):'')+'</span></div>'+
+        '<div class="mgi-d" style="font-size:14px;font-weight:800;color:'+(upR?'var(--up)':'var(--down)')+'">'+fmtD(chR)+' · '+(idxRange===7?(ru?'7д':'7d'):'24'+t('mgiH'))+'</div></div>'+
+      '<div class="mgi-chart">'+bigChart(ser,upR)+'</div>'+
+      '<div class="mk-range mgi-range"><button class="'+(idxRange===7?'on':'')+'" onclick="MK.setIdxRange(7)">'+(ru?'7Д':'7D')+'</button><button class="'+(idxRange===30?'on':'')+'" onclick="MK.setIdxRange(30)">'+(ru?'30Д':'30D')+'</button></div>'+
+      '<div class="mgi-sub"><span class="mgi-meta">'+x.count+' '+t('mgiCols')+(x.listed?(' · ~'+grp(x.listed)+' '+t('mgiListed')):'')+'</span></div>'+
     '</div>'; }
   function renderMovers(){ const all=MARKET[cat].filter(a=>a.ch24!==0); const box=document.getElementById('mk-movers');
     if(all.length<2){ box.innerHTML=''; return; }
@@ -3444,6 +3476,7 @@ window.MK = (function(){
   function openSheet(id){ sheetA=Object.values(MARKET).flat().find(x=>x.id===id); if(!sheetA)return; sheetRange=30; renderSheet(); document.getElementById('mk-scrim').classList.add('open'); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} }
   function closeSheet(){ document.getElementById('mk-scrim').classList.remove('open'); }
   function setRange(r){ sheetRange=r; renderSheet(); }
+  function setIdxRange(r){ idxRange=r; render(); }
   function kv(k,v){ return '<div class="row"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
   function bigChart(ser,up){ const w=520,h=180,pad=10,min=Math.min(...ser),max=Math.max(...ser),rg=(max-min)||1;
     const pts=ser.map((v,i)=>[pad+i/(ser.length-1)*(w-2*pad),h-pad-((v-min)/rg)*(h-2*pad)]);
@@ -3509,18 +3542,33 @@ window.MK = (function(){
       if(d){ const up=a.ch24>=0; d.textContent=fmtD(a.ch24); d.className='mk-delta '+(up?'up':'down'); } }); }
 
   function onRate(){ render(); }
+  function slugify(s){ return String(s).toLowerCase().replace(/[^a-z0-9]/g,''); }
+  function prettyGift(slug){ return slug.charAt(0).toUpperCase()+slug.slice(1); }
   function patchFloors(map, counts, ch24, sales){ if(!map) return; const g=MARKET.gifts; if(!g) return;
-    g.forEach(a=>{ const key=a.name.toLowerCase(); const f=map[key];
-      if(typeof f==='number'&&f>0){ a.price=f;
+    const bySlug={}; g.forEach(a=>{ bySlug[slugify(a.name)]=a; });
+    for(const key in map){ const f=map[key]; if(!(typeof f==='number'&&f>0)) continue;
+      const slug=slugify(key); if(!slug) continue;
+      let a=bySlug[slug];
+      if(a){ a.price=f;
         if(counts&&counts[key]>0) a.listed=counts[key];
         if(ch24&&ch24[key]!=null) a.ch24=ch24[key];
         if(sales&&sales[key]>0) a.lastSale=sales[key];
         a.cap=f*a.supply;
         a.vol=a.supply>1?Math.round(f*a.supply*(0.01+Math.abs(a.ch24)/100*0.4)):0;
-        a.ath=Math.max(a.ath,Math.round(f*1.1));
-        a.live=true;
+        a.ath=Math.max(a.ath,Math.round(f*1.1)); a.live=true;
+      } else {
+        // NEW collection straight from live proxy floors — auto-added so the market shows EVERY gift
+        const supply=10000;
+        const nc=(ch24&&ch24[key]!=null)?ch24[key]:+jitter(slug+'d').toFixed(1);
+        const nw=+(jitter(slug+'w')*2.2).toFixed(1);
+        a={ id:'gx_'+slug, cat:'gifts', name:prettyGift(slug), icon:'🎁', price:f, supply,
+            ch24:nc, ch7:nw, cap:f*supply, vol:Math.round(f*supply*0.02),
+            holders:Math.round(supply*0.4), ath:Math.round(f*1.2),
+            listed:(counts&&counts[key])||0, lastSale:(sales&&sales[key])||0,
+            live:true, dyn:true, ser:series(slug,nw,30) };
+        g.push(a); bySlug[slug]=a;
       }
-    });
+    }
     if(document.getElementById('mk-q')) render(); }
   function refresh(){ if(document.getElementById('mk-q')) render(); }
   function bridge(name){ const g=MARKET.gifts; if(!g) return null;
@@ -3537,7 +3585,7 @@ window.MK = (function(){
     it.price=f; it.cap=f; it.ath=Math.round(f*1.2); it.live=true;
     if(document.getElementById('mk-q')) render(); }
   function init(){ if(started) return; started=true; setInterval(tick,3500); }
-  return { render, setCat, setCur, onSort, openSheet, closeSheet, setRange, onRate, init, data:()=>MARKET, patchFloors, patchNumbersFloor, refresh, bridge };
+  return { render, setCat, setCur, onSort, openSheet, closeSheet, setRange, setIdxRange, onRate, init, data:()=>MARKET, patchFloors, patchNumbersFloor, refresh, bridge };
 })();
 
 
