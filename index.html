@@ -1695,7 +1695,7 @@ ru:{
   fGiftFloor:'Floor коллекции', fSerialTop:'Низкий серийный №', fSerialGood:'Хороший серийный №',
   fSerialRound:'Красивый №', fRarityHigh:'Высокая редкость', fRarityMid:'Средняя редкость',
   fBackdrop:'Редкий фон', fPattern:'Редкий узор', fModel:'Редкая модель', fAttrCap:'Сглаживание редкости',
-  fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка',
+  fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка', fModelRare:'Модель · по редкости', fBackRare:'Фон · по редкости', fPatRare:'Узор · по редкости', fShrink:'Поправка на данные',
   drawerTitle:'Меню', tabHistory:'История', tabFav:'Мои', tabTop:'Топ', drActions:'Действия', drLists:'Списки', drSettings:'Настройки', drLanguage:'Язык', drTheme:'Тема', thLight:'Светлая', thDark:'Тёмная',
   emptyHistory:'Здесь появятся ваши оценки', emptyFav:'Добавьте оценки в избранное звёздочкой',
   lockedHistory:'История ограничена 3 записями. 👑 Premium — без лимитов',
@@ -1790,7 +1790,7 @@ en:{
   fGiftFloor:'Collection floor', fSerialTop:'Low serial #', fSerialGood:'Good serial #',
   fSerialRound:'Beautiful #', fRarityHigh:'High rarity', fRarityMid:'Medium rarity',
   fBackdrop:'Rare backdrop', fPattern:'Rare pattern', fModel:'Rare model', fAttrCap:'Rarity smoothing',
-  fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration',
+  fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration', fModelRare:'Model · by rarity', fBackRare:'Backdrop · by rarity', fPatRare:'Pattern · by rarity', fShrink:'Data adjustment',
   drawerTitle:'Menu', tabHistory:'History', tabFav:'Mine', tabTop:'Top', drActions:'Actions', drLists:'Lists', drSettings:'Settings', drLanguage:'Language', drTheme:'Theme', thLight:'Light', thDark:'Dark',
   emptyHistory:'Your evaluations will appear here', emptyFav:'Star evaluations to save them',
   lockedHistory:'History capped at 3. 👑 Premium — unlimited',
@@ -2225,42 +2225,48 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
   const cf=parseFloat(customFloor);
   const base=(colId==='other' && !isNaN(cf) && cf>0) ? cf : (col.floor>0?col.floor:100);
   serial=parseInt(serial,10);
-  // real per-trait floors from Portals (if the trait is currently listed)
-  const fM=parseFloat(fModel), fB=parseFloat(fBack), fP=parseFloat(fPat);
-  const haveTraitFloors = (fM>0)||(fB>0)||(fP>0);
-  let price;
-  if(haveTraitFloors){
-    // MARKET-TRUE: an item is worth ~the floor of its most-valued trait — BUT a
-    // trait floor backed by only 1–2 listings is a noisy outlier (often a single
-    // overpriced lot). Down-weight thin floors toward the collection floor by the
-    // number of listings (supply): supply≥6 → trust fully, supply=1 → mostly floor.
+  // ===== Monet Valuation v3.1 =====
+  // Listed traits priced exactly as before (Portals/Fragment = trusted). Unlisted traits get a
+  // rarity-extrapolated premium over floor (power law, capped). Uncertainty -> FSD (range/confidence).
+  const B=0.55, S_REF=0.5, MULT_CAP=4, CAL=1.10;
+  const trait=(rPct,f,s,ic,kFloor,kRare)=>{
+    const rp=parseFloat(rPct), fl=parseFloat(f), sup=parseFloat(s)||0;
+    if(fl>0){                                                   // LISTED — unchanged: reliability-weighted floor
+      const rel=Math.max(0.25, Math.min(1, sup/6));
+      return {v:base+rel*(fl-base), n:sup, listed:true, floor:fl, ic, k:kFloor, disp:Math.round(fl)+' TON'};
+    }
+    if(!isNaN(rp)&&rp>0){                                       // UNLISTED — extrapolate from rarity share
+      const share=rp/100;
+      const mult=Math.max(1, Math.min(MULT_CAP, Math.pow(S_REF/share, B)));
+      return {v:base*mult, n:0, listed:false, floor:0, ic, k:kRare, disp:'×'+mult.toFixed(2)+' ('+(S.lang==='ru'?'редкость':'rarity')+')'};
+    }
+    return null;
+  };
+  const items=[ trait(rModel,fModel,sModel,'🧬','fModelFl','fModelRare'),
+                trait(rBack ,fBack ,sBack ,'🎨','fBackFl' ,'fBackRare'),
+                trait(rPat  ,fPat  ,sPat  ,'🌀','fPatFl'  ,'fPatRare') ].filter(Boolean);
+  let price, fsd;
+  if(items.length){
     F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
-    const rel=(s)=>{ s=parseFloat(s)||0; return Math.max(0.25, Math.min(1, s/6)); };
-    const eff=(f,s)=> base + rel(s)*(f-base);   // reliability-weighted effective floor
     const tf=[];
-    if(fM>0){ tf.push(eff(fM,sModel)); F.push({i:'🧬',k:'fModelFl',v:Math.round(fM)+' TON',cls:'plus'}); }
-    if(fB>0){ tf.push(eff(fB,sBack));  F.push({i:'🎨',k:'fBackFl', v:Math.round(fB)+' TON',cls:'plus'}); }
-    if(fP>0){ tf.push(eff(fP,sPat));   F.push({i:'🌀',k:'fPatFl',  v:Math.round(fP)+' TON',cls:'plus'}); }
-    // the most-valued trait sets the floor; a SPECIFIC combination of several
-    // above-floor traits is scarcer than any single one -> diminishing premium.
+    items.forEach(o=>{ tf.push(o.v); F.push({i:o.ic,k:o.k,v:o.disp,cls:'plus'}); });
     const extra=tf.filter(v=>v>base+0.5).sort((a,b)=>b-a);
     if(extra.length){
-      price=extra[0];
-      const w=[0,0.30,0.16,0.09];   // weight of 2nd, 3rd, 4th trait above floor
-      let prem=0; for(let i=1;i<extra.length;i++){ prem+=extra[i]*(w[i]||0.05); }
+      price=extra[0];                                          // dominant (most-valued) trait sets the floor
+      const w=[0,0.30,0.16,0.09]; let prem=0;
+      for(let i=1;i<extra.length;i++){ prem+=extra[i]*(w[i]||0.05); }   // scarcer combination -> diminishing premium
       if(prem>0){ price+=prem; F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(prem)+' TON',cls:'plus'}); }
-      price=Math.round(price);
-      // floors are the LOWEST asks; actual deals clear ~10% higher -> calibrate
-      price=Math.round(price*1.10); F.push({i:'📈',k:'fMktCal',v:'+10%',cls:'plus'});
+      price=Math.round(price*CAL); F.push({i:'📈',k:'fMktCal',v:'+10%',cls:'plus'});
     } else { price=base; }
-    // low edition number still commands a real (modest) premium on top
-    if(!isNaN(serial)&&serial>0){
-      let m=1, kk='fLowSerial';
-      if(serial===1) m=2.2; else if(serial<=10) m=1.6; else if(serial<=100) m=1.2;
-      if(m>1){ price=Math.round(price*m); F.push({i:'#️⃣',k:kk,v:'×'+m,cls:'plus'}); }
-    }
+    if(!isNaN(serial)&&serial>0){ let m=1; if(serial===1)m=2.2; else if(serial<=10)m=1.6; else if(serial<=100)m=1.2;
+      if(m>1){ price=Math.round(price*m); F.push({i:'#️⃣',k:'fLowSerial',v:'×'+m,cls:'plus'}); } }
+    // confidence (FSD): driven by DATA AVAILABILITY — how many traits are really listed and how
+    // many listings back them (not trait spread, which is rarity signal, not noise).
+    const sumN=items.reduce((a,o)=>a+(o.n||0),0);
+    const listedFrac=items.filter(o=>o.listed).length/items.length;
+    fsd=Math.max(0.05, Math.min(0.34, 0.05 + 0.20*(1-listedFrac) + 0.15/Math.sqrt(1+sumN)));
   } else {
-    // FALLBACK (no live trait floors): rarity-multiplier heuristic, gentle.
+    // FALLBACK (no traits chosen): collection floor + serial / rarity heuristic
     price=base;
     F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
     if(!isNaN(serial)&&serial>0){
@@ -2281,9 +2287,10 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     const attrTotal=mB*mP*mM;
     if(attrTotal>7){ const corr=7/attrTotal; price*=corr; F.push({i:'🧮',k:'fAttrCap',v:'×'+corr.toFixed(2),cls:'neutral'}); }
   }
+  price=Math.round(price);
   const score=Math.max(0,Math.min(100, priceToScore(price)));
   let cap=null; try{ if(window.MK&&window.MK.data){ const m=Object.values(window.MK.data()).flat().find(x=>x.name===col.n); if(m&&m.supply) cap=m.supply; } }catch(e){}
-  return { priceTON:price, score, factors:F, rarity:rarityRank(rBack,rPat,rModel,cap), display:col.n+(serial?(' #'+serial):''), live:haveTraitFloors };
+  return { priceTON:price, score, factors:F, rarity:rarityRank(rBack,rPat,rModel,cap), display:col.n+(serial?(' #'+serial):''), live:items.length>0, fsd };
 }
 function rarityRank(rBack,rPat,rModel,cap){
   const ps=[rBack,rPat,rModel].map(parseFloat).filter(x=>!isNaN(x)&&x>0&&x<=100);
@@ -2573,24 +2580,71 @@ function doEvaluate(){
 /* cross-market: fetch the live Fragment floor for the picked collection+traits and,
    if it's cheaper than our Portals-based estimate, show it as the true price + buy link. */
 function selName(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return ''; const o=s.options[s.selectedIndex]; return (o&&o.getAttribute('data-name'))||''; }
+function gFloorOf(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const f=o&&o.getAttribute('data-floor'); return f?parseFloat(f):0; }
+function gSupOf(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const v=o&&o.getAttribute('data-supply'); return v?parseFloat(v):0; }
 async function loadGiftCross(r){
   const proxy=proxyURL(); if(!proxy) return;
   const colEl=document.getElementById('e_col'); if(!colEl) return;
   const c=giftColById(colEl.value); if(!c||c.id==='other'||!c.slug) return;
   const m=selName('e_rmodel'), b=selName('e_rback'), p=selName('e_rpat');
   const hasTrait=!!(m||b||p);
-  let url=proxy.replace(/\/+$/,'')+'/?fragment='+encodeURIComponent(c.n);
-  if(m)url+='&model='+encodeURIComponent(m);
-  if(b)url+='&backdrop='+encodeURIComponent(b);
-  if(p)url+='&symbol='+encodeURIComponent(p);
-  const stamp=r.ts;
+  const base=proxy.replace(/\/+$/,''), gname=encodeURIComponent(c.n), stamp=r.ts;
+  const fragQ=async(suffix)=>{ try{ const res=await fetch(base+'/?fragment='+gname+suffix,{cache:'no-store'}); if(!res.ok) return null; const d=await res.json(); return (d&&d.ok&&d.floor>0)?d:null; }catch(e){ return null; } };
+  let exactSuffix=''; if(m)exactSuffix+='&model='+encodeURIComponent(m); if(b)exactSuffix+='&backdrop='+encodeURIComponent(b); if(p)exactSuffix+='&symbol='+encodeURIComponent(p);
+  let exact=null,fm=null,fb=null,fp=null;
   try{
-    const res=await fetch(url,{cache:'no-store'}); if(!res.ok) return;
-    const d=await res.json();
-    if(!d||!d.ok||!(d.floor>0)) return;
-    if(lastResult!==r || r.ts!==stamp) return;   // user moved on
-    applyGiftCross(r, d, hasTrait);
+    [exact,fm,fb,fp]=await Promise.all([
+      fragQ(exactSuffix),
+      m?fragQ('&model='+encodeURIComponent(m)):Promise.resolve(null),
+      b?fragQ('&backdrop='+encodeURIComponent(b)):Promise.resolve(null),
+      p?fragQ('&symbol='+encodeURIComponent(p)):Promise.resolve(null)
+    ]);
   }catch(e){}
+  if(lastResult!==r || r.ts!==stamp) return;   // user moved on
+  if(exact) applyGiftCross(r, exact, hasTrait);
+  // comp engine: per-trait floors from BOTH Portals (data-floor) and Fragment
+  const mk=(name,portals,frag)=>{ if(!name) return null; const vals=[portals, frag&&frag.floor].filter(v=>v>0); const best=vals.length?Math.min.apply(null,vals):0; return {name,portals:portals||0,frag:(frag&&frag.floor)||0,best,count:(frag&&frag.count)||0}; };
+  const comps={ pat:mk(p,gFloorOf('e_rpat'),fp), back:mk(b,gFloorOf('e_rback'),fb), model:mk(m,gFloorOf('e_rmodel'),fm), exact:!!(exact&&exact.exact) };
+  // v2: both markets drive the headline — recompute from cheapest-of-both per-trait floors
+  if(!comps.exact){
+    const mFm=comps.model?comps.model.best:0, mFb=comps.back?comps.back.best:0, mFp=comps.pat?comps.pat.best:0;
+    if(mFm>0||mFb>0||mFp>0){
+      const sv2=(o,id)=>Math.max(gSupOf(id), o?o.count:0);
+      const fEl=document.getElementById('e_floor');
+      const r2=scoreGift('gifts', (document.getElementById('e_col')||{}).value, (document.getElementById('e_serial')||{}).value||'',
+        (document.getElementById('e_rback')||{}).value||null, (document.getElementById('e_rpat')||{}).value||null, (document.getElementById('e_rmodel')||{}).value||null,
+        fEl?fEl.value:null, mFb, mFp, mFm, sv2(comps.back,'e_rback'), sv2(comps.pat,'e_rpat'), sv2(comps.model,'e_rmodel'));
+      if(r2 && r2.priceTON>0 && lastResult===r && r.ts===stamp){
+        r.priceTON=r2.priceTON; r.factors=r2.factors; r.fsd=r2.fsd;
+        countUp('ptonNum', r.priceTON);
+        const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(r.priceTON);
+        const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(r.priceTON*(1-sp)))+'–'+fmtTON(Math.round(r.priceTON*(1+sp)))+' TON';
+        const cv=document.getElementById('confVal'); if(cv){ const c=confOf(r); cv.textContent=t(c.k); cv.style.color=c.c; }
+        const lv=document.getElementById('liqVal'); if(lv){ const l=liqOf(r); lv.textContent=t(l.k); lv.style.color=l.c; }
+        const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
+        const fb2=document.getElementById('giftFactors'); if(fb2) fb2.innerHTML=factorsHTML(r);
+      }
+    }
+  }
+  renderGiftComps(r, comps);
+}
+function renderGiftComps(r, comps){
+  const box=document.getElementById('giftComps'); if(!box) return; const ru=S.lang==='ru';
+  const all=[comps.pat,comps.back,comps.model].filter(o=>o&&o.best>0);
+  const found=all.length+(comps.exact?1:0);
+  if(!found){ box.innerHTML=''; return; }
+  let dom=null; all.forEach(o=>{ if(!dom||o.best>dom.best) dom=o; });
+  const rowOf=(lbl,o)=>{ if(!o||o.best<=0) return ''; const src = (o.portals>0&&o.frag>0)?(o.best===o.frag?'Fragment':'Portals'):(o.frag>0?'Fragment':'Portals');
+    return '<div class="comp"><span class="cn">'+lbl+(o.name?' · '+escapeHTML(o.name):'')+'</span><span class="cp">'+fmtTON(o.best)+' TON <span style="opacity:.55;font-weight:600;font-size:.88em">'+src+'</span></span></div>'; };
+  const rows=rowOf(ru?'Узор':'Symbol',comps.pat)+rowOf(ru?'Фон':'Backdrop',comps.back)+rowOf(ru?'Модель':'Model',comps.model);
+  const domLbl = dom===comps.pat?(ru?'узор':'symbol'):dom===comps.back?(ru?'фон':'backdrop'):(ru?'модель':'model');
+  const exactLine = comps.exact ? '<div class="comps-range" style="color:var(--good)">'+(ru?'✓ найден точный комп этой комбинации':'✓ exact comp for this combination found')+'</div>' : '';
+  const domLine = dom ? '<div class="comps-range">'+(ru?'Доминирует ':'Driven by ')+domLbl+' ≈ '+fmtTON(dom.best)+' TON · '+(ru?'ориентир ':'estimate ')+fmtTON(r.priceTON)+' TON</div>' : '';
+  box.innerHTML='<div class="comps-h">'+(ru?'Сопоставимые сделки':'Comparable deals')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
+    '<div class="comps-range">'+(ru?'Найдено сопоставимых: ':'Comparables found: ')+found+'</div>'+
+    domLine+exactLine+
+    '<div class="comps-list">'+rows+'</div>'+
+    '<div class="comps-note">'+(ru?'Цена идёт от самого ценного трейта — дешевле его не купить. Совпадение по узору / фону / модели на Portals и Fragment.':'Priced from the most-valued trait — it cannot be bought cheaper. Matched by symbol / backdrop / model on Portals & Fragment.')+'</div>';
 }
 function applyGiftCross(r, d, hasTrait){
   // Fragment price is the real deal for THIS item only if it matched the item's
@@ -2701,8 +2755,8 @@ function sealSVG(){ const c='#E7CE92'; return '<svg class="seal-svg" viewBox="0 
   '<path d="M50 55.6l2.3 2.3-2.3 2.3-2.3-2.3z" fill="'+c+'"/></svg>'; }
 /* confidence from how tight the estimate is */
 function confOf(r){ const s=estSpread(r);
-  if(s<=0.20) return {k:'confHigh',c:'var(--good)'};
-  if(s<=0.32) return {k:'confMid',c:'var(--warn)'};
+  if(s<=0.16) return {k:'confHigh',c:'var(--good)'};
+  if(s<=0.40) return {k:'confMid',c:'var(--warn)'};
   return {k:'confLow',c:'var(--bad)'}; }
 function confChipHTML(r){ const c=confOf(r);
   return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
@@ -2713,16 +2767,18 @@ function whyText(r){ const plus=r.factors.filter(f=>f.cls==='plus').map(f=>t(f.k
 function estSpread(r){
   // an exact live match on the market = a hard fact, not a guess -> tight band, high confidence
   if(r&&r.fragExact) return 0.06;
+  if(r&&typeof r.fsd==='number') return r.fsd;
   const p=r.priceTON;
   let s = p<80?0.14 : p<1500?0.18 : p<40000?0.30 : 0.45;
   if(r&&r.rarity&&r.rarity.oneIn){ s += Math.min(0.15, Math.log10(Math.max(1,r.rarity.oneIn))*0.03); }
   return Math.min(0.55, s);
 }
+function factorsHTML(r){ return (r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join(''); }
 function resultCardHTML(r){
   const tier=tierOf(r.priceTON);
   const subline = r.cat==='username' ? 'fragment.com/username/'+r.display.slice(1)
                 : r.cat==='numbers' ? 'anonymous number' : t('collection');
-  const facts=r.factors.map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join('');
+  const facts=factorsHTML(r);
   // honest uncertainty: liquid/cheap = tight, expensive/rare/illiquid = wide
   const spread=estSpread(r);
   const lo=Math.round(r.priceTON*(1-spread)), hi=Math.round(r.priceTON*(1+spread));
@@ -2747,9 +2803,10 @@ function resultCardHTML(r){
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
       '<div style="font-family:var(--font-b);font-weight:700;font-size:13px;margin:20px 2px 4px;color:var(--txt-2)">'+t('factorsTitle')+'</div>'+
-      '<div class="factors">'+facts+'</div>'+
+      '<div class="factors" id="giftFactors">'+facts+'</div>'+
       marketBridgeHTML(r)+
       (r.cat==='username' && proxyURL() ? '<div class="comps" id="usernameComps"><div class="comps-load">'+t('compsLoading')+'</div></div>' : '')+
+      (r.cat==='gifts' && proxyURL() ? '<div class="comps" id="giftComps"></div>' : '')+
       '<div class="acts">'+
         '<button class="act portf" onclick="addEvalToPortfolio()"><span>📁</span>'+t('pfAddBtn')+'</button>'+
         '<button class="act" onclick="exportCard()"><span>📤</span>'+t('share')+'</button>'+
