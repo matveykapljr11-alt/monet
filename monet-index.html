@@ -2574,6 +2574,7 @@ function doEvaluate(){
    if it's cheaper than our Portals-based estimate, show it as the true price + buy link. */
 function selName(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return ''; const o=s.options[s.selectedIndex]; return (o&&o.getAttribute('data-name'))||''; }
 function gFloorOf(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const f=o&&o.getAttribute('data-floor'); return f?parseFloat(f):0; }
+function gSupOf(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const v=o&&o.getAttribute('data-supply'); return v?parseFloat(v):0; }
 async function loadGiftCross(r){
   const proxy=proxyURL(); if(!proxy) return;
   const colEl=document.getElementById('e_col'); if(!colEl) return;
@@ -2597,6 +2598,27 @@ async function loadGiftCross(r){
   // comp engine: per-trait floors from BOTH Portals (data-floor) and Fragment
   const mk=(name,portals,frag)=>{ if(!name) return null; const vals=[portals, frag&&frag.floor].filter(v=>v>0); const best=vals.length?Math.min.apply(null,vals):0; return {name,portals:portals||0,frag:(frag&&frag.floor)||0,best,count:(frag&&frag.count)||0}; };
   const comps={ pat:mk(p,gFloorOf('e_rpat'),fp), back:mk(b,gFloorOf('e_rback'),fb), model:mk(m,gFloorOf('e_rmodel'),fm), exact:!!(exact&&exact.exact) };
+  // v2: both markets drive the headline — recompute from cheapest-of-both per-trait floors
+  if(!comps.exact){
+    const mFm=comps.model?comps.model.best:0, mFb=comps.back?comps.back.best:0, mFp=comps.pat?comps.pat.best:0;
+    if(mFm>0||mFb>0||mFp>0){
+      const sv2=(o,id)=>Math.max(gSupOf(id), o?o.count:0);
+      const fEl=document.getElementById('e_floor');
+      const r2=scoreGift('gifts', (document.getElementById('e_col')||{}).value, (document.getElementById('e_serial')||{}).value||'',
+        (document.getElementById('e_rback')||{}).value||null, (document.getElementById('e_rpat')||{}).value||null, (document.getElementById('e_rmodel')||{}).value||null,
+        fEl?fEl.value:null, mFb, mFp, mFm, sv2(comps.back,'e_rback'), sv2(comps.pat,'e_rpat'), sv2(comps.model,'e_rmodel'));
+      if(r2 && r2.priceTON>0 && lastResult===r && r.ts===stamp){
+        r.priceTON=r2.priceTON; r.factors=r2.factors;
+        countUp('ptonNum', r.priceTON);
+        const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(r.priceTON);
+        const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(r.priceTON*(1-sp)))+'–'+fmtTON(Math.round(r.priceTON*(1+sp)))+' TON';
+        const cv=document.getElementById('confVal'); if(cv){ const c=confOf(r); cv.textContent=t(c.k); cv.style.color=c.c; }
+        const lv=document.getElementById('liqVal'); if(lv){ const l=liqOf(r); lv.textContent=t(l.k); lv.style.color=l.c; }
+        const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
+        const fb2=document.getElementById('giftFactors'); if(fb2) fb2.innerHTML=factorsHTML(r);
+      }
+    }
+  }
   renderGiftComps(r, comps);
 }
 function renderGiftComps(r, comps){
@@ -2743,11 +2765,12 @@ function estSpread(r){
   if(r&&r.rarity&&r.rarity.oneIn){ s += Math.min(0.15, Math.log10(Math.max(1,r.rarity.oneIn))*0.03); }
   return Math.min(0.55, s);
 }
+function factorsHTML(r){ return (r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join(''); }
 function resultCardHTML(r){
   const tier=tierOf(r.priceTON);
   const subline = r.cat==='username' ? 'fragment.com/username/'+r.display.slice(1)
                 : r.cat==='numbers' ? 'anonymous number' : t('collection');
-  const facts=r.factors.map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join('');
+  const facts=factorsHTML(r);
   // honest uncertainty: liquid/cheap = tight, expensive/rare/illiquid = wide
   const spread=estSpread(r);
   const lo=Math.round(r.priceTON*(1-spread)), hi=Math.round(r.priceTON*(1+spread));
@@ -2772,7 +2795,7 @@ function resultCardHTML(r){
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
       '<div style="font-family:var(--font-b);font-weight:700;font-size:13px;margin:20px 2px 4px;color:var(--txt-2)">'+t('factorsTitle')+'</div>'+
-      '<div class="factors">'+facts+'</div>'+
+      '<div class="factors" id="giftFactors">'+facts+'</div>'+
       marketBridgeHTML(r)+
       (r.cat==='username' && proxyURL() ? '<div class="comps" id="usernameComps"><div class="comps-load">'+t('compsLoading')+'</div></div>' : '')+
       (r.cat==='gifts' && proxyURL() ? '<div class="comps" id="giftComps"></div>' : '')+
