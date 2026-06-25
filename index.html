@@ -2236,29 +2236,40 @@ function attrMult(pct, strength){
   else base=1;
   return 1+(base-1)*strength;
 }
+function fitRarityCurve(points, F0){
+  const b0=0.55, a0=Math.log(Math.max(1,F0)*0.683);                 // global prior: floor ≈ F0·0.683·(1/share)^0.55
+  const P=(points||[]).filter(p=>p.share>0&&p.floor>0).map(p=>({x:Math.log(1/p.share), y:Math.log(p.floor)}));
+  if(P.length<3) return {a:a0,b:b0,n:P.length};
+  const n=P.length; let sx=0,sy=0,sxx=0,sxy=0;
+  P.forEach(p=>{ sx+=p.x; sy+=p.y; sxx+=p.x*p.x; sxy+=p.x*p.y; });
+  const denom=(n*sxx-sx*sx)||1e-9; let b=(n*sxy-sx*sy)/denom, a=(sy-b*sx)/n;
+  b=Math.max(0.15, Math.min(1.1, b));
+  const Z=n/(n+4);                                                  // regularize toward prior when few points
+  return {a:Z*a+(1-Z)*a0, b:Z*b+(1-Z)*b0, n:n};
+}
+function curveVal(curve, share){ if(!curve||!(share>0)) return 0; return Math.exp(curve.a + curve.b*Math.log(1/share)); }
 function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, fPat, fModel, sBack, sPat, sModel){
   const list=COLLECTIONS[cat];
   const col=list.find(c=>c.id===colId)||list[list.length-1];
-  const F=[];
+  const F=[]; const ru=S.lang==='ru';
   const cf=parseFloat(customFloor);
-  const base=(colId==='other' && !isNaN(cf) && cf>0) ? cf : (col.floor>0?col.floor:100);
+  const base=(colId==='other'&&!isNaN(cf)&&cf>0)?cf:(col.floor>0?col.floor:100);
   serial=parseInt(serial,10);
-  // ===== Monet Valuation v3.1 =====
-  // Listed traits priced exactly as before (Portals/Fragment = trusted). Unlisted traits get a
-  // rarity-extrapolated premium over floor (power law, capped). Uncertainty -> FSD (range/confidence).
-  const B=0.55, S_REF=0.5, MULT_CAP=4, CAL=1.10;
+  // ===== Monet Valuation v4: self-calibrating rarity curve + floor/curve reconcile + joint-combo scarcity =====
+  const CAL=1.10, RECON_K=4, COMBO_EXP=0.15, COMBO_CAP=2.5, TRAIT_CAP=6, GLOBAL_CAP=8;
+  let curve=null; try{ curve=col.slug&&TRAITS_CACHE[col.slug]&&TRAITS_CACHE[col.slug].curve; }catch(e){}
+  if(!curve) curve={a:Math.log(Math.max(1,base)*0.683), b:0.55, n:0};
   const trait=(rPct,f,s,ic,kFloor,kRare)=>{
     const rp=parseFloat(rPct), fl=parseFloat(f), sup=parseFloat(s)||0;
-    if(fl>0){                                                   // LISTED — unchanged: reliability-weighted floor
-      const rel=Math.max(0.25, Math.min(1, sup/6));
-      return {v:base+rel*(fl-base), n:sup, listed:true, floor:fl, ic, k:kFloor, disp:Math.round(fl)+' TON'};
+    const share=(!isNaN(rp)&&rp>0)?rp/100:0;
+    if(fl<=0 && !(share>0)) return null;
+    const rv=share>0?Math.max(base, Math.min(base*TRAIT_CAP, curveVal(curve,share))):0;
+    if(fl>0){
+      const wF=sup/(sup+RECON_K);                                   // many listings -> trust floor; thin -> lean on curve
+      const v=rv>0?(wF*fl+(1-wF)*rv):fl;
+      return {v:Math.max(base,v), n:sup, listed:true, floor:fl, share, ic, k:kFloor, disp:Math.round(fl)+' TON'};
     }
-    if(!isNaN(rp)&&rp>0){                                       // UNLISTED — extrapolate from rarity share
-      const share=rp/100;
-      const mult=Math.max(1, Math.min(MULT_CAP, Math.pow(S_REF/share, B)));
-      return {v:base*mult, n:0, listed:false, floor:0, ic, k:kRare, disp:'×'+mult.toFixed(2)+' ('+(S.lang==='ru'?'редкость':'rarity')+')'};
-    }
-    return null;
+    return {v:Math.max(base,rv), n:0, listed:false, floor:0, share, ic, k:kRare, disp:'≈'+Math.round(rv)+' TON ('+(ru?'редкость':'rarity')+')'};
   };
   const items=[ trait(rModel,fModel,sModel,'🧬','fModelFl','fModelRare'),
                 trait(rBack ,fBack ,sBack ,'🎨','fBackFl' ,'fBackRare'),
@@ -2266,44 +2277,37 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
   let price, fsd;
   if(items.length){
     F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
-    const tf=[];
-    items.forEach(o=>{ tf.push(o.v); F.push({i:o.ic,k:o.k,v:o.disp,cls:'plus'}); });
-    const extra=tf.filter(v=>v>base+0.5).sort((a,b)=>b-a);
-    if(extra.length){
-      price=extra[0];                                          // dominant (most-valued) trait sets the floor
-      const w=[0,0.30,0.16,0.09]; let prem=0;
-      for(let i=1;i<extra.length;i++){ prem+=extra[i]*(w[i]||0.05); }   // scarcer combination -> diminishing premium
-      if(prem>0){ price+=prem; F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(prem)+' TON',cls:'plus'}); }
-      price=Math.round(price*CAL); F.push({i:'📈',k:'fMktCal',v:'+10%',cls:'plus'});
-    } else { price=base; }
+    items.forEach(o=>F.push({i:o.ic,k:o.k,v:o.disp,cls:'plus'}));
+    const sorted=items.slice().sort((a,b)=>b.v-a.v);
+    const anchor=sorted[0].v;
+    let jointInv=1, domInv=1; items.forEach(o=>{ if(o.share>0) jointInv*=1/o.share; });
+    if(sorted[0].share>0) domInv=1/sorted[0].share;
+    const comboMult=Math.max(1, Math.min(COMBO_CAP, Math.pow(jointInv/domInv, COMBO_EXP)));   // rarer combo -> bigger (bounded) premium
+    price=anchor*comboMult;
+    if(comboMult>1.02){ F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(anchor*(comboMult-1))+' TON',cls:'plus'}); }
+    price=Math.round(price*CAL); F.push({i:'📈',k:'fMktCal',v:'+10%',cls:'plus'});
     if(!isNaN(serial)&&serial>0){ let m=1; if(serial===1)m=2.2; else if(serial<=10)m=1.6; else if(serial<=100)m=1.2;
       if(m>1){ price=Math.round(price*m); F.push({i:'#️⃣',k:'fLowSerial',v:'×'+m,cls:'plus'}); } }
-    // confidence (FSD): driven by DATA AVAILABILITY — how many traits are really listed and how
-    // many listings back them (not trait spread, which is rarity signal, not noise).
+    let ath=0; try{ const mm=Object.values(MK.data()).flat().find(x=>x.name===col.n); if(mm&&mm.ath) ath=mm.ath; }catch(e){}
+    const hardCap=Math.max(base*GLOBAL_CAP, ath>0?ath*1.2:0);
+    if(hardCap>0 && price>hardCap){ price=Math.round(hardCap); F.push({i:'🧮',k:'fAttrCap',v:'cap',cls:'neutral'}); }
+    const lf=items.filter(o=>o.listed).map(o=>o.floor);
+    if(lf.length){ price=Math.max(price, Math.round(Math.max.apply(null,lf))); }
     const sumN=items.reduce((a,o)=>a+(o.n||0),0);
     const listedFrac=items.filter(o=>o.listed).length/items.length;
-    fsd=Math.max(0.05, Math.min(0.34, 0.05 + 0.20*(1-listedFrac) + 0.15/Math.sqrt(1+sumN)));
+    fsd=Math.max(0.05, Math.min(0.34, 0.05+0.20*(1-listedFrac)+0.15/Math.sqrt(1+sumN)));
   } else {
-    // FALLBACK (no traits chosen): collection floor + serial / rarity heuristic
-    price=base;
-    F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
-    if(!isNaN(serial)&&serial>0){
-      let m=1, kk='fSerialGood', cl='plus';
-      if(serial===1){ m=8; kk='fSerialTop'; }
-      else if(serial<=3){ m=5; kk='fSerialTop'; }
-      else if(serial<=10){ m=3; kk='fSerialTop'; }
-      else if(serial<=100){ m=1.8; }
-      else if(serial<=1000){ m=1.2; }
-      else { m=1; cl='neutral'; kk='fSerialGood'; }
+    price=base; F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
+    if(!isNaN(serial)&&serial>0){ let m=1, kk='fSerialGood', cl='plus';
+      if(serial===1){ m=8; kk='fSerialTop'; } else if(serial<=3){ m=5; kk='fSerialTop'; } else if(serial<=10){ m=3; kk='fSerialTop'; }
+      else if(serial<=100){ m=1.8; } else if(serial<=1000){ m=1.2; } else { m=1; cl='neutral'; kk='fSerialGood'; }
       if([7,77,100,777,1000].includes(serial)){ m*=1.3; F.push({i:'🎯',k:'fSerialRound',v:'×1.3',cls:'plus'}); }
-      if(m!==1){ price*=m; F.push({i:'#️⃣',k:kk,v:'×'+m,cls:cl}); }
-    }
+      if(m!==1){ price*=m; F.push({i:'#️⃣',k:kk,v:'×'+m,cls:cl}); } }
     const mB=attrMult(rBack,1.0), mP=attrMult(rPat,0.85), mM=attrMult(rModel,0.7);
     if(mB>1){ price*=mB; F.push({i:'🎨',k:'fBackdrop',v:'×'+mB.toFixed(2),cls:'plus'}); }
     if(mP>1){ price*=mP; F.push({i:'🌀',k:'fPattern',v:'×'+mP.toFixed(2),cls:'plus'}); }
     if(mM>1){ price*=mM; F.push({i:'🧬',k:'fModel',v:'×'+mM.toFixed(2),cls:'plus'}); }
-    const attrTotal=mB*mP*mM;
-    if(attrTotal>7){ const corr=7/attrTotal; price*=corr; F.push({i:'🧮',k:'fAttrCap',v:'×'+corr.toFixed(2),cls:'neutral'}); }
+    const attrTotal=mB*mP*mM; if(attrTotal>7){ const corr=7/attrTotal; price*=corr; F.push({i:'🧮',k:'fAttrCap',v:'×'+corr.toFixed(2),cls:'neutral'}); }
   }
   price=Math.round(price);
   const score=Math.max(0,Math.min(100, priceToScore(price)));
@@ -2551,6 +2555,11 @@ async function loadGiftTraits(prefix, col){
         if(node){ put(fm,qm,node.models); put(fb,qb,node.backdrops); put(fp,qp,node.symbols); }
       }catch(e){}
       data={ m:Array.isArray(m)?m:[], b:Array.isArray(b)?b:[], p:Array.isArray(p)?p:[], fm,fb,fp, qm,qb,qp };
+      try{ const F0=(col.floor>0?col.floor:100); const pts=[];
+        const addP=(arr,fmap)=>{ (arr||[]).forEach(o=>{ const nm=String(o.name||'').toLowerCase(); const fl=fmap[nm]||0; const sh=(o.rarityPermille!=null?o.rarityPermille/1000:(o.rarity||0)); if(fl>0&&sh>0) pts.push({share:sh,floor:fl}); }); };
+        addP(data.m,data.fm); addP(data.b,data.fb); addP(data.p,data.fp);
+        data.curve=fitRarityCurve(pts,F0);
+      }catch(e){ data.curve=null; }
       TRAITS_CACHE[slug]=data;
     }catch(e){ data={m:[],b:[],p:[],fm:{},fb:{},fp:{},qm:{},qb:{},qp:{}}; }
   }
