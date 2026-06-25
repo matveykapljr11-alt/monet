@@ -3670,15 +3670,20 @@ window.MK = (function(){
     }).join('');
     return '<div class="lots-h">'+t('lotsTitle')+' <span class="comps-live"><span class="flr-dot" style="background:var(--up)"></span>live</span></div><div class="lots-list">'+rows+'</div>';
   }
+  function lotsSane(items){
+    // drop lots whose price is wildly off the gift floor (wrong source/unit/variant noise, e.g. mismatched Tonnel listings)
+    const fl=(sheetA&&sheetA.price>0)?sheetA.price:0; if(!fl) return items;
+    return (items||[]).filter(it=>{ const p=+it.price; return p>0 && p>=fl*0.30 && p<=fl*8; });
+  }
   function loadLots(name){
     const box=document.getElementById('mk-lots'); if(!box) return;
     const url=proxyURL();
     if(!url){ box.innerHTML=lotsShell(t('lotsNoProxy')); return; }
-    if(LOTS_CACHE[name]){ box.innerHTML=lotsHTML(LOTS_CACHE[name]); return; }
+    if(LOTS_CACHE[name]){ box.innerHTML=lotsHTML(lotsSane(LOTS_CACHE[name])); return; }
     box.innerHTML=lotsShell(t('lotsLoading'));
     fetch(url+(url.includes('?')?'&':'?')+'listings='+encodeURIComponent(name)+'&n=5')
       .then(r=>r.json()).then(d=>{ const items=(d&&Array.isArray(d.items))?d.items:[]; LOTS_CACHE[name]=items;
-        if(sheetA && sheetA.name===name){ const b=document.getElementById('mk-lots'); if(b) b.innerHTML=lotsHTML(items); } })
+        if(sheetA && sheetA.name===name){ const b=document.getElementById('mk-lots'); if(b) b.innerHTML=lotsHTML(lotsSane(items)); } })
       .catch(()=>{ if(sheetA && sheetA.name===name){ const b=document.getElementById('mk-lots'); if(b) b.innerHTML=lotsShell(t('lotsErr')); } });
   }
   function renderSheet(){ const a=sheetA; if(!a)return; const up24=a.ch24>=0;
