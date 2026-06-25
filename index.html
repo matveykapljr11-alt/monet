@@ -909,6 +909,21 @@ header{border-bottom:0;background:none}
 .attr-sel>label{font-family:var(--font-d);font-weight:600;font-size:14px;color:var(--txt-2);width:66px;flex:none}
 .attr-sel>select.big{flex:1;margin:0;font-size:15px;padding:13px 16px}
 .attr-sel>select.big:disabled{opacity:.6}
+.trait-pick{flex:1;text-align:left;border:1px solid var(--line-2);background:var(--surface-2);color:var(--txt);font-family:var(--font-b);font-weight:600;font-size:15px;padding:13px 14px;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.trait-pick .tp-v{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trait-pick.chosen .tp-v{color:var(--txt)}
+.trait-pick .tp-c{color:var(--txt-3);font-size:11px;flex:none}
+.trait-hidden{display:none!important}
+.trait-sheet-h{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.trait-sheet-h b{font-family:var(--font-d);font-weight:700;font-size:19px;flex:1;letter-spacing:-.3px}
+.trait-sheet-h .x{border:0;background:var(--bg2);width:34px;height:34px;border-radius:50%;font-size:16px;color:var(--txt-2);cursor:pointer;flex:none}
+.trait-list{max-height:56vh;overflow-y:auto;margin:10px -4px 0;-webkit-overflow-scrolling:touch}
+.trait-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 10px;border-bottom:1px solid var(--line);cursor:pointer}
+.trait-row:last-child{border-bottom:0}
+.trait-row:active,.trait-row.on{background:var(--bg2)}
+.trait-row .tr-n{font-weight:700;font-size:14.5px}
+.trait-row .tr-r{font-size:11.5px;color:var(--txt-3);font-weight:600;margin-top:2px}
+.trait-row .tr-f{font-family:var(--font-m);font-weight:700;font-size:13px;color:var(--ton);font-variant-numeric:tabular-nums;white-space:nowrap}
 .attr-in{position:relative;display:flex;align-items:center;gap:10px}
 .attr-in>label{font-family:var(--font-d);font-weight:600;font-size:14px;color:var(--txt-2);width:54px;flex:none}
 .attr-in>input.big{flex:1;margin:0;padding-right:34px}
@@ -1542,6 +1557,9 @@ header{border-bottom:0;background:none}
 </aside>
 
 <!-- premium modal -->
+<div class="mk-scrim" id="trait-scrim" onclick="if(event.target===this)closeTraitPick()">
+  <div class="mk-sheet" id="trait-sheet"></div>
+</div>
 <div class="modal-scrim" id="premiumModal" onclick="if(event.target===this)closePremium()">
   <div class="modal">
     <span class="close" onclick="closePremium()">✕</span>
@@ -2373,9 +2391,9 @@ function inputHTML(cat, idp){
          '<input class="big" id="'+idp+'floor" inputmode="numeric" placeholder="'+t('phFloor')+'" style="margin:0 0 10px;display:none" oninput="giftLiveEval(\''+idp+'\')">'+
          '<input class="big" id="'+idp+'serial" inputmode="numeric" placeholder="'+t('phGiftSerial')+'" style="margin-bottom:12px" oninput="giftLiveEval(\''+idp+'\')">'+
          '<div class="attr-selects">'+
-           '<div class="attr-sel"><label>'+t('attrModel')+'</label><select class="big" id="'+idp+'rmodel" onchange="giftLiveEval(\''+idp+'\')"><option value="">'+(S.lang==='ru'?'— любая —':'— any —')+'</option></select></div>'+
-           '<div class="attr-sel"><label>'+t('attrBackdrop')+'</label><select class="big" id="'+idp+'rback" onchange="giftLiveEval(\''+idp+'\')"><option value="">'+(S.lang==='ru'?'— любой —':'— any —')+'</option></select></div>'+
-           '<div class="attr-sel"><label>'+t('attrPattern')+'</label><select class="big" id="'+idp+'rpat" onchange="giftLiveEval(\''+idp+'\')"><option value="">'+(S.lang==='ru'?'— любой —':'— any —')+'</option></select></div>'+
+           '<div class="attr-sel"><label>'+t('attrModel')+'</label><button type="button" class="trait-pick" id="'+idp+'rmodel_btn" onclick="openTraitPick(\''+idp+'\',\'rmodel\')"><span class="tp-v">'+(S.lang==='ru'?'— любая —':'— any —')+'</span><span class="tp-c">▾</span></button><select id="'+idp+'rmodel" class="trait-hidden" onchange="updateTraitBtn(\''+idp+'\',\'rmodel\')"><option value="">'+(S.lang==='ru'?'— любая —':'— any —')+'</option></select></div>'+
+           '<div class="attr-sel"><label>'+t('attrBackdrop')+'</label><button type="button" class="trait-pick" id="'+idp+'rback_btn" onclick="openTraitPick(\''+idp+'\',\'rback\')"><span class="tp-v">'+(S.lang==='ru'?'— любой —':'— any —')+'</span><span class="tp-c">▾</span></button><select id="'+idp+'rback" class="trait-hidden" onchange="updateTraitBtn(\''+idp+'\',\'rback\')"><option value="">'+(S.lang==='ru'?'— любой —':'— any —')+'</option></select></div>'+
+           '<div class="attr-sel"><label>'+t('attrPattern')+'</label><button type="button" class="trait-pick" id="'+idp+'rpat_btn" onclick="openTraitPick(\''+idp+'\',\'rpat\')"><span class="tp-v">'+(S.lang==='ru'?'— любой —':'— any —')+'</span><span class="tp-c">▾</span></button><select id="'+idp+'rpat" class="trait-hidden" onchange="updateTraitBtn(\''+idp+'\',\'rpat\')"><option value="">'+(S.lang==='ru'?'— любой —':'— any —')+'</option></select></div>'+
          '</div>'+
          '<div class="hint dim" style="margin:9px 2px 0">'+(S.lang==='ru'?'Модель, фон и узор — выбери из списка коллекции. Реже = дороже. Необязательно.':'Pick model, backdrop & symbol from the collection. Rarer = pricier. Optional.')+'</div>';
 }
@@ -2452,6 +2470,61 @@ function fillTraitSelect(sel, arr, fmap, smap){
   }).join('');
   sel.disabled=false;
 }
+let traitPickCtx=null;
+function traitDataFor(prefix,key){
+  const colSel=document.getElementById(prefix+'col'); const col=colSel?giftColById(colSel.value):null;
+  const d=col&&TRAITS_CACHE[col.slug]; if(!d) return {arr:[],fmap:{}};
+  if(key==='rmodel') return {arr:d.m||[],fmap:d.fm||{}};
+  if(key==='rback')  return {arr:d.b||[],fmap:d.fb||{}};
+  return {arr:d.p||[],fmap:d.fp||{}};
+}
+function openTraitPick(prefix,key){
+  traitPickCtx={prefix,key,list:[]}; const ru=S.lang==='ru';
+  const titles={rmodel:t('attrModel'),rback:t('attrBackdrop'),rpat:t('attrPattern')};
+  document.getElementById('trait-sheet').innerHTML=
+    '<div class="trait-sheet-h"><b>'+titles[key]+'</b><button class="x" onclick="closeTraitPick()">✕</button></div>'+
+    '<div class="mk-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg><input id="trait-q" placeholder="'+(ru?'Поиск…':'Search…')+'" autocomplete="off" spellcheck="false" oninput="renderTraitList()"></div>'+
+    '<div class="trait-list" id="trait-list"></div>';
+  renderTraitList();
+  document.getElementById('trait-scrim').classList.add('open');
+  setTimeout(function(){ const q=document.getElementById('trait-q'); if(q) q.focus(); },70);
+}
+function renderTraitList(){
+  if(!traitPickCtx) return; const {prefix,key}=traitPickCtx; const ru=S.lang==='ru';
+  const dat=traitDataFor(prefix,key); const fmap=dat.fmap;
+  const q=((document.getElementById('trait-q')||{}).value||'').trim().toLowerCase();
+  const cur=selName(prefix+key);
+  const anyTxt=(key==='rmodel')?(ru?'— любая —':'— any —'):(ru?'— любой —':'— any —');
+  const list=dat.arr.slice().sort((a,b)=>(a.rarityPermille||9999)-(b.rarityPermille||9999))
+    .filter(o=>!q || String(o.name||'').toLowerCase().includes(q));
+  traitPickCtx.list=list;
+  let html='<div class="trait-row'+(cur===''?' on':'')+'" onclick="pickTraitIdx(-1)"><div><div class="tr-n" style="color:var(--txt-3)">'+anyTxt+'</div></div></div>';
+  html+=list.map(function(o,i){
+    const name=o.name||''; const pct=Math.round((o.rarityPermille!=null?o.rarityPermille/10:(o.rarity||0))*100)/100;
+    const fl=fmap[String(name).toLowerCase()]||0;
+    return '<div class="trait-row'+(cur===name?' on':'')+'" onclick="pickTraitIdx('+i+')">'+
+      '<div><div class="tr-n">'+escapeHTML(name)+'</div><div class="tr-r">'+pct+'%</div></div>'+
+      (fl>0?'<div class="tr-f">'+Math.round(fl)+' TON</div>':'')+'</div>';
+  }).join('');
+  if(!list.length && q) html+='<div class="trait-row" style="cursor:default;color:var(--txt-3)"><div class="tr-n" style="color:var(--txt-3);font-weight:600">'+(ru?'Ничего не найдено':'Nothing found')+'</div></div>';
+  document.getElementById('trait-list').innerHTML=html;
+}
+function pickTraitIdx(i){
+  if(!traitPickCtx) return; const {prefix,key,list}=traitPickCtx;
+  const name = (i<0||!list[i]) ? '' : (list[i].name||'');
+  const sel=document.getElementById(prefix+key);
+  if(sel){ let idx=0; for(let k2=0;k2<sel.options.length;k2++){ if((sel.options[k2].getAttribute('data-name')||'')===name){ idx=k2; break; } } sel.selectedIndex=idx; }
+  updateTraitBtn(prefix,key); closeTraitPick();
+  if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}}
+}
+function closeTraitPick(){ const s=document.getElementById('trait-scrim'); if(s) s.classList.remove('open'); traitPickCtx=null; }
+function updateTraitBtn(prefix,key){
+  const sel=document.getElementById(prefix+key); const btn=document.getElementById(prefix+key+'_btn'); if(!sel||!btn) return;
+  const o=sel.options[sel.selectedIndex]; const name=(o&&o.getAttribute('data-name'))||'';
+  const ru=S.lang==='ru'; const anyTxt=(key==='rmodel')?(ru?'— любая —':'— any —'):(ru?'— любой —':'— any —');
+  const v=btn.querySelector('.tp-v'); if(v) v.textContent=name||anyTxt;
+  btn.classList.toggle('chosen', !!name);
+}
 async function loadGiftTraits(prefix, col){
   const sm=document.getElementById(prefix+'rmodel'), sb=document.getElementById(prefix+'rback'), sp=document.getElementById(prefix+'rpat');
   if(!sm&&!sb&&!sp) return;            // not the gift form
@@ -2486,6 +2559,7 @@ async function loadGiftTraits(prefix, col){
   fillTraitSelect(document.getElementById(prefix+'rmodel'), data.m, data.fm, data.qm);
   fillTraitSelect(document.getElementById(prefix+'rback'), data.b, data.fb, data.qb);
   fillTraitSelect(document.getElementById(prefix+'rpat'),  data.p, data.fp, data.qp);
+  ['rmodel','rback','rpat'].forEach(function(k){ try{ updateTraitBtn(prefix,k); }catch(e){} });
 }
 function onCollectionChange(prefix){
   const sel=document.getElementById(prefix+'col'), f=document.getElementById(prefix+'floor');
