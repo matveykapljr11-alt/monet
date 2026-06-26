@@ -1713,7 +1713,7 @@ ru:{
   fGiftFloor:'Floor коллекции', fSerialTop:'Низкий серийный №', fSerialGood:'Хороший серийный №',
   fSerialRound:'Красивый №', fRarityHigh:'Высокая редкость', fRarityMid:'Средняя редкость',
   fBackdrop:'Редкий фон', fPattern:'Редкий узор', fModel:'Редкая модель', fAttrCap:'Сглаживание редкости',
-  fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка', fModelRare:'Модель · по редкости', fBackRare:'Фон · по редкости', fPatRare:'Узор · по редкости', fShrink:'Поправка на данные', fTilt:'Спрос рынка', fCal:'Авто-калибровка',
+  fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка', fModelRare:'Модель · по редкости', fBackRare:'Фон · по редкости', fPatRare:'Узор · по редкости', fShrink:'Поправка на данные', fTilt:'Спрос рынка', fCal:'Авто-калибровка', fMeasured:'Измеренная точность',
   drawerTitle:'Меню', tabHistory:'История', tabFav:'Мои', tabTop:'Топ', drActions:'Действия', drLists:'Списки', drSettings:'Настройки', drLanguage:'Язык', drTheme:'Тема', thLight:'Светлая', thDark:'Тёмная',
   emptyHistory:'Здесь появятся ваши оценки', emptyFav:'Добавьте оценки в избранное звёздочкой',
   lockedHistory:'История ограничена 3 записями. 👑 Premium — без лимитов',
@@ -1808,7 +1808,7 @@ en:{
   fGiftFloor:'Collection floor', fSerialTop:'Low serial #', fSerialGood:'Good serial #',
   fSerialRound:'Beautiful #', fRarityHigh:'High rarity', fRarityMid:'Medium rarity',
   fBackdrop:'Rare backdrop', fPattern:'Rare pattern', fModel:'Rare model', fAttrCap:'Rarity smoothing',
-  fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration', fModelRare:'Model · by rarity', fBackRare:'Backdrop · by rarity', fPatRare:'Pattern · by rarity', fShrink:'Data adjustment', fTilt:'Market demand', fCal:'Auto-calibration',
+  fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration', fModelRare:'Model · by rarity', fBackRare:'Backdrop · by rarity', fPatRare:'Pattern · by rarity', fShrink:'Data adjustment', fTilt:'Market demand', fCal:'Auto-calibration', fMeasured:'Measured accuracy',
   drawerTitle:'Menu', tabHistory:'History', tabFav:'Mine', tabTop:'Top', drActions:'Actions', drLists:'Lists', drSettings:'Settings', drLanguage:'Language', drTheme:'Theme', thLight:'Light', thDark:'Dark',
   emptyHistory:'Your evaluations will appear here', emptyFav:'Star evaluations to save them',
   lockedHistory:'History capped at 3. 👑 Premium — unlimited',
@@ -2249,17 +2249,21 @@ function fitRarityCurve(points, F0){
   return {a:Z*aRaw+(1-Z)*a0, b:Z*b+(1-Z)*b0, n:n, r2:r2};
 }
 function curveVal(curve, share){ if(!curve||!(share>0)) return 0; return Math.exp(curve.a + curve.b*Math.log(1/share)); }
+function calRec(slug){ if(!S.cal) S.cal={}; let r=S.cal[slug]; if(typeof r==='number') r={m:r,n:0,e:0}; if(!r||typeof r!=='object') r={m:1,n:0,e:0}; return {m:r.m||1, n:r.n||0, e:r.e||0}; }
 function learnCal(slug, modelEst, truth){
-  if(!slug||!(modelEst>0)||!(truth>0)) return;                       // learn collection calibration from a real exact comp
-  if(!S.cal) S.cal={};
-  const cur=S.cal[slug]||1; const ratio=Math.max(0.4, Math.min(2.5, truth/modelEst));
-  let next=cur*Math.pow(ratio, 0.12); next=Math.max(0.6, Math.min(1.6, next));
-  S.cal[slug]=Math.round(next*1000)/1000; save();
+  if(!slug||!(modelEst>0)||!(truth>0)) return;                       // backtest: learn from a real exact comp (ground truth)
+  const r=calRec(slug);
+  const pctErr=Math.min(1.5, Math.abs(truth-modelEst)/truth);        // how far our pre-comp estimate was from the real price
+  const ratio=Math.max(0.4, Math.min(2.5, truth/modelEst));
+  r.m=Math.max(0.6, Math.min(1.6, r.m*Math.pow(ratio,0.12)));        // self-tuning calibration
+  r.e=r.n>0?(r.e*0.8+pctErr*0.2):pctErr;                             // EWMA measured error (track record)
+  r.n=Math.min(999, r.n+1);
+  if(!S.cal) S.cal={}; S.cal[slug]={m:Math.round(r.m*1000)/1000, n:r.n, e:Math.round(r.e*1000)/1000}; save();
 }
 function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, fPat, fModel, sBack, sPat, sModel){
   const list=COLLECTIONS[cat];
   const col=list.find(c=>c.id===colId)||list[list.length-1];
-  const F=[]; const ru=S.lang==='ru';
+  const F=[]; const ru=S.lang==='ru'; let accOut=null;
   const cf=parseFloat(customFloor);
   const base=(colId==='other'&&!isNaN(cf)&&cf>0)?cf:(col.floor>0?col.floor:100);
   serial=parseInt(serial,10);
@@ -2312,9 +2316,9 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     // serial
     if(!isNaN(serial)&&serial>0){ let m=1; if(serial===1)m=2.2; else if(serial<=10)m=1.6; else if(serial<=100)m=1.2;
       if(m>1){ price*=m; F.push({i:'#️⃣',k:'fLowSerial',v:'×'+m,cls:'plus'}); } }
-    // D: per-collection self-tuning calibration (learned from real exact comps)
-    const calMul=(S.cal&&col.slug&&S.cal[col.slug])||1;
-    if(Math.abs(calMul-1)>0.02){ price*=calMul; F.push({i:'🤖',k:'fCal',v:'×'+calMul.toFixed(2),cls:'neutral'}); }
+    // D: per-collection self-tuning calibration + measured track record (backtest)
+    const cr=calRec(col.slug);
+    if(Math.abs(cr.m-1)>0.02){ price*=cr.m; F.push({i:'🤖',k:'fCal',v:'×'+cr.m.toFixed(2),cls:'neutral'}); }
     // 5: sanity clamp + lower bound
     let ath=0; try{ const mm=Object.values(MK.data()).flat().find(x=>x.name===col.n); if(mm&&mm.ath) ath=mm.ath; }catch(e){}
     const hardCap=Math.max(base*GLOBAL_CAP, ath>0?ath*1.2:0);
@@ -2323,6 +2327,8 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     // confidence: data availability + estimator disagreement
     const sumN=items.reduce((a,o)=>a+(o.n||0),0); const listedFrac=items.filter(o=>o.listed).length/items.length;
     fsd=Math.max(0.05, Math.min(0.36, 0.05+0.20*(1-listedFrac)+0.15/Math.sqrt(1+sumN)+0.25*disagree));
+    if(cr.n>=3){ const meas=Math.max(0.04, Math.min(0.4, cr.e)); const w=Math.min(0.75, cr.n/8); fsd=(1-w)*fsd + w*meas;   // confidence becomes MEASURED as track record grows
+      accOut={n:cr.n, e:cr.e}; F.push({i:'🎯',k:'fMeasured',v:'±'+Math.round(cr.e*100)+'% · '+cr.n,cls:'neutral'}); }
   } else {
     price=base; F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
     if(!isNaN(serial)&&serial>0){ let m=1, kk='fSerialGood', cl='plus';
@@ -2339,7 +2345,7 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
   price=Math.round(price);
   const score=Math.max(0,Math.min(100, priceToScore(price)));
   let cap=null; try{ if(window.MK&&window.MK.data){ const m=Object.values(window.MK.data()).flat().find(x=>x.name===col.n); if(m&&m.supply) cap=m.supply; } }catch(e){}
-  return { priceTON:price, score, factors:F, rarity:rarityRank(rBack,rPat,rModel,cap), display:col.n+(serial?(' #'+serial):''), live:items.length>0, fsd };
+  return { priceTON:price, score, factors:F, rarity:rarityRank(rBack,rPat,rModel,cap), display:col.n+(serial?(' #'+serial):''), live:items.length>0, fsd, acc:accOut };
 }
 function rarityRank(rBack,rPat,rModel,cap){
   const ps=[rBack,rPat,rModel].map(parseFloat).filter(x=>!isNaN(x)&&x>0&&x<=100);
