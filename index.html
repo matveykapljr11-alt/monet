@@ -2719,10 +2719,12 @@ async function loadGiftCross(r){
   if(lastResult!==r || r.ts!==stamp) return;   // user moved on
   const preEst=r.priceTON;
   if(exact) applyGiftCross(r, exact, hasTrait);
-  if(exact && exact.exact && c.slug && exact.floor>0) learnCal(c.slug, preEst, Math.round(exact.floor));
+  const _ls=(exact&&exact.lastSale>0)?exact.lastSale:((fp&&fp.lastSale>0)?fp.lastSale:((fm&&fm.lastSale>0)?fm.lastSale:((fb&&fb.lastSale>0)?fb.lastSale:0)));
+  const _truth=_ls>0?_ls:((exact&&exact.exact&&exact.floor>0)?exact.floor:0);
+  if(_truth>0 && c.slug) learnCal(c.slug, preEst, Math.round(_truth));   // backtest learns from REAL SALES, not just asks
   // comp engine: per-trait floors from BOTH Portals (data-floor) and Fragment
   const mk=(name,portals,frag)=>{ if(!name) return null; const vals=[portals, frag&&frag.floor].filter(v=>v>0); const best=vals.length?Math.min.apply(null,vals):0; return {name,portals:portals||0,frag:(frag&&frag.floor)||0,best,count:(frag&&frag.count)||0}; };
-  const comps={ pat:mk(p,gFloorOf('e_rpat'),fp), back:mk(b,gFloorOf('e_rback'),fb), model:mk(m,gFloorOf('e_rmodel'),fm), exact:!!(exact&&exact.exact) };
+  const comps={ pat:mk(p,gFloorOf('e_rpat'),fp), back:mk(b,gFloorOf('e_rback'),fb), model:mk(m,gFloorOf('e_rmodel'),fm), exact:!!(exact&&exact.exact), lastSale:_ls };
   // v2: both markets drive the headline — recompute from cheapest-of-both per-trait floors
   if(!comps.exact){
     const mFm=comps.model?comps.model.best:0, mFb=comps.back?comps.back.best:0, mFp=comps.pat?comps.pat.best:0;
@@ -2760,6 +2762,7 @@ function renderGiftComps(r, comps){
   const domLine = dom ? '<div class="comps-range">'+(ru?'Доминирует ':'Driven by ')+domLbl+' ≈ '+fmtTON(dom.best)+' TON · '+(ru?'ориентир ':'estimate ')+fmtTON(r.priceTON)+' TON</div>' : '';
   box.innerHTML='<div class="comps-h">'+(ru?'Сопоставимые сделки':'Comparable deals')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
     '<div class="comps-range">'+(ru?'Найдено сопоставимых: ':'Comparables found: ')+found+'</div>'+
+    ((comps.lastSale>0)?'<div class="comps-range" style="color:var(--good)">'+(ru?'Реальные сделки ≈ ':'Real sales ≈ ')+fmtTON(Math.round(comps.lastSale))+' TON</div>':'')+
     domLine+exactLine+
     '<div class="comps-list">'+rows+'</div>'+
     '<div class="comps-note">'+(ru?'Цена идёт от самого ценного трейта — дешевле его не купить. Совпадение по узору / фону / модели на Portals и Fragment.':'Priced from the most-valued trait — it cannot be bought cheaper. Matched by symbol / backdrop / model on Portals & Fragment.')+'</div>';
