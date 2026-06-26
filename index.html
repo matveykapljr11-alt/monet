@@ -4576,6 +4576,7 @@ window.HOME=(function(){
   return { render, go, addToPf, shareCap, openHistory, openActivity, closeActivity, dismissDigest };
 })();
 window.ALERTS=(function(){
+  function grp(n){ n=Math.round(n); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); }
   function mkBy(n){ try{ return Object.values(window.MK.data()).flat().find(x=>x.name===n)||null; }catch(e){ return null; } }
   function priceOf(name){ const m=mkBy(name); return m?m.price:0; }
   function catOf(name){ const m=mkBy(name); return m?m.cat:'gifts'; }
