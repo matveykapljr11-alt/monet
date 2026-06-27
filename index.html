@@ -604,6 +604,15 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pin-opts{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .set-sel{flex:none;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);border-radius:10px;padding:7px 9px;font-family:var(--font-b);font-weight:600;font-size:13px;max-width:170px}
 .set-ver{flex:none;color:var(--txt-3);font-size:12px;font-weight:600}
+.set-cur{flex:none;color:var(--txt-2);font-weight:700;font-size:14px;margin-left:auto;padding-right:4px}
+.cur-list{display:flex;flex-direction:column;gap:3px;max-height:62vh;overflow:auto;-webkit-overflow-scrolling:touch;margin-top:6px}
+.cur-row{display:flex;align-items:center;gap:12px;border:0;background:transparent;padding:12px 8px;border-radius:13px;cursor:pointer;color:var(--txt);text-align:left;width:100%}
+.cur-row:active{background:var(--bg2)}
+.cur-row.on{background:var(--bg2)}
+.cur-row .fl{font-size:20px;flex:none;width:26px;text-align:center}
+.cur-row .sy{font-weight:800;min-width:30px;flex:none;color:var(--txt-2)}
+.cur-row .nm{flex:1;font-weight:600;font-size:14.5px}
+.cur-row .ck{color:var(--ton);font-weight:800;flex:none}
 .pf-masked{letter-spacing:2px}
 .pf-bankrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .pf-bcard{background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:14px 15px;box-shadow:var(--shadow)}
@@ -1523,6 +1532,10 @@ header{border-bottom:0;background:none}
   <div class="mk-sheet" id="pin-sheet"></div>
 </div>
 
+<div class="mk-scrim" id="cur-scrim" onclick="if(event.target===this)closeCurPick()">
+  <div class="mk-sheet" id="cur-sheet"></div>
+</div>
+
 <div class="mk-scrim" id="act-scrim" onclick="if(event.target===this)HOME.closeActivity()">
   <div class="mk-sheet" id="act-sheet"></div>
 </div>
@@ -1615,7 +1628,7 @@ header{border-bottom:0;background:none}
         </div>
       </div>
       <button class="dr-item" onclick="closeDrawer();LOCK.menu()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b data-i18n="lkTitle"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-      <div class="dr-item dr-row"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 2.6 15 0 18M12 3c-2.6 2.5-2.6 15 0 18"/></svg></span><b data-i18n="stCurrency"></b><select class="set-sel" id="setCurSel" onchange="setCurrencyUI(this.value)"></select></div>
+      <button class="dr-item" onclick="openCurPick()"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 2.6 15 0 18M12 3c-2.6 2.5-2.6 15 0 18"/></svg></span><b data-i18n="stCurrency"></b><span class="set-cur" id="setCurLbl"></span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <div class="dr-item dr-row"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg></span><b data-i18n="stStars"></b><div class="lang-toggle" id="starsToggle"><button onclick="setStars(true)" data-i18n="stOn"></button><button onclick="setStars(false)" data-i18n="stOff"></button></div></div>
       <button class="dr-item" onclick="closeDrawer();ONB.open()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2zM8 9h7M8 13h5"/></svg></span><b data-i18n="stOnboard"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="dr-item" onclick="resetData()"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13"/></svg></span><b data-i18n="stReset" style="color:var(--down)"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -3059,10 +3072,19 @@ const APP_VERSION='1.0';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
+function openCurPick(){ renderCurPick(); document.getElementById('cur-scrim').classList.add('open'); }
+function closeCurPick(){ document.getElementById('cur-scrim').classList.remove('open'); }
+function pickCurrency(c){ setCurrencyUI(c); closeCurPick(); }
+function renderCurPick(){ const ru=S.lang==='ru';
+  const list=CURRENCIES.filter(x=>x.c!=='ton' && (x.c==='usd'||x.c==='eur'||USD_CROSS[x.c]>0));
+  const rows=list.map(x=>'<button class="cur-row'+(x.c===S.currency?' on':'')+'" onclick="pickCurrency(\''+x.c+'\')"><span class="fl">'+x.fl+'</span><span class="sy">'+x.s+'</span><span class="nm">'+(ru?x.nru:x.nen)+'</span>'+(x.c===S.currency?'<span class="ck">\u2713</span>':'')+'</button>').join('');
+  document.getElementById('cur-sheet').innerHTML='<div class="mk-sheet-h"><div class="ic">\uD83D\uDCB1</div><div class="nm"><b>'+t('stCurrency')+'</b></div><button class="x" onclick="closeCurPick()">\u2715</button></div><div class="cur-list">'+rows+'</div>'; }
 function setStars(b){ S.showStars=!!b; save(); syncSettings(); try{ if(lastResult){ document.getElementById('result').innerHTML=resultCardHTML(lastResult); if(typeof syncFavButton==='function')syncFavButton(); } }catch(e){} }
-function resetData(){ const msg=t('stResetConfirm'); const go=function(){ try{ localStorage.removeItem('monet'); }catch(e){} try{ location.reload(); }catch(e){} }; try{ if(tg&&tg.showConfirm){ tg.showConfirm(msg,function(ok){ if(ok) go(); }); return; } }catch(e){} try{ if(typeof confirm==='function'){ if(confirm(msg)) go(); return; } }catch(e){} go(); }
+function resetData(){ const msg=t('stResetConfirm'); const go=function(){ try{ localStorage.removeItem('monet'); }catch(e){} try{ location.reload(); }catch(e){} };
+  const confirmThenGo=function(){ try{ if(tg&&tg.showConfirm){ tg.showConfirm(msg,function(ok){ if(ok) go(); }); return; } }catch(e){} try{ if(typeof confirm==='function'){ if(confirm(msg)) go(); return; } }catch(e){} go(); };
+  if(window.LOCK && LOCK.has()){ LOCK.verify(confirmThenGo); } else { confirmThenGo(); } }
 function syncSettings(){ try{
-  const sel=document.getElementById('setCurSel'); if(sel){ const cur=S.currency; sel.innerHTML=''; CURRENCIES.filter(x=>x.c!=='ton' && (x.c==='usd'||x.c==='eur'||USD_CROSS[x.c]>0)).forEach(x=>{ const o=document.createElement('option'); o.value=x.c; o.textContent=x.s+' '+(S.lang==='ru'?x.nru:x.nen); sel.appendChild(o); }); sel.value=cur; }
+  const lbl=document.getElementById('setCurLbl'); if(lbl){ const x=CURRENCIES.find(k=>k.c===S.currency)||CURRENCIES[1]; lbl.textContent=x.fl+' '+x.s; }
   const stg=document.getElementById('starsToggle'); if(stg&&stg.children.length>=2){ const on=S.showStars!==false; stg.children[0].classList.toggle('on',on); stg.children[1].classList.toggle('on',!on); }
   const ver=document.getElementById('setVer'); if(ver) ver.textContent='Monet v'+APP_VERSION;
 }catch(e){} }
@@ -3980,7 +4002,7 @@ window.PF = (function(){
       : '<svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
     box.innerHTML=
       '<div class="pf-hero">'+
-        '<div class="topline"><div><div class="lbl">'+t('pfTotal')+'</div><div class="pf-tier">'+tierBadge(tier.idx)+' '+tier.name+'</div></div>'+
+        '<div class="topline"><div><div class="lbl">'+t('pfTotal')+'</div>'+(hidden?'':'<div class="pf-tier">'+tierBadge(tier.idx)+' '+tier.name+'</div>')+'</div>'+
           '<div class="pf-acts">'+
             '<button class="pf-eye" onclick="BANK.openCard()" aria-label="card"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 9.5h19"/></svg></button>'+
             '<button class="pf-eye" onclick="PF.toggleHide()" aria-label="hide">'+eyeIcon+'</button>'+
@@ -3995,11 +4017,11 @@ window.PF = (function(){
         '<div class="pf-chart">'+sparkSVG(valueSeries(chartRange))+'</div>'+
         '<div class="pf-crange"><button class="'+(chartRange===7?'on':'')+'" onclick="PF.setRange(7)">'+(S.lang==='ru'?'7Д':'7D')+'</button><button class="'+(chartRange===30?'on':'')+'" onclick="PF.setRange(30)">'+(S.lang==='ru'?'30Д':'30D')+'</button></div>'+
       '</div>'+
-      '<div class="pf-bankrow">'+
+      (hidden?'':('<div class="pf-bankrow">'+
         '<div class="pf-bcard"><div class="k">'+t('pfForecast')+'</div><div class="v">'+(hidden?'••••':grp(fc.val)+' TON')+'</div><div class="s" style="color:'+(fc.pct>=0?'var(--up)':'var(--down)')+'">'+(fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'%</div></div>'+
         '<div class="pf-bcard"><div class="k">'+t('pfTier')+'</div><div class="v">'+tierBadge(tier.idx)+' '+tier.name+'</div><div class="s" style="color:var(--txt-3)">'+(tier.next?(t('pfToNext')+' '+tier.next.name+': '+grp(tier.next.need)+' TON'):'MAX')+'</div></div>'+
       '</div>'+
-      pnlHTML()+ goalCard+ cashHTML()+ (window.BANK?window.BANK.rewardsCardHTML():'')+
+      pnlHTML()+ goalCard+ cashHTML()))+ (window.BANK?window.BANK.rewardsCardHTML():'')+
       insights+ alloc+
       '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
       '<div class="pf-list">'+rows+'</div>'+
@@ -4038,7 +4060,7 @@ window.PF = (function(){
   function insCard(arrow,label,h,d){ const u=d>=0; return '<div class="pf-ins"><div class="ic">'+picHTML(h)+'</div><div class="mm"><div class="mt">'+label+'</div><div class="mn">'+escapeHTML(h.display)+'</div></div><div class="md '+(u?'up':'down')+'">'+(d>=0?'+':'')+d.toFixed(1)+'%</div></div>'; }
 
   async function share(){
-    const list=S.portfolio||[]; if(!list.length) return;
+    const list=S.portfolio||[]; if(total()<=0) return;
     const cv=document.getElementById('exportCanvas'), x=cv.getContext('2d');
     try{ await document.fonts.ready; }catch(e){}
     const tot=total();
@@ -4595,7 +4617,7 @@ window.HOME=(function(){
         '<button class="btn" style="margin-top:16px;max-width:320px" onclick="HOME.go(\'evaluate\')">'+t('hEmptyBtn')+'</button></div>'+qa()+pulse()+watchlist();
       box.innerHTML=html; return;
     }
-    html+='<div class="pf-hero"><div class="topline"><div class="lbl">'+t('hCapital')+'</div><span class="pf-tier">'+tier.ic+' '+tier.name+'</span></div>'+
+    html+='<div class="pf-hero"><div class="topline"><div class="lbl">'+t('hCapital')+'</div>'+(S.hideBalance?'':'<span class="pf-tier">'+tier.ic+' '+tier.name+'</span>')+'</div>'+
       '<div class="tot">'+(S.hideBalance?'••••':fmtTON(cap))+' <span style="font-size:.38em;opacity:.8;font-weight:600">TON</span></div>'+
       '<div class="fiat">≈ '+(S.hideBalance?'••••':fmtFiat(cap))+'</div>'+
       '<div class="chg" style="background:'+(ch.c24>=0?'rgba(95,233,170,.2)':'rgba(232,120,108,.2)')+'">'+(ch.c24>=0?'▲':'▼')+' '+Math.abs(ch.c24).toFixed(1)+'% · '+t('pfChange24')+'</div></div>';
