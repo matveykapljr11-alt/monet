@@ -518,7 +518,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 
 /* ---------- portfolio ---------- */
 .pf-hero{position:relative;overflow:hidden;border-radius:26px;padding:24px;margin-bottom:16px;color:#fff;background:linear-gradient(180deg,#1F6B4C,#163A2C);box-shadow:0 26px 56px -22px rgba(31,77,61,.55)}
-.pf-hero::after{content:"";position:absolute;right:-70px;top:-90px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.10)}
+.pf-hero::after{content:"";position:absolute;right:-70px;top:-90px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none;z-index:0}
 .pf-hero .lbl{position:relative;z-index:1;font-size:12px;font-weight:700;opacity:.9;text-transform:uppercase;letter-spacing:.5px}
 .pf-hero .tot{position:relative;z-index:1;font-family:var(--font-d);font-weight:800;font-size:clamp(34px,11vw,52px);letter-spacing:-1.5px;line-height:1;margin-top:8px}
 .pf-hero .fiat{position:relative;z-index:1;font-size:15px;font-weight:600;opacity:.92;margin-top:6px}
@@ -589,6 +589,21 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .home-digest .dg-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:3px 0}
 .home-digest .dg-row span{opacity:.85}
 .home-digest .dg-x{position:absolute;top:10px;right:10px;border:0;background:rgba(255,255,255,.15);color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:12px}
+.pin-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.pin-h b{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:18px}
+.pin-h .x{border:0;background:var(--bg2);width:34px;height:34px;border-radius:50%;font-size:16px;color:var(--txt-2);cursor:pointer}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin:6px 0 22px}
+.pin-dots.shake{animation:pinshake .4s}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--bg2);border:1px solid var(--line)}
+.pin-dot.on{background:var(--ton);border-color:var(--ton)}
+.pin-dot.err{background:var(--down);border-color:var(--down)}
+@keyframes pinshake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:280px;margin:0 auto}
+.pin-key{border:1px solid var(--line);background:var(--surface-2);border-radius:16px;padding:15px 0;font-size:22px;font-weight:600;color:var(--txt);cursor:pointer;font-family:'Fraunces',Georgia,serif}
+.pin-key:active{background:var(--bg2)}
+.pin-opts{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.set-sel{flex:none;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);border-radius:10px;padding:7px 9px;font-family:var(--font-b);font-weight:600;font-size:13px;max-width:170px}
+.set-ver{flex:none;color:var(--txt-3);font-size:12px;font-weight:600}
 .pf-masked{letter-spacing:2px}
 .pf-bankrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .pf-bcard{background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:14px 15px;box-shadow:var(--shadow)}
@@ -652,9 +667,9 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pf-rw .have{margin-top:10px;text-align:center;font-size:13px;font-weight:700;color:var(--up)}
 /* monet card (flip) */
 .card-wrap{width:100%;max-width:380px;perspective:1400px;padding:8px}
-.mcard{position:relative;width:100%;aspect-ratio:1.586/1;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1);cursor:pointer}
+.mcard{position:relative;width:100%;aspect-ratio:1.586/1;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1);cursor:pointer;box-shadow:0 30px 60px -20px rgba(16,34,22,.6)}
 .mcard.flipped{transform:rotateY(180deg)}
-.mface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(16,34,22,.6);color:#fff;padding:22px;display:flex;flex-direction:column}
+.mface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;-webkit-clip-path:inset(0 round 22px);clip-path:inset(0 round 22px);color:#fff;padding:22px;display:flex;flex-direction:column}
 .mfront{background:linear-gradient(140deg,#3A7D63 0%,#1F4D3D 55%,#143527 100%)}
 .mback{background:linear-gradient(160deg,#1B4133,#0E241B);transform:rotateY(180deg)}
 .mcard .sheen{position:absolute;inset:0;background:linear-gradient(118deg,transparent 30%,rgba(255,255,255,.13) 47%,transparent 58%);pointer-events:none}
@@ -780,13 +795,13 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .mk-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--txt-3);fill:none;stroke-width:2}
 .mk-sortsel{border:1px solid var(--line-2);border-radius:999px;background:var(--surface-2);color:var(--txt);font-family:var(--font-b);font-weight:700;font-size:13px;padding:11px 14px;cursor:pointer;-webkit-appearance:none;outline:none}
 .mk-movers{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
-.mk-mover{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:12px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shadow)}
+.mk-mover{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:12px 13px;display:flex;align-items:center;gap:9px;cursor:pointer;box-shadow:var(--shadow);min-width:0;overflow:hidden}
 .mk-mover .ic{width:34px;height:34px;border-radius:10px;background:var(--bg2);display:grid;place-items:center;font-size:18px;flex:none}
 .mk-mover .mm{flex:1;min-width:0}
-.mk-mover .mt{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.mk-mover .mt{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mk-mover.g .mt{color:var(--up)} .mk-mover.l .mt{color:var(--down)}
 .mk-mover .mn{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mk-mover .md{font-size:14px;font-weight:800;white-space:nowrap}
+.mk-mover .md{font-size:13.5px;font-weight:800;white-space:nowrap;flex:none}
 .mk-mover.g .md{color:var(--up)} .mk-mover.l .md{color:var(--down)}
 .mk-tcard{background:var(--surface-2);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
 .mk-table{width:100%;border-collapse:collapse}
@@ -1447,11 +1462,6 @@ header{border-bottom:0;background:none}
     </div>
     <div id="mk-index"></div>
     <div class="mkt-controls">
-      <div class="mk-pills" id="mk-pills">
-        <button class="on" data-cat="gifts" onclick="MK.setCat('gifts')" data-i18n="mkPillGifts">Подарки</button>
-        <button data-cat="usernames" onclick="MK.setCat('usernames')" data-i18n="mkPillU">Ники</button>
-        <button data-cat="numbers" onclick="MK.setCat('numbers')" data-i18n="mkPillN">Номера</button>
-      </div>
       <div class="mk-cur" id="mk-cur"><button class="on" onclick="MK.setCur('ton')">TON</button><button onclick="MK.setCur('usd')">$</button></div>
     </div>
     <div class="mkt-search-row">
@@ -1507,6 +1517,10 @@ header{border-bottom:0;background:none}
 
 <div class="mk-scrim" id="al-scrim" onclick="if(event.target===this)ALERTS.close()">
   <div class="mk-sheet" id="al-sheet"></div>
+</div>
+
+<div class="mk-scrim" id="pin-scrim" onclick="if(event.target===this)LOCK.cancel()">
+  <div class="mk-sheet" id="pin-sheet"></div>
 </div>
 
 <div class="mk-scrim" id="act-scrim" onclick="if(event.target===this)HOME.closeActivity()">
@@ -1600,6 +1614,12 @@ header{border-bottom:0;background:none}
           <button id="langEn" onclick="setLang('en')">EN</button>
         </div>
       </div>
+      <button class="dr-item" onclick="closeDrawer();LOCK.menu()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b data-i18n="lkTitle"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="dr-item dr-row"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 2.6 15 0 18M12 3c-2.6 2.5-2.6 15 0 18"/></svg></span><b data-i18n="stCurrency"></b><select class="set-sel" id="setCurSel" onchange="setCurrencyUI(this.value)"></select></div>
+      <div class="dr-item dr-row"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg></span><b data-i18n="stStars"></b><div class="lang-toggle" id="starsToggle"><button onclick="setStars(true)" data-i18n="stOn"></button><button onclick="setStars(false)" data-i18n="stOff"></button></div></div>
+      <button class="dr-item" onclick="closeDrawer();ONB.open()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2zM8 9h7M8 13h5"/></svg></span><b data-i18n="stOnboard"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="dr-item" onclick="resetData()"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13"/></svg></span><b data-i18n="stReset" style="color:var(--down)"></b><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="dr-item dr-row"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg></span><b data-i18n="stAbout"></b><span class="set-ver" id="setVer"></span></div>
     </div>
     <div class="dr-sec" data-i18n="drLists"></div>
   </div>
@@ -1699,7 +1719,7 @@ const DEFAULTS = {
   lang: 'ru', theme: 'dark', themeSet: false, currency: 'usd', premium: false,
   history: [], favorites: [], dail: { date:'', count:0 },
   best: { fun:0, chal:0 }, portfolio: [], pfHistory: [], hideBalance:false, goal:0, cash:0, realized:[], activity:[],
-  points:0, streak:0, lastSeen:'', cardName:'', floorProxy:'', notify:false, onboarded:false, onbVer:0, cal:{}, alerts:[], lastDigest:'', watchlist:[]
+  points:0, streak:0, lastSeen:'', cardName:'', floorProxy:'', notify:false, onboarded:false, onbVer:0, cal:{}, alerts:[], lastDigest:'', watchlist:[], pinHash:'', showStars:true
 };
 let S = loadAll();
 let mem = {}; // in-memory fallback when localStorage blocked
@@ -1725,7 +1745,7 @@ ru:{
   pfTitle:'Мой портфель', pfTotal:'Стоимость портфеля', pfEmpty:'Добавьте свои Telegram-активы и следите за их стоимостью',
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
   pfAddTitle:'Добавить в портфель', pfPick:'Что добавить', pfHistNote:'7д — оценка по динамике рынка',
-  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, TON', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'Нереализ. P&L', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, TON', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания',
+  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, TON', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'Нереализ. P&L', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, TON', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль баланса', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать «≈ ⭐»', stOn:'Вкл', stOff:'Выкл', stOnboard:'Показать введение', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
   pfAlloc:'Распределение', pfBest:'Лидер 24ч', pfWorst:'Аутсайдер 24ч', pfShare:'Поделиться',
   pfNetWorth:'Мой Telegram-капитал', pfOther:'прочее', pfAssets:'актив(а/ов)', pfEmptyCta:'Оцени актив и добавь в портфель',
   pfForecast:'Прогноз 30д', pfTier:'Статус', pfToNext:'до', pfGoal:'Цель', pfSetGoal:'Поставить цель', pfGoalTitle:'Цель по капиталу',
@@ -1821,7 +1841,7 @@ en:{
   pfTitle:'My portfolio', pfTotal:'Portfolio value', pfEmpty:'Add your Telegram assets and track their value',
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
   pfAddTitle:'Add to portfolio', pfPick:'What to add', pfHistNote:'7d — estimated from market trend',
-  estRange:'range', apprValue:'Estimated value', apprHouse:'appraisal house', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, TON', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, TON', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist',
+  estRange:'range', apprValue:'Estimated value', apprHouse:'appraisal house', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, TON', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, TON', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist', lkTitle:'Balance password', lkSetNew:'New password', lkRepeat:'Repeat password', lkEnter:'Enter password', lkEnterCur:'Current password', lkChange:'Change password', lkRemove:'Remove password', lkSaved:'Password set', lkRemoved:'Password removed', stCurrency:'Currency', stStars:'Show "\u2248 \u2b50"', stOn:'On', stOff:'Off', stOnboard:'Show intro', stReset:'Reset data', stAbout:'About', stResetConfirm:'Delete all local data (portfolio, history, alerts)? This cannot be undone.',
   pfAlloc:'Allocation', pfBest:'Top 24h', pfWorst:'Worst 24h', pfShare:'Share',
   pfNetWorth:'My Telegram net worth', pfOther:'other', pfAssets:'assets', pfEmptyCta:'Evaluate an asset and add it to your portfolio',
   pfForecast:'30d forecast', pfTier:'Status', pfToNext:'to', pfGoal:'Goal', pfSetGoal:'Set a goal', pfGoalTitle:'Capital goal',
@@ -2731,7 +2751,7 @@ function valueFor(cat, prefix){
     selSup(prefix+'rback'), selSup(prefix+'rpat'), selSup(prefix+'rmodel'));
 }
 function fmtTON(n){ n=Math.round(n); return n>=1000?n.toLocaleString('en-US'):String(n); }
-function fmtFiat(ton){ const v=Math.round(ton*RATE[S.currency]); return FX_LABEL[S.currency]+v.toLocaleString('en-US'); }
+function fmtFiat(ton){ const v=Math.round(ton*fxOf(S.currency)); return symOf(S.currency)+v.toLocaleString('en-US'); }
 function fmtStars(ton){ const n=Math.round(ton*STARS_PER_TON); return n.toLocaleString('en-US').replace(/,/g,' '); }
 
 let lastResult=null;
@@ -2907,7 +2927,6 @@ function marketBridgeHTML(r){
         '<div class="mb-cell"><span class="k">'+t('brVsFloor')+'</span><span class="v">×'+mult.toFixed(1)+'</span></div>'+
       '</div>'+
       lastSoldRow(NUMBERS_FLOOR, 0, 0)+
-      '<button class="mb-btn" onclick="setView(\'market\');MK.setCat&&MK.setCat(\'numbers\')">'+t('brOpen')+' →</button>'+
     '</div>';
   }
   return '';
@@ -2972,7 +2991,7 @@ function resultCardHTML(r){
       (r.cat==='gifts'?'<div id="xmkt"></div>':'')+
       '<div class="price-fiat"><span class="v" id="fiatVal">'+fmtFiat(r.priceTON)+'</span>'+
         '<span class="cur-toggle"><button class="'+(S.currency==='usd'?'on':'')+'" onclick="setCurrency(\'usd\')">USD</button><button class="'+(S.currency==='eur'?'on':'')+'" onclick="setCurrency(\'eur\')">EUR</button></span></div>'+
-      ((r.cat==='gifts'||r.cat==='stickers')?'<div class="price-stars" id="starsVal">\u2248 '+fmtStars(r.priceTON)+' \u2b50</div>':'')+
+      (((r.cat==='gifts'||r.cat==='stickers')&&S.showStars!==false)?'<div class="price-stars" id="starsVal">\u2248 '+fmtStars(r.priceTON)+' \u2b50</div>':'')+
       '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+'</div>'+
     '</div>'+
     '<div class="rbody">'+
@@ -3036,6 +3055,17 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
+const APP_VERSION='1.0';
+function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
+function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
+function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
+function setStars(b){ S.showStars=!!b; save(); syncSettings(); try{ if(lastResult){ document.getElementById('result').innerHTML=resultCardHTML(lastResult); if(typeof syncFavButton==='function')syncFavButton(); } }catch(e){} }
+function resetData(){ const msg=t('stResetConfirm'); const go=function(){ try{ localStorage.removeItem('monet'); }catch(e){} try{ location.reload(); }catch(e){} }; try{ if(tg&&tg.showConfirm){ tg.showConfirm(msg,function(ok){ if(ok) go(); }); return; } }catch(e){} try{ if(typeof confirm==='function'){ if(confirm(msg)) go(); return; } }catch(e){} go(); }
+function syncSettings(){ try{
+  const sel=document.getElementById('setCurSel'); if(sel){ const cur=S.currency; sel.innerHTML=''; CURRENCIES.filter(x=>x.c!=='ton' && (x.c==='usd'||x.c==='eur'||USD_CROSS[x.c]>0)).forEach(x=>{ const o=document.createElement('option'); o.value=x.c; o.textContent=x.s+' '+(S.lang==='ru'?x.nru:x.nen); sel.appendChild(o); }); sel.value=cur; }
+  const stg=document.getElementById('starsToggle'); if(stg&&stg.children.length>=2){ const on=S.showStars!==false; stg.children[0].classList.toggle('on',on); stg.children[1].classList.toggle('on',!on); }
+  const ver=document.getElementById('setVer'); if(ver) ver.textContent='Monet v'+APP_VERSION;
+}catch(e){} }
 
 /* ---- identify gift/sticker by photo (vision AI; online, graceful fallback) ---- */
 const VISION_API = 'https://api.anthropic.com/v1/messages';
@@ -3228,12 +3258,12 @@ function randomAsset(mode){
   }
 }
 function startGame(mode){
-  game={ mode, score:0, time:mode==='fun'?25:12, total:mode==='fun'?25:12, cur:null, locked:false };
+  game={ mode, score:0, time:mode==='fun'?20:13, total:mode==='fun'?30:20, cur:null, locked:false };
   nextQuestion();
   renderGame();
   game.timer=setInterval(()=>{
     game.time-=0.25;
-    const f=document.getElementById('gTimerFill'); if(f)f.style.width=(game.time/game.total*100)+'%';
+    const f=document.getElementById('gTimerFill'); if(f)f.style.width=Math.min(100,game.time/game.total*100)+'%';
     if(game.time<=0){ endGame(); }
   },250);
 }
@@ -3243,7 +3273,7 @@ function renderGame(){
   const r=game.cur;
   const isNum=r.cat==='numbers'||/^\+/.test(r.display);
   document.getElementById('gamePanel').innerHTML=
-    '<div class="g-hud"><div class="g-timer"><i id="gTimerFill" style="width:'+(game.time/game.total*100)+'%"></i></div><div class="g-score">'+game.score+'</div></div>'+
+    '<div class="g-hud"><div class="g-timer"><i id="gTimerFill" style="width:'+Math.min(100,game.time/game.total*100)+'%"></i></div><div class="g-score">'+game.score+'</div></div>'+
     '<div class="g-q"><div class="sheen"></div><div class="qc">'+(isNum?t('catNumbers'):t('catUsername'))+'</div><div class="qa">'+escapeHTML(r.display)+'</div><div class="qask">'+t('gAsk')+'</div></div>'+
     '<div class="panel"><div class="field" style="margin-bottom:10px"><input class="big" id="gGuess" inputmode="numeric" placeholder="'+t('gGuess')+'"></div>'+
     '<button class="btn" onclick="submitGuess()">'+t('gSubmit')+'</button></div>'+
@@ -3258,15 +3288,20 @@ function submitGuess(){
   const fb=document.getElementById('gFeedback');
   if(isNaN(guess)||guess<=0){ fb.className='g-fb'; fb.textContent='—'; return; }
   const ratio=guess>real?guess/real:real/guess;
-  let pts=0, msg='', cls='up';
-  if(ratio<=1.15){ pts=100; msg=t('gPerfect'); beep('perfect'); }
-  else if(ratio<=1.5){ pts=70; msg=t('gClose'); beep('good'); }
-  else if(ratio<=2.2){ pts=40; msg=t('gOk'); beep('good'); }
-  else if(ratio<=4){ pts=15; msg=t('gFar'); cls='up'; beep('meh'); }
-  else { pts=0; msg=t('gMiss'); cls='down'; beep('bad'); if(game.mode==='chal'){pts=-50;} }
+  let pts=0, bonus=0, msg='', cls='up';
+  if(ratio<=1.15){ pts=100; bonus=5; msg=t('gPerfect'); beep('perfect'); }
+  else if(ratio<=1.5){ pts=70; bonus=3.5; msg=t('gClose'); beep('good'); }
+  else if(ratio<=2.2){ pts=40; bonus=2; msg=t('gOk'); beep('good'); }
+  else if(ratio<=4){ pts=15; bonus=0.5; msg=t('gFar'); cls='up'; beep('meh'); }
+  else { pts=0; bonus=0; msg=t('gMiss'); cls='down'; beep('bad'); if(game.mode==='chal'){pts=-50; bonus=-3;} }
   game.score+=pts;
+  if(bonus) game.time=Math.max(0,Math.min(game.total,game.time+bonus));
+  const sx=(S.lang==='ru'?'с':'s');
+  const bonusTag = bonus>0 ? ' <span style="color:var(--up)">+'+(Number.isInteger(bonus)?bonus:bonus.toFixed(1))+sx+'</span>'
+                 : bonus<0 ? ' <span style="color:var(--down)">'+bonus+sx+'</span>' : '';
   fb.className='g-fb '+cls;
-  fb.innerHTML=msg+' '+(pts>=0?'+':'')+pts+' <span style="color:var(--txt-3);font-weight:600">('+fmtTON(real)+' TON)</span>';
+  fb.innerHTML=msg+' '+(pts>=0?'+':'')+pts+bonusTag+' <span style="color:var(--txt-3);font-weight:600">('+fmtTON(real)+' TON)</span>';
+  const f=document.getElementById('gTimerFill'); if(f)f.style.width=Math.min(100,game.time/game.total*100)+'%';
   game.locked=true;
   setTimeout(()=>{ if(!game)return; game.locked=false; nextQuestion(); renderGame(); },950);
 }
@@ -3437,6 +3472,7 @@ function renderDrawer(){
     html+=deals.map((d,i)=>'<div class="litem"><div class="rank">'+(i+1)+'</div><div class="lmid"><div class="la">'+escapeHTML(d.display)+'</div><div class="ls">'+d.note+'</div></div><div class="lp">'+fmtTON(d.priceTON)+' TON</div></div>').join('');
   }
   el.innerHTML = html.includes('litem') ? '<div class="ledger">'+html+'</div>' : html;
+  try{ syncSettings(); }catch(e){}
 }
 function litemHTML(it,fav,idx){
   return '<div class="litem"><div class="lic">'+catIcon(it.cat)+'</div>'+
@@ -3553,7 +3589,7 @@ function toast(msg){ const el=document.getElementById('toast'); el.textContent=m
 /* ---- live TON rate (optional, runtime fetch; falls back to defaults) ---- */
 function updateHeroRate(){
   const el=document.getElementById('heroRate'); if(!el) return;
-  const sym=FX_LABEL[S.currency], v=RATE[S.currency];
+  const sym=symOf(S.currency), v=fxOf(S.currency);
   el.textContent='1 TON ≈ '+sym+(v).toFixed(2);
 }
 async function refreshRate(){
@@ -3844,7 +3880,7 @@ window.PF = (function(){
   function gimg(name){ const s=String(name).toLowerCase().replace(/[^a-z0-9]/g,''); return '<img class="mk-gimg" data-slug="'+s+'" src="https://api.changes.tg/original/'+s+'.png?size=128" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="giftImgErr(this)" alt="">'; }
   function picHTML(h){ const gift=(h.cat==='gift'||h.cat==='gifts'); return gift ? ('<span>'+emoji(h)+'</span>'+gimg(h.display)) : emoji(h); }
   function grp(n){ n=Math.round(n); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); }
-  function fiat(ton){ const v=Math.round(ton*RATE[S.currency]); return FX_LABEL[S.currency]+v.toLocaleString('en-US'); }
+  function fiat(ton){ const v=Math.round(ton*fxOf(S.currency)); return symOf(S.currency)+v.toLocaleString('en-US'); }
   function mkByName(name){ if(!name) return null; const key=String(name).toLowerCase().replace(/^🎁\s*/,'').trim();
     const data=(window.MK&&window.MK.data&&window.MK.data())||{};
     for(const c in data){ const m=data[c].find(g=>g.name.toLowerCase()===key); if(m) return m; } return null; }
@@ -3987,7 +4023,7 @@ window.PF = (function(){
       '<div class="pf-bar"><i style="width:'+pct.toFixed(1)+'%"></i></div>'+
       '<div class="gm">'+(reached?'<span style="color:var(--up)">'+t('pfGoalReached')+'</span>':'<span>'+t('pfRemaining')+': '+grp(rem)+' TON</span>')+'<span class="pct">'+pct.toFixed(0)+'%</span></div></div>'; }
 
-  function toggleHide(){ S.hideBalance=!S.hideBalance; save(); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} render(); }
+  function toggleHide(){ const apply=function(){ S.hideBalance=!S.hideBalance; save(); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} render(); }; if(window.LOCK&&LOCK.has()){ LOCK.verify(apply); } else { apply(); } }
   function openGoal(){ const cur=parseFloat(S.goal)||'';
     document.getElementById('pf-sheet').innerHTML=
       '<div class="mk-sheet-h"><div class="ic">🎯</div><div class="nm"><b>'+t('pfGoalTitle')+'</b><span>'+t('pfNetWorth')+'</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
@@ -4560,8 +4596,8 @@ window.HOME=(function(){
       box.innerHTML=html; return;
     }
     html+='<div class="pf-hero"><div class="topline"><div class="lbl">'+t('hCapital')+'</div><span class="pf-tier">'+tier.ic+' '+tier.name+'</span></div>'+
-      '<div class="tot">'+fmtTON(cap)+' <span style="font-size:.38em;opacity:.8;font-weight:600">TON</span></div>'+
-      '<div class="fiat">≈ '+fmtFiat(cap)+'</div>'+
+      '<div class="tot">'+(S.hideBalance?'••••':fmtTON(cap))+' <span style="font-size:.38em;opacity:.8;font-weight:600">TON</span></div>'+
+      '<div class="fiat">≈ '+(S.hideBalance?'••••':fmtFiat(cap))+'</div>'+
       '<div class="chg" style="background:'+(ch.c24>=0?'rgba(95,233,170,.2)':'rgba(232,120,108,.2)')+'">'+(ch.c24>=0?'▲':'▼')+' '+Math.abs(ch.c24).toFixed(1)+'% · '+t('pfChange24')+'</div></div>';
     html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">'+
       '<div class="mk-stat"><div class="l">'+t('h24')+'</div><div class="v" style="color:'+(ch.c24>=0?'var(--up)':'var(--down)')+'">'+pct(ch.c24)+'</div></div>'+
@@ -4619,6 +4655,42 @@ window.ALERTS=(function(){
     try{ if(typeof syncNotify==='function' && S.notify) syncNotify(false); }catch(e){} }
   return { open, quick, close, render, addFromInput, remove, check, badge };
 })();
+window.LOCK=(function(){
+  const LEN=4; let buf='', mode='', stash='', cb=null, ttl='';
+  function hash(s){ let h=5381; for(let i=0;i<s.length;i++){ h=(((h<<5)+h)^s.charCodeAt(i))>>>0; } return 'p'+h.toString(36); }
+  function has(){ return !!(S.pinHash); }
+  function hap(t){ try{ if(tg&&tg.HapticFeedback){ if(t==='err')tg.HapticFeedback.notificationOccurred('error'); else tg.HapticFeedback.selectionChanged(); } }catch(e){} }
+  function render(err){
+    const dots=Array.from({length:LEN},(_,i)=>'<span class="pin-dot'+(i<buf.length?' on':'')+(err?' err':'')+'"></span>').join('');
+    const pad=[1,2,3,4,5,6,7,8,9,'',0,'<'].map(k=> k===''?'<div></div>':(k==='<'?'<button class="pin-key" onclick="LOCK.del()">⌫</button>':'<button class="pin-key" onclick="LOCK.tap('+k+')">'+k+'</button>')).join('');
+    document.getElementById('pin-sheet').innerHTML=
+      '<div class="pin-h"><b>'+ttl+'</b><button class="x" onclick="LOCK.cancel()">✕</button></div>'+
+      '<div class="pin-dots'+(err?' shake':'')+'">'+dots+'</div>'+
+      '<div class="pin-pad">'+pad+'</div>';
+  }
+  function begin(m,t){ mode=m; ttl=t; buf=''; render(); document.getElementById('pin-scrim').classList.add('open'); }
+  function close(){ document.getElementById('pin-scrim').classList.remove('open'); buf='';mode='';stash='';cb=null; }
+  function cancel(){ close(); }
+  function tap(n){ if(buf.length>=LEN) return; buf+=String(n); render(); if(buf.length===LEN) setTimeout(submit,110); }
+  function del(){ buf=buf.slice(0,-1); render(); }
+  function submit(){ const pin=buf;
+    if(mode==='set1'){ stash=pin; buf=''; mode='set2'; ttl=t('lkRepeat'); render(); return; }
+    if(mode==='set2'){ if(pin===stash){ S.pinHash=hash(pin); save(); hap(); close(); toast(t('lkSaved')); } else { buf='';stash=''; mode='set1'; ttl=t('lkSetNew'); render(true); hap('err'); } return; }
+    if(hash(pin)!==S.pinHash){ buf=''; render(true); hap('err'); return; }
+    if(mode==='verify'){ const fn=cb; cb=null; close(); if(fn) fn(); return; }
+    if(mode==='verify-then-set'){ stash=''; begin('set1', t('lkSetNew')); return; }
+    if(mode==='verify-then-remove'){ S.pinHash=''; save(); close(); toast(t('lkRemoved')); return; }
+  }
+  function setFlow(){ if(has()) begin('verify-then-set', t('lkEnterCur')); else begin('set1', t('lkSetNew')); }
+  function removeFlow(){ if(has()) begin('verify-then-remove', t('lkEnterCur')); else close(); }
+  function verify(onOk){ if(!has()){ if(onOk)onOk(); return; } cb=onOk; begin('verify', t('lkEnter')); }
+  function menu(){ if(!has()){ setFlow(); return; }
+    document.getElementById('pin-sheet').innerHTML=
+      '<div class="pin-h"><b>'+t('lkTitle')+'</b><button class="x" onclick="LOCK.cancel()">✕</button></div>'+
+      '<div class="pin-opts"><button class="btn" onclick="LOCK.setFlow()">'+t('lkChange')+'</button><button class="btn ghost" onclick="LOCK.removeFlow()">'+t('lkRemove')+'</button></div>';
+    document.getElementById('pin-scrim').classList.add('open'); }
+  return { menu, setFlow, removeFlow, verify, has, tap, del, cancel };
+})();
 function init(){
   if(!S.themeSet) S.theme='dark';
   applyTheme();
@@ -4635,6 +4707,7 @@ function init(){
   if(window.BANK) window.BANK.checkin();
   updatePremiumUI();
   updateHeroRate();
+  try{ recomputeFX(); }catch(e){}
   renderDrawer();   /* populate the menu/sidebar (profile + lists) on load */
   try{ document.querySelectorAll('.drnav-item[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===curView)); }catch(e){}
   try{ setView('home'); }catch(e){}
