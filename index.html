@@ -605,6 +605,13 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pin-opts{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .set-sel{flex:none;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);border-radius:10px;padding:7px 9px;font-family:var(--font-b);font-weight:600;font-size:13px;max-width:170px}
 .set-ver{flex:none;color:var(--txt-3);font-size:12px;font-weight:600}
+.verdict-card{margin-top:16px;background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:14px 15px}
+.vd-h{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:14.5px;margin-bottom:10px;color:var(--txt-2)}
+.vd-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:13.5px}
+.vd-l{color:var(--txt-3);font-weight:600}
+.vd-v{font-weight:800;font-variant-numeric:tabular-nums}
+.vd-badge{margin-top:11px;text-align:center;font-weight:800;font-size:13.5px;padding:9px 12px;border-radius:12px}
+.vd-note{margin-top:11px;font-size:12.5px;line-height:1.45;color:var(--txt-3)}
 .set-cur{flex:none;color:var(--txt-2);font-weight:700;font-size:14px;margin-left:auto;padding-right:4px}
 .cur-list{display:flex;flex-direction:column;gap:3px;max-height:62vh;overflow:auto;-webkit-overflow-scrolling:touch;margin-top:6px}
 .cur-row{display:flex;align-items:center;gap:12px;border:0;background:transparent;padding:12px 8px;border-radius:13px;cursor:pointer;color:var(--txt);text-align:left;width:100%}
@@ -2370,7 +2377,9 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     const rvRaw=share>0?Math.max(base, Math.min(base*TRAIT_CAP, curveVal(curve,share))):0;
     if(fl>0){
       const wF=sup/(sup+RECON_K);                                    // many listings -> trust floor; thin -> lean on curve
-      const v=rvRaw>0?(wF*fl+(1-wF)*rvRaw):fl;
+      // a listed floor is a real ask you can actually pay -> never inflate it via the rarity prior;
+      // only correct a thin/overpriced floor *downward* when rarity says it should be cheaper.
+      const v=(rvRaw>0 && rvRaw<fl)?(wF*fl+(1-wF)*rvRaw):fl;
       return {v:Math.max(base,v), n:sup, listed:true, floor:fl, share, ic, k:kFloor, disp:Math.round(fl)+' TON'};
     }
     const rv=base + trust*(rvRaw-base);                              // r2-weighted premium for unlisted traits
@@ -2388,16 +2397,19 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     // A: three independent estimators
     let jointInv=1; items.forEach(o=>{ if(o.share>0) jointInv*=1/o.share; });
     const domInv=sorted[0].share>0?1/sorted[0].share:1;
+    const liqF=items.filter(o=>o.listed).length/items.length;       // liquidity: share of traits that are actually listed
     const comboMult=Math.max(1, Math.min(COMBO_CAP, Math.pow(jointInv/domInv, COMBO_EXP)));
+    const comboEff=1+(comboMult-1)*(1-0.85*liqF);                    // liquid market realises little combo premium (buyable near floor)
     const E_floor=anchor;                                            // 1) dominant trait (lower bound)
-    const E_scar=anchor*comboMult;                                   // 2) joint-scarcity (multiplicative)
+    const E_scar=anchor*comboEff;                                    // 2) joint-scarcity (liquidity-tempered)
     let E_add=anchor; for(let i=1;i<sorted.length;i++){ E_add+=Math.max(0,sorted[i].v-base)*([0,0.5,0.3][i]||0.2); }   // 3) additive hedonic
     const mean=(E_floor+E_scar+E_add)/3;
     const sd=Math.sqrt(((E_floor-mean)*(E_floor-mean)+(E_scar-mean)*(E_scar-mean)+(E_add-mean)*(E_add-mean))/3);
     const disagree=mean>0?sd/mean:0;                                 // estimators disagree -> less certain
-    let point=0.15*E_floor+0.55*E_scar+0.30*E_add;                   // robust blend (lean scarcity, anchored by floor+additive)
-    if(comboMult>1.02){ F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(anchor*(comboMult-1))+' TON',cls:'plus'}); }
-    price=point*CAL; F.push({i:'📈',k:'fMktCal',v:'+10%',cls:'plus'});
+    const wF0=0.15+0.50*liqF, wS0=0.55-0.40*liqF, wA0=0.30-0.10*liqF; // listed -> trust the floor; unlisted -> trust scarcity
+    let point=wF0*E_floor+wS0*E_scar+wA0*E_add;
+    if(comboEff>1.02){ F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(anchor*(comboEff-1))+' TON',cls:'plus'}); }
+    const calEff=1+(CAL-1)*(1-liqF); price=point*calEff; if(calEff>1.005) F.push({i:'📈',k:'fMktCal',v:'+'+Math.round((calEff-1)*100)+'%',cls:'plus'});
     // C: live demand / listing-pressure tilt
     let tilt=1; try{ const mm=Object.values(MK.data()).flat().find(x=>x.name===col.n);
       if(mm){ const mom=Math.max(-0.06, Math.min(0.06,(mm.ch7||0)/100*0.4));
@@ -2837,7 +2849,50 @@ async function loadGiftCross(r){
       }
     }
   }
+  // === Fair appraisal vs live market + verdict (this is what a lookup can't give) ===
+  const exactAsk=(comps.exact && exact && exact.floor>0)?Math.round(exact.floor):0;
+  const sold=Math.round(_ls||0);
+  const domBest=Math.max(comps.pat?comps.pat.best:0, comps.back?comps.back.best:0, comps.model?comps.model.best:0);
+  // headline 'worth' leans on REAL sales when we have them — sold prices beat asks
+  if(sold>0 && lastResult===r && r.ts===stamp){
+    const w=(comps.exact)?0.5:0.34;
+    const worth=Math.round(w*sold+(1-w)*r.priceTON);
+    if(worth>0 && Math.abs(worth-r.priceTON)>=1){
+      r.priceTON=worth; countUp('ptonNum', worth);
+      const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(worth);
+      const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(worth*(1-sp)))+'–'+fmtTON(Math.round(worth*(1+sp)))+' TON';
+      const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(worth)+' \u2b50';
+      const cv=document.getElementById('confVal'); if(cv){ const cc=confOf(r); cv.textContent=t(cc.k); cv.style.color=cc.c; }
+      const lv=document.getElementById('liqVal'); if(lv){ const lq=liqOf(r); lv.textContent=t(lq.k); lv.style.color=lq.c; }
+    }
+  }
+  renderGiftVerdict({exactAsk, sold, worth:r.priceTON, hasTrait, listed:exactAsk>0});
   renderGiftComps(r, comps);
+}
+function renderGiftVerdict(v){
+  const box=document.getElementById('giftVerdict'); if(!box) return; const ru=S.lang==='ru';
+  if(!v.hasTrait && !v.exactAsk && !v.sold){ box.innerHTML=''; return; }
+  const row=(l,val,c)=>'<div class="vd-row"><span class="vd-l">'+l+'</span><span class="vd-v"'+(c?' style="color:'+c+'"':'')+'>'+val+'</span></div>';
+  let rows=row(ru?'Оценка Monet':'Monet appraisal', fmtTON(Math.round(v.worth))+' TON');
+  rows+=row(ru?'На рынке сейчас':'On market now', v.exactAsk>0?(fmtTON(v.exactAsk)+' TON'):(ru?'нет точного листинга':'no exact listing'), v.exactAsk>0?'':'var(--txt-3)');
+  if(v.sold>0) rows+=row(ru?'Реальные сделки':'Recent sales', '≈ '+fmtTON(v.sold)+' TON', 'var(--good)');
+  let vb='', note='';
+  if(v.exactAsk>0 && v.sold>0){
+    const d=Math.round((v.exactAsk - v.sold)/v.sold*100);
+    if(d<=-5){ vb='deal'; note=(ru?'Выгодно ':'Good buy ')+d+'% '+(ru?'к сделкам':'vs sales'); }
+    else if(d>=5){ vb='over'; note=(ru?'Дорого +':'Pricey +')+d+'% '+(ru?'к сделкам':'vs sales'); }
+    else { vb='fair'; note=ru?'Справедливая цена':'Fairly priced'; }
+  } else if(v.exactAsk>0){
+    const d=Math.round((v.exactAsk - v.worth)/v.worth*100);
+    if(d<=-8){ vb='deal'; note=(ru?'Ниже нашей оценки ':'Below our value ')+d+'%'; }
+    else if(d>=8){ vb='over'; note=(ru?'Выше нашей оценки +':'Above our value +')+d+'%'; }
+    else { vb='fair'; note=ru?'По рынку':'At market'; }
+  } else {
+    vb='appr'; note=ru?'Не продаётся сейчас — это оценка по сопоставимым сделкам и редкости, а не лукап листинга.':'Not listed now — appraised from comparable deals & rarity, not a listing lookup.';
+  }
+  const bc = vb==='deal'?'var(--up)':vb==='over'?'var(--down)':vb==='fair'?'var(--ton)':'var(--txt-2)';
+  const vHTML = vb==='appr' ? '<div class="vd-note">'+note+'</div>' : '<div class="vd-badge" style="background:'+bc+'1f;color:'+bc+'">'+note+'</div>';
+  box.innerHTML='<div class="verdict-card"><div class="vd-h">'+(ru?'Оценка vs рынок':'Appraisal vs market')+'</div>'+rows+vHTML+'</div>';
 }
 function renderGiftComps(r, comps){
   const box=document.getElementById('giftComps'); if(!box) return; const ru=S.lang==='ru';
@@ -3015,6 +3070,7 @@ function resultCardHTML(r){
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
       '<div style="font-family:var(--font-b);font-weight:700;font-size:13px;margin:20px 2px 4px;color:var(--txt-2)">'+t('factorsTitle')+'</div>'+
       '<div class="factors" id="giftFactors">'+facts+'</div>'+
+      (r.cat==='gifts' && proxyURL() ? '<div id="giftVerdict"></div>' : '')+
       marketBridgeHTML(r)+
       (r.cat==='username' && proxyURL() ? '<div class="comps" id="usernameComps"><div class="comps-load">'+t('compsLoading')+'</div></div>' : '')+
       (r.cat==='gifts' && proxyURL() ? '<div class="comps" id="giftComps"></div>' : '')+
