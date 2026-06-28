@@ -2828,45 +2828,40 @@ async function loadGiftCross(r){
   // comp engine: per-trait floors from BOTH Portals (data-floor) and Fragment
   const mk=(name,portals,frag)=>{ if(!name) return null; const vals=[portals, frag&&frag.floor].filter(v=>v>0); const best=vals.length?Math.min.apply(null,vals):0; return {name,portals:portals||0,frag:(frag&&frag.floor)||0,best,count:(frag&&frag.count)||0}; };
   const comps={ pat:mk(p,gFloorOf('e_rpat'),fp), back:mk(b,gFloorOf('e_rback'),fb), model:mk(m,gFloorOf('e_rmodel'),fm), exact:!!(exact&&exact.exact), lastSale:_ls };
-  // v2: both markets drive the headline — recompute from cheapest-of-both per-trait floors
-  if(!comps.exact){
-    const mFm=comps.model?comps.model.best:0, mFb=comps.back?comps.back.best:0, mFp=comps.pat?comps.pat.best:0;
+  // independent cross-market comps estimate — cheapest per-trait floor from Portals ∪ Fragment
+  let ourEst=0, ourR=null;
+  { const mFm=comps.model?comps.model.best:0, mFb=comps.back?comps.back.best:0, mFp=comps.pat?comps.pat.best:0;
     if(mFm>0||mFb>0||mFp>0){
       const sv2=(o,id)=>Math.max(gSupOf(id), o?o.count:0);
       const fEl=document.getElementById('e_floor');
       const r2=scoreGift('gifts', (document.getElementById('e_col')||{}).value, (document.getElementById('e_serial')||{}).value||'',
         (document.getElementById('e_rback')||{}).value||null, (document.getElementById('e_rpat')||{}).value||null, (document.getElementById('e_rmodel')||{}).value||null,
         fEl?fEl.value:null, mFb, mFp, mFm, sv2(comps.back,'e_rback'), sv2(comps.pat,'e_rpat'), sv2(comps.model,'e_rmodel'));
-      if(r2 && r2.priceTON>0 && lastResult===r && r.ts===stamp){
-        r.priceTON=r2.priceTON; r.factors=r2.factors; r.fsd=r2.fsd;
-        countUp('ptonNum', r.priceTON);
-        const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(r.priceTON);
-        const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(r.priceTON*(1-sp)))+'–'+fmtTON(Math.round(r.priceTON*(1+sp)))+' TON';
-        const cv=document.getElementById('confVal'); if(cv){ const c=confOf(r); cv.textContent=t(c.k); cv.style.color=c.c; }
-        const lv=document.getElementById('liqVal'); if(lv){ const l=liqOf(r); lv.textContent=t(l.k); lv.style.color=l.c; }
-        const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
-        const fb2=document.getElementById('giftFactors'); if(fb2) fb2.innerHTML=factorsHTML(r);
+      if(r2 && r2.priceTON>0){ ourEst=r2.priceTON; ourR=r2;
+        if(!comps.exact){ r.priceTON=r2.priceTON; r.factors=r2.factors; r.fsd=r2.fsd; }
       }
     }
   }
-  // === Fair appraisal vs live market + verdict (this is what a lookup can't give) ===
+  // cross-market reconcile: one market's exact ask must not inflate worth above the cheaper cross-market comps
+  if(comps.exact && ourEst>0 && r.priceTON>ourEst){ r.priceTON=Math.round(ourEst); if(ourR){ r.factors=ourR.factors; r.fsd=ourR.fsd; } }
+  // === fair appraisal vs live market + verdict ===
   const exactAsk=(comps.exact && exact && exact.floor>0)?Math.round(exact.floor):0;
   const sold=Math.round(_ls||0);
-  const domBest=Math.max(comps.pat?comps.pat.best:0, comps.back?comps.back.best:0, comps.model?comps.model.best:0);
-  // headline 'worth' leans on REAL sales when we have them — sold prices beat asks
-  if(sold>0 && lastResult===r && r.ts===stamp){
-    const w=(comps.exact)?0.5:0.34;
-    const worth=Math.round(w*sold+(1-w)*r.priceTON);
-    if(worth>0 && Math.abs(worth-r.priceTON)>=1){
-      r.priceTON=worth; countUp('ptonNum', worth);
-      const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(worth);
-      const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(worth*(1-sp)))+'–'+fmtTON(Math.round(worth*(1+sp)))+' TON';
-      const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(worth)+' \u2b50';
-      const cv=document.getElementById('confVal'); if(cv){ const cc=confOf(r); cv.textContent=t(cc.k); cv.style.color=cc.c; }
-      const lv=document.getElementById('liqVal'); if(lv){ const lq=liqOf(r); lv.textContent=t(lq.k); lv.style.color=lq.c; }
-    }
+  const domBest=Math.round(Math.max(comps.pat?comps.pat.best:0, comps.back?comps.back.best:0, comps.model?comps.model.best:0));
+  let marketAsk=0; { const cands=[exactAsk,domBest].filter(x=>x>0); if(cands.length) marketAsk=Math.min.apply(null,cands); }   // cheapest place to actually buy a match
+  // worth leans on REAL sales when available — sold beats asks
+  if(sold>0){ const w=(comps.exact)?0.5:0.34; const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; }
+  // refresh the headline once from the final reconciled worth
+  if(lastResult===r && r.ts===stamp){
+    countUp('ptonNum', r.priceTON);
+    const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(r.priceTON);
+    const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(r.priceTON*(1-sp)))+'–'+fmtTON(Math.round(r.priceTON*(1+sp)))+' TON';
+    const cv=document.getElementById('confVal'); if(cv){ const cc=confOf(r); cv.textContent=t(cc.k); cv.style.color=cc.c; }
+    const lv=document.getElementById('liqVal'); if(lv){ const lq=liqOf(r); lv.textContent=t(lq.k); lv.style.color=lq.c; }
+    const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
+    const fb2=document.getElementById('giftFactors'); if(fb2) fb2.innerHTML=factorsHTML(r);
   }
-  renderGiftVerdict({exactAsk, sold, worth:r.priceTON, hasTrait, listed:exactAsk>0});
+  renderGiftVerdict({exactAsk:marketAsk, sold, worth:r.priceTON, hasTrait, listed:marketAsk>0});
   renderGiftComps(r, comps);
 }
 function renderGiftVerdict(v){
