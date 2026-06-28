@@ -677,6 +677,8 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .dr-danger .qic{background:rgba(232,120,108,.16)!important;box-shadow:none!important}
 .dr-danger .qic .ico{stroke:var(--down)}
 .dr-ver{text-align:center;font-size:11px;color:var(--txt-3);font-weight:600;margin:0 0 10px}
+.photo-btn .soon-tag{margin-left:8px;font-style:normal;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;background:var(--gold);color:#1c2b22;padding:2px 7px;border-radius:999px;vertical-align:middle}
+.soon-btn{opacity:.9}
 .tbadge{width:15px;height:15px;vertical-align:-3px;display:inline-block;flex:none;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.28))}
 .tbadge.big{width:18px;height:18px;vertical-align:-4px}
 .dr-sec{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);margin:0 4px 11px;opacity:.95}
@@ -1804,7 +1806,7 @@ ru:{
   attrBackdrop:'Фон', attrPattern:'Узор', attrModel:'Модель',
   rkNone:'—', rkCommon:'Обычный', rkUncommon:'Нечастый', rkRare:'Редкий', rkEpic:'Эпик', rkLegendary:'Лег.', rkMythic:'Миф.', rarityOneIn:'≈ 1 из',
   collection:'Коллекция', giftPick:'Выбери коллекцию', giftOther:'Другой',
-  photoBtn:'Определить по фото', photoAnalyzing:'Распознаю подарок…',
+  photoBtn:'Определить по фото', soon:'скоро', photoSoon:'Распознавание по фото — скоро', photoAnalyzing:'Распознаю подарок…',
   photoMatched:'Похоже на', photoConf:'уверенность',
   photoFail:'Не удалось распознать — выберите вручную',
   photoOffline:'Распознавание по фото требует интернета. Выберите вручную',
@@ -1900,7 +1902,7 @@ en:{
   attrBackdrop:'Backdrop', attrPattern:'Symbol', attrModel:'Model',
   rkNone:'—', rkCommon:'Common', rkUncommon:'Uncommon', rkRare:'Rare', rkEpic:'Epic', rkLegendary:'Leg.', rkMythic:'Myth.', rarityOneIn:'≈ 1 in',
   collection:'Collection', giftPick:'Pick a collection', giftOther:'Other',
-  photoBtn:'Identify by photo', photoAnalyzing:'Recognizing the gift…',
+  photoBtn:'Identify by photo', soon:'soon', photoSoon:'Photo recognition is coming soon', photoAnalyzing:'Recognizing the gift…',
   photoMatched:'Looks like', photoConf:'confidence',
   photoFail:'Couldn’t recognize — pick manually',
   photoOffline:'Photo recognition needs internet. Pick manually',
@@ -2531,7 +2533,7 @@ function inputHTML(cat, idp){
   }).join('');
   const photo = idp==='e_' ?
     '<div class="photo-id">'+
-      '<button type="button" class="photo-btn" onclick="document.getElementById(\'e_photo\').click()">📷 <span>'+t('photoBtn')+'</span></button>'+
+      '<button type="button" class="photo-btn soon-btn" onclick="toast(t(\'photoSoon\'))">📷 <span>'+t('photoBtn')+'</span><em class="soon-tag">'+t('soon')+'</em></button>'+
       '<input type="file" id="e_photo" accept="image/*" style="display:none" onchange="identifyByPhoto(this.files[0])">'+
       '<div class="photo-res" id="e_photoRes"></div>'+
     '</div>' : '';
