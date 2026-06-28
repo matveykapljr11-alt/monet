@@ -2801,6 +2801,12 @@ function doEvaluate(){
 function selName(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return ''; const o=s.options[s.selectedIndex]; return (o&&o.getAttribute('data-name'))||''; }
 function gFloorOf(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const f=o&&o.getAttribute('data-floor'); return f?parseFloat(f):0; }
 function gSupOf(id){ const s=document.getElementById(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const v=o&&o.getAttribute('data-supply'); return v?parseFloat(v):0; }
+function robustMed(arr){ const a=(arr||[]).map(Number).filter(x=>x>0).sort((x,y)=>x-y); if(!a.length) return 0;
+  const med=a[Math.floor(a.length/2)];
+  const dev=a.map(x=>Math.abs(x-med)).sort((x,y)=>x-y); const mad=dev[Math.floor(dev.length/2)]||0;
+  const lo=med-3*mad, hi=med+3*mad; const f=a.filter(x=>x>=lo&&x<=hi); const g=f.length?f:a;     // MAD outlier rejection
+  const k=g.slice(0, Math.min(5,g.length));                                                       // median of cheapest-N
+  return k[Math.floor(k.length/2)]; }
 async function loadGiftCross(r){
   const proxy=proxyURL(); if(!proxy) return;
   const colEl=document.getElementById('e_col'); if(!colEl) return;
@@ -2846,11 +2852,17 @@ async function loadGiftCross(r){
   if(comps.exact && ourEst>0 && r.priceTON>ourEst){ r.priceTON=Math.round(ourEst); if(ourR){ r.factors=ourR.factors; r.fsd=ourR.fsd; } }
   // === fair appraisal vs live market + verdict ===
   const exactAsk=(comps.exact && exact && exact.floor>0)?Math.round(exact.floor):0;
-  const sold=Math.round(_ls||0);
+  // robust sold-based fair: prefer EXACT sales, else dominant-trait sales; median-of-cheapest-N with MAD outlier rejection
+  let salesArr=null, salesW=0;
+  if(exact && Array.isArray(exact.sales) && exact.sales.length){ salesArr=exact.sales; salesW=0.7; }
+  else { const cand=[[comps.model,fm],[comps.back,fb],[comps.pat,fp]].filter(x=>x[0]&&x[1]&&Array.isArray(x[1].sales)&&x[1].sales.length);
+    cand.sort((x,y)=>(y[0].best||0)-(x[0].best||0)); if(cand.length){ salesArr=cand[0][1].sales; salesW=0.5; } }
+  const soldFair = salesArr ? robustMed(salesArr) : Math.round(_ls||0);
+  const sold = soldFair>0 ? Math.round(soldFair) : 0;
   const domBest=Math.round(Math.max(comps.pat?comps.pat.best:0, comps.back?comps.back.best:0, comps.model?comps.model.best:0));
   let marketAsk=0; { const cands=[exactAsk,domBest].filter(x=>x>0); if(cands.length) marketAsk=Math.min.apply(null,cands); }   // cheapest place to actually buy a match
-  // worth leans on REAL sales when available — sold beats asks
-  if(sold>0){ const w=(comps.exact)?0.5:0.34; const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; }
+  // worth leans on REAL executed sales when available — sold beats asks
+  if(sold>0){ const w=salesArr?salesW:(comps.exact?0.5:0.34); const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; }
   // refresh the headline once from the final reconciled worth
   if(lastResult===r && r.ts===stamp){
     countUp('ptonNum', r.priceTON);
