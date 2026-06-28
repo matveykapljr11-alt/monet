@@ -2468,6 +2468,7 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     if(mM>1){ price*=mM; F.push({i:'🧬',k:'fModel',v:'×'+mM.toFixed(2),cls:'plus'}); }
     const attrTotal=mB*mP*mM; if(attrTotal>7){ const corr=7/attrTotal; price*=corr; F.push({i:'🧮',k:'fAttrCap',v:'×'+corr.toFixed(2),cls:'neutral'}); }
   }
+  if((colId==='other')? (!isNaN(cf)&&cf>0) : (col&&col.floor>0)) price=Math.max(price, base);   // a specific item is never worth less than the collection floor
   price=Math.round(price);
   const score=Math.max(0,Math.min(100, priceToScore(price)));
   let cap=null; try{ if(window.MK&&window.MK.data){ const m=Object.values(window.MK.data()).flat().find(x=>x.name===col.n); if(m&&m.supply) cap=m.supply; } }catch(e){}
@@ -2886,6 +2887,8 @@ async function loadGiftCross(r){
   let marketAsk=0; { const cands=[exactAsk,domBest].filter(x=>x>0); if(cands.length) marketAsk=Math.min.apply(null,cands); }   // cheapest place to actually buy a match
   // worth leans on REAL executed sales when available — sold beats asks
   if(sold>0){ const w=salesArr?salesW:(comps.exact?0.5:0.34); const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; }
+  const lbFloor=Math.round(Math.max((c&&c.floor)||0, domBest||0));   // can't be below the cheapest matching item / collection floor
+  if(lbFloor>0 && r.priceTON<lbFloor) r.priceTON=lbFloor;
   // refresh the headline once from the final reconciled worth
   if(lastResult===r && r.ts===stamp){
     countUp('ptonNum', r.priceTON);
