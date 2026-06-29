@@ -2389,7 +2389,7 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
   const base=(colId==='other'&&!isNaN(cf)&&cf>0)?cf:(col.floor>0?col.floor:100);
   serial=parseInt(serial,10);
   // ===== Monet Valuation v5: 3-estimator ensemble + R²-trusted rarity + demand tilt + self-tuning calibration =====
-  const CAL=1.10, RECON_K=4, COMBO_EXP=0.15, COMBO_CAP=2.5, TRAIT_CAP=6, GLOBAL_CAP=8;
+  const CAL=1.10, RECON_K=4, COMBO_EXP=0.15, COMBO_CAP=1.6, TRAIT_CAP=6, GLOBAL_CAP=8;
   let curve=null; try{ curve=col.slug&&TRAITS_CACHE[col.slug]&&TRAITS_CACHE[col.slug].curve; }catch(e){}
   if(!curve) curve={a:Math.log(Math.max(1,base)*0.683), b:0.55, n:0, r2:0};
   const trust=Math.max(0.25, Math.min(1, curve.r2||0));              // B: trust the curve as much as rarity predicts here
@@ -2429,7 +2429,7 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     const mean=(E_floor+E_scar+E_add)/3;
     const sd=Math.sqrt(((E_floor-mean)*(E_floor-mean)+(E_scar-mean)*(E_scar-mean)+(E_add-mean)*(E_add-mean))/3);
     const disagree=mean>0?sd/mean:0;                                 // estimators disagree -> less certain
-    const wF0=0.15+0.50*liqF, wS0=0.55-0.40*liqF, wA0=0.30-0.10*liqF; // listed -> trust the floor; unlisted -> trust scarcity
+    const wF0=0.30+0.40*liqF, wS0=0.40-0.30*liqF, wA0=0.30-0.10*liqF; // lean on floor; scarcity is a gentle add, not a multiplier
     let point=wF0*E_floor+wS0*E_scar+wA0*E_add;
     if(comboEff>1.02){ F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(anchor*(comboEff-1))+' TON',cls:'plus'}); }
     const calEff=1+(CAL-1)*(1-liqF); price=point*calEff; if(calEff>1.005) F.push({i:'📈',k:'fMktCal',v:'+'+Math.round((calEff-1)*100)+'%',cls:'plus'});
@@ -2848,6 +2848,7 @@ async function loadGiftCross(r){
   let exactSuffix=''; if(m)exactSuffix+='&model='+encodeURIComponent(m); if(b)exactSuffix+='&backdrop='+encodeURIComponent(b); if(p)exactSuffix+='&symbol='+encodeURIComponent(p);
   let exact=null,fm=null,fb=null,fp=null,stats=null;
   const statsP=fetch(base+'/?salestats='+encodeURIComponent(c.slug),{cache:'no-store'}).then(x=>x.ok?x.json():null).catch(()=>null);
+  const listP=fetch(base+'/?listings='+gname+(m?'&model='+encodeURIComponent(m):'')+(b?'&backdrop='+encodeURIComponent(b):'')+(p?'&symbol='+encodeURIComponent(p):''),{cache:'no-store'}).then(x=>x.ok?x.json():null).catch(()=>null);
   try{
     [exact,fm,fb,fp]=await Promise.all([
       fragQ(exactSuffix),
@@ -2857,6 +2858,7 @@ async function loadGiftCross(r){
     ]);
   }catch(e){}
   try{ stats=await statsP; }catch(e){}
+  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; const mch=its.filter(x=>x&&x.match&&x.price>0); const pool=(mch.length?mch:its).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); crossAsk=Math.round(pool[0].price); } }catch(e){}
   if(lastResult!==r || r.ts!==stamp) return;   // user moved on
   const preEst=r.priceTON;
   if(exact) applyGiftCross(r, exact, hasTrait);
@@ -2894,7 +2896,7 @@ async function loadGiftCross(r){
   if(stats && stats.med>0){ const gw=Math.min(0.5,(stats.n||0)/((stats.n||0)+10)); soldFair = soldFair>0 ? Math.round((1-gw)*soldFair + gw*stats.med) : Math.round(stats.med); }
   const sold = soldFair>0 ? Math.round(soldFair) : 0;
   const domBest=Math.round(Math.max(comps.pat?comps.pat.best:0, comps.back?comps.back.best:0, comps.model?comps.model.best:0));
-  let marketAsk=0; { const cands=[exactAsk,domBest].filter(x=>x>0); if(cands.length) marketAsk=Math.min.apply(null,cands); }   // cheapest place to actually buy a match
+  let marketAsk=0; { const cands=[exactAsk,domBest,crossAsk].filter(x=>x>0); if(cands.length) marketAsk=Math.min.apply(null,cands); }   // cheapest place to actually buy a match (ALL markets incl. Tonnel)
   // worth leans on REAL executed sales when available — sold beats asks
   if(sold>0){ const w=salesArr?salesW:(comps.exact?0.5:0.34); const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; }
   // #5: server-learned hedonic — price by the most-valuable trait's premium LEARNED ON REAL SALES (not bare rarity), credibility-gated
@@ -2905,7 +2907,8 @@ async function loadGiftCross(r){
       const cred=Math.min(0.5, stats.n/(stats.n+25)); if(hed>0) r.priceTON=Math.round((1-cred)*r.priceTON + cred*hed); }
   }
   if(stats && stats.n>=8 && stats.cv>0){ r.fsd=Math.max(0.05, Math.min(0.4, 0.6*(r.fsd||0.2)+0.4*Math.min(0.5,stats.cv))); }   // #4 range/confidence from REAL collection volatility
-  const lbFloor=Math.round(Math.max((c&&c.floor)||0, domBest||0));   // can't be below the cheapest matching item / collection floor
+  if(crossAsk>0 && r.priceTON>crossAsk) r.priceTON=crossAsk;   // never value above the cheapest REAL buyable price across ALL markets (Tonnel included)
+  const lbFloor=Math.round(Math.max((c&&c.floor)||0, crossAsk>0?0:(domBest||0)));   // collection floor is the hard lower bound; trust real cross-market over Portals-derived domBest
   if(lbFloor>0 && r.priceTON<lbFloor) r.priceTON=lbFloor;
   // refresh the headline once from the final reconciled worth
   if(lastResult===r && r.ts===stamp){
