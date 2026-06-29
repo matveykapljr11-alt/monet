@@ -2898,12 +2898,13 @@ async function loadGiftCross(r){
   // worth leans on REAL executed sales when available — sold beats asks
   if(sold>0){ const w=salesArr?salesW:(comps.exact?0.5:0.34); const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; }
   // #5: server-learned hedonic — price by the most-valuable trait's premium LEARNED ON REAL SALES (not bare rarity), credibility-gated
-  if(stats && stats.n>=8 && stats.allMed>0){
+  if(stats && stats.n>=8){
     const pm=stats.prem||{}; const gp=(o,nm)=>(o&&nm&&o[nm]>0)?o[nm]:0;
-    const prems=[gp(pm.models,m),gp(pm.backdrops,b),gp(pm.symbols,p)].filter(x=>x>0);
-    if(prems.length){ const hed=Math.round((stats.allMed||stats.med)*Math.max.apply(null,prems));
+    const vals=[gp(pm.models,m),gp(pm.backdrops,b),gp(pm.symbols,p)].filter(x=>x>0);
+    if(vals.length){ const hed=Math.max.apply(null,vals);   // worth ~ the most-valuable trait's typical SALE price (server-learned, absolute TON)
       const cred=Math.min(0.5, stats.n/(stats.n+25)); if(hed>0) r.priceTON=Math.round((1-cred)*r.priceTON + cred*hed); }
   }
+  if(stats && stats.n>=8 && stats.cv>0){ r.fsd=Math.max(0.05, Math.min(0.4, 0.6*(r.fsd||0.2)+0.4*Math.min(0.5,stats.cv))); }   // #4 range/confidence from REAL collection volatility
   const lbFloor=Math.round(Math.max((c&&c.floor)||0, domBest||0));   // can't be below the cheapest matching item / collection floor
   if(lbFloor>0 && r.priceTON<lbFloor) r.priceTON=lbFloor;
   // refresh the headline once from the final reconciled worth
