@@ -437,6 +437,9 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .modal .winhint{text-align:center; font-size:11.5px; color:var(--txt-3); margin-top:12px}
 .premium-on-banner{display:none; align-items:center; gap:10px; padding:12px 14px; border-radius:13px; background:linear-gradient(135deg,rgba(31,77,61,.14),var(--surface)); border:1px solid var(--ton); margin-bottom:14px; font-size:13px; font-weight:700; color:var(--ton)}
 .premium-on-banner.show{display:flex}
+.pm-promo{margin:2px 0 14px; padding:12px 14px; border-radius:13px; background:linear-gradient(135deg,rgba(235,203,124,.16),var(--surface)); border:1px solid var(--tier-top); text-align:left}
+.pm-promo-t{font-weight:800; font-size:14px; color:var(--tier-top); margin-bottom:4px}
+.pm-promo-s{font-size:12px; line-height:1.45; color:var(--muted)}
 
 .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(40px); background:var(--surface-2); border:1px solid var(--line-2); color:var(--txt); padding:12px 20px; border-radius:14px; font-size:13px; font-weight:700; z-index:80; opacity:0; transition:.3s; backdrop-filter:blur(14px); box-shadow:var(--shadow); pointer-events:none; max-width:90vw; text-align:center}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
@@ -678,6 +681,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .dr-prem .qic .ico{stroke:#1c2b22}
 .dr-prem b{color:var(--gold)}
 .dr-danger b{color:var(--down)}
+.dr-free{display:inline-block; font-style:normal; font-size:9px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; color:#1c2b22; background:linear-gradient(180deg,#E7CE92,#C8A24B); padding:1px 5px; border-radius:6px; margin-left:5px; vertical-align:middle}
 .dr-danger .qic{background:rgba(232,120,108,.16)!important;box-shadow:none!important}
 .dr-danger .qic .ico{stroke:var(--down)}
 .dr-ver{text-align:center;font-size:11px;color:var(--txt-3);font-weight:600;margin:0 0 10px}
@@ -1696,6 +1700,7 @@ header{border-bottom:0;background:none}
     <div class="crown">👑</div>
     <h2 data-i18n="pmTitle"></h2>
     <p class="msub" data-i18n="pmSub"></p>
+    <div class="pm-promo" id="pmPromo" style="display:none"></div>
     <div class="plan" id="planList"></div>
     <button class="btn gold" id="pmBuyBtn" onclick="buyPremium()"></button>
     <p class="winhint" data-i18n="pmWin"></p>
@@ -1716,6 +1721,10 @@ const RATE = { usd: 1.76, eur: 1.63 };           // TON -> fiat (calibrated May 
 const STAR_USD = 0.013;                          // legacy USD/Star (unused)
 let STARS_PER_TON = 200;                          // Telegram Fragment peg: 200 Stars = 1 TON (override via proxy ?floors -> starsPerTon)
 const PREMIUM_STARS = 500;                        // price of Monet Premium in Telegram Stars
+// Launch promo: everything is free for everyone until this moment (device-local time), then the paywall returns automatically.
+const LAUNCH_FREE_UNTIL = new Date(2026,6,5,0,0,0).getTime();   // 5 Jul 2026 00:00 local
+function launchFree(){ return Date.now() < LAUNCH_FREE_UNTIL; }
+function proActive(){ return !!(S&&S.premium) || launchFree(); }   // unified "has full access" check
 const FX_LABEL = { usd:'$', eur:'€' };
 // Converter currencies (value bridged through TON). flag + symbol + name.
 const CURRENCIES = [
@@ -1853,6 +1862,7 @@ ru:{
   topNote:'Реальные рекордные сделки',
   pmTitle:'Monet Premium', pmSub:'Снимите все лимиты оценщика',
   pmGet:'Оформить Premium', pmFail:'Оплата не прошла', pmSoon:'Покупка скоро будет доступна', pmWin:'Или выиграйте в режиме 🔥 Челлендж (700 очков)',
+  freeLaunch:'🎉 Бесплатно на старте · до 5 июля', freeLaunchNote:'Сейчас все функции открыты бесплатно. Можно оформить заранее, чтобы поддержать — премиум останется и после запуска.', freeNow:'бесплатно',
   planFreeT:'Бесплатно', planProT:'Premium',
   free1:'5 оценок в день', free2:'История — 3 записи', free3:'Избранное — 3 записи', free4:'Без объяснения цены',
   pro1:'Безлимит оценок', pro2:'Полная история', pro3:'Безлимит избранного', pro4:'Объяснение цены и сравнение',
@@ -1948,6 +1958,7 @@ en:{
   topNote:'Real record deals',
   pmTitle:'Monet Premium', pmSub:'Remove every limit of the appraiser',
   pmGet:'Get Premium', pmFail:'Payment failed', pmSoon:'Purchase coming soon', pmWin:'Or win the 🔥 Challenge mode (700 points)',
+  freeLaunch:'🎉 Free at launch · until Jul 5', freeLaunchNote:'All features are open for free right now. You can subscribe early to support — premium stays after launch too.', freeNow:'free',
   planFreeT:'Free', planProT:'Premium',
   free1:'5 evaluations / day', free2:'History — 3 entries', free3:'Favorites — 3 entries', free4:'No price explanation',
   pro1:'Unlimited evaluations', pro2:'Full history', pro3:'Unlimited favorites', pro4:'Price explanation & compare',
@@ -3199,7 +3210,7 @@ function explainText(r){
   return s;
 }
 function toggleExplain(){
-  if(!S.premium){ openPremium(); return; }
+  if(!proActive()){ openPremium(); return; }
   document.getElementById('explainBox').classList.toggle('show');
 }
 function openFragment(){
@@ -3230,7 +3241,7 @@ function syncSettings(){ try{
   const lbl=document.getElementById('setCurLbl'); if(lbl){ const x=CURRENCIES.find(k=>k.c===S.currency)||CURRENCIES[1]; lbl.textContent=x.fl+' '+x.s; }
   const stg=document.getElementById('starsToggle'); if(stg&&stg.children.length>=2){ const on=S.showStars!==false; stg.children[0].classList.toggle('on',on); stg.children[1].classList.toggle('on',!on); }
   const ver=document.getElementById('setVer'); if(ver) ver.textContent='Monet v'+APP_VERSION;
-  const pt=document.getElementById('premTile'); if(pt) pt.style.display=S.premium?'none':'';
+  const pt=document.getElementById('premTile'); if(pt){ pt.style.display=S.premium?'none':''; const bx=pt.querySelector('b'); if(bx){ const free=launchFree()&&!S.premium; bx.innerHTML='Premium'+(free?' <i class="dr-free">'+t('freeNow')+'</i>':''); } }
 }catch(e){} }
 
 /* ---- identify gift/sticker by photo (vision AI; online, graceful fallback) ---- */
@@ -3306,7 +3317,7 @@ function toggleFav(){
   if(isFav(lastResult)){
     S.favorites=S.favorites.filter(f=>favKey(f)!==favKey(lastResult)); toast(t('removed'));
   } else {
-    if(!S.premium && S.favorites.length>=3){ toast(t('favLimit')); openPremium(); return; }
+    if(!proActive() && S.favorites.length>=3){ toast(t('favLimit')); openPremium(); return; }
     S.favorites.unshift({cat:lastResult.cat,display:lastResult.display,priceTON:lastResult.priceTON,ts:Date.now()});
     toast(t('added'));
   }
@@ -3635,9 +3646,9 @@ function renderDrawer(){
     let items=S.history;
     if(!items.length){ html='<div class="empty">'+t('emptyHistory')+'</div>'; }
     else {
-      const show=S.premium?items:items.slice(0,3);
+      const show=proActive()?items:items.slice(0,3);
       html=show.map((it,i)=>litemHTML(it,false,i)).join('');
-      if(!S.premium && items.length>3) html+='<div class="locked-note" onclick="openPremium()">'+t('lockedHistory')+'</div>';
+      if(!proActive() && items.length>3) html+='<div class="locked-note" onclick="openPremium()">'+t('lockedHistory')+'</div>';
     }
   } else if(curDTab==='favorites'){
     if(!S.favorites.length){ html='<div class="empty">'+t('emptyFav')+'</div>'; }
@@ -3679,7 +3690,10 @@ function renderPlan(){
     '<div class="prow"><span class="pi">★</span>'+t('pro4')+'</div>';
   const bb=document.getElementById('pmBuyBtn'); if(bb) bb.innerHTML=t('pmGet')+' · '+PREMIUM_STARS+' \u2b50';
 }
-function openPremium(){ if(S.premium){ toast(t('premiumGranted')); return; } renderPlan(); document.getElementById('premiumModal').classList.add('open'); }
+function openPremium(){ if(S.premium){ toast(t('premiumGranted')); return; } renderPlan();
+  const pr=document.getElementById('pmPromo');
+  if(pr){ if(launchFree()){ pr.innerHTML='<div class="pm-promo-t">'+t('freeLaunch')+'</div><div class="pm-promo-s">'+t('freeLaunchNote')+'</div>'; pr.style.display=''; } else { pr.style.display='none'; } }
+  document.getElementById('premiumModal').classList.add('open'); }
 function closePremium(){ document.getElementById('premiumModal').classList.remove('open'); }
 async function buyPremium(){
   try{
@@ -3702,12 +3716,12 @@ function updatePremiumUI(){ const b=document.getElementById('premiumBanner'); if
    DAILY LIMIT (clean implementation)
 ======================================================================== */
 function checkDaily(){
-  if(S.premium) return true;
+  if(proActive()) return true;
   if(S.dail.date!==todayStr()){ S.dail={date:todayStr(),count:0}; save(); }
   if(S.dail.count>=5){ toast(t('limitReached')); openPremium(); return false; }
   return true;
 }
-function bumpDaily(){ if(S.premium)return; if(S.dail.date!==todayStr())S.dail={date:todayStr(),count:0}; S.dail.count++; save(); }
+function bumpDaily(){ if(proActive())return; if(S.dail.date!==todayStr())S.dail={date:todayStr(),count:0}; S.dail.count++; save(); }
 
 /* ========================================================================
    VIEW / LANG / THEME PLUMBING
