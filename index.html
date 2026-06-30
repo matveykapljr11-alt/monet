@@ -572,6 +572,9 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pf-eye{border:0;background:rgba(255,255,255,.2);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px)}
 .pf-eye svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2}
 .pf-tier{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.22);padding:5px 11px;border-radius:999px;font-weight:800;font-size:11px;backdrop-filter:blur(6px);margin-top:2px}
+.pro-pill{position:relative;z-index:1;display:inline-flex;align-items:center;gap:5px;margin-left:7px;margin-top:2px;padding:5px 11px;border-radius:999px;font-weight:800;font-size:11px;white-space:nowrap;color:#1c2b22;background:linear-gradient(180deg,#E7CE92,#C8A24B)}
+.pro-pill.promo{color:#1c2b22;background:linear-gradient(180deg,#E7CE92,#C8A24B);opacity:.95}
+.dr-profile .pro-pill{margin-left:0;margin-top:6px}
 .home-greet{font-family:var(--font-d);font-weight:600;font-size:21px;letter-spacing:-.3px;margin:2px 2px 12px}
 .cap-cash{display:inline-flex;align-items:center;gap:5px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.92);background:rgba(255,255,255,.14);padding:5px 11px;border-radius:999px;backdrop-filter:blur(6px)}
 .home-qa{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
@@ -1696,7 +1699,7 @@ header{border-bottom:0;background:none}
     <div class="dr-profile" id="drProfile" onclick="closeDrawer();BANK.openCard()"></div>
     <div class="dr-sec" data-i18n="drActions"></div>
     <div class="dr-grid">
-      <button class="dr-tile dr-prem" id="premTile" onclick="closeDrawer();openPremium()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8l4 3 4-6 4 6 4-3-1.6 11H5.6z"/></svg></span><b>Premium</b></button>
+      <button class="dr-tile dr-prem" id="premTile" onclick="closeDrawer();openPremium()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8l4 3 4-6 4 6 4-3-1.6 11H5.6z"/></svg></span><b>Monet Prime</b></button>
       <button class="dr-tile dr-deskhide" onclick="closeDrawer();BANK.openCard()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18M7 14.5h3"/></svg></span><b data-i18n="myCard"></b></button>
       <button class="dr-tile" onclick="closeDrawer();ALERTS.open()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><b data-i18n="alTitle"></b></button>
       <button class="dr-tile" onclick="closeDrawer();PF.openJournal()"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2zM8 9h7M8 13h7"/></svg></span><b data-i18n="jrTitle"></b></button>
@@ -1860,7 +1863,7 @@ ru:{
   gTitle:'Monet Guidance', gBuy:'Покупать до', gFair:'Рыночная цена', gList:'Выставлять от', gFast:'Быстрая продажа',
   gBuyNote:'Хорошая цена для покупки', gFairNote:'Нормальная рыночная цена', gListNote:'Хорошая цена для продажи', gFastNote:'Если нужно продать быстро',
   gAlertBtn:'Алерт на Buy Zone', gRecheck:'Перепроверять раз в неделю', gNoMarket:'Редкий актив · нет живого рынка — ориентир сделки', gOrient:'Ориентир сделки, не торговый сигнал',
-  gProPitch:'Monet Pro подсказывает, когда покупать, когда продавать и когда подождать. Это ориентир по рынку, а не гарантия дохода.', gUnlock:'Открыть Pro', gUnder:'Сейчас ниже Buy Zone — выглядит недооценённым', gOver:'Рынок выше зоны — не переплачивай',
+  gProPitch:'Monet Prime подсказывает, когда покупать, когда продавать и когда подождать. Это ориентир по рынку, а не гарантия дохода.', gGetPrime:'Открыть Prime', gUnder:'Сейчас ниже Buy Zone — выглядит недооценённым', gOverpay:'Рынок выше зоны — не переплачивай',
   freeBase:'Оценка, диапазон цены и уверенность', proZones:'Зоны Buy / Sell / Fast', proAlerts:'Алерты + сигналы «недооценён» и «не переплачивай»', proGuid:'Дневной ориентир по рынку',
   hGuide:'Дневной ориентир', hGuideDip:'Недооценены · вход', hGuideUp:'Выросли · импульс', hGuideBull:'Рынок растёт', hGuideBear:'Рынок остывает', hGuideFlat:'Рынок в боковике', hInZone:'в Buy Zone',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель', navHome:'Дом', hHi:'Привет', hCapital:'Твой капитал', h24:'За 24ч', h7:'За 7д', hAssets:'Активов', hQEval:'Оценить', hQAdd:'В портфель', hQMarket:'Рынок', hQShare:'Поделиться', hPulse:'Пульс рынка', hActivity:'Активность', hAll:'Всё', hEmptyT:'Добро пожаловать в Monet', hEmptyS:'Оцени первый актив — и он появится в твоём капитале.', hEmptyBtn:'Оценить первый актив',
@@ -1874,10 +1877,10 @@ ru:{
   pfGoalPh:'цель, TON', pfGoalSave:'Сохранить', pfGoalRemove:'Убрать цель', pfRemaining:'осталось', pfGoalReached:'Цель достигнута! 🎉', pfHidden:'Баланс скрыт',
   tierStandard:'Standard', tierBronze:'Novice', tierSilver:'Expert', tierGold:'Elite', tierPlatinum:'Platinum', tierBlack:'Black',
   cardTitle:'Моя карта', cardHolder:'ДЕРЖАТЕЛЬ', cardBalance:'Капитал', cardTap:'нажми, чтобы перевернуть', cardPerks:'Привилегии',
-  rwTitle:'Награды', rwStreak:'дней подряд', rwPoints:'очков Monet', rwToReward:'до награды', rwRedeem:'Обменять на Premium', rwGotPremium:'Premium разблокирован! 🎉', rwDaily:'Ежедневный бонус', rwHave:'Premium активен',
+  rwTitle:'Награды', rwStreak:'дней подряд', rwPoints:'очков Monet', rwToReward:'до награды', rwRedeem:'Обменять на Prime', rwGotPremium:'Prime разблокирован! 🎉', rwDaily:'Ежедневный бонус', rwHave:'Prime активен',
   cvTitle:'Конвертер', cvSwap:'Поменять', cvRate:'курс', cvMid:'Средний рыночный курс', cvSearch:'Поиск валюты', cvAmount:'Сумма', cvConverted:'Получится', cvAll:'Валюты', cvCrypto:'Криптовалюты', cvFiat:'Валюты', myCard:'Карта', conv:'Конвертер',
   evaluate:'Оценить', compare:'Сравнить',
-  premiumActive:'Premium активен — лимиты сняты',
+  premiumActive:'Prime активен — лимиты сняты',
   catUsername:'Имя', catNumbers:'Номер', catGifts:'Подарок', catStickers:'Стикер',
   phUsername:'username', phNumbers:'00000001', phGiftSerial:'номер NFT (опц.)', phRarity:'редкость, %', phFloor:'floor коллекции, TON',
   phBackdrop:'фон %', phPattern:'узор %', phModel:'модель %', attrHint:'Редкость трейтов — тапни, если знаешь (необязательно)', attrHintNew:'Редкость фона и узора в % — как на странице подарка. Меньше % = реже = дороже. Необязательно.',
@@ -1914,28 +1917,28 @@ ru:{
   fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка', fModelRare:'Модель · по редкости', fBackRare:'Фон · по редкости', fPatRare:'Узор · по редкости', fShrink:'Поправка на данные', fTilt:'Спрос рынка', fCal:'Авто-калибровка', fMeasured:'Измеренная точность',
   drawerTitle:'Меню', tabHistory:'История', tabFav:'Мои', tabTop:'Топ', drActions:'Действия', drLists:'Списки', drSettings:'Настройки', drLanguage:'Язык', drTheme:'Тема', thLight:'Светлая', thDark:'Тёмная',
   emptyHistory:'Здесь появятся ваши оценки', emptyFav:'Добавьте оценки в избранное звёздочкой',
-  lockedHistory:'История ограничена 3 записями. 👑 Premium — без лимитов',
-  lockedFav:'Избранное ограничено 3 записями. 👑 Premium — без лимитов',
+  lockedHistory:'История ограничена 3 записями. 👑 Prime — без лимитов',
+  lockedFav:'Избранное ограничено 3 записями. 👑 Prime — без лимитов',
   topNote:'Реальные рекордные сделки',
-  pmTitle:'Monet Pro', pmSub:'Знайте, когда покупать, продавать и когда подождать',
-  pmGet:'Оформить Premium', pmFail:'Оплата не прошла', pmSoon:'Покупка скоро будет доступна', pmWin:'Или выиграйте в режиме 🔥 Челлендж (700 очков)',
+  pmTitle:'Monet Prime', pmSub:'Знайте, когда покупать, продавать и когда подождать',
+  pmGet:'Оформить Prime', pmFail:'Оплата не прошла', pmSoon:'Покупка скоро будет доступна', pmWin:'Или выиграйте в режиме 🔥 Челлендж (700 очков)',
   freeLaunch:'🎉 Бесплатно на старте · до 5 июля', freeLaunchNote:'Сейчас все функции открыты бесплатно. Можно оформить заранее, чтобы поддержать — премиум останется и после запуска.', freeNow:'бесплатно',
-  planMonth:'Месяц', planYear:'Год', perMo:'/мес', save:'выгода', subActive:'Premium активен', subUntil:'Действует до', subThanks:'👑 Premium активирован! Спасибо',
-  planFreeT:'Бесплатно', planProT:'Premium',
+  planMonth:'Месяц', planYear:'Год', perMo:'/мес', save:'выгода', subActive:'Prime активен', subUntil:'Действует до', subThanks:'👑 Prime активирован! Спасибо',
+  planFreeT:'Бесплатно', planProT:'Prime',
   free1:'5 оценок в день', free2:'История — 3 записи', free3:'Избранное — 3 записи', free4:'Без объяснения цены',
   pro1:'Безлимит оценок', pro2:'Полная история', pro3:'Безлимит избранного', pro4:'Объяснение цены и сравнение',
-  limitReached:'Лимит 5 оценок в день. Откройте 👑 Premium',
-  favLimit:'Лимит 3 избранных. Откройте 👑 Premium',
+  limitReached:'Лимит 5 оценок в день. Откройте 👑 Prime',
+  favLimit:'Лимит 3 избранных. Откройте 👑 Prime',
   added:'Добавлено в избранное', removed:'Удалено из избранного',
-  saved:'Карточка сохранена', premiumGranted:'👑 Premium активирован!',
+  saved:'Карточка сохранена', premiumGranted:'👑 Prime активирован!',
   // game
   gameTitle:'Угадай цену', gameSub:'Оцени актив на глаз. Чем точнее — тем больше очков.',
   modeFun:'Фан', modeFunD:'25 сек · без штрафов · простые активы',
-  modeChal:'Челлендж', modeChalD:'12 сек · штраф −50 · цель 700 → Premium',
+  modeChal:'Челлендж', modeChalD:'12 сек · штраф −50 · цель 700 → Prime',
   gGuess:'Ваша цена в TON', gSubmit:'Ответить', gBest:'Рекорд',
-  gAsk:'Сколько стоит в TON?', gHint:'Чем ближе к реальной цене — тем больше очков. Набери 700 в режиме «Вызов» — откроется Premium.',
+  gAsk:'Сколько стоит в TON?', gHint:'Чем ближе к реальной цене — тем больше очков. Набери 700 в режиме «Вызов» — откроется Prime.',
   gPerfect:'В точку! +', gClose:'Близко! +', gOk:'Неплохо +', gFar:'Мимо +', gMiss:'Грубый промах ',
-  gOver:'Игра окончена', gYourScore:'Очки', gNewBest:'🎉 Новый рекорд!', gAgain:'Ещё раз', gUnlock:'🔓 Premium разблокирован!',
+  gOver:'Игра окончена', gYourScore:'Очки', gNewBest:'🎉 Новый рекорд!', gAgain:'Ещё раз', gUnlock:'🔓 Prime разблокирован!',
   realAsset:'реальная сделка', floorTon:'floor',
   flrLive:'live-флоры', flrDemo:'демо-флоры', flrCache:'из кэша',
   flrNow:'только что', flrMin:' мин', flrHr:' ч', flrDay:' дн',
@@ -1964,7 +1967,7 @@ en:{
   gTitle:'Monet Guidance', gBuy:'Buy under', gFair:'Market value', gList:'List for', gFast:'Fast sale',
   gBuyNote:'Good price to buy', gFairNote:'Normal market price', gListNote:'Good price to sell', gFastNote:'If you need to sell fast',
   gAlertBtn:'Alert at Buy Zone', gRecheck:'Re-check weekly', gNoMarket:'Rare asset · not a live market — deal guideline', gOrient:'Deal guideline, not a trading signal',
-  gProPitch:'Monet Pro helps you know when to buy, when to sell and when to wait. A market guideline, not a profit guarantee.', gUnlock:'Unlock Pro', gUnder:'Now below Buy Zone — looks undervalued', gOver:'Market is above the zone — don’t overpay',
+  gProPitch:'Monet Prime helps you know when to buy, when to sell and when to wait. A market guideline, not a profit guarantee.', gGetPrime:'Unlock Prime', gUnder:'Now below Buy Zone — looks undervalued', gOverpay:'Market is above the zone — don’t overpay',
   freeBase:'Estimate, price range and confidence', proZones:'Buy / Sell / Fast zones', proAlerts:'Alerts + “undervalued” & “don’t overpay” signals', proGuid:'Daily market guidance',
   hGuide:'Daily guidance', hGuideDip:'Undervalued · entry', hGuideUp:'Up · momentum', hGuideBull:'Market rising', hGuideBear:'Market cooling', hGuideFlat:'Market mixed', hInZone:'in Buy Zone',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio', navHome:'Home', hHi:'Hi', hCapital:'Your capital', h24:'24h', h7:'7d', hAssets:'Assets', hQEval:'Appraise', hQAdd:'To portfolio', hQMarket:'Market', hQShare:'Share', hPulse:'Market pulse', hActivity:'Activity', hAll:'All', hEmptyT:'Welcome to Monet', hEmptyS:'Appraise your first asset — it lands in your capital.', hEmptyBtn:'Appraise first asset',
@@ -1978,10 +1981,10 @@ en:{
   pfGoalPh:'goal, TON', pfGoalSave:'Save', pfGoalRemove:'Remove goal', pfRemaining:'left', pfGoalReached:'Goal reached! 🎉', pfHidden:'Balance hidden',
   tierStandard:'Standard', tierBronze:'Novice', tierSilver:'Expert', tierGold:'Elite', tierPlatinum:'Platinum', tierBlack:'Black',
   cardTitle:'My card', cardHolder:'CARDHOLDER', cardBalance:'Net worth', cardTap:'tap to flip', cardPerks:'Perks',
-  rwTitle:'Rewards', rwStreak:'day streak', rwPoints:'Monet points', rwToReward:'to reward', rwRedeem:'Redeem for Premium', rwGotPremium:'Premium unlocked! 🎉', rwDaily:'Daily bonus', rwHave:'Premium active',
+  rwTitle:'Rewards', rwStreak:'day streak', rwPoints:'Monet points', rwToReward:'to reward', rwRedeem:'Redeem for Prime', rwGotPremium:'Prime unlocked! 🎉', rwDaily:'Daily bonus', rwHave:'Prime active',
   cvTitle:'Converter', cvSwap:'Swap', cvRate:'rate', cvMid:'Mid-market rate', cvSearch:'Search currency', cvAmount:'Amount', cvConverted:'Converted to', cvAll:'Currencies', cvCrypto:'Crypto', cvFiat:'Currencies', myCard:'Card', conv:'Converter',
   evaluate:'Evaluate', compare:'Compare',
-  premiumActive:'Premium active — limits removed',
+  premiumActive:'Prime active — limits removed',
   catUsername:'Name', catNumbers:'Number', catGifts:'Gift', catStickers:'Sticker',
   phUsername:'username', phNumbers:'00000001', phGiftSerial:'NFT number (opt.)', phRarity:'rarity, %', phFloor:'collection floor, TON',
   phBackdrop:'backdrop %', phPattern:'pattern %', phModel:'model %', attrHint:'Trait rarity — tap if you know it (optional)', attrHintNew:'Backdrop & symbol rarity in % — as shown on the gift. Lower % = rarer = pricier. Optional.',
@@ -2017,27 +2020,27 @@ en:{
   fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration', fModelRare:'Model · by rarity', fBackRare:'Backdrop · by rarity', fPatRare:'Pattern · by rarity', fShrink:'Data adjustment', fTilt:'Market demand', fCal:'Auto-calibration', fMeasured:'Measured accuracy',
   drawerTitle:'Menu', tabHistory:'History', tabFav:'Mine', tabTop:'Top', drActions:'Actions', drLists:'Lists', drSettings:'Settings', drLanguage:'Language', drTheme:'Theme', thLight:'Light', thDark:'Dark',
   emptyHistory:'Your evaluations will appear here', emptyFav:'Star evaluations to save them',
-  lockedHistory:'History capped at 3. 👑 Premium — unlimited',
-  lockedFav:'Favorites capped at 3. 👑 Premium — unlimited',
+  lockedHistory:'History capped at 3. 👑 Prime — unlimited',
+  lockedFav:'Favorites capped at 3. 👑 Prime — unlimited',
   topNote:'Real record deals',
-  pmTitle:'Monet Pro', pmSub:'Know when to buy, when to sell and when to wait',
-  pmGet:'Get Premium', pmFail:'Payment failed', pmSoon:'Purchase coming soon', pmWin:'Or win the 🔥 Challenge mode (700 points)',
+  pmTitle:'Monet Prime', pmSub:'Know when to buy, when to sell and when to wait',
+  pmGet:'Get Prime', pmFail:'Payment failed', pmSoon:'Purchase coming soon', pmWin:'Or win the 🔥 Challenge mode (700 points)',
   freeLaunch:'🎉 Free at launch · until Jul 5', freeLaunchNote:'All features are open for free right now. You can subscribe early to support — premium stays after launch too.', freeNow:'free',
-  planMonth:'Month', planYear:'Year', perMo:'/mo', save:'save', subActive:'Premium active', subUntil:'Valid until', subThanks:'👑 Premium activated! Thank you',
-  planFreeT:'Free', planProT:'Premium',
+  planMonth:'Month', planYear:'Year', perMo:'/mo', save:'save', subActive:'Prime active', subUntil:'Valid until', subThanks:'👑 Prime activated! Thank you',
+  planFreeT:'Free', planProT:'Prime',
   free1:'5 evaluations / day', free2:'History — 3 entries', free3:'Favorites — 3 entries', free4:'No price explanation',
   pro1:'Unlimited evaluations', pro2:'Full history', pro3:'Unlimited favorites', pro4:'Price explanation & compare',
-  limitReached:'Daily limit of 5 reached. Unlock 👑 Premium',
-  favLimit:'Limit of 3 favorites. Unlock 👑 Premium',
+  limitReached:'Daily limit of 5 reached. Unlock 👑 Prime',
+  favLimit:'Limit of 3 favorites. Unlock 👑 Prime',
   added:'Added to favorites', removed:'Removed from favorites',
-  saved:'Card saved', premiumGranted:'👑 Premium activated!',
+  saved:'Card saved', premiumGranted:'👑 Prime activated!',
   gameTitle:'Guess the price', gameSub:'Eyeball the asset value. The closer you are, the more points.',
   modeFun:'Fun', modeFunD:'25s · no penalties · easy assets',
-  modeChal:'Challenge', modeChalD:'12s · −50 penalty · goal 700 → Premium',
+  modeChal:'Challenge', modeChalD:'12s · −50 penalty · goal 700 → Prime',
   gGuess:'Your price in TON', gSubmit:'Submit', gBest:'Best',
-  gAsk:'How much in TON?', gHint:'The closer to the real price, the more points. Score 700 in Challenge to unlock Premium.',
+  gAsk:'How much in TON?', gHint:'The closer to the real price, the more points. Score 700 in Challenge to unlock Prime.',
   gPerfect:'Spot on! +', gClose:'Close! +', gOk:'Not bad +', gFar:'Off +', gMiss:'Way off ',
-  gOver:'Game over', gYourScore:'Score', gNewBest:'🎉 New record!', gAgain:'Play again', gUnlock:'🔓 Premium unlocked!',
+  gOver:'Game over', gYourScore:'Score', gNewBest:'🎉 New record!', gAgain:'Play again', gUnlock:'🔓 Prime unlocked!',
   realAsset:'real deal', floorTon:'floor',
   flrLive:'live floors', flrDemo:'demo floors', flrCache:'cached',
   flrNow:'just now', flrMin:'m', flrHr:'h', flrDay:'d',
@@ -3249,7 +3252,7 @@ function guidanceInner(r){
   let opp='';
   if(pro && (r.cat==='gifts'||r.cat==='stickers') && r._mktAsk>0){
     if(r._mktAsk<=g.buyUnder) opp='<div class="g-opp under">💎 '+t('gUnder')+'</div>';
-    else if(r._mktAsk>=g.listLo) opp='<div class="g-opp over">⚠️ '+t('gOver')+'</div>';
+    else if(r._mktAsk>=g.listLo) opp='<div class="g-opp over">⚠️ '+t('gOverpay')+'</div>';
   }
   let ctx='';
   if(r.cat==='gifts'||r.cat==='stickers'){
@@ -3264,8 +3267,8 @@ function guidanceInner(r){
     +(r.cat==='username'?'<span class="g-chip recheck">'+t('gRecheck')+'</span>':'')+'</div>';
   const foot = pro
     ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')">🔔 '+t('gAlertBtn')+'</button>'
-    : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()">⭐ '+t('gUnlock')+'</button>';
-  const tag = pro ? '' : ' <span class="g-protag">PRO</span>';
+    : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()">⭐ '+t('gGetPrime')+'</button>';
+  const tag = pro ? '' : ' <span class="g-protag">PRIME</span>';
   return '<div class="guide-card'+(pro?'':' g-free')+'"><div class="g-h">'+t('gTitle')+tag+'</div>'+head+rows+opp+ctx+chips+foot+'</div>';
 }
 function tradeBandHTML(r){ return '<div id="tradeBand">'+guidanceInner(r)+'</div>'; }
@@ -3375,7 +3378,7 @@ function syncSettings(){ try{
   const lbl=document.getElementById('setCurLbl'); if(lbl){ const x=CURRENCIES.find(k=>k.c===S.currency)||CURRENCIES[1]; lbl.textContent=x.fl+' '+x.s; }
   const stg=document.getElementById('starsToggle'); if(stg&&stg.children.length>=2){ const on=S.showStars!==false; stg.children[0].classList.toggle('on',on); stg.children[1].classList.toggle('on',!on); }
   const ver=document.getElementById('setVer'); if(ver) ver.textContent='Monet v'+APP_VERSION;
-  const pt=document.getElementById('premTile'); if(pt){ pt.style.display=S.premium?'none':''; const bx=pt.querySelector('b'); if(bx){ if(subActive()){ bx.innerHTML='Premium <i class="dr-free dr-free-sub">'+fmtUntil(S.premiumUntil)+'</i>'; } else if(launchFree()){ bx.innerHTML='Premium <i class="dr-free">'+t('freeNow')+'</i>'; } else { bx.innerHTML='Premium'; } } }
+  const pt=document.getElementById('premTile'); if(pt){ pt.style.display=S.premium?'none':''; const bx=pt.querySelector('b'); if(bx){ if(subActive()){ bx.innerHTML='Prime <i class="dr-free dr-free-sub">'+fmtUntil(S.premiumUntil)+'</i>'; } else if(launchFree()){ bx.innerHTML='Prime <i class="dr-free">'+t('freeNow')+'</i>'; } else { bx.innerHTML='Monet Prime'; } } }
 }catch(e){} }
 
 /* ---- identify gift/sticker by photo (vision AI; online, graceful fallback) ---- */
@@ -3758,6 +3761,13 @@ function openDrawer(){ document.getElementById('scrim').classList.add('open'); d
 function closeDrawer(){ document.getElementById('scrim').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
 function setDTab(tab){ curDTab=tab; document.querySelectorAll('.dtabs button').forEach(b=>b.classList.toggle('on',b.dataset.dtab===tab)); renderDrawer(); }
 function catIcon(c){ const m={username:'@',numbers:'#',gifts:'🎁',stickers:'🩷'}; return m[c]||'•'; }
+// Pro status pill — shows owned/subscription premium, or the launch-promo access.
+function proPill(){
+  if(subActive()) return '<span class="pro-pill">👑 Prime · '+t('subUntil').toLowerCase()+' '+fmtUntil(S.premiumUntil)+'</span>';
+  if(S.premium) return '<span class="pro-pill">👑 Prime</span>';
+  if(launchFree()) return '<span class="pro-pill promo">👑 Prime · '+t('freeNow')+'</span>';
+  return '';
+}
 function renderDrawer(){
   const pe=document.getElementById('drProfile');
   if(pe){ const u=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{};
@@ -3769,7 +3779,7 @@ function renderDrawer(){
     pe.innerHTML=
       '<div class="dp-top">'+
         '<div class="av">'+av+'</div>'+
-        '<div class="pi"><div class="ph">'+escapeHTML(handle)+'</div><div class="ps">'+tierBadge(tier.idx)+' '+tier.name+'</div></div>'+
+        '<div class="pi"><div class="ph">'+escapeHTML(handle)+'</div><div class="ps">'+tierBadge(tier.idx)+' '+tier.name+'</div>'+proPill()+'</div>'+
         '<div class="pts"><svg class="pstar" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg>'+(S.points||0)+'</div>'+
       '</div>'+
       '<div class="dp-cap"><span class="dp-cap-l">'+t('menuAssets')+'</span><span class="dp-cap-v">'+(hb?'\u2022\u2022\u2022\u2022':fmtTON(cap)+' <span>TON</span>')+'</span></div>'+
@@ -3866,12 +3876,17 @@ function grantSub(plan){
   toast(t('subThanks'));
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.notificationOccurred('success');}catch(e){} }
   try{ if(typeof syncSettings==='function') syncSettings(); }catch(e){}
+  try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){}
+  try{ if(S.notify && typeof syncNotify==='function') syncNotify(false); }catch(e){}
 }
 function grantPremium(src,silent){
   S.premium=true; save(); updatePremiumUI();
   closePremium();
   if(!silent) toast(t('premiumGranted'));
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.notificationOccurred('success');}catch(e){} }
+  try{ if(typeof syncSettings==='function') syncSettings(); }catch(e){}
+  try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){}
+  try{ if(S.notify && typeof syncNotify==='function') syncNotify(false); }catch(e){}
 }
 function updatePremiumUI(){ const b=document.getElementById('premiumBanner'); if(b) b.classList.toggle('show',!!S.premium||subActive()); }
 
@@ -4962,11 +4977,11 @@ window.HOME=(function(){
   function guidanceCard(){ const data=mkAll(); if(!data.length) return ''; const ru=S.lang==='ru'; const pro=proActive();
     const g=gidx(), mv=topMovers(), uv=undervalued(); if(!mv.ups.length && !mv.dips.length && !uv.length) return '';
     const dstr=new Date().toLocaleDateString(ru?'ru-RU':'en-US',{day:'2-digit',month:'short'});
-    const head='<div class="home-sec"><b>'+t('hGuide')+(pro?'':' <span class="g-protag">PRO</span>')+'</b><span style="font-size:11px;color:var(--txt-3)">'+dstr+'</span></div>';
+    const head='<div class="home-sec"><b>'+t('hGuide')+(pro?'':' <span class="g-protag">PRIME</span>')+'</b><span style="font-size:11px;color:var(--txt-3)">'+dstr+'</span></div>';
     if(!pro){ return head+'<div class="guide-card g-free" style="margin-top:0">'+
         '<div class="g-row locked g-buy"><div class="g-l"><span class="g-k">'+t('hGuideDip')+'</span><span class="g-note">'+(ru?'недооценённые сейчас':'undervalued now')+'</span></div><div class="g-v"><span class="g-lockv">🔒 •••</span></div></div>'+
         '<div class="g-row locked g-sell"><div class="g-l"><span class="g-k">'+t('hGuideUp')+'</span><span class="g-note">'+(ru?'импульс за 24ч':'24h momentum')+'</span></div><div class="g-v"><span class="g-lockv">🔒 •••</span></div></div>'+
-        '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()">⭐ '+t('gUnlock')+'</button></div>'; }
+        '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()">⭐ '+t('gGetPrime')+'</button></div>'; }
     const verdict = g.ch24>1.5? t('hGuideBull') : g.ch24<-1.5? t('hGuideBear') : t('hGuideFlat');
     const vcol = g.ch24>1.5?'var(--up)': g.ch24<-1.5?'var(--down)':'var(--txt-2)';
     const verdLine='<div class="dg-row" style="padding:4px 2px 10px"><span style="color:'+vcol+';font-weight:700">'+verdict+'</span><b style="color:'+vcol+'">'+pct(g.ch24)+' · '+mv.nUp+'↑ '+mv.nDown+'↓</b></div>';
@@ -5004,7 +5019,7 @@ window.HOME=(function(){
         '<button class="btn" style="margin-top:16px;max-width:320px" onclick="HOME.go(\'evaluate\')">'+t('hEmptyBtn')+'</button></div>'+qa()+pulse()+guidanceCard()+watchlist();
       box.innerHTML=html; return;
     }
-    html+='<div class="pf-hero"><div class="topline"><div class="lbl">'+t('hCapital')+'</div>'+(S.hideBalance?'':'<span class="pf-tier">'+tier.ic+' '+tier.name+'</span>')+'</div>'+
+    html+='<div class="pf-hero"><div class="topline"><div class="lbl">'+t('hCapital')+'</div>'+(S.hideBalance?'':'<span class="pf-tier">'+tier.ic+' '+tier.name+'</span>'+proPill())+'</div>'+
       '<div class="tot">'+(S.hideBalance?'••••':fmtTON(cap))+' <span style="font-size:.38em;opacity:.8;font-weight:600">TON</span></div>'+
       '<div class="fiat">≈ '+(S.hideBalance?'••••':fmtFiat(cap))+'</div>'+
       '<div class="chg" style="background:'+(ch.c24>=0?'rgba(95,233,170,.2)':'rgba(232,120,108,.2)')+'">'+(Math.abs(ch.c24)<0.05?'— · '+t('pfChange24'):(ch.c24>=0?'▲':'▼')+' '+Math.abs(ch.c24).toFixed(1)+'% · '+t('pfChange24'))+'</div>'+((hs.length===0&&(S.cash>0))?'<div class="cap-cash">💰 '+t('hAllCash')+'</div>':'')+'</div>';
