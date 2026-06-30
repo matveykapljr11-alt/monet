@@ -655,6 +655,8 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .g-pitch{margin-top:12px;font-size:12.5px;line-height:1.5;color:var(--txt-3)}
 .g-unlock{display:block;width:100%;margin-top:10px;padding:12px;border-radius:12px;border:0;background:linear-gradient(180deg,#E7CE92,#C8A24B);color:#1c2b22;font-weight:800;font-size:13.5px;cursor:pointer}
 .g-unlock:active{transform:scale(.99)}
+.g-mini-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--txt-3);margin:8px 2px 5px}
+.guide-card .g-mini-h:first-child{margin-top:0}
 .set-cur{flex:none;color:var(--txt-2);font-weight:700;font-size:14px;margin-left:auto;padding-right:4px}
 .cur-list{display:flex;flex-direction:column;gap:3px;max-height:62vh;overflow:auto;-webkit-overflow-scrolling:touch;margin-top:6px}
 .cur-row{display:flex;align-items:center;gap:12px;border:0;background:transparent;padding:12px 8px;border-radius:13px;cursor:pointer;color:var(--txt);text-align:left;width:100%}
@@ -1860,6 +1862,7 @@ ru:{
   gAlertBtn:'Алерт на Buy Zone', gRecheck:'Перепроверять раз в неделю', gNoMarket:'Редкий актив · нет живого рынка — ориентир сделки', gOrient:'Ориентир сделки, не торговый сигнал',
   gProPitch:'Monet Pro подсказывает, когда покупать, когда продавать и когда подождать. Это ориентир по рынку, а не гарантия дохода.', gUnlock:'Открыть Pro', gUnder:'Сейчас ниже Buy Zone — выглядит недооценённым', gOver:'Рынок выше зоны — не переплачивай',
   freeBase:'Оценка, диапазон цены и уверенность', proZones:'Зоны Buy / Sell / Fast', proAlerts:'Алерты + сигналы «недооценён» и «не переплачивай»', proGuid:'Дневной ориентир по рынку',
+  hGuide:'Дневной ориентир', hGuideDip:'Недооценены · вход', hGuideUp:'Выросли · импульс', hGuideBull:'Рынок растёт', hGuideBear:'Рынок остывает', hGuideFlat:'Рынок в боковике', hInZone:'в Buy Zone',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель', navHome:'Дом', hHi:'Привет', hCapital:'Твой капитал', h24:'За 24ч', h7:'За 7д', hAssets:'Активов', hQEval:'Оценить', hQAdd:'В портфель', hQMarket:'Рынок', hQShare:'Поделиться', hPulse:'Пульс рынка', hActivity:'Активность', hAll:'Всё', hEmptyT:'Добро пожаловать в Monet', hEmptyS:'Оцени первый актив — и он появится в твоём капитале.', hEmptyBtn:'Оценить первый актив',
   pfTitle:'Мой портфель', pfTotal:'Стоимость портфеля', pfEmpty:'Добавьте свои Telegram-активы и следите за их стоимостью',
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
@@ -1963,6 +1966,7 @@ en:{
   gAlertBtn:'Alert at Buy Zone', gRecheck:'Re-check weekly', gNoMarket:'Rare asset · not a live market — deal guideline', gOrient:'Deal guideline, not a trading signal',
   gProPitch:'Monet Pro helps you know when to buy, when to sell and when to wait. A market guideline, not a profit guarantee.', gUnlock:'Unlock Pro', gUnder:'Now below Buy Zone — looks undervalued', gOver:'Market is above the zone — don’t overpay',
   freeBase:'Estimate, price range and confidence', proZones:'Buy / Sell / Fast zones', proAlerts:'Alerts + “undervalued” & “don’t overpay” signals', proGuid:'Daily market guidance',
+  hGuide:'Daily guidance', hGuideDip:'Undervalued · entry', hGuideUp:'Up · momentum', hGuideBull:'Market rising', hGuideBear:'Market cooling', hGuideFlat:'Market mixed', hInZone:'in Buy Zone',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio', navHome:'Home', hHi:'Hi', hCapital:'Your capital', h24:'24h', h7:'7d', hAssets:'Assets', hQEval:'Appraise', hQAdd:'To portfolio', hQMarket:'Market', hQShare:'Share', hPulse:'Market pulse', hActivity:'Activity', hAll:'All', hEmptyT:'Welcome to Monet', hEmptyS:'Appraise your first asset — it lands in your capital.', hEmptyBtn:'Appraise first asset',
   pfTitle:'My portfolio', pfTotal:'Portfolio value', pfEmpty:'Add your Telegram assets and track their value',
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
@@ -2437,7 +2441,7 @@ async function syncNotify(manual){
   const portfolio=(S.portfolio||[]).map(h=>({name:h.display,qty:h.qty||1,cat:h.cat,priceTON:h.priceTON||0}));
   try{
     const res=await fetch(url+(url.includes('?')?'&':'?')+'sync',{method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({initData, notify:!!S.notify, lang:S.lang, currency:S.currency, portfolio, alerts:(S.alerts||[])})});
+      body:JSON.stringify({initData, notify:!!S.notify, pro:(typeof proActive==='function'?proActive():!!S.premium), lang:S.lang, currency:S.currency, portfolio, alerts:(S.alerts||[])})});
     if(!res.ok) throw 0;
     if(manual) toast(S.notify? t('ntfOn') : t('ntfOff'));
   }catch(e){ if(manual) toast(t('ntfErr')); }
@@ -4934,6 +4938,43 @@ window.HOME=(function(){
   function pulse(){ const g=gidx(),mv=movers(); return '<div class="home-sec"><b>'+t('hPulse')+'</b><a onclick="HOME.go(\'market\')">'+t('hAll')+' →</a></div>'+
     '<div class="mgi" style="cursor:pointer" onclick="HOME.go(\'market\')"><div class="mgi-lab">'+t('mgiTitle')+'</div><div class="mgi-row"><div class="mgi-val">'+compact(g.cap)+' <span class="u">TON</span></div><div class="mgi-d" style="font-size:14px;font-weight:800;color:'+(g.ch24>=0?'var(--up)':'var(--down)')+'">'+pct(g.ch24)+' · 24'+t('mgiH')+'</div></div></div>'+
     (mv?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">'+mover(mv.u,true)+mover(mv.d,false)+'</div>':''); }
+  function topMovers(){ const g=mkAll().filter(x=>x.cat==='gifts'&&typeof x.ch24==='number'&&x.ch24!==0);
+    const ups=g.filter(x=>x.ch24>0).sort((a,b)=>b.ch24-a.ch24).slice(0,3);
+    const dips=g.filter(x=>x.ch24<0).sort((a,b)=>a.ch24-b.ch24).slice(0,3);
+    let nUp=0,nDown=0; g.forEach(x=>{ if(x.ch24>0)nUp++; else if(x.ch24<0)nDown++; });
+    return {ups,dips,nUp,nDown}; }
+  function gRow2(x){ const up=x.ch24>=0;
+    return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:13px">'+catIcon(x.cat)+'</div><div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+(S.lang==='ru'?'флор':'floor')+' '+fmtTON(x.price)+' TON</div></div><div class="mc-right"><div class="mc-price" style="color:'+(up?'var(--up)':'var(--down)')+'">'+(up?'+':'')+x.ch24.toFixed(1)+'%</div></div></div>'; }
+  // undervalued = live floor has fallen INTO the Buy Zone derived from the recent (pre-dip) level
+  function undervalued(){ const g=mkAll().filter(x=>x.cat==='gifts'&&x.price>0); const out=[];
+    g.forEach(x=>{ const ch7=typeof x.ch7==='number'?x.ch7:0; if(ch7>=0) return;
+      const ref=x.price/(1+ch7/100); if(!(ref>x.price)) return;          // recent level, must be above current floor
+      const p=x.price, sp=p<80?0.14:(p<1500?0.18:0.30);
+      const buyUnder=ref*(1-sp)*(1-0.10-0.20*sp);                        // same zone math as the appraisal Buy Zone
+      const disc=Math.round((1-x.price/ref)*100); if(disc<=0) return;
+      out.push({x, disc, inZone:x.price<=buyUnder}); });
+    out.sort((a,b)=>(b.inZone-a.inZone)||(b.disc-a.disc));
+    return out.slice(0,3); }
+  function uvRow(o){ const x=o.x, ru=S.lang==='ru';
+    const right = o.inZone ? '<div class="mc-price" style="color:var(--up)">💎 -'+o.disc+'%</div>' : '<div class="mc-price" style="color:var(--warn)">-'+o.disc+'%</div>';
+    const sub=(ru?'флор':'floor')+' '+fmtTON(x.price)+' TON'+(o.inZone?' · '+t('hInZone'):'');
+    return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:13px">'+catIcon(x.cat)+'</div><div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right">'+right+'</div></div>'; }
+  function guidanceCard(){ const data=mkAll(); if(!data.length) return ''; const ru=S.lang==='ru'; const pro=proActive();
+    const g=gidx(), mv=topMovers(), uv=undervalued(); if(!mv.ups.length && !mv.dips.length && !uv.length) return '';
+    const dstr=new Date().toLocaleDateString(ru?'ru-RU':'en-US',{day:'2-digit',month:'short'});
+    const head='<div class="home-sec"><b>'+t('hGuide')+(pro?'':' <span class="g-protag">PRO</span>')+'</b><span style="font-size:11px;color:var(--txt-3)">'+dstr+'</span></div>';
+    if(!pro){ return head+'<div class="guide-card g-free" style="margin-top:0">'+
+        '<div class="g-row locked g-buy"><div class="g-l"><span class="g-k">'+t('hGuideDip')+'</span><span class="g-note">'+(ru?'недооценённые сейчас':'undervalued now')+'</span></div><div class="g-v"><span class="g-lockv">🔒 •••</span></div></div>'+
+        '<div class="g-row locked g-sell"><div class="g-l"><span class="g-k">'+t('hGuideUp')+'</span><span class="g-note">'+(ru?'импульс за 24ч':'24h momentum')+'</span></div><div class="g-v"><span class="g-lockv">🔒 •••</span></div></div>'+
+        '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()">⭐ '+t('gUnlock')+'</button></div>'; }
+    const verdict = g.ch24>1.5? t('hGuideBull') : g.ch24<-1.5? t('hGuideBear') : t('hGuideFlat');
+    const vcol = g.ch24>1.5?'var(--up)': g.ch24<-1.5?'var(--down)':'var(--txt-2)';
+    const verdLine='<div class="dg-row" style="padding:4px 2px 10px"><span style="color:'+vcol+';font-weight:700">'+verdict+'</span><b style="color:'+vcol+'">'+pct(g.ch24)+' · '+mv.nUp+'↑ '+mv.nDown+'↓</b></div>';
+    let body='';
+    if(uv.length) body+='<div class="g-mini-h">'+t('hGuideDip')+'</div>'+uv.map(uvRow).join('');
+    else if(mv.dips.length) body+='<div class="g-mini-h">'+t('hGuideDip')+'</div>'+mv.dips.map(gRow2).join('');
+    if(mv.ups.length) body+='<div class="g-mini-h">'+t('hGuideUp')+'</div>'+mv.ups.map(gRow2).join('');
+    return head+'<div class="guide-card" style="margin-top:0">'+verdLine+body+'</div>'; }
   function digestDue(){ try{ const today=new Date().toISOString().slice(0,10); if(S.lastDigest===today) return false; return (S.portfolio||[]).length>0; }catch(e){ return false; } }
   function digestCard(){ if(!digestDue()) return ''; const ru=S.lang==='ru';
     const cap=(window.PF&&PF.totalTON)?PF.totalTON():0; const today=new Date().toISOString().slice(0,10);
@@ -4960,7 +5001,7 @@ window.HOME=(function(){
     if(empty){
       html+='<div class="pf-hero" style="text-align:center"><div class="lbl" style="opacity:.92;font-size:15px;letter-spacing:0;text-transform:none;font-family:var(--font-d);font-weight:600">'+t('hEmptyT')+'</div>'+
         '<div class="fiat" style="margin:10px auto 0;max-width:300px;font-size:13.5px;opacity:.9">'+t('hEmptyS')+'</div>'+
-        '<button class="btn" style="margin-top:16px;max-width:320px" onclick="HOME.go(\'evaluate\')">'+t('hEmptyBtn')+'</button></div>'+qa()+pulse()+watchlist();
+        '<button class="btn" style="margin-top:16px;max-width:320px" onclick="HOME.go(\'evaluate\')">'+t('hEmptyBtn')+'</button></div>'+qa()+pulse()+guidanceCard()+watchlist();
       box.innerHTML=html; return;
     }
     html+='<div class="pf-hero"><div class="topline"><div class="lbl">'+t('hCapital')+'</div>'+(S.hideBalance?'':'<span class="pf-tier">'+tier.ic+' '+tier.name+'</span>')+'</div>'+
@@ -4971,7 +5012,7 @@ window.HOME=(function(){
       '<div class="mk-stat"><div class="l">'+t('h24')+'</div><div class="v" style="color:'+(ch.c24>=0?'var(--up)':'var(--down)')+'">'+pct(ch.c24)+'</div></div>'+
       '<div class="mk-stat"><div class="l">'+t('h7')+'</div><div class="v" style="color:'+(ch.c7>=0?'var(--up)':'var(--down)')+'">'+pct(ch.c7)+'</div></div>'+
       '<div class="mk-stat"><div class="l">'+t('hAssets')+'</div><div class="v">'+hs.length+'</div></div></div>';
-    html+=qa()+pulse()+watchlist();
+    html+=qa()+pulse()+guidanceCard()+watchlist();
     html+='<div class="home-sec"><b>'+t('hActivity')+'</b>'+(fd.length?'<a onclick="HOME.openActivity()">'+t('hAll')+' →</a>':'')+'</div>';
     html+= fd.length ? ('<div class="mc-ledger">'+fd.map(actRow).join('')+'</div>')
                      : ('<div class="lots-note" style="text-align:center;padding:16px;color:var(--txt-3)">'+t('hEmptyS')+'</div>');
