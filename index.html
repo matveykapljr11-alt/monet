@@ -624,6 +624,37 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .vd-v{font-weight:800;font-variant-numeric:tabular-nums}
 .vd-badge{margin-top:11px;text-align:center;font-weight:800;font-size:13.5px;padding:9px 12px;border-radius:12px}
 .vd-note{margin-top:11px;font-size:12.5px;line-height:1.45;color:var(--txt-3)}
+.guide-card{margin-top:16px;background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:14px 15px 13px}
+.g-h{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:15px;margin-bottom:11px;color:var(--txt-2);letter-spacing:.2px}
+.g-banner{font-size:11.5px;font-weight:700;color:var(--txt-3);background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:7px 10px;margin-bottom:11px}
+.g-banner.soft{border-style:solid}
+.g-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:12px;background:var(--surface);border:1px solid var(--line);margin-bottom:7px;border-left-width:3px}
+.g-row.g-buy{border-left-color:var(--good)}
+.g-row.g-fair{border-left-color:var(--txt-3)}
+.g-row.g-sell{border-left-color:var(--warn)}
+.g-row.g-fast{border-left-color:var(--ton)}
+.g-l{display:flex;flex-direction:column;gap:2px;min-width:0}
+.g-k{font-size:13px;font-weight:800;color:var(--txt)}
+.g-note{font-size:11px;color:var(--txt-3);line-height:1.2}
+.g-v{font-weight:800;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--txt)}
+.g-row.g-buy .g-v{color:var(--good)}
+.g-row.g-sell .g-v{color:var(--warn)}
+.g-ctx{font-size:11.5px;color:var(--txt-3);margin:9px 2px 2px;font-variant-numeric:tabular-nums}
+.g-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.g-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid currentColor}
+.g-chip.recheck{color:var(--txt-3)}
+.g-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.g-alert{display:block;width:100%;margin-top:12px;padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700;font-size:13px;cursor:pointer}
+.g-alert:active{transform:scale(.99)}
+.g-protag{font-size:9.5px;font-weight:800;letter-spacing:.5px;color:#1c2b22;background:linear-gradient(180deg,#E7CE92,#C8A24B);padding:2px 6px;border-radius:6px;vertical-align:middle;margin-left:4px}
+.g-row.locked .g-v{color:var(--txt-3)}
+.g-lockv{font-weight:800;font-size:13px;letter-spacing:1px;color:var(--txt-3)}
+.g-opp{margin-top:9px;font-size:12.5px;font-weight:700;padding:9px 11px;border-radius:11px}
+.g-opp.under{color:var(--good);background:rgba(55,210,138,.12);border:1px solid rgba(55,210,138,.4)}
+.g-opp.over{color:var(--warn);background:rgba(200,162,75,.12);border:1px solid rgba(200,162,75,.4)}
+.g-pitch{margin-top:12px;font-size:12.5px;line-height:1.5;color:var(--txt-3)}
+.g-unlock{display:block;width:100%;margin-top:10px;padding:12px;border-radius:12px;border:0;background:linear-gradient(180deg,#E7CE92,#C8A24B);color:#1c2b22;font-weight:800;font-size:13.5px;cursor:pointer}
+.g-unlock:active{transform:scale(.99)}
 .set-cur{flex:none;color:var(--txt-2);font-weight:700;font-size:14px;margin-left:auto;padding-right:4px}
 .cur-list{display:flex;flex-direction:column;gap:3px;max-height:62vh;overflow:auto;-webkit-overflow-scrolling:touch;margin-top:6px}
 .cur-row{display:flex;align-items:center;gap:12px;border:0;background:transparent;padding:12px 8px;border-radius:13px;cursor:pointer;color:var(--txt);text-align:left;width:100%}
@@ -1824,6 +1855,11 @@ const I18N = {
 ru:{
   tagline:'оценочный дом · TON', heroSub:'Оценка по реальным сделкам · TON',
   heroPitch:'Оценка · Рынок · Капитал · TON', confLabel:'Уверенность', confHigh:'высокая', confMid:'средняя', confLow:'низкая', estLabel:'Ориентир', liqLabel:'Ликвидность', liqLow:'низкая', liqMid:'средняя', liqHigh:'высокая', whyLabel:'Почему', tierLabel:'Категория',
+  gTitle:'Monet Guidance', gBuy:'Покупать до', gFair:'Рыночная цена', gList:'Выставлять от', gFast:'Быстрая продажа',
+  gBuyNote:'Хорошая цена для покупки', gFairNote:'Нормальная рыночная цена', gListNote:'Хорошая цена для продажи', gFastNote:'Если нужно продать быстро',
+  gAlertBtn:'Алерт на Buy Zone', gRecheck:'Перепроверять раз в неделю', gNoMarket:'Редкий актив · нет живого рынка — ориентир сделки', gOrient:'Ориентир сделки, не торговый сигнал',
+  gProPitch:'Monet Pro подсказывает, когда покупать, когда продавать и когда подождать. Это ориентир по рынку, а не гарантия дохода.', gUnlock:'Открыть Pro', gUnder:'Сейчас ниже Buy Zone — выглядит недооценённым', gOver:'Рынок выше зоны — не переплачивай',
+  freeBase:'Оценка, диапазон цены и уверенность', proZones:'Зоны Buy / Sell / Fast', proAlerts:'Алерты + сигналы «недооценён» и «не переплачивай»', proGuid:'Дневной ориентир по рынку',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель', navHome:'Дом', hHi:'Привет', hCapital:'Твой капитал', h24:'За 24ч', h7:'За 7д', hAssets:'Активов', hQEval:'Оценить', hQAdd:'В портфель', hQMarket:'Рынок', hQShare:'Поделиться', hPulse:'Пульс рынка', hActivity:'Активность', hAll:'Всё', hEmptyT:'Добро пожаловать в Monet', hEmptyS:'Оцени первый актив — и он появится в твоём капитале.', hEmptyBtn:'Оценить первый актив',
   pfTitle:'Мой портфель', pfTotal:'Стоимость портфеля', pfEmpty:'Добавьте свои Telegram-активы и следите за их стоимостью',
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
@@ -1878,7 +1914,7 @@ ru:{
   lockedHistory:'История ограничена 3 записями. 👑 Premium — без лимитов',
   lockedFav:'Избранное ограничено 3 записями. 👑 Premium — без лимитов',
   topNote:'Реальные рекордные сделки',
-  pmTitle:'Monet Premium', pmSub:'Снимите все лимиты оценщика',
+  pmTitle:'Monet Pro', pmSub:'Знайте, когда покупать, продавать и когда подождать',
   pmGet:'Оформить Premium', pmFail:'Оплата не прошла', pmSoon:'Покупка скоро будет доступна', pmWin:'Или выиграйте в режиме 🔥 Челлендж (700 очков)',
   freeLaunch:'🎉 Бесплатно на старте · до 5 июля', freeLaunchNote:'Сейчас все функции открыты бесплатно. Можно оформить заранее, чтобы поддержать — премиум останется и после запуска.', freeNow:'бесплатно',
   planMonth:'Месяц', planYear:'Год', perMo:'/мес', save:'выгода', subActive:'Premium активен', subUntil:'Действует до', subThanks:'👑 Premium активирован! Спасибо',
@@ -1922,6 +1958,11 @@ ru:{
 en:{
   tagline:'appraisal house · TON', heroSub:'Valued on real market deals · TON',
   heroPitch:'Appraise · Market · Capital · TON', confLabel:'Confidence', confHigh:'high', confMid:'medium', confLow:'low', estLabel:'Range', liqLabel:'Liquidity', liqLow:'low', liqMid:'medium', liqHigh:'high', whyLabel:'Why', tierLabel:'Tier',
+  gTitle:'Monet Guidance', gBuy:'Buy under', gFair:'Market value', gList:'List for', gFast:'Fast sale',
+  gBuyNote:'Good price to buy', gFairNote:'Normal market price', gListNote:'Good price to sell', gFastNote:'If you need to sell fast',
+  gAlertBtn:'Alert at Buy Zone', gRecheck:'Re-check weekly', gNoMarket:'Rare asset · not a live market — deal guideline', gOrient:'Deal guideline, not a trading signal',
+  gProPitch:'Monet Pro helps you know when to buy, when to sell and when to wait. A market guideline, not a profit guarantee.', gUnlock:'Unlock Pro', gUnder:'Now below Buy Zone — looks undervalued', gOver:'Market is above the zone — don’t overpay',
+  freeBase:'Estimate, price range and confidence', proZones:'Buy / Sell / Fast zones', proAlerts:'Alerts + “undervalued” & “don’t overpay” signals', proGuid:'Daily market guidance',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio', navHome:'Home', hHi:'Hi', hCapital:'Your capital', h24:'24h', h7:'7d', hAssets:'Assets', hQEval:'Appraise', hQAdd:'To portfolio', hQMarket:'Market', hQShare:'Share', hPulse:'Market pulse', hActivity:'Activity', hAll:'All', hEmptyT:'Welcome to Monet', hEmptyS:'Appraise your first asset — it lands in your capital.', hEmptyBtn:'Appraise first asset',
   pfTitle:'My portfolio', pfTotal:'Portfolio value', pfEmpty:'Add your Telegram assets and track their value',
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
@@ -1975,7 +2016,7 @@ en:{
   lockedHistory:'History capped at 3. 👑 Premium — unlimited',
   lockedFav:'Favorites capped at 3. 👑 Premium — unlimited',
   topNote:'Real record deals',
-  pmTitle:'Monet Premium', pmSub:'Remove every limit of the appraiser',
+  pmTitle:'Monet Pro', pmSub:'Know when to buy, when to sell and when to wait',
   pmGet:'Get Premium', pmFail:'Payment failed', pmSoon:'Purchase coming soon', pmWin:'Or win the 🔥 Challenge mode (700 points)',
   freeLaunch:'🎉 Free at launch · until Jul 5', freeLaunchNote:'All features are open for free right now. You can subscribe early to support — premium stays after launch too.', freeNow:'free',
   planMonth:'Month', planYear:'Year', perMo:'/mo', save:'save', subActive:'Premium active', subUntil:'Valid until', subThanks:'👑 Premium activated! Thank you',
@@ -2983,6 +3024,7 @@ async function loadGiftCross(r){
     const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
     const fb2=document.getElementById('giftFactors'); if(fb2) fb2.innerHTML=factorsHTML(r);
   }
+  r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0; renderTradeBand(r);   // refine guidance with real market + sales
   renderGiftVerdict({exactAsk:marketAsk, sold, salesN, worth:r.priceTON, hasTrait, listed:marketAsk>0});
   renderGiftComps(r, comps);
 }
@@ -3157,6 +3199,73 @@ function estSpread(r){
   return Math.min(0.55, s);
 }
 function factorsHTML(r){ return (r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join(''); }
+/* ---- Monet Guidance: a buy/fair/sell/fast decision map around fair value ---- */
+function guidance(r){
+  const w=r&&r.priceTON; if(!(w>0)) return null;
+  const sp=Math.max(0.05, Math.min(0.4, estSpread(r)));
+  let fairLo=w*(1-sp), fairHi=w*(1+sp);
+  let buyUnder=fairLo*(1-0.10-0.20*sp);                  // clear-deal threshold below fair
+  let listLo=fairHi*(1+0.06+0.15*sp), listHi=fairHi*(1+0.18+0.30*sp);
+  let fastHi=fairLo*(1-0.02-0.10*sp), fastLo;
+  const ask=r._mktAsk||0, sold=r._sold||0, floor=r._floor||0;   // gift market reality, when known
+  if(sold>0){ buyUnder=Math.min(buyUnder, sold*0.95); }
+  if(ask>0){ buyUnder=Math.min(buyUnder, ask*0.98); fastHi=Math.min(fastHi, ask*0.97); }
+  if(floor>0){ fastHi=Math.min(fastHi, floor*0.99); buyUnder=Math.min(buyUnder, floor); }  // can't buy a 'deal' above floor
+  fastLo=fastHi*0.90;
+  const R=Math.round;
+  fairLo=R(fairLo); fairHi=Math.max(fairLo+1,R(fairHi));
+  buyUnder=Math.max(1,R(buyUnder));
+  listLo=R(listLo); listHi=Math.max(listLo+1,R(listHi));
+  fastHi=Math.max(1,R(fastHi)); fastLo=Math.max(1,Math.min(fastHi-1,R(fastLo)));
+  return { w:R(w), fairLo, fairHi, buyUnder, listLo, listHi, fastLo, fastHi };
+}
+function guidanceInner(r){
+  const g=guidance(r); if(!g) return ''; const ru=S.lang==='ru';
+  const cc=confOf(r), lq=liqOf(r);
+  const pro=proActive(), lock=!pro;
+  const num=v=>fmtTON(v)+' TON', rng=(a,b)=>fmtTON(a)+'–'+fmtTON(b)+' TON';
+  const row=(k,val,note,cls,lk)=>'<div class="g-row '+(cls||'')+(lk?' locked':'')+'"><div class="g-l"><span class="g-k">'+k+'</span><span class="g-note">'+note+'</span></div><div class="g-v">'+(lk?'<span class="g-lockv">🔒 •••</span>':val)+'</div></div>';
+  let rows='', head='';
+  if(r.cat==='numbers'){
+    head='<div class="g-banner">'+t('gNoMarket')+'</div>';
+    rows = row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false)
+         + row(t('gBuy'), '≤ '+num(g.buyUnder), t('gBuyNote'),'g-buy',lock)
+         + row(t('gList'), '≥ '+num(g.listLo), t('gListNote'),'g-sell',lock);
+  } else if(r.cat==='username'){
+    head='<div class="g-banner soft">'+t('gOrient')+'</div>';
+    rows = row(t('gBuy'), '≤ '+num(g.buyUnder), t('gBuyNote'),'g-buy',lock)
+         + row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false)
+         + row(t('gList'), '≥ '+num(g.listLo), t('gListNote'),'g-sell',lock);
+  } else {
+    rows = row(t('gBuy'), '≤ '+num(g.buyUnder), t('gBuyNote'),'g-buy',lock)
+         + row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false)
+         + row(t('gList'), rng(g.listLo,g.listHi), t('gListNote'),'g-sell',lock)
+         + row(t('gFast'), rng(g.fastLo,g.fastHi), t('gFastNote'),'g-fast',lock);
+  }
+  let opp='';
+  if(pro && (r.cat==='gifts'||r.cat==='stickers') && r._mktAsk>0){
+    if(r._mktAsk<=g.buyUnder) opp='<div class="g-opp under">💎 '+t('gUnder')+'</div>';
+    else if(r._mktAsk>=g.listLo) opp='<div class="g-opp over">⚠️ '+t('gOver')+'</div>';
+  }
+  let ctx='';
+  if(r.cat==='gifts'||r.cat==='stickers'){
+    const parts=[];
+    if(r._floor>0) parts.push((ru?'флор ':'floor ')+fmtTON(r._floor)+' TON');
+    if(r._mktAsk>0) parts.push((ru?'дешевле ':'cheapest ')+fmtTON(r._mktAsk)+' TON');
+    if(r._salesN>0) parts.push(r._salesN+(ru?' сделок':' deals'));
+    if(parts.length) ctx='<div class="g-ctx">'+parts.join(' · ')+'</div>';
+  }
+  const chips='<div class="g-chips"><span class="g-chip" style="color:'+cc.c+'"><span class="g-dot" style="background:'+cc.c+'"></span>'+t('confLabel')+': '+t(cc.k)+'</span>'
+    +'<span class="g-chip" style="color:'+lq.c+'"><span class="g-dot" style="background:'+lq.c+'"></span>'+t('liqLabel')+': '+t(lq.k)+'</span>'
+    +(r.cat==='username'?'<span class="g-chip recheck">'+t('gRecheck')+'</span>':'')+'</div>';
+  const foot = pro
+    ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')">🔔 '+t('gAlertBtn')+'</button>'
+    : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()">⭐ '+t('gUnlock')+'</button>';
+  const tag = pro ? '' : ' <span class="g-protag">PRO</span>';
+  return '<div class="guide-card'+(pro?'':' g-free')+'"><div class="g-h">'+t('gTitle')+tag+'</div>'+head+rows+opp+ctx+chips+foot+'</div>';
+}
+function tradeBandHTML(r){ return '<div id="tradeBand">'+guidanceInner(r)+'</div>'; }
+function renderTradeBand(r){ const el=document.getElementById('tradeBand'); if(el) el.innerHTML=guidanceInner(r); }
 function resultCardHTML(r){
   const tier=tierOf(r.priceTON);
   const subline = r.cat==='username' ? 'fragment.com/username/'+r.display.slice(1)
@@ -3182,6 +3291,7 @@ function resultCardHTML(r){
     '</div>'+
     '<div class="rbody">'+
       '<div class="cert-specs">'+'<div class="cs-row"><span class="cs-l">'+t('confLabel')+'</span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+t(cc.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('liqLabel')+'</span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+t(lq.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('tierLabel')+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+
+      tradeBandHTML(r)+
       (r.rarity?'<div class="rarity-line"><span class="rrank" style="background:'+r.rarity.color+'1f;color:'+r.rarity.color+'"><span class="rd" style="background:'+r.rarity.color+'"></span>'+t(r.rarity.key)+'</span><span class="rone">'+t('rarityOneIn')+' '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')+'</span></div>':'')+
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
@@ -3719,12 +3829,12 @@ function renderPlanCards(){
 }
 function renderPlan(){
   document.getElementById('planList').innerHTML=
-    '<div class="prow off"><span class="pi">✓</span>'+t('planFreeT')+': '+t('free1')+'</div>'+
-    '<div class="prow off"><span class="pi">✓</span>'+t('free2')+' · '+t('free3')+'</div>'+
+    '<div class="prow off"><span class="pi">✓</span>'+t('planFreeT')+': '+t('freeBase')+'</div>'+
     '<div style="height:8px"></div>'+
-    '<div class="prow"><span class="pi">★</span>'+t('pro1')+'</div>'+
-    '<div class="prow"><span class="pi">★</span>'+t('pro2')+' · '+t('pro3')+'</div>'+
-    '<div class="prow"><span class="pi">★</span>'+t('pro4')+'</div>';
+    '<div class="prow"><span class="pi">★</span>'+t('proZones')+'</div>'+
+    '<div class="prow"><span class="pi">★</span>'+t('proAlerts')+'</div>'+
+    '<div class="prow"><span class="pi">★</span>'+t('proGuid')+'</div>'+
+    '<div class="prow"><span class="pi">★</span>'+t('pro1')+' · '+t('pro2')+'</div>';
   renderPlanCards();
 }
 function openPremium(){ if(S.premium){ toast(t('premiumGranted')); return; } renderPlan();
@@ -4888,6 +4998,7 @@ window.ALERTS=(function(){
     return fired; }
   function open(){ render(null); document.getElementById('al-scrim').classList.add('open'); }
   function quick(name,cat,price){ render({name:name, target:Math.round((price||0)*1.15)}); document.getElementById('al-scrim').classList.add('open'); }
+  function quickAt(name,cat,target){ render({name:name, target:Math.round(target||0)}); document.getElementById('al-scrim').classList.add('open'); }
   function close(){ document.getElementById('al-scrim').classList.remove('open'); }
   function render(pre){ pre=pre||{}; const list=S.alerts||[];
     const items = list.length ? list.map(a=>{ const cur=priceOf(a.display);
@@ -4911,7 +5022,7 @@ window.ALERTS=(function(){
     try{ if(typeof syncNotify==='function' && S.notify) syncNotify(false); }catch(e){} }
   function remove(id){ S.alerts=(S.alerts||[]).filter(a=>a.id!==id); try{save();}catch(e){} badge(); render(null);
     try{ if(typeof syncNotify==='function' && S.notify) syncNotify(false); }catch(e){} }
-  return { open, quick, close, render, addFromInput, remove, check, badge };
+  return { open, quick, quickAt, close, render, addFromInput, remove, check, badge };
 })();
 window.LOCK=(function(){
   const LEN=4; let buf='', mode='', stash='', cb=null, ttl='';
