@@ -673,6 +673,10 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .dr-tile .qic{flex:none}
 .dr-tile b{font-size:11.5px;font-weight:700;color:var(--txt-2);text-align:center;line-height:1.2}
 [data-theme="dark"] .dr-tile{background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.dr-prem{border-color:var(--hair-gold,rgba(200,162,75,.4))!important;background:rgba(200,162,75,.07)!important}
+.dr-prem .qic{background:linear-gradient(180deg,#E7CE92,#C8A24B)!important;box-shadow:0 8px 18px -10px rgba(200,162,75,.6)!important}
+.dr-prem .qic .ico{stroke:#1c2b22}
+.dr-prem b{color:var(--gold)}
 .dr-danger b{color:var(--down)}
 .dr-danger .qic{background:rgba(232,120,108,.16)!important;box-shadow:none!important}
 .dr-danger .qic .ico{stroke:var(--down)}
@@ -1645,6 +1649,7 @@ header{border-bottom:0;background:none}
     <div class="dr-profile" id="drProfile" onclick="closeDrawer();BANK.openCard()"></div>
     <div class="dr-sec" data-i18n="drActions"></div>
     <div class="dr-grid">
+      <button class="dr-tile dr-prem" id="premTile" onclick="closeDrawer();openPremium()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8l4 3 4-6 4 6 4-3-1.6 11H5.6z"/></svg></span><b>Premium</b></button>
       <button class="dr-tile dr-deskhide" onclick="closeDrawer();BANK.openCard()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18M7 14.5h3"/></svg></span><b data-i18n="myCard"></b></button>
       <button class="dr-tile" onclick="closeDrawer();ALERTS.open()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><b data-i18n="alTitle"></b></button>
       <button class="dr-tile" onclick="closeDrawer();PF.openJournal()"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2zM8 9h7M8 13h7"/></svg></span><b data-i18n="jrTitle"></b></button>
@@ -1692,7 +1697,7 @@ header{border-bottom:0;background:none}
     <h2 data-i18n="pmTitle"></h2>
     <p class="msub" data-i18n="pmSub"></p>
     <div class="plan" id="planList"></div>
-    <button class="btn gold" onclick="grantPremium('buy')" data-i18n="pmGet"></button>
+    <button class="btn gold" id="pmBuyBtn" onclick="buyPremium()"></button>
     <p class="winhint" data-i18n="pmWin"></p>
   </div>
 </div>
@@ -1710,6 +1715,7 @@ const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : 
 const RATE = { usd: 1.76, eur: 1.63 };           // TON -> fiat (calibrated May 2026; refreshed at runtime)
 const STAR_USD = 0.013;                          // legacy USD/Star (unused)
 let STARS_PER_TON = 200;                          // Telegram Fragment peg: 200 Stars = 1 TON (override via proxy ?floors -> starsPerTon)
+const PREMIUM_STARS = 500;                        // price of Monet Premium in Telegram Stars
 const FX_LABEL = { usd:'$', eur:'€' };
 // Converter currencies (value bridged through TON). flag + symbol + name.
 const CURRENCIES = [
@@ -1846,7 +1852,7 @@ ru:{
   lockedFav:'Избранное ограничено 3 записями. 👑 Premium — без лимитов',
   topNote:'Реальные рекордные сделки',
   pmTitle:'Monet Premium', pmSub:'Снимите все лимиты оценщика',
-  pmGet:'Оформить Premium', pmWin:'Или выиграйте в режиме 🔥 Челлендж (700 очков)',
+  pmGet:'Оформить Premium', pmFail:'Оплата не прошла', pmSoon:'Покупка скоро будет доступна', pmWin:'Или выиграйте в режиме 🔥 Челлендж (700 очков)',
   planFreeT:'Бесплатно', planProT:'Premium',
   free1:'5 оценок в день', free2:'История — 3 записи', free3:'Избранное — 3 записи', free4:'Без объяснения цены',
   pro1:'Безлимит оценок', pro2:'Полная история', pro3:'Безлимит избранного', pro4:'Объяснение цены и сравнение',
@@ -1941,7 +1947,7 @@ en:{
   lockedFav:'Favorites capped at 3. 👑 Premium — unlimited',
   topNote:'Real record deals',
   pmTitle:'Monet Premium', pmSub:'Remove every limit of the appraiser',
-  pmGet:'Get Premium', pmWin:'Or win the 🔥 Challenge mode (700 points)',
+  pmGet:'Get Premium', pmFail:'Payment failed', pmSoon:'Purchase coming soon', pmWin:'Or win the 🔥 Challenge mode (700 points)',
   planFreeT:'Free', planProT:'Premium',
   free1:'5 evaluations / day', free2:'History — 3 entries', free3:'Favorites — 3 entries', free4:'No price explanation',
   pro1:'Unlimited evaluations', pro2:'Full history', pro3:'Unlimited favorites', pro4:'Price explanation & compare',
@@ -3224,6 +3230,7 @@ function syncSettings(){ try{
   const lbl=document.getElementById('setCurLbl'); if(lbl){ const x=CURRENCIES.find(k=>k.c===S.currency)||CURRENCIES[1]; lbl.textContent=x.fl+' '+x.s; }
   const stg=document.getElementById('starsToggle'); if(stg&&stg.children.length>=2){ const on=S.showStars!==false; stg.children[0].classList.toggle('on',on); stg.children[1].classList.toggle('on',!on); }
   const ver=document.getElementById('setVer'); if(ver) ver.textContent='Monet v'+APP_VERSION;
+  const pt=document.getElementById('premTile'); if(pt) pt.style.display=S.premium?'none':'';
 }catch(e){} }
 
 /* ---- identify gift/sticker by photo (vision AI; online, graceful fallback) ---- */
@@ -3670,9 +3677,19 @@ function renderPlan(){
     '<div class="prow"><span class="pi">★</span>'+t('pro1')+'</div>'+
     '<div class="prow"><span class="pi">★</span>'+t('pro2')+' · '+t('pro3')+'</div>'+
     '<div class="prow"><span class="pi">★</span>'+t('pro4')+'</div>';
+  const bb=document.getElementById('pmBuyBtn'); if(bb) bb.innerHTML=t('pmGet')+' · '+PREMIUM_STARS+' \u2b50';
 }
 function openPremium(){ if(S.premium){ toast(t('premiumGranted')); return; } renderPlan(); document.getElementById('premiumModal').classList.add('open'); }
 function closePremium(){ document.getElementById('premiumModal').classList.remove('open'); }
+async function buyPremium(){
+  try{
+    if(!(tg && tg.openInvoice)){ toast(t('pmSoon')); return; }
+    const base=proxyURL(); let link='';
+    if(base){ try{ const res=await fetch(base.replace(/\/+$/,'')+'/?invoice=premium&stars='+PREMIUM_STARS,{cache:'no-store'}); if(res.ok){ const j=await res.json(); link=(j&&j.link)||''; } }catch(e){} }
+    if(!link){ toast(t('pmSoon')); return; }
+    tg.openInvoice(link, function(status){ if(status==='paid'){ grantPremium('buy'); } else if(status==='failed'){ toast(t('pmFail')); } });
+  }catch(e){ toast(t('pmSoon')); }
+}
 function grantPremium(src,silent){
   S.premium=true; save(); updatePremiumUI();
   closePremium();
