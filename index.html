@@ -575,6 +575,9 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pro-pill{position:relative;z-index:1;display:inline-flex;align-items:center;gap:5px;margin-left:7px;margin-top:2px;padding:5px 11px;border-radius:999px;font-weight:800;font-size:11px;white-space:nowrap;color:#1c2b22;background:linear-gradient(180deg,#E7CE92,#C8A24B)}
 .pro-pill.promo{color:#1c2b22;background:linear-gradient(180deg,#E7CE92,#C8A24B);opacity:.95}
 .dr-profile .pro-pill{margin-left:0;margin-top:6px}
+.mi{display:inline-block;width:1em;height:1em;vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mi-f{fill:currentColor;stroke:none}
+.modal .crown{line-height:0}.modal .crown .mi{width:44px;height:44px;color:var(--gold,#C8A24B)}
 .home-greet{font-family:var(--font-d);font-weight:600;font-size:21px;letter-spacing:-.3px;margin:2px 2px 12px}
 .cap-cash{display:inline-flex;align-items:center;gap:5px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.92);background:rgba(255,255,255,.14);padding:5px 11px;border-radius:999px;backdrop-filter:blur(6px)}
 .home-qa{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
@@ -846,6 +849,20 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .wz-shead{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--txt-3);margin:12px 8px 6px;opacity:.85}
 .wz-plist .wz-shead:first-child{margin-top:2px}
 .pf-insights{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.pf-insights.one{grid-template-columns:1fr}
+.imp-sep{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--txt-3);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.imp-sep::before,.imp-sep::after{content:"";flex:1;height:1px;background:var(--line)}
+.imp-open{display:flex;align-items:center;justify-content:center;gap:8px}
+.imp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:52vh;overflow:auto;-webkit-overflow-scrolling:touch;padding:2px}
+.imp-tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:11px 12px;border-radius:13px;background:var(--surface);border:1.5px solid var(--line);cursor:pointer;text-align:left}
+.imp-tile:active{transform:scale(.98)}
+.imp-tile.on{border-color:var(--tier-top);background:linear-gradient(135deg,rgba(235,203,124,.12),var(--surface))}
+.imp-ic{font-size:18px;line-height:1}
+.imp-nm{font-size:12.5px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.imp-fl{font-size:11px;color:var(--txt-3);font-variant-numeric:tabular-nums}
+.imp-ck{position:absolute;top:8px;right:8px;color:var(--tier-top)}
+.imp-add{margin-top:12px}
+.imp-add:disabled{opacity:.45}
 .pf-ins{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px}
 .pf-ins .ic{width:34px;height:34px;border-radius:10px;background:var(--bg2);display:grid;place-items:center;font-size:17px;flex:none}
 .pf-ins .mm{min-width:0;flex:1}
@@ -1743,7 +1760,7 @@ header{border-bottom:0;background:none}
 <div class="modal-scrim" id="premiumModal" onclick="if(event.target===this)closePremium()">
   <div class="modal">
     <span class="close" onclick="closePremium()">✕</span>
-    <div class="crown">👑</div>
+    <div class="crown"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg></div>
     <h2 data-i18n="pmTitle"></h2>
     <p class="msub" data-i18n="pmSub"></p>
     <div class="pm-promo" id="pmPromo" style="display:none"></div>
@@ -1870,14 +1887,15 @@ ru:{
   pfTitle:'Мой портфель', pfTotal:'Стоимость портфеля', pfEmpty:'Добавьте свои Telegram-активы и следите за их стоимостью',
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
   pfAddTitle:'Добавить в портфель', pfPick:'Что добавить', pfHistNote:'7д — оценка по динамике рынка',
+  pfImport:'Мои подарки', pfImportSub:'отметь свои — добавим с оценкой', pfImportSearch:'Поиск коллекции…', pfImportAdd:'Добавить в портфель', pfImportEmpty:'Ничего не найдено', pfImportOr:'или',
   estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, TON', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'Нереализ. P&L', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, TON', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать «≈ ⭐»', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
   pfAlloc:'Распределение', pfBest:'Лидер 24ч', pfWorst:'Аутсайдер 24ч', pfShare:'Поделиться',
   pfNetWorth:'Мой Telegram-капитал', pfOther:'прочее', pfAssets:'актив(а/ов)', pfEmptyCta:'Оцени актив и добавь в портфель',
   pfForecast:'Прогноз 30д', pfTier:'Статус', menuAssets:'Стоимость активов', pfToNext:'до', pfGoal:'Цель', pfSetGoal:'Поставить цель', pfGoalTitle:'Цель по капиталу',
-  pfGoalPh:'цель, TON', pfGoalSave:'Сохранить', pfGoalRemove:'Убрать цель', pfRemaining:'осталось', pfGoalReached:'Цель достигнута! 🎉', pfHidden:'Баланс скрыт',
+  pfGoalPh:'цель, TON', pfGoalSave:'Сохранить', pfGoalRemove:'Убрать цель', pfRemaining:'осталось', pfGoalReached:'Цель достигнута!', pfHidden:'Баланс скрыт',
   tierStandard:'Standard', tierBronze:'Novice', tierSilver:'Expert', tierGold:'Elite', tierPlatinum:'Platinum', tierBlack:'Black',
   cardTitle:'Моя карта', cardHolder:'ДЕРЖАТЕЛЬ', cardBalance:'Капитал', cardTap:'нажми, чтобы перевернуть', cardPerks:'Привилегии',
-  rwTitle:'Награды', rwStreak:'дней подряд', rwPoints:'очков Monet', rwToReward:'до награды', rwRedeem:'Обменять на Prime', rwGotPremium:'Prime разблокирован! 🎉', rwDaily:'Ежедневный бонус', rwHave:'Prime активен',
+  rwTitle:'Награды', rwStreak:'дней подряд', rwPoints:'очков Monet', rwToReward:'до награды', rwRedeem:'Обменять на Prime', rwGotPremium:'Prime разблокирован!', rwDaily:'Ежедневный бонус', rwHave:'Prime активен',
   cvTitle:'Конвертер', cvSwap:'Поменять', cvRate:'курс', cvMid:'Средний рыночный курс', cvSearch:'Поиск валюты', cvAmount:'Сумма', cvConverted:'Получится', cvAll:'Валюты', cvCrypto:'Криптовалюты', cvFiat:'Валюты', myCard:'Карта', conv:'Конвертер',
   evaluate:'Оценить', compare:'Сравнить',
   premiumActive:'Prime активен — лимиты сняты',
@@ -1917,20 +1935,20 @@ ru:{
   fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка', fModelRare:'Модель · по редкости', fBackRare:'Фон · по редкости', fPatRare:'Узор · по редкости', fShrink:'Поправка на данные', fTilt:'Спрос рынка', fCal:'Авто-калибровка', fMeasured:'Измеренная точность',
   drawerTitle:'Меню', tabHistory:'История', tabFav:'Мои', tabTop:'Топ', drActions:'Действия', drLists:'Списки', drSettings:'Настройки', drLanguage:'Язык', drTheme:'Тема', thLight:'Светлая', thDark:'Тёмная',
   emptyHistory:'Здесь появятся ваши оценки', emptyFav:'Добавьте оценки в избранное звёздочкой',
-  lockedHistory:'История ограничена 3 записями. 👑 Prime — без лимитов',
-  lockedFav:'Избранное ограничено 3 записями. 👑 Prime — без лимитов',
+  lockedHistory:'История ограничена 3 записями. Prime — без лимитов',
+  lockedFav:'Избранное ограничено 3 записями. Prime — без лимитов',
   topNote:'Реальные рекордные сделки',
   pmTitle:'Monet Prime', pmSub:'Знайте, когда покупать, продавать и когда подождать',
-  pmGet:'Оформить Prime', pmFail:'Оплата не прошла', pmSoon:'Покупка скоро будет доступна', pmWin:'Или выиграйте в режиме 🔥 Челлендж (700 очков)',
-  freeLaunch:'🎉 Бесплатно на старте · до 5 июля', freeLaunchNote:'Сейчас все функции открыты бесплатно. Можно оформить заранее, чтобы поддержать — премиум останется и после запуска.', freeNow:'бесплатно',
-  planMonth:'Месяц', planYear:'Год', perMo:'/мес', save:'выгода', subActive:'Prime активен', subUntil:'Действует до', subThanks:'👑 Prime активирован! Спасибо',
+  pmGet:'Оформить Prime', pmFail:'Оплата не прошла', pmSoon:'Покупка скоро будет доступна', pmWin:'Или выиграйте в режиме Челлендж (700 очков)',
+  freeLaunch:'Бесплатно на старте · до 5 июля', freeLaunchNote:'Сейчас все функции открыты бесплатно. Можно оформить заранее, чтобы поддержать — премиум останется и после запуска.', freeNow:'бесплатно',
+  planMonth:'Месяц', planYear:'Год', perMo:'/мес', save:'выгода', subActive:'Prime активен', subUntil:'Действует до', subThanks:'Prime активирован! Спасибо',
   planFreeT:'Бесплатно', planProT:'Prime',
   free1:'5 оценок в день', free2:'История — 3 записи', free3:'Избранное — 3 записи', free4:'Без объяснения цены',
   pro1:'Безлимит оценок', pro2:'Полная история', pro3:'Безлимит избранного', pro4:'Объяснение цены и сравнение',
-  limitReached:'Лимит 5 оценок в день. Откройте 👑 Prime',
-  favLimit:'Лимит 3 избранных. Откройте 👑 Prime',
+  limitReached:'Лимит 5 оценок в день. Откройте Prime',
+  favLimit:'Лимит 3 избранных. Откройте Prime',
   added:'Добавлено в избранное', removed:'Удалено из избранного',
-  saved:'Карточка сохранена', premiumGranted:'👑 Prime активирован!',
+  saved:'Карточка сохранена', premiumGranted:'Prime активирован!',
   // game
   gameTitle:'Угадай цену', gameSub:'Оцени актив на глаз. Чем точнее — тем больше очков.',
   modeFun:'Фан', modeFunD:'25 сек · без штрафов · простые активы',
@@ -1938,7 +1956,7 @@ ru:{
   gGuess:'Ваша цена в TON', gSubmit:'Ответить', gBest:'Рекорд',
   gAsk:'Сколько стоит в TON?', gHint:'Чем ближе к реальной цене — тем больше очков. Набери 700 в режиме «Вызов» — откроется Prime.',
   gPerfect:'В точку! +', gClose:'Близко! +', gOk:'Неплохо +', gFar:'Мимо +', gMiss:'Грубый промах ',
-  gOver:'Игра окончена', gYourScore:'Очки', gNewBest:'🎉 Новый рекорд!', gAgain:'Ещё раз', gUnlock:'🔓 Prime разблокирован!',
+  gOver:'Игра окончена', gYourScore:'Очки', gNewBest:'Новый рекорд!', gAgain:'Ещё раз', gUnlock:'Prime разблокирован!',
   realAsset:'реальная сделка', floorTon:'floor',
   flrLive:'live-флоры', flrDemo:'демо-флоры', flrCache:'из кэша',
   flrNow:'только что', flrMin:' мин', flrHr:' ч', flrDay:' дн',
@@ -1974,14 +1992,15 @@ en:{
   pfTitle:'My portfolio', pfTotal:'Portfolio value', pfEmpty:'Add your Telegram assets and track their value',
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
   pfAddTitle:'Add to portfolio', pfPick:'What to add', pfHistNote:'7d — estimated from market trend',
+  pfImport:'My gifts', pfImportSub:'tap yours — added with a value', pfImportSearch:'Search collection…', pfImportAdd:'Add to portfolio', pfImportEmpty:'Nothing found', pfImportOr:'or',
   estRange:'range', apprValue:'Estimated value', apprHouse:'appraisal house', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, TON', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, TON', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', hAllCash:'All in free cash', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist', lkTitle:'Password', lkSetNew:'New password', lkRepeat:'Repeat password', lkEnter:'Enter password', lkEnterCur:'Current password', lkChange:'Change password', lkRemove:'Remove password', lkSaved:'Password set', lkRemoved:'Password removed', stCurrency:'Currency', stStars:'Show "\u2248 \u2b50"', stOn:'On', stOff:'Off', stOnboard:'Onboarding', stReset:'Reset data', stAbout:'About', stResetConfirm:'Delete all local data (portfolio, history, alerts)? This cannot be undone.',
   pfAlloc:'Allocation', pfBest:'Top 24h', pfWorst:'Worst 24h', pfShare:'Share',
   pfNetWorth:'My Telegram net worth', pfOther:'other', pfAssets:'assets', pfEmptyCta:'Evaluate an asset and add it to your portfolio',
   pfForecast:'30d forecast', pfTier:'Status', menuAssets:'Asset value', pfToNext:'to', pfGoal:'Goal', pfSetGoal:'Set a goal', pfGoalTitle:'Capital goal',
-  pfGoalPh:'goal, TON', pfGoalSave:'Save', pfGoalRemove:'Remove goal', pfRemaining:'left', pfGoalReached:'Goal reached! 🎉', pfHidden:'Balance hidden',
+  pfGoalPh:'goal, TON', pfGoalSave:'Save', pfGoalRemove:'Remove goal', pfRemaining:'left', pfGoalReached:'Goal reached!', pfHidden:'Balance hidden',
   tierStandard:'Standard', tierBronze:'Novice', tierSilver:'Expert', tierGold:'Elite', tierPlatinum:'Platinum', tierBlack:'Black',
   cardTitle:'My card', cardHolder:'CARDHOLDER', cardBalance:'Net worth', cardTap:'tap to flip', cardPerks:'Perks',
-  rwTitle:'Rewards', rwStreak:'day streak', rwPoints:'Monet points', rwToReward:'to reward', rwRedeem:'Redeem for Prime', rwGotPremium:'Prime unlocked! 🎉', rwDaily:'Daily bonus', rwHave:'Prime active',
+  rwTitle:'Rewards', rwStreak:'day streak', rwPoints:'Monet points', rwToReward:'to reward', rwRedeem:'Redeem for Prime', rwGotPremium:'Prime unlocked!', rwDaily:'Daily bonus', rwHave:'Prime active',
   cvTitle:'Converter', cvSwap:'Swap', cvRate:'rate', cvMid:'Mid-market rate', cvSearch:'Search currency', cvAmount:'Amount', cvConverted:'Converted to', cvAll:'Currencies', cvCrypto:'Crypto', cvFiat:'Currencies', myCard:'Card', conv:'Converter',
   evaluate:'Evaluate', compare:'Compare',
   premiumActive:'Prime active — limits removed',
@@ -2020,27 +2039,27 @@ en:{
   fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration', fModelRare:'Model · by rarity', fBackRare:'Backdrop · by rarity', fPatRare:'Pattern · by rarity', fShrink:'Data adjustment', fTilt:'Market demand', fCal:'Auto-calibration', fMeasured:'Measured accuracy',
   drawerTitle:'Menu', tabHistory:'History', tabFav:'Mine', tabTop:'Top', drActions:'Actions', drLists:'Lists', drSettings:'Settings', drLanguage:'Language', drTheme:'Theme', thLight:'Light', thDark:'Dark',
   emptyHistory:'Your evaluations will appear here', emptyFav:'Star evaluations to save them',
-  lockedHistory:'History capped at 3. 👑 Prime — unlimited',
-  lockedFav:'Favorites capped at 3. 👑 Prime — unlimited',
+  lockedHistory:'History capped at 3. Prime — unlimited',
+  lockedFav:'Favorites capped at 3. Prime — unlimited',
   topNote:'Real record deals',
   pmTitle:'Monet Prime', pmSub:'Know when to buy, when to sell and when to wait',
-  pmGet:'Get Prime', pmFail:'Payment failed', pmSoon:'Purchase coming soon', pmWin:'Or win the 🔥 Challenge mode (700 points)',
-  freeLaunch:'🎉 Free at launch · until Jul 5', freeLaunchNote:'All features are open for free right now. You can subscribe early to support — premium stays after launch too.', freeNow:'free',
-  planMonth:'Month', planYear:'Year', perMo:'/mo', save:'save', subActive:'Prime active', subUntil:'Valid until', subThanks:'👑 Prime activated! Thank you',
+  pmGet:'Get Prime', pmFail:'Payment failed', pmSoon:'Purchase coming soon', pmWin:'Or win the Challenge mode (700 points)',
+  freeLaunch:'Free at launch · until Jul 5', freeLaunchNote:'All features are open for free right now. You can subscribe early to support — premium stays after launch too.', freeNow:'free',
+  planMonth:'Month', planYear:'Year', perMo:'/mo', save:'save', subActive:'Prime active', subUntil:'Valid until', subThanks:'Prime activated! Thank you',
   planFreeT:'Free', planProT:'Prime',
   free1:'5 evaluations / day', free2:'History — 3 entries', free3:'Favorites — 3 entries', free4:'No price explanation',
   pro1:'Unlimited evaluations', pro2:'Full history', pro3:'Unlimited favorites', pro4:'Price explanation & compare',
-  limitReached:'Daily limit of 5 reached. Unlock 👑 Prime',
-  favLimit:'Limit of 3 favorites. Unlock 👑 Prime',
+  limitReached:'Daily limit of 5 reached. Unlock Prime',
+  favLimit:'Limit of 3 favorites. Unlock Prime',
   added:'Added to favorites', removed:'Removed from favorites',
-  saved:'Card saved', premiumGranted:'👑 Prime activated!',
+  saved:'Card saved', premiumGranted:'Prime activated!',
   gameTitle:'Guess the price', gameSub:'Eyeball the asset value. The closer you are, the more points.',
   modeFun:'Fun', modeFunD:'25s · no penalties · easy assets',
   modeChal:'Challenge', modeChalD:'12s · −50 penalty · goal 700 → Prime',
   gGuess:'Your price in TON', gSubmit:'Submit', gBest:'Best',
   gAsk:'How much in TON?', gHint:'The closer to the real price, the more points. Score 700 in Challenge to unlock Prime.',
   gPerfect:'Spot on! +', gClose:'Close! +', gOk:'Not bad +', gFar:'Off +', gMiss:'Way off ',
-  gOver:'Game over', gYourScore:'Score', gNewBest:'🎉 New record!', gAgain:'Play again', gUnlock:'🔓 Prime unlocked!',
+  gOver:'Game over', gYourScore:'Score', gNewBest:'New record!', gAgain:'Play again', gUnlock:'Prime unlocked!',
   realAsset:'real deal', floorTon:'floor',
   flrLive:'live floors', flrDemo:'demo floors', flrCache:'cached',
   flrNow:'just now', flrMin:'m', flrHr:'h', flrDay:'d',
@@ -2427,7 +2446,7 @@ function openNotifyCfg(){
   if(!hasProxy) warn='<div class="hint dim" style="color:var(--down);margin:10px 2px 0">'+t('ntfNoProxy')+'</div>';
   else if(!hasTg) warn='<div class="hint dim" style="color:var(--down);margin:10px 2px 0">'+t('ntfNoTg')+'</div>';
   document.getElementById('ntf-sheet').innerHTML=
-    '<div class="mk-sheet-h"><div class="ic">🔔</div><div class="nm"><b>'+t('ntfTitle')+'</b><span>'+t('ntfSub')+'</span></div><button class="x" onclick="closeNotifyCfg()">✕</button></div>'+
+    '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('ntfTitle')+'</b><span>'+t('ntfSub')+'</span></div><button class="x" onclick="closeNotifyCfg()">✕</button></div>'+
     '<div class="hint dim" style="margin:14px 2px 10px;line-height:1.5">'+t('ntfDesc')+'</div>'+
     '<div class="ntf-toggle" onclick="toggleNotify()"><div class="nt-l"><b>'+t('ntfToggle')+'</b><span>'+t('ntfToggleSub')+'</span></div><div class="nt-sw'+(on?' on':'')+'"><span></span></div></div>'+
     warn+
@@ -3032,15 +3051,18 @@ async function loadGiftCross(r){
     const fb2=document.getElementById('giftFactors'); if(fb2) fb2.innerHTML=factorsHTML(r);
   }
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0; renderTradeBand(r);   // refine guidance with real market + sales
-  renderGiftVerdict({exactAsk:marketAsk, sold, salesN, worth:r.priceTON, hasTrait, listed:marketAsk>0});
+  renderGiftVerdict({exactAsk:marketAsk, sold, salesN, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0});
   renderGiftComps(r, comps);
 }
 function renderGiftVerdict(v){
   const box=document.getElementById('giftVerdict'); if(!box) return; const ru=S.lang==='ru';
-  if(!v.hasTrait && !v.exactAsk && !v.sold){ box.innerHTML=''; return; }
+  if(!v.hasTrait && !v.exactAsk && !v.sold && !v.floor){ box.innerHTML=''; return; }
   const row=(l,val,c)=>'<div class="vd-row"><span class="vd-l">'+l+'</span><span class="vd-v"'+(c?' style="color:'+c+'"':'')+'>'+val+'</span></div>';
   let rows=row(ru?'Оценка Monet':'Monet appraisal', fmtTON(Math.round(v.worth))+' TON');
-  rows+=row(ru?'На рынке сейчас':'On market now', v.exactAsk>0?(fmtTON(v.exactAsk)+' TON'):(ru?'нет точного листинга':'no exact listing'), v.exactAsk>0?'':'var(--txt-3)');
+  const mkt = v.exactAsk>0 ? (fmtTON(v.exactAsk)+' TON')
+            : (v.floor>0 ? ((ru?'от ':'from ')+fmtTON(v.floor)+' TON')
+            : (ru?'нет точного листинга':'no exact listing'));
+  rows+=row(ru?'На рынке сейчас':'On market now', mkt, (v.exactAsk>0||v.floor>0)?'':'var(--txt-3)');
   if(v.sold>0) rows+=row(ru?'Реальные сделки':'Recent sales', '≈ '+fmtTON(v.sold)+' TON'+(v.salesN>1?' · '+v.salesN+(ru?' сд.':''):''), 'var(--good)');
   let vb='', note='';
   if(v.exactAsk>0 && v.sold>0){
@@ -3231,7 +3253,7 @@ function guidanceInner(r){
   const cc=confOf(r), lq=liqOf(r);
   const pro=proActive(), lock=!pro;
   const num=v=>fmtTON(v)+' TON', rng=(a,b)=>fmtTON(a)+'–'+fmtTON(b)+' TON';
-  const row=(k,val,note,cls,lk)=>'<div class="g-row '+(cls||'')+(lk?' locked':'')+'"><div class="g-l"><span class="g-k">'+k+'</span><span class="g-note">'+note+'</span></div><div class="g-v">'+(lk?'<span class="g-lockv">🔒 •••</span>':val)+'</div></div>';
+  const row=(k,val,note,cls,lk)=>'<div class="g-row '+(cls||'')+(lk?' locked':'')+'"><div class="g-l"><span class="g-k">'+k+'</span><span class="g-note">'+note+'</span></div><div class="g-v">'+(lk?'<span class="g-lockv"><svg class="mi" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> •••</span>':val)+'</div></div>';
   let rows='', head='';
   if(r.cat==='numbers'){
     head='<div class="g-banner">'+t('gNoMarket')+'</div>';
@@ -3251,8 +3273,8 @@ function guidanceInner(r){
   }
   let opp='';
   if(pro && (r.cat==='gifts'||r.cat==='stickers') && r._mktAsk>0){
-    if(r._mktAsk<=g.buyUnder) opp='<div class="g-opp under">💎 '+t('gUnder')+'</div>';
-    else if(r._mktAsk>=g.listLo) opp='<div class="g-opp over">⚠️ '+t('gOverpay')+'</div>';
+    if(r._mktAsk<=g.buyUnder) opp='<div class="g-opp under"><svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3 6 9l6 12 6-12-3-6"/></svg> '+t('gUnder')+'</div>';
+    else if(r._mktAsk>=g.listLo) opp='<div class="g-opp over"><svg class="mi" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg> '+t('gOverpay')+'</div>';
   }
   let ctx='';
   if(r.cat==='gifts'||r.cat==='stickers'){
@@ -3266,8 +3288,8 @@ function guidanceInner(r){
     +'<span class="g-chip" style="color:'+lq.c+'"><span class="g-dot" style="background:'+lq.c+'"></span>'+t('liqLabel')+': '+t(lq.k)+'</span>'
     +(r.cat==='username'?'<span class="g-chip recheck">'+t('gRecheck')+'</span>':'')+'</div>';
   const foot = pro
-    ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')">🔔 '+t('gAlertBtn')+'</button>'
-    : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()">⭐ '+t('gGetPrime')+'</button>';
+    ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+t('gAlertBtn')+'</button>'
+    : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button>';
   const tag = pro ? '' : ' <span class="g-protag">PRIME</span>';
   return '<div class="guide-card'+(pro?'':' g-free')+'"><div class="g-h">'+t('gTitle')+tag+'</div>'+head+rows+opp+ctx+chips+foot+'</div>';
 }
@@ -3309,11 +3331,11 @@ function resultCardHTML(r){
       (r.cat==='username' && proxyURL() ? '<div class="comps" id="usernameComps"><div class="comps-load">'+t('compsLoading')+'</div></div>' : '')+
       (r.cat==='gifts' && proxyURL() ? '<div class="comps" id="giftComps"></div>' : '')+
       '<div class="acts">'+
-        '<button class="act portf" onclick="addEvalToPortfolio()"><span>📁</span>'+t('pfAddBtn')+'</button>'+
-        '<button class="act" onclick="exportCard()"><span>📤</span>'+t('share')+'</button>'+
-        '<button class="act fav" id="favBtn" onclick="toggleFav()"><span>⭐</span><span id="favLbl">'+t('favAdd')+'</span></button>'+
-        '<button class="act" onclick="toggleExplain()"><span>💡</span>'+t('explainBtn')+'</button>'+
-        '<button class="act frag" onclick="openFragment()"><span>🌐</span>'+t('checkFrag')+'</button>'+
+        '<button class="act portf" onclick="addEvalToPortfolio()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>'+t('pfAddBtn')+'</button>'+
+        '<button class="act" onclick="exportCard()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4M12 2v13"/></svg></span>'+t('share')+'</button>'+
+        '<button class="act fav" id="favBtn" onclick="toggleFav()"><span><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 3l2.6 5.7 6.4.6-4.8 4.2 1.4 6.2L12 16.8 6.4 19.9l1.4-6.2L3 9.5l6.4-.6z"/></svg></span><span id="favLbl">'+t('favAdd')+'</span></button>'+
+        '<button class="act" onclick="toggleExplain()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></span>'+t('explainBtn')+'</button>'+
+        '<button class="act frag" onclick="openFragment()"><span><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>'+t('checkFrag')+'</button>'+
       '</div>'+
       '<div class="explain" id="explainBox">'+explainText(r)+'</div>'+
     '</div></div>';
@@ -3634,7 +3656,7 @@ function endGame(){
       '<div class="best">'+t('gBest')+' '+S.best[mode]+'</div>'+
       (isBest?'<div class="nb">🏆 '+t('gNewBest')+'</div>':'')+
     '</div>'+
-    (unlocked?'<div class="g-unlock">👑 '+t('gUnlock')+'</div>':'')+
+    (unlocked?'<div class="g-unlock">'+t('gUnlock')+'</div>':'')+
     '<button class="btn" onclick="buildGameIntro()">'+t('gAgain')+'</button>';
   game=null;
 }
@@ -3760,12 +3782,12 @@ const TOP_DEALS={
 function openDrawer(){ document.getElementById('scrim').classList.add('open'); document.getElementById('drawer').classList.add('open'); renderDrawer(); }
 function closeDrawer(){ document.getElementById('scrim').classList.remove('open'); document.getElementById('drawer').classList.remove('open'); }
 function setDTab(tab){ curDTab=tab; document.querySelectorAll('.dtabs button').forEach(b=>b.classList.toggle('on',b.dataset.dtab===tab)); renderDrawer(); }
-function catIcon(c){ const m={username:'@',numbers:'#',gifts:'🎁',stickers:'🩷'}; return m[c]||'•'; }
+function catIcon(c){ const m={username:'@',numbers:'#',gifts:'<svg class="mi" viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="4"/><path d="M5 12v9h14v-9M12 8v13"/><path d="M12 8C11 5 9 4 7.5 4.5 6 5 6.5 8 12 8zm0 0c1-3 3-4 4.5-3.5C18 5 17.5 8 12 8z"/></svg>',stickers:'<svg class="mi" viewBox="0 0 24 24"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg>'}; return m[c]||'•'; }
 // Pro status pill — shows owned/subscription premium, or the launch-promo access.
 function proPill(){
-  if(subActive()) return '<span class="pro-pill">👑 Prime · '+t('subUntil').toLowerCase()+' '+fmtUntil(S.premiumUntil)+'</span>';
-  if(S.premium) return '<span class="pro-pill">👑 Prime</span>';
-  if(launchFree()) return '<span class="pro-pill promo">👑 Prime · '+t('freeNow')+'</span>';
+  if(subActive()) return '<span class="pro-pill"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> Prime · '+t('subUntil').toLowerCase()+' '+fmtUntil(S.premiumUntil)+'</span>';
+  if(S.premium) return '<span class="pro-pill"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> Prime</span>';
+  if(launchFree()) return '<span class="pro-pill promo"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> Prime · '+t('freeNow')+'</span>';
   return '';
 }
 function renderDrawer(){
@@ -4152,7 +4174,14 @@ window.MK = (function(){
   const LOTS_CACHE={};
   function lotsShell(msg){ return '<div class="lots-h">'+t('lotsTitle')+'</div><div class="lots-note">'+msg+'</div>'; }
   function lotsHTML(items){
-    if(!items||!items.length) return lotsShell(t('lotsEmpty'));
+    if(!items||!items.length){
+      const fl=(sheetA&&sheetA.price>0)?sheetA.price:0;
+      if(fl>0){ const ru=S.lang==='ru';
+        return '<div class="lots-h">'+t('lotsTitle')+'</div><div class="lots-list">'+
+          '<div class="lot"><div class="lot-l"><div class="lot-pr">'+fmtPrice(fl)+' <span class="lot-flag">'+(ru?'флор':'floor')+'</span></div>'+
+          '<div class="lot-sub">'+(ru?'минимальная цена коллекции':'collection floor')+'</div></div></div></div>'; }
+      return lotsShell(t('lotsEmpty'));
+    }
     const rows=items.map((it,i)=>{
       const trait=[it.model,it.backdrop,it.symbol].filter(Boolean).join(' · ');
       const sub=((it.num!=null?'#'+it.num:'')+(trait?((it.num!=null?' · ':'')+trait):'')).trim();
@@ -4197,7 +4226,7 @@ window.MK = (function(){
       (a.cat==='gifts'?'<div class="mk-lots" id="mk-lots"></div>':'')+
       (heldQty(a.name)?'<div class="mk-held-line">'+t('mkHeld')+': '+heldQty(a.name)+' '+t('mkPcs')+'</div>':'')+
       '<button class="btn" style="margin-bottom:9px" onclick="PF.addAsset({cat:\''+a.cat+'\',display:'+JSON.stringify(a.name)+',priceTON:'+Math.round(a.price)+',qty:1}); MK.closeSheet();">📁 '+(heldQty(a.name)?t('mkAddMore'):t('pfAddBtn'))+'</button>'+
-      '<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet(); ALERTS.quick('+JSON.stringify(a.name)+',\''+a.cat+'\','+Math.round(a.price)+');">🔔 '+t('alSetShort')+'</button>'+
+      '<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet(); ALERTS.quick('+JSON.stringify(a.name)+',\''+a.cat+'\','+Math.round(a.price)+');"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+t('alSetShort')+'</button>'+
       '<button class="btn ghost" style="margin-bottom:9px" onclick="toggleWatch('+JSON.stringify(a.name)+'); MK.openSheet('+JSON.stringify(a.id)+');">'+(wlHas(a.name)?'★ '+t('wlOn'):'☆ '+t('wlAdd'))+'</button>'+
       (a.cat==='gifts'&&COLLECTIONS.gifts.some(c=>c.n===a.name)?'<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet();evaluateGiftByName('+JSON.stringify(a.name)+')">📐 '+t('brEvaluate')+'</button>':'')+
       (a.cat==='gifts'&&typeof VF!=='undefined'&&VF.has(a.name)?'<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet();VF.open('+JSON.stringify(a.name)+')">🔎 '+t('vfOpen')+'</button>':'')+
@@ -4349,9 +4378,10 @@ window.PF = (function(){
     const fc=forecast30(tot);
     const goalCard=goalHTML(tot);
     const bw=bestWorst();
-    const insights = bw ? '<div class="pf-insights">'+
-        insCard('▲',t('pfBest'),bw.best,ch24(bw.best))+
-        insCard('▼',t('pfWorst'),bw.worst,ch24(bw.worst))+'</div>' : '';
+    const oneMover = bw && bw.best===bw.worst;
+    const insights = bw ? '<div class="pf-insights'+(oneMover?' one':'')+'">'+
+        insCard('▲',oneMover?t('h24'):t('pfBest'),bw.best,ch24(bw.best))+
+        (oneMover?'':insCard('▼',t('pfWorst'),bw.worst,ch24(bw.worst)))+'</div>' : '';
     const segs=allocation();
     const alloc = segs.length>1 ? '<div class="pf-alloc"><h4>'+t('pfAlloc')+'</h4><div class="body">'+
         '<div class="pf-donut">'+donutSVG(segs)+'<div class="ctr"><b>'+list.length+'</b><span>'+t('pfHoldings')+'</span></div></div>'+
@@ -4565,7 +4595,8 @@ window.PF = (function(){
         '<input id="pf-qty" class="big" type="number" min="1" value="1">'+
         '<input id="pf-buy" class="big" inputmode="decimal" placeholder="'+t('pfBuyPh')+'">'+
         '<button class="btn" onclick="PF.doAdd()">'+t('pfAddBtn')+'</button>'+
-      '</div>';
+      '</div>'+
+      (addCat==='gift' ? '<div class="imp-sep"><span>'+t('pfImportOr')+'</span></div><button class="btn ghost imp-open" onclick="PF.openImport()"><svg class="mi" viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg> '+t('pfImport')+'</button>' : '');
     setTimeout(()=>{const el=document.getElementById('pf-in');if(el)el.focus();},80);
   }
   function doAdd(){
@@ -4581,9 +4612,50 @@ window.PF = (function(){
   }
   function scoreToTON(cat,display){ try{ if(cat==='username'){ const r=scoreUsername(display.replace(/^@/,'')); return r?r.priceTON:0; } if(cat==='numbers'){ const r=scoreNumber(display); return r?r.priceTON:0; } }catch(e){} return 0; }
 
+  /* ---- fast manual import: tap the gifts you own -> portfolio ---- */
+  const IMPORT_IC='<svg class="mi" viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>';
+  const IMPORT_CK='<svg class="mi" viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg>';
+  let impSel={};
+  function giftsList(){ try{ const g=(window.MK&&MK.data&&MK.data().gifts)||[]; if(g.length) return g.map(x=>({name:x.name, price:x.price||0, icon:x.icon||''})); }catch(e){}
+    return (COLLECTIONS.gifts||[]).map(c=>({name:c.n, price:(FLOORS_LIVE[String(c.n).toLowerCase()]||c.floor||0), icon:c.ic||''})); }
+  function impGrid(q){ q=(q||'').toLowerCase();
+    let items=giftsList().filter(x=>x.name).sort((a,b)=>(b.price||0)-(a.price||0));
+    if(q) items=items.filter(x=>x.name.toLowerCase().includes(q));
+    if(!items.length) return '<div class="al-empty">'+t('pfImportEmpty')+'</div>';
+    return items.slice(0,150).map(x=>{ const on=impSel[x.name]!=null;
+      return '<button class="imp-tile'+(on?' on':'')+'" onclick="PF.impToggle('+JSON.stringify(x.name)+')">'+
+        '<span class="imp-ic">'+(x.icon||catIcon('gifts'))+'</span>'+
+        '<span class="imp-nm">'+escapeHTML(x.name)+'</span>'+
+        '<span class="imp-fl">'+(x.price>0?fmtTON(x.price)+' TON':'—')+'</span>'+
+        (on?'<span class="imp-ck">'+IMPORT_CK+'</span>':'')+'</button>'; }).join(''); }
+  function impBtnLbl(){ const n=Object.keys(impSel).length; return t('pfImportAdd')+(n?' ('+n+')':''); }
+  function refreshImp(){ const q=(document.getElementById('imp-q')||{}).value||''; const g=document.getElementById('imp-grid'); if(g) g.innerHTML=impGrid(q);
+    const b=document.getElementById('imp-add'); if(b){ b.innerHTML=impBtnLbl(); b.disabled=!Object.keys(impSel).length; } }
+  function openImport(){ impSel={};
+    document.getElementById('pf-sheet').innerHTML=
+      '<div class="mk-sheet-h"><div class="ic">'+IMPORT_IC+'</div><div class="nm"><b>'+t('pfImport')+'</b><span>'+t('pfImportSub')+'</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
+      '<input id="imp-q" class="big" style="margin:14px 0 10px" placeholder="'+t('pfImportSearch')+'" oninput="PF.impSearch()">'+
+      '<div class="imp-grid" id="imp-grid">'+impGrid('')+'</div>'+
+      '<button class="btn imp-add" id="imp-add" disabled onclick="PF.doImport()">'+impBtnLbl()+'</button>';
+    document.getElementById('pf-scrim').classList.add('open'); }
+  function impSearch(){ refreshImp(); }
+  function impToggle(name){ if(impSel[name]!=null) delete impSel[name]; else impSel[name]=1; refreshImp(); }
+  function doImport(){ const names=Object.keys(impSel); if(!names.length) return; if(!Array.isArray(S.portfolio))S.portfolio=[]; const gl=giftsList(); let added=0;
+    names.forEach(nm=>{ const g=gl.find(x=>x.name===nm); const price=Math.round((g&&g.price)||0); const qty=impSel[nm]||1;
+      const ex=S.portfolio.find(h=>h.cat==='gift'&&h.display===nm);
+      if(ex){ ex.qty=(ex.qty||1)+qty; } else { S.portfolio.push({cat:'gift', display:nm, priceTON:price, buy:null, qty:qty, ts:Date.now()}); }
+      try{ if(!Array.isArray(S.activity))S.activity=[]; S.activity.unshift({type:'buy', display:nm, cat:'gift', price:price, ts:Date.now()}); }catch(e){}
+      added++; });
+    if(Array.isArray(S.activity)&&S.activity.length>120)S.activity=S.activity.slice(0,120);
+    snapshot(); save(); if(window.BANK) window.BANK.award(5);
+    if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
+    closeAdd(); render();
+    toast((S.lang==='ru'?'Добавлено в портфель: ':'Added to portfolio: ')+added);
+    if(S.notify && typeof syncNotify==='function') syncNotify(false); }
+
   function onRate(){ if(curView==='portfolio') render(); }
   function init(){ if(Array.isArray(S.portfolio)&&S.portfolio.length) snapshot(); }
-  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
+  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, openImport, impSearch, impToggle, doImport, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
 })();
 
 
@@ -4930,7 +5002,7 @@ window.HOME=(function(){
     (S.history||[]).forEach(it=>{ if(it&&it.ts) out.push({k:'appr',display:it.display,cat:it.cat,ts:it.ts,price:it.priceTON}); });
     (S.activity||[]).forEach(a=>{ if(a&&a.ts) out.push({k:a.type,display:a.display,cat:a.cat,ts:a.ts,price:a.type==='sell'?a.sold:a.price,basis:a.basis}); });
     return out.sort((p,q)=>q.ts-p.ts).slice(0,n||6); }
-  function aGlyph(k){ return k==='sell'?'\uD83D\uDCB0':k==='buy'?'\u2795':k==='alert'?'\uD83D\uDD14':'\uD83D\uDD0D'; }
+  function aGlyph(k){ return k==='sell'?'<svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>':k==='buy'?'<svg class="mi" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>':k==='alert'?'<svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>':'<svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'; }
   function aLabel(k){ return k==='sell'?t('actSell'):k==='buy'?t('actBuy'):k==='alert'?t('actAlert'):t('actAppr'); }
   function actRow(e){ const hb=!!S.hideBalance; let sub=aLabel(e.k);
     if(e.k==='sell'&&e.basis!=null&&!hb){ const pl=(e.price||0)-e.basis; sub+=' · <span style="color:'+(pl>=0?'var(--up)':'var(--down)')+'">'+(pl>=0?'+':'')+fmtTON(pl)+' TON</span>'; }
@@ -4940,7 +5012,7 @@ window.HOME=(function(){
   function shareCap(){ if(window.PF&&PF.share) PF.share(); }
   function openHistory(){ openDrawer(); setTimeout(function(){ try{ setDTab('history'); }catch(e){} },60); }
   function openActivity(){ const fd=feed(200); const box=document.getElementById('act-sheet'); if(!box) return;
-    box.innerHTML='<div class="mk-sheet-h"><div class="ic">🗒️</div><div class="nm"><b>'+t('hActivity')+'</b><span>'+t('hAll')+'</span></div><button class="x" onclick="HOME.closeActivity()">✕</button></div>'+
+    box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></div><div class="nm"><b>'+t('hActivity')+'</b><span>'+t('hAll')+'</span></div><button class="x" onclick="HOME.closeActivity()">✕</button></div>'+
       (fd.length?'<div class="mc-ledger">'+fd.map(actRow).join('')+'</div>':'<div class="al-empty">'+t('hEmptyS')+'</div>');
     document.getElementById('act-scrim').classList.add('open'); }
   function closeActivity(){ document.getElementById('act-scrim').classList.remove('open'); }
@@ -4971,7 +5043,7 @@ window.HOME=(function(){
     out.sort((a,b)=>(b.inZone-a.inZone)||(b.disc-a.disc));
     return out.slice(0,3); }
   function uvRow(o){ const x=o.x, ru=S.lang==='ru';
-    const right = o.inZone ? '<div class="mc-price" style="color:var(--up)">💎 -'+o.disc+'%</div>' : '<div class="mc-price" style="color:var(--warn)">-'+o.disc+'%</div>';
+    const right = o.inZone ? '<div class="mc-price" style="color:var(--up)"><svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3 6 9l6 12 6-12-3-6"/></svg> -'+o.disc+'%</div>' : '<div class="mc-price" style="color:var(--warn)">-'+o.disc+'%</div>';
     const sub=(ru?'флор':'floor')+' '+fmtTON(x.price)+' TON'+(o.inZone?' · '+t('hInZone'):'');
     return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:13px">'+catIcon(x.cat)+'</div><div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right">'+right+'</div></div>'; }
   function guidanceCard(){ const data=mkAll(); if(!data.length) return ''; const ru=S.lang==='ru'; const pro=proActive();
@@ -4979,9 +5051,9 @@ window.HOME=(function(){
     const dstr=new Date().toLocaleDateString(ru?'ru-RU':'en-US',{day:'2-digit',month:'short'});
     const head='<div class="home-sec"><b>'+t('hGuide')+(pro?'':' <span class="g-protag">PRIME</span>')+'</b><span style="font-size:11px;color:var(--txt-3)">'+dstr+'</span></div>';
     if(!pro){ return head+'<div class="guide-card g-free" style="margin-top:0">'+
-        '<div class="g-row locked g-buy"><div class="g-l"><span class="g-k">'+t('hGuideDip')+'</span><span class="g-note">'+(ru?'недооценённые сейчас':'undervalued now')+'</span></div><div class="g-v"><span class="g-lockv">🔒 •••</span></div></div>'+
-        '<div class="g-row locked g-sell"><div class="g-l"><span class="g-k">'+t('hGuideUp')+'</span><span class="g-note">'+(ru?'импульс за 24ч':'24h momentum')+'</span></div><div class="g-v"><span class="g-lockv">🔒 •••</span></div></div>'+
-        '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()">⭐ '+t('gGetPrime')+'</button></div>'; }
+        '<div class="g-row locked g-buy"><div class="g-l"><span class="g-k">'+t('hGuideDip')+'</span><span class="g-note">'+(ru?'недооценённые сейчас':'undervalued now')+'</span></div><div class="g-v"><span class="g-lockv"><svg class="mi" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> •••</span></div></div>'+
+        '<div class="g-row locked g-sell"><div class="g-l"><span class="g-k">'+t('hGuideUp')+'</span><span class="g-note">'+(ru?'импульс за 24ч':'24h momentum')+'</span></div><div class="g-v"><span class="g-lockv"><svg class="mi" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> •••</span></div></div>'+
+        '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button></div>'; }
     const verdict = g.ch24>1.5? t('hGuideBull') : g.ch24<-1.5? t('hGuideBear') : t('hGuideFlat');
     const vcol = g.ch24>1.5?'var(--up)': g.ch24<-1.5?'var(--down)':'var(--txt-2)';
     const verdLine='<div class="dg-row" style="padding:4px 2px 10px"><span style="color:'+vcol+';font-weight:700">'+verdict+'</span><b style="color:'+vcol+'">'+pct(g.ch24)+' · '+mv.nUp+'↑ '+mv.nDown+'↓</b></div>';
@@ -4997,7 +5069,7 @@ window.HOME=(function(){
     const dpct=prev>0?(cap/prev-1)*100:0; const g=gidx();
     let best=null,bv=-1e9; (S.portfolio||[]).forEach(h=>{ const m=mkBy(h.display); const c=m?(m.ch24||0):0; if(c>bv){bv=c;best=h.display;} });
     return '<div class="home-digest"><button class="dg-x" onclick="HOME.dismissDigest()">\u2715</button>'+
-      '<div class="dg-t">'+(ru?'\u2600\uFE0F Утренняя сводка':'\u2600\uFE0F Morning digest')+'</div>'+
+      '<div class="dg-t">'+(ru?'<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg> Утренняя сводка':'<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg> Morning digest')+'</div>'+
       '<div class="dg-row"><span>'+(ru?'Капитал за сутки':'Capital \u00B7 24h')+'</span><b style="color:'+(dpct>=0?'var(--up)':'var(--down)')+'">'+(dpct>=0?'\u25B2':'\u25BC')+' '+Math.abs(dpct).toFixed(1)+'%</b></div>'+
       '<div class="dg-row"><span>'+(ru?'Индекс рынка':'Market index')+'</span><b style="color:'+(g.ch24>=0?'var(--up)':'var(--down)')+'">'+(g.ch24>=0?'\u25B2':'\u25BC')+' '+Math.abs(g.ch24).toFixed(1)+'%</b></div>'+
       (best!=null?'<div class="dg-row"><span>'+(ru?'Лидер портфеля':'Top holding')+'</span><b>'+escapeHTML(best)+' \u00B7 '+(bv>=0?'+':'')+bv.toFixed(1)+'%</b></div>':'')+
@@ -5022,7 +5094,7 @@ window.HOME=(function(){
     html+='<div class="pf-hero"><div class="topline"><div class="lbl">'+t('hCapital')+'</div>'+(S.hideBalance?'':'<span class="pf-tier">'+tier.ic+' '+tier.name+'</span>'+proPill())+'</div>'+
       '<div class="tot">'+(S.hideBalance?'••••':fmtTON(cap))+' <span style="font-size:.38em;opacity:.8;font-weight:600">TON</span></div>'+
       '<div class="fiat">≈ '+(S.hideBalance?'••••':fmtFiat(cap))+'</div>'+
-      '<div class="chg" style="background:'+(ch.c24>=0?'rgba(95,233,170,.2)':'rgba(232,120,108,.2)')+'">'+(Math.abs(ch.c24)<0.05?'— · '+t('pfChange24'):(ch.c24>=0?'▲':'▼')+' '+Math.abs(ch.c24).toFixed(1)+'% · '+t('pfChange24'))+'</div>'+((hs.length===0&&(S.cash>0))?'<div class="cap-cash">💰 '+t('hAllCash')+'</div>':'')+'</div>';
+      '<div class="chg" style="background:'+(ch.c24>=0?'rgba(95,233,170,.2)':'rgba(232,120,108,.2)')+'">'+(Math.abs(ch.c24)<0.05?'— · '+t('pfChange24'):(ch.c24>=0?'▲':'▼')+' '+Math.abs(ch.c24).toFixed(1)+'% · '+t('pfChange24'))+'</div>'+((hs.length===0&&(S.cash>0))?'<div class="cap-cash"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg> '+t('hAllCash')+'</div>':'')+'</div>';
     html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">'+
       '<div class="mk-stat"><div class="l">'+t('h24')+'</div><div class="v" style="color:'+(ch.c24>=0?'var(--up)':'var(--down)')+'">'+pct(ch.c24)+'</div></div>'+
       '<div class="mk-stat"><div class="l">'+t('h7')+'</div><div class="v" style="color:'+(ch.c7>=0?'var(--up)':'var(--down)')+'">'+pct(ch.c7)+'</div></div>'+
@@ -5061,7 +5133,7 @@ window.ALERTS=(function(){
       return '<div class="al-item"><div class="al-main"><b>'+escapeHTML(a.display)+'</b><span>'+(a.dir==='above'?t('alAbove'):t('alBelow'))+' '+grp(a.target)+' TON'+(cur>0?' · '+t('alNow')+' '+grp(cur)+' TON':'')+'</span></div><button class="del" onclick="ALERTS.remove('+a.id+')">✕</button></div>'; }).join('')
       : '<div class="al-empty">'+t('alEmpty')+'</div>';
     document.getElementById('al-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic">🔔</div><div class="nm"><b>'+t('alTitle')+'</b><span>'+t('alSub')+'</span></div><button class="x" onclick="ALERTS.close()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('alTitle')+'</b><span>'+t('alSub')+'</span></div><button class="x" onclick="ALERTS.close()">✕</button></div>'+
       '<div class="al-add"><input id="al-name" class="big" placeholder="'+t('alName')+'" value="'+((pre.name||'').replace(/"/g,'&quot;'))+'">'+
         '<div class="al-row2"><input id="al-target" class="big" inputmode="decimal" placeholder="'+t('alTarget')+'" value="'+(pre.target!=null?pre.target:'')+'"><button class="btn" onclick="ALERTS.addFromInput()">'+t('alAdd')+'</button></div>'+
         '<div class="al-hint">'+t('alHint')+'</div></div>'+
