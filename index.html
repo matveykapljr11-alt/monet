@@ -586,7 +586,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .modal .crown{line-height:0}.modal .crown .mi{width:44px;height:44px;color:var(--gold,#C8A24B)}
 .home-greet{font-family:var(--font-d);font-weight:600;font-size:21px;letter-spacing:-.3px;margin:2px 2px 12px}
 .cap-cash{display:inline-flex;align-items:center;gap:5px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.92);background:rgba(255,255,255,.14);padding:5px 11px;border-radius:999px;backdrop-filter:blur(6px)}
-.home-qa{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 4px}
+.home-qa{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
 .home-qa button{display:flex;flex-direction:column;align-items:center;gap:7px;border:0;background:transparent;cursor:pointer;padding:0}
 .home-qa .qa-ic{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(180deg,#1F6B4C,#143A2C);box-shadow:0 12px 24px -12px rgba(31,77,61,.55),inset 0 1px 0 rgba(255,255,255,.18)}
 .home-qa .qa-ic svg{width:23px;height:23px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -654,6 +654,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .g-ctx{font-size:11.5px;color:var(--txt-3);margin:9px 2px 2px;font-variant-numeric:tabular-nums}
 .g-trust{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txt-3);margin:7px 2px 2px}
 .g-trust .mi{width:13px;height:13px;flex:none;opacity:.8}
+.g-disc{font-size:10.5px;line-height:1.5;color:var(--txt-3);margin:9px 2px 2px;opacity:.9}
 .cat-beta{display:inline-block;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--txt-3);border:1px solid var(--line);border-radius:5px;padding:1px 4px;margin-left:5px;vertical-align:middle}
 .g-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
 .g-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid currentColor}
@@ -1778,6 +1779,8 @@ header{border-bottom:0;background:none}
    STATE & STORAGE
 ======================================================================== */
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+const BOT_HANDLE = '@monetnft_bot';
+const APP_LINK = 'https://t.me/monetnft_bot';   // deep link back to the bot/Mini App (virality)
 const RATE = { usd: 1.76, eur: 1.63 };           // TON -> fiat (calibrated May 2026; refreshed at runtime)
 const STAR_USD = 0.013;                          // legacy USD/Star (unused)
 let STARS_PER_TON = 200;                          // Telegram Fragment peg: 200 Stars = 1 TON (override via proxy ?floors -> starsPerTon)
@@ -1878,7 +1881,7 @@ ru:{
   gBuyNote:'Хорошая цена для покупки', gFairNote:'Нормальная рыночная цена', gListNote:'Хорошая цена для продажи', gFastNote:'Если нужно продать быстро',
   gAlertBtn:'Алерт на Buy Zone', gRecheck:'Перепроверять раз в неделю', gNoMarket:'Редкий актив · нет живого рынка — ориентир сделки', gOrient:'Ориентир сделки, не торговый сигнал',
   gProPitch:'Monet Prime подсказывает, когда покупать, когда продавать и когда подождать. Это ориентир по рынку, а не гарантия дохода.', gGetPrime:'Открыть Prime', gUnder:'Сейчас ниже Buy Zone — выглядит недооценённым', gOverpay:'Рынок выше зоны — не переплачивай',
-  gLowConf:'Мало рыночных данных — зоны входа/выхода недоступны', gNoData:'Данных рынка нет — зоны недоступны',
+  gLowConf:'Мало рыночных данных — зоны входа/выхода недоступны', gNoData:'Данных рынка нет — зоны недоступны', gDisc:'Ориентир по рынку, не финансовый совет. По текущим листингам и ликвидности.',
   freeBase:'Оценка, диапазон цены и уверенность', proZones:'Зоны Buy / Sell / Fast', proAlerts:'Алерты + сигналы «недооценён» и «не переплачивай»', proGuid:'Дневной ориентир по рынку',
   hGuide:'Дневной ориентир', hGuideDip:'Недооценены · вход', hGuideUp:'Выросли · импульс', hGuideBull:'Рынок растёт', hGuideBear:'Рынок остывает', hGuideFlat:'Рынок в боковике', hInZone:'в Buy Zone',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель', navHome:'Дом', hHi:'Привет', hCapital:'Твой капитал', h24:'За 24ч', h7:'За 7д', hAssets:'Активов', hQEval:'Оценить', hQAdd:'В портфель', hQMarket:'Рынок', hQShare:'Поделиться', hPulse:'Пульс рынка', hActivity:'Активность', hAll:'Всё', hEmptyT:'Добро пожаловать в Monet', hEmptyS:'Оцени первый актив — и он появится в твоём капитале.', hEmptyBtn:'Оценить первый актив',
@@ -1984,7 +1987,7 @@ en:{
   gBuyNote:'Good price to buy', gFairNote:'Normal market price', gListNote:'Good price to sell', gFastNote:'If you need to sell fast',
   gAlertBtn:'Alert at Buy Zone', gRecheck:'Re-check weekly', gNoMarket:'Rare asset · not a live market — deal guideline', gOrient:'Deal guideline, not a trading signal',
   gProPitch:'Monet Prime helps you know when to buy, when to sell and when to wait. A market guideline, not a profit guarantee.', gGetPrime:'Unlock Prime', gUnder:'Now below Buy Zone — looks undervalued', gOverpay:'Market is above the zone — don’t overpay',
-  gLowConf:'Low market data — buy/sell zones unavailable', gNoData:'Market data unavailable — zones disabled',
+  gLowConf:'Low market data — buy/sell zones unavailable', gNoData:'Market data unavailable — zones disabled', gDisc:'Market guidance, not financial advice. Based on current listings and liquidity.',
   freeBase:'Estimate, price range and confidence', proZones:'Buy / Sell / Fast zones', proAlerts:'Alerts + “undervalued” & “don’t overpay” signals', proGuid:'Daily market guidance',
   hGuide:'Daily guidance', hGuideDip:'Undervalued · entry', hGuideUp:'Up · momentum', hGuideBull:'Market rising', hGuideBear:'Market cooling', hGuideFlat:'Market mixed', hInZone:'in Buy Zone',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio', navHome:'Home', hHi:'Hi', hCapital:'Your capital', h24:'24h', h7:'7d', hAssets:'Assets', hQEval:'Appraise', hQAdd:'To portfolio', hQMarket:'Market', hQShare:'Share', hPulse:'Market pulse', hActivity:'Activity', hAll:'All', hEmptyT:'Welcome to Monet', hEmptyS:'Appraise your first asset — it lands in your capital.', hEmptyBtn:'Appraise first asset',
@@ -3316,7 +3319,8 @@ function guidanceInner(r){
       : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button>';
   }
   const tag = (pro||gated) ? '' : ' <span class="g-protag">PRIME</span>';
-  return '<div class="guide-card'+(pro?'':' g-free')+'"><div class="g-h">'+t('gTitle')+tag+'</div>'+head+rows+opp+ctx+trust+chips+foot+'</div>';
+  const disc = gated ? '' : '<div class="g-disc">'+t('gDisc')+'</div>';
+  return '<div class="guide-card'+(pro?'':' g-free')+'"><div class="g-h">'+t('gTitle')+tag+'</div>'+head+rows+opp+ctx+trust+chips+disc+foot+'</div>';
 }
 function tradeBandHTML(r){ return '<div id="tradeBand">'+guidanceInner(r)+'</div>'; }
 function renderTradeBand(r){ const el=document.getElementById('tradeBand'); if(el) el.innerHTML=guidanceInner(r); }
@@ -3357,6 +3361,7 @@ function resultCardHTML(r){
       (r.cat==='gifts' && proxyURL() ? '<div class="comps" id="giftComps"></div>' : '')+
       '<div class="acts">'+
         '<button class="act portf" onclick="addEvalToPortfolio()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>'+t('pfAddBtn')+'</button>'+
+        '<button class="act" onclick="exportCard()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4M12 2v13"/></svg></span>'+t('share')+'</button>'+
         '<button class="act fav" id="favBtn" onclick="toggleFav()"><span><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 3l2.6 5.7 6.4.6-4.8 4.2 1.4 6.2L12 16.8 6.4 19.9l1.4-6.2L3 9.5l6.4-.6z"/></svg></span><span id="favLbl">'+t('favAdd')+'</span></button>'+
         '<button class="act" onclick="toggleExplain()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></span>'+t('explainBtn')+'</button>'+
         '<button class="act frag" onclick="openFragment()"><span><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>'+t('checkFrag')+'</button>'+
@@ -3774,13 +3779,16 @@ async function exportCard(){
   drawSeal(x,905,948,60);
   // footer
   x.textAlign='left'; x.fillStyle='#6B7A66'; x.font='italic 500 25px "Fraunces", serif';
-  x.fillText('Monet · '+t('apprHouse')+' · '+apprDate(),120,1006);
-
+  x.fillText(BOT_HANDLE+' · '+t('apprHouse')+' · '+apprDate(),120,1006);
+  try{ track('share_card'); }catch(e){}
+  const dlink=reportLink(r);
+  const capLine=(S.lang==='ru'?'Оценил в Monet: ':'Appraised on Monet: ')+r.display+' · '+fmtTON(r.priceTON)+' TON → '+dlink;
   cv.toBlob(async (blob)=>{
     const file=new File([blob],'monet-'+r.display.replace(/\W/g,'')+'.png',{type:'image/png'});
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      try{ await navigator.share({files:[file], title:'Monet'}); return; }catch(e){}
+      try{ await navigator.share({files:[file], title:'Monet', text:capLine}); return; }catch(e){}
     }
+    try{ if(tg && tg.openTelegramLink){ tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(dlink)+'&text='+encodeURIComponent(capLine)); } }catch(e){}
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name; a.click();
     setTimeout(()=>URL.revokeObjectURL(a.href),1000);
     toast(t('saved'));
@@ -3875,6 +3883,20 @@ function reEvalGo(it){ if(!it) return; try{ closeDrawer(); }catch(e){}
   setTimeout(function(){ try{ const el=document.getElementById('e_main'); if(el){ if(it.cat==='username') el.value=String(it.display).replace(/^@/,''); else if(it.cat==='numbers') el.value=String(it.display).replace(/^\+?888\s?/,''); } if(typeof doEvaluate==='function') doEvaluate(); }catch(e){} },150); }
 function reEvalHist(i){ reEvalGo((S.history||[])[i]); }
 function reEvalFav(i){ reEvalGo((S.favorites||[])[i]); }
+// #6: sign a share report with a deep-link that re-opens the same appraisal
+function reportCode(r){ try{ if(!r) return '';
+  if(r.cat==='gifts'||r.cat==='stickers'){ const nm=String(r.display).replace(/#\s*\d+/,'').replace(/\(.*\)/,'').trim().toLowerCase().replace(/[^a-z0-9]/g,''); return nm?('g_'+nm.slice(0,40)):''; }
+  if(r.cat==='username'){ const u=String(r.display).replace(/^@/,'').replace(/[^a-z0-9_]/gi,''); return u?('u_'+u.slice(0,40)):''; }
+  if(r.cat==='numbers'){ const d=String(r.display).replace(/^\+?888\s*/,'').replace(/\D/g,''); return d?('n_'+d.slice(0,20)):''; }
+  }catch(e){} return ''; }
+function reportLink(r){ const c=reportCode(r); return c?(APP_LINK+'?startapp='+c):APP_LINK; }
+function handleStartParam(){ try{
+  const sp=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||''; if(!sp) return;
+  const m=sp.match(/^([gun])_(.+)$/); if(!m) return; const kind=m[1], val=m[2];
+  if(kind==='g'){ const c=(COLLECTIONS.gifts||[]).find(x=>String(x.n).toLowerCase().replace(/[^a-z0-9]/g,'')===val.toLowerCase()); if(c) reEvalGo({cat:'gifts',display:c.n}); }
+  else if(kind==='u'){ reEvalGo({cat:'username',display:'@'+val}); }
+  else if(kind==='n'){ reEvalGo({cat:'numbers',display:'+888 '+val}); }
+}catch(e){} }
 
 /* ========================================================================
    PREMIUM
@@ -4456,6 +4478,7 @@ window.PF = (function(){
           '<div class="pf-acts">'+
             '<button class="pf-eye" onclick="BANK.openCard()" aria-label="card"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 9.5h19"/></svg></button>'+
             '<button class="pf-eye" onclick="PF.toggleHide()" aria-label="hide">'+eyeIcon+'</button>'+
+            '<button class="pf-share" onclick="PF.share()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v13M8 7l4-4 4 4"/></svg>'+t('pfShare')+'</button>'+
           '</div></div>'+
         '<div class="tot">'+(hidden
             ? '<span class="pf-masked">••••••</span> <span style="font-size:.5em;font-weight:700;opacity:.85">TON</span>'
@@ -4513,6 +4536,7 @@ window.PF = (function(){
 
   async function share(){
     const list=S.portfolio||[]; if(total()<=0) return;
+    try{ track('share_card'); }catch(e){}
     const cv=document.getElementById('exportCanvas'), x=cv.getContext('2d');
     try{ await document.fonts.ready; }catch(e){}
     const tot=total();
@@ -4522,8 +4546,8 @@ window.PF = (function(){
     x.textBaseline='alphabetic';
     x.fillStyle='#fff'; x.font='800 46px "Hanken Grotesk", sans-serif'; x.textAlign='left'; x.fillText('Monet',90,150);
     x.font='700 30px "Hanken Grotesk", sans-serif'; x.fillStyle='rgba(255,255,255,.85)'; x.fillText(t('pfNetWorth'),90,330);
-    x.fillStyle='#fff'; x.font='800 150px "Hanken Grotesk", sans-serif'; x.fillText(grp(tot),90,500);
-    x.font='800 60px "Hanken Grotesk", sans-serif'; const tw=x.measureText(grp(tot)).width; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('TON',90+tw+24,500);
+    x.fillStyle='#fff'; x.font='800 150px "Hanken Grotesk", sans-serif'; const numW=x.measureText(grp(tot)).width; x.fillText(grp(tot),90,500);
+    x.font='800 60px "Hanken Grotesk", sans-serif'; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('TON',90+numW+24,500);
     x.font='600 40px "Hanken Grotesk", sans-serif'; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('≈ '+fiat(tot),90,565);
     // top holdings
     const top=list.map(h=>({n:h.display,v:curPrice(h)*(h.qty||1)})).sort((a,b)=>b.v-a.v).slice(0,4);
@@ -4532,9 +4556,11 @@ window.PF = (function(){
       x.fillStyle='#fff'; x.font='700 32px "Hanken Grotesk"'; x.textAlign='left'; x.fillText(it.n.length>22?it.n.slice(0,21)+'…':it.n,116,yy+47);
       x.font='800 32px "Hanken Grotesk"'; x.textAlign='right'; x.fillText(grp(it.v)+' TON',964,yy+47); x.textAlign='left'; yy+=86; });
     x.textAlign='center'; x.fillStyle='rgba(255,255,255,.8)'; x.font='500 26px "Hanken Grotesk"';
-    x.fillText('monet · '+(S.lang==='ru'?'оцени свой Telegram-капитал':'value your Telegram'),540,1030);
+    x.fillText(BOT_HANDLE+' · '+(S.lang==='ru'?'оцени свой Telegram-капитал':'value your Telegram capital'),540,1030);
+    const capLine=(S.lang==='ru'?'Мой Telegram-капитал в Monet':'My Telegram capital on Monet')+' → '+APP_LINK;
     cv.toBlob(async(blob)=>{ const file=new File([blob],'monet-networth.png',{type:'image/png'});
-      if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:'Monet'}); return; }catch(e){} }
+      if(navigator.canShare && navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:'Monet',text:capLine}); return; }catch(e){} }
+      try{ if(tg && tg.openTelegramLink){ tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(APP_LINK)+'&text='+encodeURIComponent(capLine)); } }catch(e){}
       const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); toast(t('saved')); },'image/png');
   }
 
@@ -4775,7 +4801,7 @@ window.BANK = (function(){
       '<div style="margin-top:auto;font-size:11px;opacity:.6;position:relative;z-index:1">monet · TON · ∞</div></div>';
     return '<div class="mcard" id="mcard" onclick="BANK.flip()">'+front+back+'</div>'+
       '<div class="card-tap">'+t('cardTap')+'</div>'+
-      '<div class="card-actions"><button class="pri" onclick="BANK.closeCard()">'+(S.lang==='ru'?'Закрыть':'Close')+'</button></div>'; }
+      '<div class="card-actions"><button class="pri" onclick="BANK.shareCard()">'+t('pfShare')+'</button><button class="gho" onclick="BANK.closeCard()">✕</button></div>'; }
   function openCard(){ document.getElementById('card-wrap').innerHTML=cardHTML(); document.getElementById('card-scrim').classList.add('open'); }
   function closeCard(){ document.getElementById('card-scrim').classList.remove('open'); }
   function flip(){ const c=document.getElementById('mcard'); if(c) c.classList.toggle('flipped'); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} }
@@ -4794,8 +4820,8 @@ window.BANK = (function(){
     x.font='800 56px "Hanken Grotesk"'; x.fillText('Monet',cx+50,cy+90);
     x.fillStyle='rgba(255,255,255,.85)'; roundRect(x,cx+50,cy+135,90,66,14); x.fill();
     x.fillStyle='rgba(255,255,255,.85)'; x.font='600 30px "Hanken Grotesk"'; x.fillText(t('cardBalance').toUpperCase(),cx+50,cy+330);
-    x.fillStyle='#fff'; x.font='800 96px "Hanken Grotesk"'; x.fillText(grp(v),cx+50,cy+420);
-    x.font='800 40px "Hanken Grotesk"'; const bw=x.measureText(grp(v)).width; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('TON',cx+50+bw+18,cy+420);
+    x.fillStyle='#fff'; x.font='800 96px "Hanken Grotesk"'; const bw=x.measureText(grp(v)).width; x.fillText(grp(v),cx+50,cy+420);
+    x.font='800 40px "Hanken Grotesk"'; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('TON',cx+50+bw+18,cy+420);
     x.fillStyle='#fff'; x.font='700 34px "Hanken Grotesk"'; x.fillText(h.length>22?h.slice(0,21)+'…':h,cx+50,cy+ch-50);
     const TIER_COL=['#82907A','#A6713C','#86909C','#C2A044','#3F8794','#2E2E33'];
     const tb=tr.name; x.font='800 30px "Hanken Grotesk"'; x.textAlign='right';
@@ -4806,9 +4832,12 @@ window.BANK = (function(){
     x.beginPath(); x.arc(dotX,dotY,11,0,7); x.fillStyle=TIER_COL[tr.idx]||'#82907A'; x.fill();
     x.beginPath(); x.arc(dotX-3,dotY-3,4,0,7); x.fillStyle='rgba(255,255,255,.6)'; x.fill();
     x.textAlign='center'; x.fillStyle='#B58A76'; x.font='500 28px "Hanken Grotesk"';
-    x.fillText('monet · '+(S.lang==='ru'?'мой Telegram-капитал':'my Telegram net worth'),540,1000);
+    x.fillText(BOT_HANDLE+' · '+(S.lang==='ru'?'мой Telegram-капитал':'my Telegram capital'),540,1000);
+    try{ track('share_card'); }catch(e){}
+    const capLine=(S.lang==='ru'?'Моя карта Monet':'My Monet card')+' → '+APP_LINK;
     cv.toBlob(async(blob)=>{ const file=new File([blob],'monet-card.png',{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:'Monet'}); return; }catch(e){} }
+      if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:'Monet',text:capLine}); return; }catch(e){} }
+      try{ if(tg && tg.openTelegramLink){ tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(APP_LINK)+'&text='+encodeURIComponent(capLine)); } }catch(e){}
       const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); toast(t('saved')); },'image/png'); }
 
   /* ---------- converter (Wise-style, multi-currency) ---------- */
@@ -5074,6 +5103,7 @@ window.HOME=(function(){
     '<button onclick="HOME.go(\'evaluate\')"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M3.5 12.5 11 5a2 2 0 0 1 1.4-.6h4.6a2 2 0 0 1 2 2v4.6a2 2 0 0 1-.6 1.4l-7.5 7.5a2 2 0 0 1-2.8 0l-4.6-4.6a2 2 0 0 1 0-2.8Z"/><circle cx="15.5" cy="8.5" r="1.4"/></svg></span><b>'+t('hQEval')+'</b></button>'+
     '<button onclick="HOME.addToPf()"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><b>'+t('hQAdd')+'</b></button>'+
     '<button onclick="HOME.go(\'market\')"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M9 20V5M14 20v-7M19 20V8"/></svg></span><b>'+t('hQMarket')+'</b></button>'+
+    '<button onclick="HOME.shareCap()"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4M12 2v13"/></svg></span><b>'+t('hQShare')+'</b></button>'+
   '</div>'; }
   function pulse(){ const g=gidx(),mv=movers(); return '<div class="home-sec"><b>'+t('hPulse')+'</b><a onclick="HOME.go(\'market\')">'+t('hAll')+' →</a></div>'+
     '<div class="mgi" style="cursor:pointer" onclick="HOME.go(\'market\')"><div class="mgi-lab">'+t('mgiTitle')+'</div><div class="mgi-row"><div class="mgi-val">'+compact(g.cap)+' <span class="u">TON</span></div><div class="mgi-d" style="font-size:14px;font-weight:800;color:'+(g.ch24>=0?'var(--up)':'var(--down)')+'">'+pct(g.ch24)+' · 24'+t('mgiH')+'</div></div></div>'+
@@ -5285,6 +5315,7 @@ function init(){
   initTelegram();
   try{ fetchEntitlement(); }catch(e){}
   try{ track('app_open'); }catch(e){}
+  try{ setTimeout(handleStartParam, 350); }catch(e){}   // #6: open shared report via deep link
   refreshRate();
   updateFloorBadge(); refreshFloors(false);
   try{ setInterval(function(){ if(document.visibilityState!=='hidden'){ try{ refreshFloors(false); }catch(e){} } }, 90000); }catch(e){}   // auto-refresh live floors every 90s
