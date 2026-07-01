@@ -652,6 +652,9 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .g-row.g-buy .g-v{color:var(--good)}
 .g-row.g-sell .g-v{color:var(--warn)}
 .g-ctx{font-size:11.5px;color:var(--txt-3);margin:9px 2px 2px;font-variant-numeric:tabular-nums}
+.g-trust{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txt-3);margin:7px 2px 2px}
+.g-trust .mi{width:13px;height:13px;flex:none;opacity:.8}
+.cat-beta{display:inline-block;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--txt-3);border:1px solid var(--line);border-radius:5px;padding:1px 4px;margin-left:5px;vertical-align:middle}
 .g-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
 .g-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid currentColor}
 .g-chip.recheck{color:var(--txt-3)}
@@ -1729,6 +1732,8 @@ header{border-bottom:0;background:none}
       </div>
       <button class="dr-item" onclick="openCurPick()"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 2.6 15 0 18M12 3c-2.6 2.5-2.6 15 0 18"/></svg></span><b data-i18n="stCurrency"></b><span class="set-cur" id="setCurLbl"></span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <div class="dr-item dr-row"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg></span><b data-i18n="stStars"></b><div class="lang-toggle" id="starsToggle"><button onclick="setStars(true)" data-i18n="stOn"></button><button onclick="setStars(false)" data-i18n="stOff"></button></div></div>
+      <button class="dr-item" onclick="cycleDefaultView()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18"/></svg></span><b data-i18n="stDefault"></b><span class="set-cur" id="dvLbl"></span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="dr-item dr-row"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M9.5 12.5l2 2 3.5-4"/></svg></span><b data-i18n="stExp"></b><div class="lang-toggle" id="expToggle"><button onclick="setExperimental(true)" data-i18n="stOn"></button><button onclick="setExperimental(false)" data-i18n="stOff"></button></div></div>
     </div>
     <div class="dr-grid">
       <button class="dr-tile" onclick="closeDrawer();LOCK.menu()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b data-i18n="lkTitle"></b></button>
@@ -1847,7 +1852,7 @@ const DEFAULTS = {
   lang: 'ru', theme: 'dark', themeSet: false, currency: 'usd', premium: false, premiumUntil: 0,
   history: [], favorites: [], dail: { date:'', count:0 },
   best: { fun:0, chal:0 }, portfolio: [], pfHistory: [], hideBalance:false, goal:0, cash:0, realized:[], activity:[],
-  points:0, streak:0, lastSeen:'', cardName:'', floorProxy:'', notify:false, onboarded:false, onbVer:0, cal:{}, alerts:[], lastDigest:'', watchlist:[], pinHash:'', showStars:true
+  points:0, streak:0, lastSeen:'', cardName:'', floorProxy:'', notify:false, onboarded:false, onbVer:0, cal:{}, alerts:[], lastDigest:'', watchlist:[], pinHash:'', showStars:true, defaultView:'home', showExperimental:true
 };
 let S = loadAll();
 let mem = {}; // in-memory fallback when localStorage blocked
@@ -1873,6 +1878,7 @@ ru:{
   gBuyNote:'Хорошая цена для покупки', gFairNote:'Нормальная рыночная цена', gListNote:'Хорошая цена для продажи', gFastNote:'Если нужно продать быстро',
   gAlertBtn:'Алерт на Buy Zone', gRecheck:'Перепроверять раз в неделю', gNoMarket:'Редкий актив · нет живого рынка — ориентир сделки', gOrient:'Ориентир сделки, не торговый сигнал',
   gProPitch:'Monet Prime подсказывает, когда покупать, когда продавать и когда подождать. Это ориентир по рынку, а не гарантия дохода.', gGetPrime:'Открыть Prime', gUnder:'Сейчас ниже Buy Zone — выглядит недооценённым', gOverpay:'Рынок выше зоны — не переплачивай',
+  gLowConf:'Мало рыночных данных — зоны входа/выхода недоступны', gNoData:'Данных рынка нет — зоны недоступны',
   freeBase:'Оценка, диапазон цены и уверенность', proZones:'Зоны Buy / Sell / Fast', proAlerts:'Алерты + сигналы «недооценён» и «не переплачивай»', proGuid:'Дневной ориентир по рынку',
   hGuide:'Дневной ориентир', hGuideDip:'Недооценены · вход', hGuideUp:'Выросли · импульс', hGuideBull:'Рынок растёт', hGuideBear:'Рынок остывает', hGuideFlat:'Рынок в боковике', hInZone:'в Buy Zone',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель', navHome:'Дом', hHi:'Привет', hCapital:'Твой капитал', h24:'За 24ч', h7:'За 7д', hAssets:'Активов', hQEval:'Оценить', hQAdd:'В портфель', hQMarket:'Рынок', hQShare:'Поделиться', hPulse:'Пульс рынка', hActivity:'Активность', hAll:'Всё', hEmptyT:'Добро пожаловать в Monet', hEmptyS:'Оцени первый актив — и он появится в твоём капитале.', hEmptyBtn:'Оценить первый актив',
@@ -1880,7 +1886,7 @@ ru:{
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
   pfAddTitle:'Добавить в портфель', pfPick:'Что добавить', pfHistNote:'7д — оценка по динамике рынка',
   pfImport:'Мои подарки', pfImportSub:'отметь свои — добавим с оценкой', pfImportSearch:'Поиск коллекции…', pfImportAdd:'Добавить в портфель', pfImportEmpty:'Ничего не найдено', pfImportOr:'или',
-  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, TON', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'P&L по активам', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, TON', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать в Stars', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
+  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, TON', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'P&L по активам', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, TON', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать в Stars', stDefault:'Экран по умолчанию', stExp:'Эксперим. активы', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
   pfAlloc:'Распределение', pfBest:'Лидер 24ч', pfWorst:'Аутсайдер 24ч', pfShare:'Поделиться',
   pfNetWorth:'Мой Telegram-капитал', pfOther:'прочее', pfAssets:'актив(а/ов)', pfEmptyCta:'Оцени актив и добавь в портфель',
   pfForecast:'Прогноз 30д', pfTier:'Статус', menuAssets:'Стоимость активов', pfToNext:'до', pfGoal:'Цель', pfSetGoal:'Поставить цель', pfGoalTitle:'Цель по капиталу',
@@ -1978,6 +1984,7 @@ en:{
   gBuyNote:'Good price to buy', gFairNote:'Normal market price', gListNote:'Good price to sell', gFastNote:'If you need to sell fast',
   gAlertBtn:'Alert at Buy Zone', gRecheck:'Re-check weekly', gNoMarket:'Rare asset · not a live market — deal guideline', gOrient:'Deal guideline, not a trading signal',
   gProPitch:'Monet Prime helps you know when to buy, when to sell and when to wait. A market guideline, not a profit guarantee.', gGetPrime:'Unlock Prime', gUnder:'Now below Buy Zone — looks undervalued', gOverpay:'Market is above the zone — don’t overpay',
+  gLowConf:'Low market data — buy/sell zones unavailable', gNoData:'Market data unavailable — zones disabled',
   freeBase:'Estimate, price range and confidence', proZones:'Buy / Sell / Fast zones', proAlerts:'Alerts + “undervalued” & “don’t overpay” signals', proGuid:'Daily market guidance',
   hGuide:'Daily guidance', hGuideDip:'Undervalued · entry', hGuideUp:'Up · momentum', hGuideBull:'Market rising', hGuideBear:'Market cooling', hGuideFlat:'Market mixed', hInZone:'in Buy Zone',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio', navHome:'Home', hHi:'Hi', hCapital:'Your capital', h24:'24h', h7:'7d', hAssets:'Assets', hQEval:'Appraise', hQAdd:'To portfolio', hQMarket:'Market', hQShare:'Share', hPulse:'Market pulse', hActivity:'Activity', hAll:'All', hEmptyT:'Welcome to Monet', hEmptyS:'Appraise your first asset — it lands in your capital.', hEmptyBtn:'Appraise first asset',
@@ -1985,7 +1992,7 @@ en:{
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
   pfAddTitle:'Add to portfolio', pfPick:'What to add', pfHistNote:'7d — estimated from market trend',
   pfImport:'My gifts', pfImportSub:'tap yours — added with a value', pfImportSearch:'Search collection…', pfImportAdd:'Add to portfolio', pfImportEmpty:'Nothing found', pfImportOr:'or',
-  estRange:'range', apprValue:'Estimated value', apprHouse:'appraisal house', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, TON', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, TON', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', hAllCash:'All in free cash', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist', lkTitle:'Password', lkSetNew:'New password', lkRepeat:'Repeat password', lkEnter:'Enter password', lkEnterCur:'Current password', lkChange:'Change password', lkRemove:'Remove password', lkSaved:'Password set', lkRemoved:'Password removed', stCurrency:'Currency', stStars:'Show in Stars', stOn:'On', stOff:'Off', stOnboard:'Onboarding', stReset:'Reset data', stAbout:'About', stResetConfirm:'Delete all local data (portfolio, history, alerts)? This cannot be undone.',
+  estRange:'range', apprValue:'Estimated value', apprHouse:'appraisal house', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, TON', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, TON', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', hAllCash:'All in free cash', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist', lkTitle:'Password', lkSetNew:'New password', lkRepeat:'Repeat password', lkEnter:'Enter password', lkEnterCur:'Current password', lkChange:'Change password', lkRemove:'Remove password', lkSaved:'Password set', lkRemoved:'Password removed', stCurrency:'Currency', stStars:'Show in Stars', stDefault:'Default screen', stExp:'Experimental assets', stOn:'On', stOff:'Off', stOnboard:'Onboarding', stReset:'Reset data', stAbout:'About', stResetConfirm:'Delete all local data (portfolio, history, alerts)? This cannot be undone.',
   pfAlloc:'Allocation', pfBest:'Top 24h', pfWorst:'Worst 24h', pfShare:'Share',
   pfNetWorth:'My Telegram net worth', pfOther:'other', pfAssets:'assets', pfEmptyCta:'Evaluate an asset and add it to your portfolio',
   pfForecast:'30d forecast', pfTier:'Status', menuAssets:'Asset value', pfToNext:'to', pfGoal:'Goal', pfSetGoal:'Set a goal', pfGoalTitle:'Capital goal',
@@ -2631,11 +2638,14 @@ const CATS=[
 let curCat='username', curView='home', _giftCatDirty=false;
 
 function renderCatTabs(containerId, current, onpick){
-  const el=document.getElementById(containerId); el.innerHTML='';
-  CATS.forEach(c=>{
+  const el=document.getElementById(containerId); if(!el) return; el.innerHTML='';
+  const exp=(S.showExperimental!==false);
+  const list=exp?CATS:CATS.filter(c=>c.id==='gifts');
+  list.forEach(c=>{
     const d=document.createElement('div');
     d.className='cat'+(c.id===current?' on':'');
-    d.innerHTML='<div class="ic">'+c.svg+'</div><div class="nm">'+t(c.k)+'</div>';
+    const beta=(exp && c.id!=='gifts')?'<span class="cat-beta">'+(S.lang==='ru'?'бета':'beta')+'</span>':'';
+    d.innerHTML='<div class="ic">'+c.svg+'</div><div class="nm">'+t(c.k)+beta+'</div>';
     d.onclick=()=>onpick(c.id);
     el.appendChild(d);
   });
@@ -2928,12 +2938,14 @@ function fmtStars(ton){ const n=Math.round(ton*STARS_PER_TON); return n.toLocale
 let lastResult=null;
 function doEvaluate(){
   if(curCat==='gifts'||curCat==='stickers'){ /* always allowed */ }
+  try{ track('start_appraisal'); }catch(e){}
   if(!checkDaily()) return;
   const r=valueFor(curCat,'e_'); r.cat=curCat; r.ts=Date.now();
   lastResult=r;
   bumpDaily();
   addHistory(r);
   document.getElementById('result').innerHTML=resultCardHTML(r);
+  try{ track('asset_evaluated'); track('buy_sell_seen'); }catch(e){}
   countUp('ptonNum', r.priceTON);
   syncFavButton();
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.impactOccurred('medium');}catch(e){} }
@@ -2979,7 +2991,7 @@ async function loadGiftCross(r){
     ]);
   }catch(e){}
   try{ stats=await statsP; }catch(e){}
-  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; const mch=its.filter(x=>x&&x.match&&x.price>0); const pool=(mch.length?mch:its).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); crossAsk=Math.round(pool[0].price); } }catch(e){}
+  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length; const mch=its.filter(x=>x&&x.match&&x.price>0); const pool=(mch.length?mch:its).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); crossAsk=Math.round(pool[0].price); } }catch(e){}
   if(lastResult!==r || r.ts!==stamp) return;   // user moved on
   const preEst=r.priceTON;
   if(exact) applyGiftCross(r, exact, hasTrait);
@@ -3243,6 +3255,10 @@ function guidanceInner(r){
   const g=guidance(r); if(!g) return ''; const ru=S.lang==='ru';
   const cc=confOf(r), lq=liqOf(r);
   const pro=proActive(), lock=!pro;
+  const isGift=(r.cat==='gifts'||r.cat==='stickers');
+  const lowConf=(cc.k==='confLow');
+  const hasMkt=!!(r._mktAsk>0||r._floor>0||r._sold>0);
+  const gated = isGift && (lowConf || !hasMkt);   // #4: not enough data for confident buy/sell zones
   const num=v=>fmtTON(v)+' TON', rng=(a,b)=>fmtTON(a)+'–'+fmtTON(b)+' TON';
   const row=(k,val,note,cls,lk)=>'<div class="g-row '+(cls||'')+(lk?' locked':'')+'"><div class="g-l"><span class="g-k">'+k+'</span><span class="g-note">'+note+'</span></div><div class="g-v">'+(lk?'<span class="g-lockv"><svg class="mi" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> •••</span>':val)+'</div></div>';
   let rows='', head='';
@@ -3256,6 +3272,9 @@ function guidanceInner(r){
     rows = row(t('gBuy'), '≤ '+num(g.buyUnder), t('gBuyNote'),'g-buy',lock)
          + row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false)
          + row(t('gList'), '≥ '+num(g.listLo), t('gListNote'),'g-sell',lock);
+  } else if(gated){
+    head='<div class="g-banner">'+(hasMkt? t('gLowConf') : t('gNoData'))+'</div>';
+    rows = row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false);
   } else {
     rows = row(t('gBuy'), '≤ '+num(g.buyUnder), t('gBuyNote'),'g-buy',lock)
          + row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false)
@@ -3263,7 +3282,7 @@ function guidanceInner(r){
          + row(t('gFast'), rng(g.fastLo,g.fastHi), t('gFastNote'),'g-fast',lock);
   }
   let opp='';
-  if(pro && (r.cat==='gifts'||r.cat==='stickers') && r._mktAsk>0){
+  if(!gated && pro && (r.cat==='gifts'||r.cat==='stickers') && r._mktAsk>0){
     if(r._mktAsk<=g.buyUnder) opp='<div class="g-opp under"><svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3 6 9l6 12 6-12-3-6"/></svg> '+t('gUnder')+'</div>';
     else if(r._mktAsk>=g.listLo) opp='<div class="g-opp over"><svg class="mi" viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg> '+t('gOverpay')+'</div>';
   }
@@ -3275,14 +3294,29 @@ function guidanceInner(r){
     if(r._salesN>0) parts.push(r._salesN+(ru?' сделок':' deals'));
     if(parts.length) ctx='<div class="g-ctx">'+parts.join(' · ')+'</div>';
   }
+  let trust='';
+  if(isGift){
+    const mins = (typeof FLOORS_TS!=='undefined'&&FLOORS_TS)? Math.round((Date.now()-FLOORS_TS)/60000) : -1;
+    const stale = (typeof FLOORS_SRC!=='undefined'&&FLOORS_SRC!=='live') || mins>=45;
+    let bits=[];
+    if(!hasMkt){ bits=[ru?'данных рынка нет':'market data unavailable']; }
+    else {
+      if(mins>=0){ const fresh = mins<1?(ru?'обновлено только что':'updated just now'):(ru?'обновлено ':'updated ')+mins+(ru?' мин назад':' min ago'); bits.push((stale?(ru?'кэш · ':'cached · '):'')+fresh); }
+      if(r._scanned>0) bits.push(r._scanned+(ru?' лотов просканировано':' listings scanned'));
+    }
+    if(bits.length) trust='<div class="g-trust"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg> '+bits.join(' · ')+'</div>';
+  }
   const chips='<div class="g-chips"><span class="g-chip" style="color:'+cc.c+'"><span class="g-dot" style="background:'+cc.c+'"></span>'+t('confLabel')+': '+t(cc.k)+'</span>'
     +'<span class="g-chip" style="color:'+lq.c+'"><span class="g-dot" style="background:'+lq.c+'"></span>'+t('liqLabel')+': '+t(lq.k)+'</span>'
     +(r.cat==='username'?'<span class="g-chip recheck">'+t('gRecheck')+'</span>':'')+'</div>';
-  const foot = pro
-    ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+t('gAlertBtn')+'</button>'
-    : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button>';
-  const tag = pro ? '' : ' <span class="g-protag">PRIME</span>';
-  return '<div class="guide-card'+(pro?'':' g-free')+'"><div class="g-h">'+t('gTitle')+tag+'</div>'+head+rows+opp+ctx+chips+foot+'</div>';
+  let foot='';
+  if(!gated){
+    foot = pro
+      ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+t('gAlertBtn')+'</button>'
+      : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button>';
+  }
+  const tag = (pro||gated) ? '' : ' <span class="g-protag">PRIME</span>';
+  return '<div class="guide-card'+(pro?'':' g-free')+'"><div class="g-h">'+t('gTitle')+tag+'</div>'+head+rows+opp+ctx+trust+chips+foot+'</div>';
 }
 function tradeBandHTML(r){ return '<div id="tradeBand">'+guidanceInner(r)+'</div>'; }
 function renderTradeBand(r){ const el=document.getElementById('tradeBand'); if(el) el.innerHTML=guidanceInner(r); }
@@ -3383,12 +3417,21 @@ function renderCurPick(){ const ru=S.lang==='ru';
   const rows=list.map(x=>'<button class="cur-row'+(x.c===S.currency?' on':'')+'" onclick="pickCurrency(\''+x.c+'\')"><span class="fl">'+x.fl+'</span><span class="sy">'+x.s+'</span><span class="nm">'+(ru?x.nru:x.nen)+'</span>'+(x.c===S.currency?'<span class="ck">\u2713</span>':'')+'</button>').join('');
   document.getElementById('cur-sheet').innerHTML='<div class="mk-sheet-h"><div class="ic">\uD83D\uDCB1</div><div class="nm"><b>'+t('stCurrency')+'</b></div><button class="x" onclick="closeCurPick()">\u2715</button></div><div class="cur-list">'+rows+'</div>'; }
 function setStars(b){ S.showStars=!!b; save(); syncSettings(); try{ if(lastResult){ document.getElementById('result').innerHTML=resultCardHTML(lastResult); if(typeof syncFavButton==='function')syncFavButton(); } }catch(e){} }
+function dvLabel(){ const m={home:'navHome',evaluate:'navEval',market:'navMarket',portfolio:'navPortfolio'}; return t(m[S.defaultView||'home']||'navHome'); }
+function cycleDefaultView(){ const order=['home','evaluate','market','portfolio']; let i=order.indexOf(S.defaultView||'home'); i=(i+1)%order.length; S.defaultView=order[i]; save(); syncSettings(); }
+function setExperimental(b){ S.showExperimental=!!b; save();
+  if(!b && curCat!=='gifts'){ try{ pickCat('gifts'); }catch(e){ curCat='gifts'; } }
+  try{ renderCatTabs('catTabs',curCat,pickCat); }catch(e){}
+  try{ renderCatTabs('catTabsCmp',(typeof curCatCmp!=='undefined'?curCatCmp:'gifts'),pickCatCmp); }catch(e){}
+  syncSettings(); }
 function resetData(){ const msg=t('stResetConfirm'); const go=function(){ try{ localStorage.removeItem('monet'); }catch(e){} try{ location.reload(); }catch(e){} };
   const confirmThenGo=function(){ try{ if(tg&&tg.showConfirm){ tg.showConfirm(msg,function(ok){ if(ok) go(); }); return; } }catch(e){} try{ if(typeof confirm==='function'){ if(confirm(msg)) go(); return; } }catch(e){} go(); };
   if(window.LOCK && LOCK.has()){ LOCK.verify(confirmThenGo); } else { confirmThenGo(); } }
 function syncSettings(){ try{
   const lbl=document.getElementById('setCurLbl'); if(lbl){ const x=CURRENCIES.find(k=>k.c===S.currency)||CURRENCIES[1]; lbl.textContent=x.fl+' '+x.s; }
   const stg=document.getElementById('starsToggle'); if(stg&&stg.children.length>=2){ const on=S.showStars!==false; stg.children[0].classList.toggle('on',on); stg.children[1].classList.toggle('on',!on); }
+  const dvl=document.getElementById('dvLbl'); if(dvl) dvl.textContent=dvLabel();
+  const exg=document.getElementById('expToggle'); if(exg&&exg.children.length>=2){ const on=S.showExperimental!==false; exg.children[0].classList.toggle('on',on); exg.children[1].classList.toggle('on',!on); }
   const ver=document.getElementById('setVer'); if(ver) ver.textContent='Monet v'+APP_VERSION;
   const pt=document.getElementById('premTile'); if(pt){ pt.style.display=S.premium?'none':''; const bx=pt.querySelector('b'); if(bx){ if(subActive()){ bx.innerHTML='Prime <i class="dr-free dr-free-sub">'+fmtUntil(S.premiumUntil)+'</i>'; } else if(launchFree()){ bx.innerHTML='Prime <i class="dr-free">'+t('freeNow')+'</i>'; } else { bx.innerHTML='Monet Prime'; } } }
 }catch(e){} }
@@ -3863,7 +3906,7 @@ function renderPlan(){
     '<div class="prow"><span class="pi">★</span>'+t('pro1')+' · '+t('pro2')+'</div>';
   renderPlanCards();
 }
-function openPremium(){ if(S.premium){ toast(t('premiumGranted')); return; } renderPlan();
+function openPremium(){ try{ track('premium_click'); }catch(e){} if(S.premium){ toast(t('premiumGranted')); return; } renderPlan();
   const pr=document.getElementById('pmPromo');
   if(pr){ if(launchFree()){ pr.innerHTML='<div class="pm-promo-t">'+t('freeLaunch')+'</div><div class="pm-promo-s">'+t('freeLaunchNote')+'</div>'; pr.style.display=''; }
           else if(subActive()){ pr.innerHTML='<div class="pm-promo-t">'+t('subActive')+'</div><div class="pm-promo-s">'+t('subUntil')+' '+fmtUntil(S.premiumUntil)+'</div>'; pr.style.display=''; }
@@ -3877,7 +3920,8 @@ async function buyPremium(){
     const base=proxyURL(); let link='';
     if(base){ try{ const res=await fetch(base.replace(/\/+$/,'')+'/?invoice=premium&plan='+plan+'&stars='+p.stars,{cache:'no-store'}); if(res.ok){ const j=await res.json(); link=(j&&j.link)||''; } }catch(e){} }
     if(!link){ toast(t('pmSoon')); return; }
-    tg.openInvoice(link, function(status){ if(status==='paid'){ grantSub(plan); } else if(status==='failed'){ toast(t('pmFail')); } });
+    try{ track('invoice_started'); }catch(e){}
+    tg.openInvoice(link, function(status){ if(status==='paid'){ try{track('invoice_paid');}catch(e){} grantSub(plan); try{pollEntitlement();}catch(e){} } else if(status==='failed'){ toast(t('pmFail')); } });
   }catch(e){ toast(t('pmSoon')); }
 }
 function grantSub(plan){
@@ -3901,6 +3945,26 @@ function grantPremium(src,silent){
   try{ if(S.notify && typeof syncNotify==='function') syncNotify(false); }catch(e){}
 }
 function updatePremiumUI(){ const b=document.getElementById('premiumBanner'); if(b) b.classList.toggle('show',!!S.premium||subActive()); }
+// server-authoritative Prime: the paid subscription is decided by the backend, not the client
+async function fetchEntitlement(){
+  try{
+    const base=proxyURL(); if(!base) return;
+    const initData=(tg&&tg.initData)||''; if(!initData) return;
+    const res=await fetch(base.replace(/\/+$/,'')+'/?me&initData='+encodeURIComponent(initData),{cache:'no-store'});
+    if(!res.ok) return; const j=await res.json();
+    if(j&&j.ok&&typeof j.premium_until==='number'){
+      const sv=Math.round(j.premium_until);
+      if(sv!==(S.premiumUntil||0)){ S.premiumUntil=sv; try{save();}catch(e){}
+        try{ if(typeof syncSettings==='function') syncSettings(); }catch(e){}
+        try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){}
+        try{ updatePremiumUI(); }catch(e){}
+      }
+    }
+  }catch(e){}
+}
+function pollEntitlement(){ let n=0; const iv=setInterval(function(){ n++; fetchEntitlement(); if(n>=5) clearInterval(iv); }, 3000); }
+// lightweight funnel analytics (anonymous counts)
+function track(ev){ try{ const base=proxyURL(); if(!base) return; fetch(base.replace(/\/+$/,'')+'/?ev='+encodeURIComponent(ev),{method:'GET',keepalive:true,cache:'no-store'}).catch(function(){}); }catch(e){} }
 
 /* ========================================================================
    DAILY LIMIT (clean implementation)
@@ -4475,7 +4539,7 @@ window.PF = (function(){
   }
 
 
-  function addAsset(a){ if(!a||!a.display) return; if(!Array.isArray(S.portfolio))S.portfolio=[];
+  function addAsset(a){ if(!a||!a.display) return; try{ track('add_to_portfolio'); }catch(e){} if(!Array.isArray(S.portfolio))S.portfolio=[];
     const cat=({gifts:'gift',usernames:'username'})[a.cat]||a.cat;
     const ex=S.portfolio.find(h=>h.cat===cat && h.display===a.display);
     // a specific NFT number is unique in the world -> can only be held once
@@ -5150,6 +5214,7 @@ window.ALERTS=(function(){
     const tv=parseFloat((document.getElementById('al-target').value||'').replace(/[^\d.]/g,'')); if(!tv||tv<=0) return;
     const base=priceOf(name); const dir = base>0 ? (tv>=base?'above':'below') : 'above';
     if(!Array.isArray(S.alerts))S.alerts=[];
+    try{ track('set_alert'); }catch(e){}
     S.alerts.unshift({id:Date.now()%1000000000, display:name, cat:catOf(name), target:Math.round(tv), dir:dir, base:Math.round(base), created:Date.now()});
     if(S.alerts.length>60)S.alerts=S.alerts.slice(0,60);
     try{save();}catch(e){} badge(); render(null);
@@ -5202,6 +5267,7 @@ function init(){
   document.getElementById('langEn').classList.toggle('on',S.lang==='en');
   document.documentElement.lang=S.lang;
   applyI18N();
+  if(S.showExperimental===false){ if(curCat!=='gifts')curCat='gifts'; if(typeof curCatCmp!=='undefined'&&curCatCmp!=='gifts')curCatCmp='gifts'; }
   renderCatTabs('catTabs',curCat,pickCat);
   renderCatTabs('catTabsCmp',curCatCmp,pickCatCmp);
   loadFloorCache();
@@ -5214,9 +5280,11 @@ function init(){
   try{ recomputeFX(); }catch(e){}
   renderDrawer();   /* populate the menu/sidebar (profile + lists) on load */
   try{ document.querySelectorAll('.drnav-item[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===curView)); }catch(e){}
-  try{ setView('home'); }catch(e){}
+  try{ const dv=S.defaultView; setView((dv==='evaluate'||dv==='market'||dv==='portfolio')?dv:'home'); }catch(e){ try{setView('home');}catch(_){} }
   try{ if(window.ALERTS){ ALERTS.check(); ALERTS.badge(); } }catch(e){}
   initTelegram();
+  try{ fetchEntitlement(); }catch(e){}
+  try{ track('app_open'); }catch(e){}
   refreshRate();
   updateFloorBadge(); refreshFloors(false);
   try{ setInterval(function(){ if(document.visibilityState!=='hidden'){ try{ refreshFloors(false); }catch(e){} } }, 90000); }catch(e){}   // auto-refresh live floors every 90s
