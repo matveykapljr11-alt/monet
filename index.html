@@ -1881,7 +1881,7 @@ ru:{
   gBuyNote:'Хорошая цена для покупки', gFairNote:'Нормальная рыночная цена', gListNote:'Хорошая цена для продажи', gFastNote:'Если нужно продать быстро',
   gAlertBtn:'Алерт на Buy Zone', gRecheck:'Перепроверять раз в неделю', gNoMarket:'Редкий актив · нет живого рынка — ориентир сделки', gOrient:'Ориентир сделки, не торговый сигнал',
   gProPitch:'Monet Prime подсказывает, когда покупать, когда продавать и когда подождать. Это ориентир по рынку, а не гарантия дохода.', gGetPrime:'Открыть Prime', gUnder:'Сейчас ниже Buy Zone — выглядит недооценённым', gOverpay:'Рынок выше зоны — не переплачивай',
-  gLowConf:'Мало рыночных данных — зоны входа/выхода недоступны', gNoData:'Данных рынка нет — зоны недоступны', gDisc:'Ориентир по рынку, не финансовый совет. По текущим листингам и ликвидности.',
+  gLowConf:'Мало рыночных данных — зоны входа/выхода недоступны', gNoData:'Данных рынка нет — зоны недоступны', gDisc:'Ориентир по рынку, не финансовый совет. По текущим листингам и ликвидности.', gStale:'Данные рынка устарели — зоны временно недоступны', gRefresh:'Обновить флоры', gAlertPrice:'Алерт по цене',
   freeBase:'Оценка, диапазон цены и уверенность', proZones:'Зоны Buy / Sell / Fast', proAlerts:'Алерты + сигналы «недооценён» и «не переплачивай»', proGuid:'Дневной ориентир по рынку',
   hGuide:'Дневной ориентир', hGuideDip:'Недооценены · вход', hGuideUp:'Выросли · импульс', hGuideBull:'Рынок растёт', hGuideBear:'Рынок остывает', hGuideFlat:'Рынок в боковике', hInZone:'в Buy Zone',
   navEval:'Оценка', navCompare:'Сравнить', navGame:'Игра', navMore:'Ещё', navMarket:'Рынок', navPortfolio:'Портфель', navHome:'Дом', hHi:'Привет', hCapital:'Твой капитал', h24:'За 24ч', h7:'За 7д', hAssets:'Активов', hQEval:'Оценить', hQAdd:'В портфель', hQMarket:'Рынок', hQShare:'Поделиться', hPulse:'Пульс рынка', hActivity:'Активность', hAll:'Всё', hEmptyT:'Добро пожаловать в Monet', hEmptyS:'Оцени первый актив — и он появится в твоём капитале.', hEmptyBtn:'Оценить первый актив',
@@ -1987,7 +1987,7 @@ en:{
   gBuyNote:'Good price to buy', gFairNote:'Normal market price', gListNote:'Good price to sell', gFastNote:'If you need to sell fast',
   gAlertBtn:'Alert at Buy Zone', gRecheck:'Re-check weekly', gNoMarket:'Rare asset · not a live market — deal guideline', gOrient:'Deal guideline, not a trading signal',
   gProPitch:'Monet Prime helps you know when to buy, when to sell and when to wait. A market guideline, not a profit guarantee.', gGetPrime:'Unlock Prime', gUnder:'Now below Buy Zone — looks undervalued', gOverpay:'Market is above the zone — don’t overpay',
-  gLowConf:'Low market data — buy/sell zones unavailable', gNoData:'Market data unavailable — zones disabled', gDisc:'Market guidance, not financial advice. Based on current listings and liquidity.',
+  gLowConf:'Low market data — buy/sell zones unavailable', gNoData:'Market data unavailable — zones disabled', gDisc:'Market guidance, not financial advice. Based on current listings and liquidity.', gStale:'Market data is outdated — zones temporarily unavailable', gRefresh:'Refresh floors', gAlertPrice:'Price alert',
   freeBase:'Estimate, price range and confidence', proZones:'Buy / Sell / Fast zones', proAlerts:'Alerts + “undervalued” & “don’t overpay” signals', proGuid:'Daily market guidance',
   hGuide:'Daily guidance', hGuideDip:'Undervalued · entry', hGuideUp:'Up · momentum', hGuideBull:'Market rising', hGuideBear:'Market cooling', hGuideFlat:'Market mixed', hInZone:'in Buy Zone',
   navEval:'Evaluate', navCompare:'Compare', navGame:'Game', navMore:'More', navMarket:'Market', navPortfolio:'Portfolio', navHome:'Home', hHi:'Hi', hCapital:'Your capital', h24:'24h', h7:'7d', hAssets:'Assets', hQEval:'Appraise', hQAdd:'To portfolio', hQMarket:'Market', hQShare:'Share', hPulse:'Market pulse', hActivity:'Activity', hAll:'All', hEmptyT:'Welcome to Monet', hEmptyS:'Appraise your first asset — it lands in your capital.', hEmptyBtn:'Appraise first asset',
@@ -3261,7 +3261,8 @@ function guidanceInner(r){
   const isGift=(r.cat==='gifts'||r.cat==='stickers');
   const lowConf=(cc.k==='confLow');
   const hasMkt=!!(r._mktAsk>0||r._floor>0||r._sold>0);
-  const gated = isGift && (lowConf || !hasMkt);   // #4: not enough data for confident buy/sell zones
+  const floorsStale = (typeof FLOORS_SRC!=='undefined' && FLOORS_SRC==='demo') || (typeof FLOORS_TS!=='undefined' && FLOORS_TS>0 && (Date.now()-FLOORS_TS) > 45*60000);
+  const gated = isGift && (lowConf || !hasMkt || floorsStale);   // #4: no confident zones on low-confidence / missing / stale data
   const num=v=>fmtTON(v)+' TON', rng=(a,b)=>fmtTON(a)+'–'+fmtTON(b)+' TON';
   const row=(k,val,note,cls,lk)=>'<div class="g-row '+(cls||'')+(lk?' locked':'')+'"><div class="g-l"><span class="g-k">'+k+'</span><span class="g-note">'+note+'</span></div><div class="g-v">'+(lk?'<span class="g-lockv"><svg class="mi" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> •••</span>':val)+'</div></div>';
   let rows='', head='';
@@ -3276,7 +3277,7 @@ function guidanceInner(r){
          + row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false)
          + row(t('gList'), '≥ '+num(g.listLo), t('gListNote'),'g-sell',lock);
   } else if(gated){
-    head='<div class="g-banner">'+(hasMkt? t('gLowConf') : t('gNoData'))+'</div>';
+    head='<div class="g-banner">'+(!hasMkt? t('gNoData') : (floorsStale? t('gStale') : t('gLowConf')))+'</div>';
     rows = row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false);
   } else {
     rows = row(t('gBuy'), '≤ '+num(g.buyUnder), t('gBuyNote'),'g-buy',lock)
@@ -3315,8 +3316,10 @@ function guidanceInner(r){
   let foot='';
   if(!gated){
     foot = pro
-      ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+t('gAlertBtn')+'</button>'
+      ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+(isGift?t('gAlertBtn'):t('gAlertPrice'))+'</button>'
       : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button>';
+  } else if(isGift && floorsStale){
+    foot = '<button class="g-alert" onclick="refreshFloorsAndGuide()"><svg class="mi" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v6h-6"/></svg> '+t('gRefresh')+'</button>';
   }
   const tag = (pro||gated) ? '' : ' <span class="g-protag">PRIME</span>';
   const disc = gated ? '' : '<div class="g-disc">'+t('gDisc')+'</div>';
@@ -3897,6 +3900,12 @@ function handleStartParam(){ try{
   else if(kind==='u'){ reEvalGo({cat:'username',display:'@'+val}); }
   else if(kind==='n'){ reEvalGo({cat:'numbers',display:'+888 '+val}); }
 }catch(e){} }
+// refresh floors then re-render the current appraisal's guidance (used by the stale-data button)
+function refreshFloorsAndGuide(){
+  try{ toast(S.lang==='ru'?'Обновляю флоры…':'Refreshing floors…'); }catch(e){}
+  const after=function(){ try{ if(lastResult&&(lastResult.cat==='gifts'||lastResult.cat==='stickers')){ if(proxyURL()) loadGiftCross(lastResult); else renderTradeBand(lastResult); } }catch(e){} };
+  try{ Promise.resolve(refreshFloors(true)).then(function(){ setTimeout(after,400); }, function(){ setTimeout(after,400); }); }catch(e){ setTimeout(after,600); }
+}
 
 /* ========================================================================
    PREMIUM
