@@ -349,6 +349,10 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .g-mode-ic{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font-size:25px;flex:none}
 .g-mode-ic.fun{background:linear-gradient(135deg,#DFE7D2,#C8D8C2)}
 .g-mode-ic.chal{background:linear-gradient(135deg,#2E6B54,#163A2C)}
+.g-mode-ic .mi{width:23px;height:23px}
+.g-mode-ic.fun .mi{color:#1B4D38}
+.g-mode-ic.chal .mi{color:#EAF4EE}
+.g-hero-ic .mi{width:30px;height:30px;color:#EAF4EE}
 .g-mode-tx{flex:1;min-width:0}
 .g-mode-tx h3{font-family:var(--font-d);font-weight:700;font-size:16px;margin:0 0 2px}
 .g-mode-tx small{color:var(--txt-3);font-size:12px;font-weight:600}
@@ -582,7 +586,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .modal .crown{line-height:0}.modal .crown .mi{width:44px;height:44px;color:var(--gold,#C8A24B)}
 .home-greet{font-family:var(--font-d);font-weight:600;font-size:21px;letter-spacing:-.3px;margin:2px 2px 12px}
 .cap-cash{display:inline-flex;align-items:center;gap:5px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.92);background:rgba(255,255,255,.14);padding:5px 11px;border-radius:999px;backdrop-filter:blur(6px)}
-.home-qa{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 4px}
+.home-qa{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 4px}
 .home-qa button{display:flex;flex-direction:column;align-items:center;gap:7px;border:0;background:transparent;cursor:pointer;padding:0}
 .home-qa .qa-ic{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(180deg,#1F6B4C,#143A2C);box-shadow:0 12px 24px -12px rgba(31,77,61,.55),inset 0 1px 0 rgba(255,255,255,.18)}
 .home-qa .qa-ic svg{width:23px;height:23px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -1587,14 +1591,13 @@ header{border-bottom:0;background:none}
     <div class="mk-movers" id="mk-movers"></div>
     <div class="mkt-listhead"><span id="mk-listcount"></span><span class="mkt-listlbl" id="mk-sortlbl"></span></div>
     <div class="mc-ledger" id="mk-list"></div>
-    <p class="mk-foot" data-i18n="mkFoot">Подарки — live с рынка (флор, листинги, 24ч). Ники и номера — демо-порядки величин. Не оферта.</p>
   </section>
 
   <section id="view-portfolio" class="hidden"></section>
 
   <section id="view-converter" class="hidden"></section>
 
-  <div class="disclaimer"><svg class="di-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg><p data-i18n="footer"></p></div>
+  <div class="disclaimer" id="globalDisclaimer"><svg class="di-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg><p data-i18n="footer"></p></div>
 </div>
 
 <!-- market detail sheet -->
@@ -1877,7 +1880,7 @@ ru:{
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
   pfAddTitle:'Добавить в портфель', pfPick:'Что добавить', pfHistNote:'7д — оценка по динамике рынка',
   pfImport:'Мои подарки', pfImportSub:'отметь свои — добавим с оценкой', pfImportSearch:'Поиск коллекции…', pfImportAdd:'Добавить в портфель', pfImportEmpty:'Ничего не найдено', pfImportOr:'или',
-  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, TON', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'Нереализ. P&L', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, TON', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать в Stars', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
+  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, TON', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'P&L по активам', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, TON', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать в Stars', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
   pfAlloc:'Распределение', pfBest:'Лидер 24ч', pfWorst:'Аутсайдер 24ч', pfShare:'Поделиться',
   pfNetWorth:'Мой Telegram-капитал', pfOther:'прочее', pfAssets:'актив(а/ов)', pfEmptyCta:'Оцени актив и добавь в портфель',
   pfForecast:'Прогноз 30д', pfTier:'Статус', menuAssets:'Стоимость активов', pfToNext:'до', pfGoal:'Цель', pfSetGoal:'Поставить цель', pfGoalTitle:'Цель по капиталу',
@@ -3320,7 +3323,6 @@ function resultCardHTML(r){
       (r.cat==='gifts' && proxyURL() ? '<div class="comps" id="giftComps"></div>' : '')+
       '<div class="acts">'+
         '<button class="act portf" onclick="addEvalToPortfolio()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>'+t('pfAddBtn')+'</button>'+
-        '<button class="act" onclick="exportCard()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4M12 2v13"/></svg></span>'+t('share')+'</button>'+
         '<button class="act fav" id="favBtn" onclick="toggleFav()"><span><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 3l2.6 5.7 6.4.6-4.8 4.2 1.4 6.2L12 16.8 6.4 19.9l1.4-6.2L3 9.5l6.4-.6z"/></svg></span><span id="favLbl">'+t('favAdd')+'</span></button>'+
         '<button class="act" onclick="toggleExplain()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></span>'+t('explainBtn')+'</button>'+
         '<button class="act frag" onclick="openFragment()"><span><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>'+t('checkFrag')+'</button>'+
@@ -3559,8 +3561,8 @@ function buildGameIntro(){
   document.getElementById('gamePanel').innerHTML=
     '<div class="g-hero"><div class="g-hero-ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/></svg></div><h2>'+t('gameTitle')+'</h2><p>'+t('gameSub')+'</p></div>'+
     '<div class="g-modes">'+
-      '<button class="g-mode" onclick="startGame(\'fun\')"><div class="g-mode-ic fun"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg></div><div class="g-mode-tx"><h3>'+t('modeFun')+'</h3><small>'+t('modeFunD')+'</small></div><div class="g-mode-best"><span style="display:inline-flex;gap:4px;align-items:center"><svg class="mi" viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M9 19h6M12 13v6"/></svg> '+S.best.fun+'</span></div></button>'+
-      '<button class="g-mode" onclick="startGame(\'chal\')"><div class="g-mode-ic chal"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.6 1.2-3.6s2.3 1.4 3.3-1.1c.6-1.6-.7-3-.7-3z"/></svg></div><div class="g-mode-tx"><h3>'+t('modeChal')+'</h3><small>'+t('modeChalD')+'</small></div><div class="g-mode-best"><span style="display:inline-flex;gap:4px;align-items:center"><svg class="mi" viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M9 19h6M12 13v6"/></svg> '+S.best.chal+'</span></div></button>'+
+      '<button class="g-mode" onclick="startGame(\'fun\')"><div class="g-mode-ic fun"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg></div><div class="g-mode-tx"><h3>'+t('modeFun')+'</h3><small>'+t('modeFunD')+'</small></div><div class="g-mode-best"><span style="display:inline-flex;gap:4px;align-items:center"><svg class="mi" viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M9 19h6M12 13v6"/></svg> '+S.best.fun+'</span></div></button>'+
+      '<button class="g-mode" onclick="startGame(\'chal\')"><div class="g-mode-ic chal"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H12z"/></svg></div><div class="g-mode-tx"><h3>'+t('modeChal')+'</h3><small>'+t('modeChalD')+'</small></div><div class="g-mode-best"><span style="display:inline-flex;gap:4px;align-items:center"><svg class="mi" viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M9 19h6M12 13v6"/></svg> '+S.best.chal+'</span></div></button>'+
     '</div>'+
     '<div class="g-hint">'+t('gHint')+'</div>';
 }
@@ -3918,6 +3920,7 @@ let evalMode='single';
 function setView(v){
   curView=v;
   try{ document.body.setAttribute('data-view',v); }catch(e){}
+  try{ const dc=document.getElementById('globalDisclaimer'); if(dc) dc.style.display=(v==='evaluate')?'':'none'; }catch(e){}
   document.querySelectorAll('.tab[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
   document.querySelectorAll('.drnav-item[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
   ['home','evaluate','market','portfolio','game','converter'].forEach(id=>document.getElementById('view-'+id).classList.toggle('hidden',id!==v));
@@ -4389,7 +4392,6 @@ window.PF = (function(){
           '<div class="pf-acts">'+
             '<button class="pf-eye" onclick="BANK.openCard()" aria-label="card"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 9.5h19"/></svg></button>'+
             '<button class="pf-eye" onclick="PF.toggleHide()" aria-label="hide">'+eyeIcon+'</button>'+
-            '<button class="pf-share" onclick="PF.share()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v13M8 7l4-4 4 4"/></svg>'+t('pfShare')+'</button>'+
           '</div></div>'+
         '<div class="tot">'+(hidden
             ? '<span class="pf-masked">••••••</span> <span style="font-size:.5em;font-weight:700;opacity:.85">TON</span>'
@@ -4604,19 +4606,44 @@ window.PF = (function(){
 
   function onRate(){ if(curView==='portfolio') render(); }
   function init(){ if(Array.isArray(S.portfolio)&&S.portfolio.length) snapshot(); }
-  function info(kind){ const ru=S.lang==='ru'; const tot=total(); let title='',body='';
-    if(kind==='forecast'){ title=t('pfForecast');
-      body=ru?'Ориентир стоимости портфеля через 30 дней. Считается от недельной динамики твоих активов: тренд затухает к концу месяца, есть потолок ±25%. Это оценка по рынку, а не гарантия.'
-             :'A 30-day estimate of your portfolio value. Based on your holdings’ weekly trend, with the trend fading toward month-end and a ±25% cap. A market estimate, not a guarantee.'; }
-    else if(kind==='status'){ const tr=tierOfNW(tot); title=t('pfTier');
-      body=(ru?'Уровень зависит от стоимости активов: Standard → Bronze → Silver → Gold → Platinum → Black. Сейчас у тебя ':'Your tier depends on your asset value: Standard → Bronze → Silver → Gold → Platinum → Black. You are ')+tr.name+(tr.next?((ru?'. До «':'. To “')+tr.next.name+(ru?'» — ':'” — ')+grp(tr.next.need)+' TON.'):(ru?' — максимум.':' — max.')); }
-    else if(kind==='unreal'){ title=t('pfUnreal');
-      body=ru?'Нереализованная прибыль или убыток — разница между текущей стоимостью активов и ценой, по которой ты их купил. Пока не продал — это «бумажный» результат.'
-             :'Unrealized profit or loss — the gap between your holdings’ current value and what you paid. Until you sell, it’s a paper result.'; }
+  function info(kind){ const ru=S.lang==='ru'; const tot=total();
+    const HI='<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg>';
+    const head=(ti)=>'<div class="mk-sheet-h"><div class="ic">'+HI+'</div><div class="nm"><b>'+ti+'</b></div><button class="x" onclick="PF.closeAdd()">✕</button></div>';
+    const sc=(k,v,c,s)=>'<div class="pf-bcard"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div>'+(s?'<div class="s" style="color:'+(c||'var(--txt-3)')+'">'+s+'</div>':'')+'</div>';
+    const dim=(x)=>'<div class="hint dim" style="margin:12px 2px 4px;line-height:1.6">'+x+'</div>';
+    let html='';
+    if(kind==='unreal'){
+      const list=S.portfolio||[]; let cost=0,val=0;
+      const rows=list.map(h=>{ const b=(h.buy!=null?h.buy:h.priceTON)||0; const q=h.qty||1; const c=b*q, v=curPrice(h)*q; cost+=c; val+=v; const pl=v-c, pc=c>0?pl/c*100:0; const col=pl>=0?'var(--up)':'var(--down)';
+        return '<div class="mc-item"><div class="mc-main"><div class="mc-name">'+escapeHTML(h.display)+'</div><div class="mc-sub">'+(q>1?q+' × ':'')+grp(curPrice(h))+' TON'+(h.buy!=null?' · '+(ru?'вход ':'in ')+grp(h.buy)+' TON':(ru?' · вход не задан':' · no entry set'))+'</div></div><div class="mc-right"><div class="mc-price" style="color:'+col+'">'+(pl>=0?'+':'')+grp(Math.round(pl))+' TON</div><div style="font-size:11px;font-weight:700;color:'+col+'">'+(pc>=0?'+':'')+pc.toFixed(0)+'%</div></div></div>'; }).join('');
+      const unreal=Math.round(val-cost), pct=cost>0?(val-cost)/cost*100:0, uc=unreal>=0?'var(--up)':'var(--down)';
+      html=head(ru?'P&L по активам':'Asset P&L')+
+        dim(ru?'Прибыль или убыток по активам, которые ты <b>ещё держишь</b>: текущая стоимость минус цена покупки. Пока не продал — это «бумажный» результат.':'Profit or loss on assets you <b>still hold</b>: current value minus what you paid. Until you sell, it’s on paper.')+
+        '<div class="pf-bankrow">'+sc(ru?'Вложено':'Invested', grp(Math.round(cost))+' TON')+sc(ru?'Сейчас стоит':'Worth now', grp(Math.round(val))+' TON')+'</div>'+
+        '<div class="pf-bankrow" style="grid-template-columns:1fr">'+sc(ru?'P&L по активам':'Asset P&L', (unreal>=0?'+':'')+grp(unreal)+' TON', uc, (pct>=0?'▲':'▼')+' '+Math.abs(pct).toFixed(1)+'%')+'</div>'+
+        (rows?('<div class="pf-sec-h" style="margin-top:6px"><b>'+(ru?'По каждому активу':'By asset')+'</b></div><div class="mc-ledger">'+rows+'</div>'):dim(ru?'Добавь цену покупки у активов, чтобы видеть P&L.':'Add a buy price to your assets to see P&L.'));
+    }
+    else if(kind==='forecast'){
+      const fc=forecast30(tot); let w7=0,c24=0; try{ w7=weighted(ch7); }catch(e){} try{ c24=weighted(ch24); }catch(e){} w7=Math.max(-12,Math.min(12,w7));
+      const fcc=fc.pct>=0?'var(--up)':'var(--down)';
+      html=head(ru?'Прогноз на 30 дней':'30-day forecast')+
+        dim(ru?'Ориентир стоимости портфеля через месяц. Строится от недельного тренда твоих активов: тренд затухает к концу месяца, потолок ±25%. Это оценка, а не гарантия.':'A 30-day estimate of your portfolio. Built from your holdings’ weekly trend — the trend fades toward month-end, capped at ±25%. An estimate, not a guarantee.')+
+        '<div class="pf-bankrow">'+sc(ru?'Сейчас':'Now', grp(Math.round(tot))+' TON')+sc(ru?'Через 30 дней':'In 30 days', grp(fc.val)+' TON', fcc, (fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'%')+'</div>'+
+        '<div class="pf-bankrow">'+sc(ru?'За 24 часа':'Past 24h', (c24>=0?'+':'')+c24.toFixed(1)+'%', c24>=0?'var(--up)':'var(--down)')+sc(ru?'Недельный тренд':'Weekly trend', (w7>=0?'+':'')+w7.toFixed(1)+'%', w7>=0?'var(--up)':'var(--down)')+'</div>';
+    }
+    else if(kind==='status'){
+      const tr=tierOfNW(tot); const TN=['Standard','Bronze','Silver','Gold','Platinum','Black'], TMIN=[0,100,1000,10000,50000,250000];
+      let idx=0; for(let i=0;i<TMIN.length;i++){ if(tot>=TMIN[i]) idx=i; }
+      const pctp = tr.next? Math.max(6, Math.min(100, tot/(tot+tr.next.need)*100)) : 100;
+      const ladder=TN.map((nm,i)=>'<div class="mc-item"'+(i===idx?' style="background:rgba(55,210,138,.08)"':'')+'><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center">'+tierBadge(i)+'</div><div class="mc-main"><div class="mc-name">'+nm+'</div><div class="mc-sub">'+(TMIN[i]===0?(ru?'старт':'start'):(ru?'от ':'from ')+grp(TMIN[i])+' TON')+'</div></div>'+(i===idx?'<div class="mc-right"><div class="mc-price" style="color:var(--up)">'+(ru?'ты здесь':'you’re here')+'</div></div>':'')+'</div>').join('');
+      html=head(ru?'Статус':'Status')+
+        '<div style="text-align:center;margin:14px 0 8px;font-size:16px;font-weight:800">'+tierBadge(idx,'big')+' '+tr.name+'</div>'+
+        '<div class="dp-bar" style="background:rgba(255,255,255,.12)"><i style="width:'+pctp.toFixed(0)+'%;background:var(--up)"></i></div>'+
+        dim('<div style="text-align:center">'+(tr.next?((ru?'До «':'To “')+tr.next.name+(ru?'»: ':'”: ')+'<b>'+grp(tr.next.need)+' TON</b>'):(ru?'Максимальный уровень':'Top tier'))+'</div>')+
+        '<div class="pf-sec-h" style="margin-top:10px"><b>'+(ru?'Уровни по капиталу':'Tiers by capital')+'</b></div><div class="mc-ledger">'+ladder+'</div>';
+    }
     else return;
-    document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg></div><div class="nm"><b>'+title+'</b></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
-      '<div class="pf-selln" style="line-height:1.75;margin-top:8px">'+body+'</div>';
+    document.getElementById('pf-sheet').innerHTML=html;
     document.getElementById('pf-scrim').classList.add('open'); }
   return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
 })();
@@ -4684,7 +4711,7 @@ window.BANK = (function(){
       '<div style="margin-top:auto;font-size:11px;opacity:.6;position:relative;z-index:1">monet · TON · ∞</div></div>';
     return '<div class="mcard" id="mcard" onclick="BANK.flip()">'+front+back+'</div>'+
       '<div class="card-tap">'+t('cardTap')+'</div>'+
-      '<div class="card-actions"><button class="pri" onclick="BANK.shareCard()">'+t('pfShare')+'</button><button class="gho" onclick="BANK.closeCard()">✕</button></div>'; }
+      '<div class="card-actions"><button class="pri" onclick="BANK.closeCard()">'+(S.lang==='ru'?'Закрыть':'Close')+'</button></div>'; }
   function openCard(){ document.getElementById('card-wrap').innerHTML=cardHTML(); document.getElementById('card-scrim').classList.add('open'); }
   function closeCard(){ document.getElementById('card-scrim').classList.remove('open'); }
   function flip(){ const c=document.getElementById('mcard'); if(c) c.classList.toggle('flipped'); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} }
@@ -4983,7 +5010,6 @@ window.HOME=(function(){
     '<button onclick="HOME.go(\'evaluate\')"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M3.5 12.5 11 5a2 2 0 0 1 1.4-.6h4.6a2 2 0 0 1 2 2v4.6a2 2 0 0 1-.6 1.4l-7.5 7.5a2 2 0 0 1-2.8 0l-4.6-4.6a2 2 0 0 1 0-2.8Z"/><circle cx="15.5" cy="8.5" r="1.4"/></svg></span><b>'+t('hQEval')+'</b></button>'+
     '<button onclick="HOME.addToPf()"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><b>'+t('hQAdd')+'</b></button>'+
     '<button onclick="HOME.go(\'market\')"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M9 20V5M14 20v-7M19 20V8"/></svg></span><b>'+t('hQMarket')+'</b></button>'+
-    '<button onclick="HOME.shareCap()"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M4 12v8h16v-8M16 6l-4-4-4 4M12 2v13"/></svg></span><b>'+t('hQShare')+'</b></button>'+
   '</div>'; }
   function pulse(){ const g=gidx(),mv=movers(); return '<div class="home-sec"><b>'+t('hPulse')+'</b><a onclick="HOME.go(\'market\')">'+t('hAll')+' →</a></div>'+
     '<div class="mgi" style="cursor:pointer" onclick="HOME.go(\'market\')"><div class="mgi-lab">'+t('mgiTitle')+'</div><div class="mgi-row"><div class="mgi-val">'+compact(g.cap)+' <span class="u">TON</span></div><div class="mgi-d" style="font-size:14px;font-weight:800;color:'+(g.ch24>=0?'var(--up)':'var(--down)')+'">'+pct(g.ch24)+' · 24'+t('mgiH')+'</div></div></div>'+
