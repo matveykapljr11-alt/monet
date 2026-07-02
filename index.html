@@ -58,16 +58,16 @@
   color-scheme:light;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;background:#E7EDE3!important;touch-action:pan-x pan-y;-ms-touch-action:pan-x pan-y}
+html,body{margin:0;padding:0;background:#E7EDE3!important;touch-action:manipulation;-ms-touch-action:manipulation}
 body{
   font-family:var(--font-b); color:var(--txt);
   min-height:100vh; min-height:100dvh; overflow-x:hidden;
   -webkit-font-smoothing:antialiased; line-height:1.45;
   transition:background .5s ease,color .35s ease;
   padding-bottom:env(safe-area-inset-bottom);
-  overscroll-behavior:none;   /* no rubber-band drag of the mini-app */
+  
 }
-html{overflow-x:hidden}
+html{overflow-x:hidden;overscroll-behavior-y:none}
 body::before{
   content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
   background:
@@ -1508,7 +1508,6 @@ header{border-bottom:0;background:none}
   document.addEventListener('gesturestart',function(e){e.preventDefault();},P);
   document.addEventListener('gesturechange',function(e){e.preventDefault();},P);
   document.addEventListener('gestureend',function(e){e.preventDefault();},P);
-  document.addEventListener('touchmove',function(e){ if(e.touches&&e.touches.length>1) e.preventDefault(); },P);
   document.addEventListener('dblclick',function(e){e.preventDefault();},P);
 }catch(e){}})();</script>
 <div class="wrap">
@@ -3128,8 +3127,8 @@ function applyGiftCross(r, d, hasTrait){
   const box=document.getElementById('xmkt');
   if(box && d.slug){
     const ru=S.lang==='ru';
-    const link=refLink('https://fragment.com/gifts/'+d.slug+'?filter=sale&sort=price_asc');
-    box.innerHTML='<a href="'+link+'" target="_blank" rel="noopener" style="position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.95);background:rgba(255,255,255,.14);padding:8px 14px;border-radius:999px;text-decoration:none">'+
+    const link=refLink('https://fragment.com/gifts/'+encodeURIComponent(String(d.slug))+'?filter=sale&sort=price_asc');
+    box.innerHTML='<a href="'+escapeHTML(link)+'" target="_blank" rel="noopener" style="position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.95);background:rgba(255,255,255,.14);padding:8px 14px;border-radius:999px;text-decoration:none">'+
       '<span style="width:6px;height:6px;border-radius:50%;background:#9be9c4;display:inline-block"></span>'+(ru?'Купить на рынке ↗':'Buy on market ↗')+'</a>';
   }
   syncFavButton();
@@ -4276,7 +4275,7 @@ window.MK = (function(){
       return '<div class="lot">'+
         '<div class="lot-l"><div class="lot-pr">'+fmtPrice(it.price)+(i===0?' <span class="lot-flag">'+t('lotCheapest')+'</span>':'')+'</div>'+
           (sub?'<div class="lot-sub">'+esc(sub)+'</div>':'')+'</div>'+
-        (it.link?'<a class="lot-buy" href="'+refLink(it.link)+'" target="_blank" rel="noopener">'+t('lotsBuy')+' ↗</a>':'')+
+        (it.link&&/^https:\/\//i.test(it.link)?'<a class="lot-buy" href="'+esc(refLink(it.link))+'" target="_blank" rel="noopener">'+t('lotsBuy')+' ↗</a>':'')+
       '</div>';
     }).join('');
     return '<div class="lots-h">'+t('lotsTitle')+' <span class="comps-live"><span class="flr-dot" style="background:var(--up)"></span>live</span></div><div class="lots-list">'+rows+'</div>';
@@ -5073,6 +5072,7 @@ function initTelegram(){
   if(!tg) return;
   try{
     tg.ready(); tg.expand();
+    try{ if(tg.onEvent) tg.onEvent('viewportChanged',function(){ try{ if(!tg.isExpanded) tg.expand(); }catch(e){} }); }catch(e){}
     try{ if(tg.disableVerticalSwipes) tg.disableVerticalSwipes(); }catch(e){}   /* stop the app from being dragged/shifted */
     try{ if(tg.isVerticalSwipesEnabled!==undefined) tg.isVerticalSwipesEnabled=false; }catch(e){}
     try{ applyTheme(); }catch(e){}
