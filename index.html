@@ -2933,7 +2933,9 @@ function valueFor(cat, prefix){
     selFloor(prefix+'rback'), selFloor(prefix+'rpat'), selFloor(prefix+'rmodel'),
     selSup(prefix+'rback'), selSup(prefix+'rpat'), selSup(prefix+'rmodel'));
 }
-function fmtTON(n){ n=Math.round(n); return n>=1000?n.toLocaleString('en-US'):String(n); }
+function fmtTON(n){ n=+n||0;
+  if(n>0 && n<15){ return n.toFixed(2).replace(/\.?0+$/,''); }   // cheap assets: up to 2 decimals (1.12), trailing zeros trimmed
+  n=Math.round(n); return n>=1000?n.toLocaleString('en-US'):String(n); }
 function fmtFiat(ton){ const v=Math.round(ton*fxOf(S.currency)); return symOf(S.currency)+v.toLocaleString('en-US'); }
 function fmtStars(ton){ const n=Math.round(ton*STARS_PER_TON); return n.toLocaleString('en-US').replace(/,/g,' '); }
 
