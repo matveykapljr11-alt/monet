@@ -1012,7 +1012,7 @@ header{border-bottom:0;background:none}
 .mgi-val .u{font-size:.4em;font-weight:700;color:var(--txt-3);font-family:var(--font-b);margin-left:2px}
 .mgi-spark .mk-spark{width:120px;height:42px}
 .mgi-chart{margin:11px -2px 7px;height:118px;overflow:hidden}
-.mgi-chart svg{height:118px}
+.mgi-chart svg{height:118px!important;width:100%}
 .mgi-range{margin:0 0 2px}
 .mgi-sub{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
 .mgi-d{font-weight:800;font-size:13px}
@@ -1153,6 +1153,8 @@ header{border-bottom:0;background:none}
   body[data-view="game"] .wrap{ max-width:680px; margin-left:max(332px, calc((100% - 680px)/2)); margin-right:24px }
   body[data-view="evaluate"] .wrap{ max-width:860px; margin-left:max(332px, calc((100% - 860px)/2)) }
   body[data-view="market"] .wrap{ max-width:1200px; margin-left:max(332px, calc((100% - 1200px)/2 + 150px)); margin-right:28px }
+  .mgi-chart{ height:170px }
+  .mgi-chart svg{ height:170px!important }
 
   .mk-scrim{ align-items:center }
   .mk-sheet{ max-width:600px; border-radius:26px }
