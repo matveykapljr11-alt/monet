@@ -347,11 +347,9 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .g-mode{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:20px;padding:15px;cursor:pointer;box-shadow:var(--shadow);transition:transform .14s,box-shadow .2s;font-family:var(--font-b)}
 .g-mode:active{transform:scale(.98)}
 .g-mode-ic{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font-size:25px;flex:none}
-.g-mode-ic.fun{background:linear-gradient(135deg,#DFE7D2,#C8D8C2)}
+.g-mode-ic.fun{background:linear-gradient(135deg,#2E6B54,#163A2C)}
 .g-mode-ic.chal{background:linear-gradient(135deg,#2E6B54,#163A2C)}
-.g-mode-ic .mi{width:23px;height:23px}
-.g-mode-ic.fun .mi{color:#1B4D38}
-.g-mode-ic.chal .mi{color:#EAF4EE}
+.g-mode-ic .mi{width:23px;height:23px;color:#EAF4EE}
 .g-hero-ic .mi{width:30px;height:30px;color:#EAF4EE}
 .g-mode-tx{flex:1;min-width:0}
 .g-mode-tx h3{font-family:var(--font-d);font-weight:700;font-size:16px;margin:0 0 2px}
@@ -599,8 +597,9 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .hbell-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#E8786C;color:#fff;font-size:11px;font-weight:800;display:none;align-items:center;justify-content:center;line-height:18px}
 .hbell-badge.on{display:flex}
 .al-add{margin:14px 0 6px}
-.al-row2{display:flex;gap:9px;margin-top:9px}
-.al-row2 .big{flex:1}
+.al-row2{display:flex;gap:9px;margin-top:9px;align-items:stretch}
+.al-row2 .big{flex:1 1 auto;min-width:0}
+.al-row2 .btn{flex:0 0 auto;width:auto;padding:16px 26px}
 .al-hint{font-size:12px;color:var(--txt-3);margin-top:9px}
 .al-list{margin-top:8px;display:flex;flex-direction:column;gap:9px}
 .al-item{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:11px 13px}
@@ -2634,11 +2633,11 @@ function tierOf(priceTON){
    CATEGORIES & INPUT RENDERING
 ======================================================================== */
 const CATS=[
+  {id:'gifts', svg:'<svg class="cico" viewBox="0 0 24 24"><rect x="4" y="9.5" width="16" height="10.5" rx="1.5"/><path d="M4 13.5h16M12 9.5V20"/><path d="M12 9.5C11 6 9.5 4.5 8 5.3 6.6 6 7.8 9.5 12 9.5zM12 9.5C13 6 14.5 4.5 16 5.3 17.4 6 16.2 9.5 12 9.5z"/></svg>', k:'catGifts'},
   {id:'username', svg:'<svg class="cico" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M5 20c0-3.9 3.1-6 7-6s7 2.1 7 6"/></svg>', k:'catUsername'},
-  {id:'numbers', svg:'<svg class="cico" viewBox="0 0 24 24"><path d="M6.5 4h3l1.4 4-2 1.5a11 11 0 0 0 5 5l1.5-2 4 1.4v3a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 4.5 6.2 2 2 0 0 1 6.5 4z"/></svg>', k:'catNumbers'},
-  {id:'gifts', svg:'<svg class="cico" viewBox="0 0 24 24"><rect x="4" y="9.5" width="16" height="10.5" rx="1.5"/><path d="M4 13.5h16M12 9.5V20"/><path d="M12 9.5C11 6 9.5 4.5 8 5.3 6.6 6 7.8 9.5 12 9.5zM12 9.5C13 6 14.5 4.5 16 5.3 17.4 6 16.2 9.5 12 9.5z"/></svg>', k:'catGifts'}
+  {id:'numbers', svg:'<svg class="cico" viewBox="0 0 24 24"><path d="M6.5 4h3l1.4 4-2 1.5a11 11 0 0 0 5 5l1.5-2 4 1.4v3a2 2 0 0 1-2.2 2A15.5 15.5 0 0 1 4.5 6.2 2 2 0 0 1 6.5 4z"/></svg>', k:'catNumbers'}
 ];
-let curCat='username', curView='home', _giftCatDirty=false;
+let curCat='gifts', curView='home', _giftCatDirty=false;
 
 function renderCatTabs(containerId, current, onpick){
   const el=document.getElementById(containerId); if(!el) return; el.innerHTML='';
@@ -3178,7 +3177,7 @@ function marketBridgeHTML(r){
         '<div class="mb-cell"><span class="k">'+t('br7d')+'</span><span class="v" style="color:'+(b.ch7>=0?'var(--up)':'var(--down)')+'">'+d7+'</span></div>'+
       '</div>'+
       lastSoldRow(b.floor, b.ch24, b.lastSale)+
-      '<button class="mb-btn" onclick="openInMarket('+JSON.stringify(name)+')">'+t('brOpen')+' →</button>'+
+      '<button class="mb-btn" onclick="openInMarket('+jattr(name)+')">'+t('brOpen')+' →</button>'+
     '</div>';
   }
   if(r.cat==='numbers' && typeof NUMBERS_FLOOR!=='undefined' && NUMBERS_FLOOR>0){
@@ -3316,7 +3315,7 @@ function guidanceInner(r){
   let foot='';
   if(!gated){
     foot = pro
-      ? '<button class="g-alert" onclick="ALERTS.quickAt('+JSON.stringify(r.display)+',\''+r.cat+'\','+g.buyUnder+')"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+(isGift?t('gAlertBtn'):t('gAlertPrice'))+'</button>'
+      ? '<button class="g-alert" onclick="ALERTS.quickAt('+jattr(r.display)+',\''+r.cat+'\','+g.buyUnder+')"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+(isGift?t('gAlertBtn'):t('gAlertPrice'))+'</button>'
       : '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button>';
   } else if(isGift && floorsStale){
     foot = '<button class="g-alert" onclick="refreshFloorsAndGuide()"><svg class="mi" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v6h-6"/></svg> '+t('gRefresh')+'</button>';
@@ -3540,7 +3539,7 @@ function addHistory(r){
 /* ========================================================================
    COMPARE
 ======================================================================== */
-let curCatCmp='username';
+let curCatCmp='gifts';
 /* compare: gifts share ONE catalogue with two slots (A/B) */
 let cmpSel={A:null,B:null}, cmpActive='A';
 function cmpSlotHTML(k){ const c=cmpSel[k]?giftColById(cmpSel[k]):null; const on=cmpActive===k;
@@ -4078,6 +4077,8 @@ function applyTheme(){ S.theme='dark';
 }
 function setTheme(v){ S.theme=v; S.themeSet=true; applyTheme(); save(); if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} }
 function escapeHTML(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// JSON for inline HTML attributes: escapes the double-quotes so onclick="f('+jattr(x)+')" doesn't break the attribute
+function jattr(v){ return JSON.stringify(v).replace(/"/g,'&quot;'); }
 let toastTimer;
 function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2400); }
 
@@ -4311,11 +4312,11 @@ window.MK = (function(){
       '<div class="mk-kv">'+rows+'</div>'+
       (a.cat==='gifts'?'<div class="mk-lots" id="mk-lots"></div>':'')+
       (heldQty(a.name)?'<div class="mk-held-line">'+t('mkHeld')+': '+heldQty(a.name)+' '+t('mkPcs')+'</div>':'')+
-      '<button class="btn" style="margin-bottom:9px" onclick="PF.addAsset({cat:\''+a.cat+'\',display:'+JSON.stringify(a.name)+',priceTON:'+Math.round(a.price)+',qty:1}); MK.closeSheet();"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> '+(heldQty(a.name)?t('mkAddMore'):t('pfAddBtn'))+'</button>'+
-      '<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet(); ALERTS.quick('+JSON.stringify(a.name)+',\''+a.cat+'\','+Math.round(a.price)+');"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+t('alSetShort')+'</button>'+
-      '<button class="btn ghost" style="margin-bottom:9px" onclick="toggleWatch('+JSON.stringify(a.name)+'); MK.openSheet('+JSON.stringify(a.id)+');">'+(wlHas(a.name)?'★ '+t('wlOn'):'☆ '+t('wlAdd'))+'</button>'+
-      (a.cat==='gifts'&&COLLECTIONS.gifts.some(c=>c.n===a.name)?'<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet();evaluateGiftByName('+JSON.stringify(a.name)+')"><svg class="mi" viewBox="0 0 24 24"><path d="M4 16.5 16.5 4l3.5 3.5L7.5 20z"/><path d="M8.5 8l1.5 1.5M11.5 5l1.5 1.5M5.5 11l1.5 1.5"/></svg> '+t('brEvaluate')+'</button>':'')+
-      (a.cat==='gifts'&&typeof VF!=='undefined'&&VF.has(a.name)?'<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet();VF.open('+JSON.stringify(a.name)+')"><svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> '+t('vfOpen')+'</button>':'')+
+      '<button class="btn" style="margin-bottom:9px" onclick="PF.addAsset({cat:\''+a.cat+'\',display:'+jattr(a.name)+',priceTON:'+Math.round(a.price)+',qty:1}); MK.closeSheet();"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> '+(heldQty(a.name)?t('mkAddMore'):t('pfAddBtn'))+'</button>'+
+      '<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet(); ALERTS.quick('+jattr(a.name)+',\''+a.cat+'\','+Math.round(a.price)+');"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+t('alSetShort')+'</button>'+
+      '<button class="btn ghost" style="margin-bottom:9px" onclick="toggleWatch('+jattr(a.name)+'); MK.openSheet('+jattr(a.id)+');">'+(wlHas(a.name)?'★ '+t('wlOn'):'☆ '+t('wlAdd'))+'</button>'+
+      (a.cat==='gifts'&&COLLECTIONS.gifts.some(c=>c.n===a.name)?'<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet();evaluateGiftByName('+jattr(a.name)+')"><svg class="mi" viewBox="0 0 24 24"><path d="M4 16.5 16.5 4l3.5 3.5L7.5 20z"/><path d="M8.5 8l1.5 1.5M11.5 5l1.5 1.5M5.5 11l1.5 1.5"/></svg> '+t('brEvaluate')+'</button>':'')+
+      (a.cat==='gifts'&&typeof VF!=='undefined'&&VF.has(a.name)?'<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet();VF.open('+jattr(a.name)+')"><svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> '+t('vfOpen')+'</button>':'')+
       '<div class="mk-mkt">'+links+'</div>';
     if(a.cat==='gifts') loadLots(a.name); }
 
@@ -4709,7 +4710,7 @@ window.PF = (function(){
     const HI='<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg>';
     const head=(ti)=>'<div class="mk-sheet-h"><div class="ic">'+HI+'</div><div class="nm"><b>'+ti+'</b></div><button class="x" onclick="PF.closeAdd()">✕</button></div>';
     const sc=(k,v,c,s)=>'<div class="pf-bcard"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div>'+(s?'<div class="s" style="color:'+(c||'var(--txt-3)')+'">'+s+'</div>':'')+'</div>';
-    const dim=(x)=>'<div class="hint dim" style="margin:12px 2px 4px;line-height:1.6">'+x+'</div>';
+    const dim=(x)=>'<div style="font-size:12.5px;line-height:1.65;color:var(--txt-3);margin:12px 2px 8px;text-align:left">'+x+'</div>';
     let html='';
     if(kind==='unreal'){
       const list=S.portfolio||[]; let cost=0,val=0;
@@ -4960,7 +4961,7 @@ window.VF = (function(){
     return '<div class="trait-l" style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--txt-3);margin:12px 2px 7px">'+lbl+'</div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:6px">'+arr.map(tr=>{ const on=sel[kind]===tr[0];
         const sw=(kind==='b'&&tr[2])?'<span style="width:10px;height:10px;border-radius:3px;background:'+tr[2]+';display:inline-block;margin-right:6px;vertical-align:-1px"></span>':'';
-        return '<button class="rchip'+(on?' on':'')+'" onclick="VF.pick('+JSON.stringify(kind)+','+JSON.stringify(tr[0])+')">'+sw+esc(tr[0])+' <span style="opacity:.7;font-size:10.5px">'+tr[1]+'%</span></button>'; }).join('')+'</div>'; }
+        return '<button class="rchip'+(on?' on':'')+'" onclick="VF.pick('+jattr(kind)+','+jattr(tr[0])+')">'+sw+esc(tr[0])+' <span style="opacity:.7;font-size:10.5px">'+tr[1]+'%</span></button>'; }).join('')+'</div>'; }
   function open(name){ if(!TRAITS[name]) return; cur=name; sel={m:null,b:null,s:null}; render(); document.getElementById('vf-scrim').classList.add('open');
     if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} }
   function close(){ document.getElementById('vf-scrim').classList.remove('open'); }
@@ -5155,9 +5156,11 @@ window.HOME=(function(){
     const vcol = g.ch24>1.5?'var(--up)': g.ch24<-1.5?'var(--down)':'var(--txt-2)';
     const verdLine='<div class="g-verdict"><span class="gv-l" style="color:'+vcol+'">'+verdict+'</span><span class="gv-r" style="color:'+vcol+'">'+pct(g.ch24)+' · '+mv.nUp+'↑ '+mv.nDown+'↓</span></div>';
     let body='';
-    if(uv.length) body+='<div class="g-mini-h">'+t('hGuideDip')+'</div>'+uv.map(uvRow).join('');
-    else if(mv.dips.length) body+='<div class="g-mini-h">'+t('hGuideDip')+'</div>'+mv.dips.map(gRow2).join('');
-    if(mv.ups.length) body+='<div class="g-mini-h">'+t('hGuideUp')+'</div>'+mv.ups.map(gRow2).join('');
+    const dipNames=new Set(); // an asset shown as "entry/dip" must not also appear under "momentum"
+    if(uv.length){ uv.forEach(o=>dipNames.add(o.x.name)); body+='<div class="g-mini-h">'+t('hGuideDip')+'</div>'+uv.map(uvRow).join(''); }
+    else if(mv.dips.length){ mv.dips.forEach(x=>dipNames.add(x.name)); body+='<div class="g-mini-h">'+t('hGuideDip')+'</div>'+mv.dips.map(gRow2).join(''); }
+    const ups=mv.ups.filter(x=>!dipNames.has(x.name));
+    if(ups.length) body+='<div class="g-mini-h">'+t('hGuideUp')+'</div>'+ups.map(gRow2).join('');
     return head+'<div class="guide-card" style="margin-top:0">'+verdLine+body+'</div>'; }
   function digestPeriod(){ const h=new Date().getHours();
     if(h>=5&&h<12) return {k:'morning', sun:true, ru:'Утренняя сводка', en:'Morning digest'};
