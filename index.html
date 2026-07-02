@@ -1152,6 +1152,7 @@ header{border-bottom:0;background:none}
   body[data-view="converter"] .wrap,
   body[data-view="game"] .wrap{ max-width:680px; margin-left:max(332px, calc((100% - 680px)/2)); margin-right:24px }
   body[data-view="evaluate"] .wrap{ max-width:860px; margin-left:max(332px, calc((100% - 860px)/2)) }
+  body[data-view="market"] .wrap{ max-width:1200px; margin-left:max(332px, calc((100% - 1200px)/2 + 150px)); margin-right:28px }
 
   .mk-scrim{ align-items:center }
   .mk-sheet{ max-width:600px; border-radius:26px }
@@ -1173,7 +1174,8 @@ header{border-bottom:0;background:none}
 /* very wide screens: a bit more width + market/portfolio breathing room */
 @media (min-width:1320px){
   .wrap{ max-width:1140px }
-  #view-market, #view-portfolio{ max-width:1000px; margin-left:auto; margin-right:auto }
+  #view-market{ max-width:1120px; margin-left:auto; margin-right:auto }
+  #view-portfolio{ max-width:1000px; margin-left:auto; margin-right:auto }
 }
 /* confidence pill in the result */
 .conf-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-b);font-weight:700;font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid currentColor}
