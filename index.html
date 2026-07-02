@@ -1159,7 +1159,11 @@ header{border-bottom:0;background:none}
   /* breathing room */
   .hero-card{ aspect-ratio:2.8/1; min-height:175px }
   /* catalogue scrolls inside its own bounded section so "Оценить" stays in view */
-  .gift-grid{ grid-template-columns:repeat(4,1fr); max-height:none; overflow:visible }
+  .gift-grid{ grid-template-columns:repeat(4,minmax(0,1fr)); max-height:min(48vh,520px); overflow-y:auto;
+    border:1px solid var(--line); border-radius:18px; padding:10px; background:var(--bg2);
+    scrollbar-width:thin; scrollbar-color:var(--line-2) transparent; overscroll-behavior:contain }
+  .gift-grid::-webkit-scrollbar{width:6px;height:6px;background:transparent}
+  .gift-grid::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:999px}
   .pf-bankrow{ grid-template-columns:repeat(2,1fr) }
 
   /* pointer affordances */
@@ -1203,7 +1207,7 @@ header{border-bottom:0;background:none}
   body[data-view="evaluate"] .wrap{ max-width:1160px; margin-left:max(332px, calc((100% - 1160px)/2)); margin-right:24px }
   #view-evaluate .hero-card{ max-width:600px }
   #eval-single{ display:grid; grid-template-columns:minmax(0,600px) minmax(0,1fr); gap:24px; align-items:stretch }
-  #eval-single .gift-grid{ grid-template-columns:repeat(5,1fr) }
+  #eval-single .gift-grid{ grid-template-columns:repeat(5,minmax(0,1fr)) }
   #eval-single .cats{ grid-column:1 / -1 }
   #eval-single .panel{ align-self:stretch }
   #eval-single #result{ margin-top:0; display:flex; flex-direction:column }
