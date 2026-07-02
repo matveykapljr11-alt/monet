@@ -1111,11 +1111,11 @@ header{border-bottom:0;background:none}
   .drawer{
     position:fixed; left:0; top:0; bottom:0; transform:none; width:300px; max-width:none;
     border-radius:0; border-left:0; border-right:1px solid var(--line); box-shadow:none;
-    background:rgba(239,244,233,.97); overflow:hidden;
+    background:rgba(239,244,233,.97); overflow-y:auto; overscroll-behavior:contain;
   }
   .drawer-head{ display:none }
   .dr-deskhide{ display:none }            /* Карта/Конвертер/Игра live in dr-nav now */
-  .dlist{ flex:1; min-height:0; overflow-y:auto }   /* only the lists scroll; controls stay put */
+  .dlist{ flex:1 }   /* whole sidebar scrolls */
 
   /* navigation block at the top of the sidebar */
   .dr-nav{ display:flex; flex-direction:column; gap:4px; margin-bottom:18px }
