@@ -1109,7 +1109,7 @@ header{border-bottom:0;background:none}
   .tabbar{ display:none }
   .scrim{ display:none }
   .drawer{
-    position:fixed; left:0; top:0; bottom:0; transform:none; width:300px; max-width:none;
+    position:fixed; left:0; top:0; bottom:0; transform:none; width:350px; max-width:none;
     border-radius:0; border-left:0; border-right:1px solid var(--line); box-shadow:none;
     background:rgba(239,244,233,.97); overflow-y:auto; overscroll-behavior:contain;
   }
@@ -1142,7 +1142,7 @@ header{border-bottom:0;background:none}
 
   /* content: wide dashboard card to the right of the sidebar */
   .wrap{
-    max-width:1040px; margin:24px 28px 36px 332px; padding:26px 32px 42px;
+    max-width:1040px; margin:24px 28px 36px 382px; padding:26px 32px 42px;
     background:var(--surface); border:1px solid var(--line); border-radius:30px;
     box-shadow:0 50px 110px -55px rgba(20,45,30,.5), 0 10px 30px -20px rgba(20,45,30,.22);
     min-height:calc(100dvh - 60px);
@@ -1150,11 +1150,11 @@ header{border-bottom:0;background:none}
   /* card hugs the content per view: forms narrow & centered, data views wide */
   body[data-view="evaluate"] .wrap,
   body[data-view="converter"] .wrap,
-  body[data-view="game"] .wrap{ max-width:680px; margin-left:max(332px, calc((100% - 680px)/2)); margin-right:24px }
-  body[data-view="evaluate"] .wrap{ max-width:860px; margin-left:max(332px, calc((100% - 860px)/2)) }
+  body[data-view="game"] .wrap{ max-width:680px; margin-left:max(382px, calc((100% - 680px)/2)); margin-right:24px }
+  body[data-view="evaluate"] .wrap{ max-width:860px; margin-left:max(382px, calc((100% - 860px)/2)) }
   body[data-view="market"] .wrap,
   body[data-view="portfolio"] .wrap,
-  body[data-view="home"] .wrap{ max-width:1200px; margin-left:max(332px, calc((100% - 1200px)/2 + 150px)); margin-right:28px }
+  body[data-view="home"] .wrap{ max-width:1200px; margin-left:max(382px, calc((100% - 1200px)/2 + 175px)); margin-right:28px }
   .mgi-chart{ height:170px }
   .mgi-chart svg{ height:170px!important }
 
@@ -1210,7 +1210,7 @@ header{border-bottom:0;background:none}
 .cs-v{font-family:var(--font-d);font-weight:700;font-size:15.5px;color:var(--txt)}
 .evp-pulse{margin-top:2px;font-family:var(--font-m);font-size:11.5px;font-weight:700;color:var(--txt-3)}
 @media (min-width:1340px){
-  body[data-view="evaluate"] .wrap{ max-width:1160px; margin-left:max(332px, calc((100% - 1160px)/2)); margin-right:24px }
+  body[data-view="evaluate"] .wrap{ max-width:1160px; margin-left:max(382px, calc((100% - 1160px)/2)); margin-right:24px }
   #view-evaluate .hero-card{ max-width:none; aspect-ratio:auto; min-height:200px }
   #eval-single{ display:grid; grid-template-columns:minmax(0,600px) minmax(0,1fr); gap:24px; align-items:stretch }
   #eval-single .gift-grid{ grid-template-columns:repeat(5,minmax(0,1fr)) }
