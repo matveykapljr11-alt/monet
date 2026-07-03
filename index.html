@@ -1151,6 +1151,7 @@ header{border-bottom:0;background:none}
   body[data-view="evaluate"] .wrap,
   body[data-view="converter"] .wrap,
   body[data-view="game"] .wrap{ max-width:680px; margin-left:max(382px, calc((100% - 680px)/2)); margin-right:24px }
+  body[data-view="admin"] .wrap,
   body[data-view="evaluate"] .wrap,
   body[data-view="market"] .wrap,
   body[data-view="portfolio"] .wrap,
@@ -1609,6 +1610,7 @@ header{border-bottom:0;background:none}
   <section id="view-portfolio" class="hidden"></section>
 
   <section id="view-converter" class="hidden"></section>
+  <section id="view-admin" class="hidden"><div id="adminBody"></div></section>
 
   <div class="disclaimer" id="globalDisclaimer"><svg class="di-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg><p data-i18n="footer"></p></div>
 </div>
@@ -1718,6 +1720,7 @@ header{border-bottom:0;background:none}
       <button class="drnav-item" data-view="portfolio" onclick="setView('portfolio')"><svg viewBox="0 0 24 24"><path d="M3 7h18v12H3zM3 7l2.5-3h13L21 7M8 12h8"/></svg><span data-i18n="navPortfolio"></span></button>
       <button class="drnav-item" data-view="converter" onclick="setView('converter')"><svg viewBox="0 0 24 24"><path d="M7 4v15M7 19l-3-3.5M7 19l3-3.5M17 20V5M17 5l-3 3.5M17 5l3 3.5"/></svg><span data-i18n="conv"></span></button>
       <button class="drnav-item" data-view="game" onclick="setView('game')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.2"/></svg><span data-i18n="navGame"></span></button>
+      <button class="drnav-item" data-view="admin" id="navAdmin" style="display:none" onclick="setView('admin')"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M12 11v3M12 8h.01"/></svg><span>Админ</span></button>
       <button class="drnav-item" onclick="BANK.openCard()"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18M7 14.5h3"/></svg><span data-i18n="myCard"></span></button>
     </nav>
     <div class="dr-profile" id="drProfile" onclick="closeDrawer();BANK.openCard()"></div>
@@ -1748,6 +1751,7 @@ header{border-bottom:0;background:none}
     <div class="dr-grid">
       <button class="dr-tile" onclick="closeDrawer();LOCK.menu()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b data-i18n="lkTitle"></b></button>
       <button class="dr-tile" onclick="closeDrawer();ONB.open()"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2zM8 9h7M8 13h5"/></svg></span><b data-i18n="stOnboard"></b></button>
+      <button class="dr-tile" id="navAdminTile" style="display:none" onclick="closeDrawer();setView('admin')"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M12 11v3M12 8h.01"/></svg></span><b>Админ</b></button>
       <button class="dr-tile dr-danger" onclick="resetData()"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5h6v2M7 7l1 13h8l1-13"/></svg></span><b data-i18n="stReset"></b></button>
     </div>
     <div class="dr-sec" data-i18n="drLists"></div>
@@ -4005,7 +4009,7 @@ async function fetchEntitlement(){
 }
 function pollEntitlement(){ let n=0; const iv=setInterval(function(){ n++; fetchEntitlement(); if(n>=5) clearInterval(iv); }, 3000); }
 // lightweight funnel analytics (anonymous counts)
-function track(ev){ try{ const base=proxyURL(); if(!base) return; fetch(base.replace(/\/+$/,'')+'/?ev='+encodeURIComponent(ev),{method:'GET',keepalive:true,cache:'no-store'}).catch(function(){}); }catch(e){} }
+function track(ev){ try{ const base=proxyURL(); if(!base) return; const u=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{}; let q='/?ev='+encodeURIComponent(ev); if(u.id) q+='&u='+encodeURIComponent(u.id); if(u.username) q+='&n='+encodeURIComponent(u.username); fetch(base.replace(/\/+$/,'')+q,{method:'GET',keepalive:true,cache:'no-store'}).catch(function(){}); }catch(e){} }
 
 /* ========================================================================
    DAILY LIMIT (clean implementation)
@@ -4028,7 +4032,8 @@ function setView(v){
   try{ const dc=document.getElementById('globalDisclaimer'); if(dc) dc.style.display=(v==='evaluate')?'':'none'; }catch(e){}
   document.querySelectorAll('.tab[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
   document.querySelectorAll('.drnav-item[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
-  ['home','evaluate','market','portfolio','game','converter'].forEach(id=>document.getElementById('view-'+id).classList.toggle('hidden',id!==v));
+  ['home','evaluate','market','portfolio','game','converter','admin'].forEach(id=>{const el=document.getElementById('view-'+id); if(el) el.classList.toggle('hidden',id!==v);});
+  if(v==='admin' && window.ADMIN) ADMIN.render();
   if(v==='game' && !game) buildGameIntro();
   if(v==='converter' && window.BANK) window.BANK.renderConv();
   if(v==='market' && window.MK){ window.MK.init(); window.MK.render(); try{ refreshFloors(false); }catch(e){} }
@@ -5079,6 +5084,47 @@ window.ONB = (function(){
   function finish(){ S.onboarded=true; S.onbVer=14; save(); const el=document.getElementById('onb'); if(!el)return; el.style.opacity='0'; setTimeout(()=>{ el.style.display='none'; el.style.opacity=''; },350); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('medium');}catch(e){}} }
   return { open, next, goto, finish, openRealCard, startEval };
 })();
+window.ADMIN=(function(){
+  const ADMIN_USERNAMES=['kapluex'];
+  function isAdmin(){ try{ const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user; return !!(u&&u.username&&ADMIN_USERNAMES.indexOf(String(u.username).toLowerCase())>=0); }catch(e){ return false; } }
+  function init(){ if(!isAdmin()) return; const n=document.getElementById('navAdmin'); if(n) n.style.display=''; const t2=document.getElementById('navAdminTile'); if(t2) t2.style.display=''; }
+  function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function evName(e){ const ru=S.lang!=='en'; const M={open:ru?'открытие':'open',start_appraisal:ru?'начал оценку':'started appraisal',asset_evaluated:ru?'оценил актив':'evaluated',add_to_portfolio:ru?'добавил в портфель':'added to portfolio',share_card:ru?'поделился картой':'shared card',premium_click:ru?'кликнул Prime':'Prime click',invoice_started:ru?'начал оплату':'invoice started',invoice_paid:ru?'оплатил!':'PAID',buy_sell_seen:ru?'увидел вердикт':'saw verdict'}; return M[e]||e; }
+  function rel(ts){ const k=Date.now()-ts; if(k<60e3) return Math.max(1,Math.round(k/1e3))+'с'; if(k<3600e3) return Math.round(k/60e3)+'м'; if(k<86400e3) return Math.round(k/3600e3)+'ч'; return Math.round(k/86400e3)+'д'; }
+  function shell(inner){ return '<div style="max-width:1120px;margin:0 auto"><div style="display:flex;align-items:center;gap:10px;margin:4px 0 16px"><h2 style="font-family:var(--font-d);font-weight:700;font-size:24px;letter-spacing:-.6px;margin:0;flex:1">Админ · активность</h2><button class="dtabs-btn" style="border:1px solid var(--line);background:var(--surface-2);color:var(--txt);border-radius:12px;padding:9px 16px;font-family:var(--font-b);font-weight:800;font-size:12.5px;cursor:pointer" onclick="ADMIN.render()">Обновить</button></div>'+inner+'</div>'; }
+  function card(l,v,sub){ return '<div style="flex:1;min-width:130px;background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow)"><div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3)">'+l+'</div><div style="font-family:var(--font-d);font-weight:700;font-size:26px;margin-top:6px">'+v+'</div>'+(sub?'<div style="font-size:11.5px;color:var(--txt-3);font-weight:600;margin-top:3px">'+sub+'</div>':'')+'</div>'; }
+  function bars(days,key,color){ const mx=Math.max(1,...days.map(d=>d[key]||0));
+    return '<div style="display:flex;align-items:flex-end;gap:3px;height:90px;margin-top:10px">'+days.map(d=>'<div title="'+esc(d.d)+': '+(d[key]||0)+'" style="flex:1;min-width:4px;height:'+Math.max(3,Math.round((d[key]||0)/mx*88))+'px;background:'+color+';border-radius:4px 4px 0 0;opacity:'+((d[key]||0)?'1':'.25')+'"></div>').join('')+'</div>'; }
+  function chartCard(title,days,key,color){ const tot=days.reduce((a,d)=>a+(d[key]||0),0);
+    return '<div style="flex:1;min-width:260px;background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow)"><div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3)">'+title+' · 30д</div><div style="font-family:var(--font-d);font-weight:700;font-size:17px">'+tot+'</div></div>'+bars(days,key,color)+'</div>'; }
+  async function render(){ const host=document.getElementById('adminBody'); if(!host) return;
+    if(!isAdmin()){ host.innerHTML=shell('<div class="al-empty">Нет доступа</div>'); return; }
+    host.innerHTML=shell('<div class="al-empty">Загрузка…</div>');
+    const base=proxyURL();
+    if(!base){ host.innerHTML=shell('<div class="al-empty">Прокси не настроен</div>'); return; }
+    let data=null;
+    try{ const r=await fetch(base.replace(/\/+$/,'')+'/?admin',{method:'POST',body:(tg&&tg.initData)||'',cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); data=await r.json(); }
+    catch(e){ host.innerHTML=shell('<div class="al-empty">Не удалось получить данные ('+esc(e.message)+').<br>Проверь, что на воркере добавлен admin-endpoint.</div>'); return; }
+    const days=(data.days||[]); const today=days.length?days[days.length-1]:{}; const feed=(data.feed||[]);
+    const cards='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">'+
+      card('Всего юзеров', data.users_total||0,'за всё время')+
+      card('Сегодня · открытия', today.open||0,'')+
+      card('Сегодня · юзеры (DAU)', today.dau||0,'')+
+      card('Сегодня · оценки', today.asset_evaluated||0,'')+
+      card('Сегодня · в портфель', today.add_to_portfolio||0,'')+'</div>';
+    const charts='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">'+
+      chartCard('Открытия',days,'open','var(--ton)')+
+      chartCard('Юзеры (DAU)',days,'dau','#C8A24B')+
+      chartCard('Оценки',days,'asset_evaluated','#2E86DE')+'</div>';
+    const last=days.slice(-14).reverse();
+    const table='<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:6px 18px 10px;box-shadow:var(--shadow);margin-bottom:14px;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr>'+['День','Открытия','DAU','Оценки','Портфель','Шеры','Prime клики','Оплаты'].map(h=>'<th style="text-align:right;padding:10px 8px;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--txt-3)">'+h+'</th>').join('')+'</tr></thead><tbody>'+
+      last.map(d=>'<tr>'+[d.d,d.open||0,d.dau||0,d.asset_evaluated||0,d.add_to_portfolio||0,d.share_card||0,d.premium_click||0,d.invoice_paid||0].map((v,i)=>'<td style="text-align:right;padding:9px 8px;border-top:1px solid var(--line);font-weight:'+(i?'700':'600')+';font-family:'+(i?'var(--font-d)':'var(--font-b)')+'">'+v+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+    const feedH='<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:14px 18px;box-shadow:var(--shadow)"><div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:6px">Последние события</div>'+
+      (feed.length?feed.slice(0,100).map(f=>'<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13px"><span style="color:var(--txt-3);font-weight:700;min-width:34px">'+rel(f.ts)+'</span><span style="font-weight:700;min-width:120px">'+esc(f.n?'@'+f.n:(f.u?'id'+f.u:'аноним'))+'</span><span style="color:var(--txt-2)">'+esc(evName(f.ev))+'</span></div>').join(''):'<div class="al-empty">Пока пусто</div>')+'</div>';
+    host.innerHTML=shell(cards+charts+table+feedH);
+  }
+  return {init,render,isAdmin};
+})();
 function initTelegram(){
   if(!tg) return;
   try{
@@ -5335,6 +5381,8 @@ function init(){
   try{ const dv=S.defaultView; setView((dv==='evaluate'||dv==='market'||dv==='portfolio')?dv:'home'); }catch(e){ try{setView('home');}catch(_){} }
   try{ if(window.ALERTS){ ALERTS.check(); ALERTS.badge(); } }catch(e){}
   initTelegram();
+  try{ ADMIN.init(); }catch(e){}
+  try{ track('open'); }catch(e){}
   try{ fetchEntitlement(); }catch(e){}
   try{ track('app_open'); }catch(e){}
   try{ setTimeout(handleStartParam, 350); }catch(e){}   // #6: open shared report via deep link
