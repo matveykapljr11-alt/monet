@@ -1512,6 +1512,96 @@ header{border-bottom:0;background:none}
 [data-theme="dark"] .desk-only .tab.on,[data-theme="dark"] .mk-mkt a.primary{background:var(--fx-btn);color:#04130C}
 [data-theme="dark"] .modal{background:#0E1B15;border:1px solid var(--line-2)}
 [data-theme="dark"] ::placeholder{color:rgba(159,182,171,.55)}
+
+/* ============================================================
+   SKIN B v3 — «TERMINAL». Полный слом классика:
+   плоский чёрный холст, острые углы, нумерованная навигация,
+   моноширинные тех-детали, объект как дроп. Классик не затронут.
+   ============================================================ */
+[data-skin="b"]{ --font-d:'Hanken Grotesk',system-ui,sans-serif; --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,monospace; }
+[data-skin="b"][data-theme="dark"]{
+  --surface:#0A0B0A; --surface-2:#080908;
+  --bg:#050605; --bg2:#0E100E;
+  --line:#212621; --line-2:#333B33;
+  --txt:#F4F6F3; --txt-2:#9AA69C; --txt-3:#5C665D;
+  --ton:#39FF9C; --ton-soft:#6FFFBE; --gold:#EACB74; --gold-soft:#F3DFA6;
+  --glow:rgba(57,255,156,.05);
+  --up:#39FF9C; --down:#FF6A55; --good:#39FF9C; --warn:#EACB74;
+  --up-bg:rgba(57,255,156,.1); --down-bg:rgba(255,106,85,.1);
+  --shadow:none;
+}
+[data-skin="b"] body::before{opacity:.12}
+/* ---- СЛОМ №1: никакой «карты в карте» — плоский чёрный холст ---- */
+[data-skin="b"][data-theme="dark"] .wrap{background:transparent;border:0;box-shadow:none;border-radius:0}
+/* ---- СЛОМ №2: острые углы везде ---- */
+[data-skin="b"] .rcard,[data-skin="b"] .panel,[data-skin="b"] .mk-tcard,[data-skin="b"] .dr-card,[data-skin="b"] .mk-sheet,[data-skin="b"] .pf-alloc,[data-skin="b"] .pf-bcard,[data-skin="b"] .pf-goalcard,[data-skin="b"] .pf-rw,[data-skin="b"] .pf-ins,[data-skin="b"] .modal,[data-skin="b"] .hero-card,[data-skin="b"] .pf-hero,[data-skin="b"] .gift-grid,[data-skin="b"] .gift-tile,[data-skin="b"] .gift-tile .gt-art,[data-skin="b"] .g-row,[data-skin="b"] .mk-stat,[data-skin="b"] .mk-mover,[data-skin="b"] .pf-item,[data-skin="b"] .mc-ledger,[data-skin="b"] .ledger,[data-skin="b"] .eval-ph,[data-skin="b"] .verdict-card,[data-skin="b"] .dr-profile,[data-skin="b"] .dr-tile,[data-skin="b"] .comps,[data-skin="b"] .photo-card,[data-skin="b"] .g-timer,[data-skin="b"] .g-q,[data-skin="b"] .g-over-card,[data-skin="b"] .wz-rate-card{border-radius:0!important}
+[data-skin="b"] #evalBtn,[data-skin="b"] .tabs,[data-skin="b"] .tab,[data-skin="b"] .cat,[data-skin="b"] .subseg,[data-skin="b"] input,[data-skin="b"] select,[data-skin="b"] textarea,[data-skin="b"] .search-wrap,[data-skin="b"] .mk-search,[data-skin="b"] .drnav-item{border-radius:0!important}
+/* ---- поверхности: плоский чёрный + волосяные линии ---- */
+[data-skin="b"][data-theme="dark"] .mk-tcard,[data-skin="b"][data-theme="dark"] .mk-stat,[data-skin="b"][data-theme="dark"] .mk-mover,[data-skin="b"][data-theme="dark"] .panel,[data-skin="b"][data-theme="dark"] .rcard,[data-skin="b"][data-theme="dark"] .eval-ph,[data-skin="b"][data-theme="dark"] .mk-sheet,[data-skin="b"][data-theme="dark"] .pf-item,[data-skin="b"][data-theme="dark"] .pf-bcard,[data-skin="b"][data-theme="dark"] .pf-goalcard,[data-skin="b"][data-theme="dark"] .pf-rw,[data-skin="b"][data-theme="dark"] .pf-ins,[data-skin="b"][data-theme="dark"] .pf-alloc,[data-skin="b"][data-theme="dark"] .dr-card,[data-skin="b"][data-theme="dark"] .mc-ledger,[data-skin="b"][data-theme="dark"] .ledger,[data-skin="b"][data-theme="dark"] .verdict-card,[data-skin="b"][data-theme="dark"] .gift-grid{
+  background:#080908; border:1px solid var(--line); box-shadow:none;
+}
+[data-skin="b"][data-theme="dark"] .drawer{background:#040504;border-right:1px solid var(--line)}
+/* ---- СЛОМ №3: зелёная «кредитка» профиля и hero — чёрные постеры ---- */
+[data-skin="b"][data-theme="dark"] .dr-profile{background:#080908;border:1px solid var(--line-2);box-shadow:none}
+[data-skin="b"] .dr-profile::before{display:none}
+[data-skin="b"][data-theme="dark"] .hero-card,[data-skin="b"][data-theme="dark"] .pf-hero{background:#060706;border:1px solid var(--line-2);box-shadow:none;color:var(--txt)}
+[data-skin="b"] .hero-card::after,[data-skin="b"] .hero-sheen,[data-skin="b"] .hero-chip,[data-skin="b"] .hero-wifi{display:none}
+[data-skin="b"] .hero-rate{background:transparent;border:1px solid var(--line-2);box-shadow:none;font-family:var(--mono);letter-spacing:1px}
+/* ---- типографика: плакат ---- */
+[data-skin="b"] .brand-txt h1{font-weight:800;letter-spacing:1px;text-transform:uppercase}
+[data-skin="b"] .brand-txt p{font-family:var(--mono);text-transform:uppercase;letter-spacing:2.4px;font-size:8.5px;color:var(--ton)}
+[data-skin="b"] .logo{border-radius:0;box-shadow:0 0 0 1px var(--line-2)}
+[data-skin="b"] .hero-title{font-weight:800;letter-spacing:-1px;text-transform:uppercase;font-size:clamp(26px,7.4vw,42px);line-height:.96}
+[data-skin="b"][data-theme="dark"] .asset-disp .asset{font-weight:800;letter-spacing:-.5px;text-transform:uppercase}
+[data-skin="b"][data-theme="dark"] .asset-disp .price-ton{font-weight:800;font-size:clamp(54px,15vw,92px);letter-spacing:-4px}
+[data-skin="b"] .mgi-val{font-weight:800;letter-spacing:-1.4px}
+/* ---- СЛОМ №4: нумерованная навигация как у Devils ---- */
+[data-skin="b"] .dr-nav{counter-reset:skbnav}
+[data-skin="b"] .drnav-item{font-family:var(--mono);text-transform:uppercase;letter-spacing:1.6px;font-size:11.5px;font-weight:700}
+[data-skin="b"] .drnav-item::before{counter-increment:skbnav;content:"0" counter(skbnav);font-family:var(--mono);font-size:9px;color:var(--txt-3);letter-spacing:0;min-width:16px}
+[data-skin="b"] .drnav-item.on{background:var(--ton);color:#02110A}
+[data-skin="b"] .drnav-item.on::before{color:#02110A}
+[data-skin="b"] .drnav-item svg{display:none}
+/* ---- СЛОМ №5: плитки подарков — тёмные витрины, объект на полке ---- */
+[data-skin="b"][data-theme="dark"] .gift-tile{background:#0A0B0A;border:1px solid var(--line)}
+[data-skin="b"][data-theme="dark"] .gift-tile .gt-art{background:#111311!important;box-shadow:inset 0 0 0 1px var(--line)}
+[data-skin="b"][data-theme="dark"] .gift-tile.sel,[data-skin="b"][data-theme="dark"] .gift-tile[aria-pressed="true"]{border-color:var(--ton);box-shadow:0 0 0 1px var(--ton)}
+[data-skin="b"] .gift-tile .gt-f{font-family:var(--mono);color:var(--ton);font-size:10px;letter-spacing:.5px}
+[data-skin="b"] .gift-tile .gt-n{text-transform:uppercase;letter-spacing:.4px;font-size:10px}
+/* ---- тех-детали: моноширинный капс ---- */
+[data-skin="b"] .appr-eyebrow,[data-skin="b"][data-theme="dark"] .asset-disp .appr-eyebrow,[data-skin="b"] .mkt-eyebrow,[data-skin="b"] .gift-label,[data-skin="b"] .dr-sec,[data-skin="b"] .mgi-lab,[data-skin="b"] .cs-l,[data-skin="b"] .g-k,[data-skin="b"] .lots-h,[data-skin="b"] .mb-h,[data-skin="b"] .mc-rank{
+  font-family:var(--mono);font-style:normal!important;font-weight:700;text-transform:uppercase;letter-spacing:2.2px;font-size:10px}
+[data-skin="b"][data-theme="dark"] .asset-disp .appr-eyebrow{color:var(--gold)}
+[data-skin="b"] .mc-rank{color:var(--gold)}
+[data-skin="b"] .cert-foot,[data-skin="b"] .price-range,[data-skin="b"] .hero-sub,[data-skin="b"] .g-note,[data-skin="b"] .mc-sub,[data-skin="b"] .lot-sub,[data-skin="b"] .mgi-meta{font-family:var(--mono);letter-spacing:.4px}
+[data-skin="b"] .cert-foot{text-transform:uppercase;letter-spacing:1.8px;font-size:9px}
+[data-skin="b"] .skb-serial{font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:2.6px;color:var(--gold);margin-top:8px;text-transform:uppercase}
+[data-skin="b"] .wrap::after{content:"MONET\2122 \00B7 APPRAISAL TERMINAL \00B7 SIGNAL LIVE \00B7 55\00B0 45' N / 37\00B0 37' E";display:block;margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:9px;letter-spacing:2.6px;color:var(--txt-3);text-align:center;text-transform:uppercase}
+/* ---- витрина дропа ---- */
+[data-skin="b"][data-theme="dark"] .asset-disp{background:radial-gradient(140% 110% at 50% 0%, #0F2416 0%, #070807 60%);border-bottom:1px solid var(--gold);box-shadow:none}
+[data-skin="b"] .wax-seal{opacity:.4}
+/* ---- CTA: неоновая плита ---- */
+[data-skin="b"] #evalBtn:not([disabled]){
+  background:var(--ton,#39FF9C);color:#02110A;
+  text-transform:uppercase;letter-spacing:2px;font-weight:800;
+  box-shadow:0 0 0 1px #02110A, 0 14px 40px -12px rgba(57,255,156,.55);
+}
+[data-skin="b"] #evalBtn:not([disabled]):hover{background:var(--ton-soft,#6FFFBE)}
+[data-skin="b"] #evalBtn:not([disabled]):active{transform:scale(.985)}
+[data-skin="b"][data-theme="dark"] #evalBtn[disabled]{background:#101210;color:#5C665D}
+/* ---- сегменты/табы: терминальный капс ---- */
+[data-skin="b"] .tab,[data-skin="b"] .subseg button,[data-skin="b"] .cat b,[data-skin="b"] .dtabs button,[data-skin="b"] .mk-range button{font-family:var(--mono);text-transform:uppercase;letter-spacing:1.2px;font-size:10.5px;font-weight:700}
+[data-skin="b"][data-theme="dark"] .subseg.on,[data-skin="b"][data-theme="dark"] .pill.on{background:var(--ton)!important;color:#02110A!important}
+[data-skin="b"][data-theme="dark"] .tab.on,[data-skin="b"][data-theme="dark"] .desk-only .tab.on{background:var(--ton);color:#02110A}
+[data-skin="b"][data-theme="dark"] .mk-range button.on{background:var(--ton);color:#02110A}
+/* ---- движение ---- */
+[data-skin="b"] button,[data-skin="b"] .gift-tile,[data-skin="b"] .mc-item,[data-skin="b"] .pf-item,[data-skin="b"] .mk-mover,[data-skin="b"] .cat,[data-skin="b"] .tab,[data-skin="b"] .dr-tile,[data-skin="b"] .drnav-item{transition-duration:.15s}
+[data-skin="b"] .gift-tile:active,[data-skin="b"] .dr-tile:active,[data-skin="b"] .mk-mover:active,[data-skin="b"] .cat:active{transform:scale(.96)}
+/* ---- Buy Zone: единственная золотая вспышка ---- */
+[data-skin="b"] .g-row.g-buy{border:1px solid rgba(234,203,116,.6);border-left-width:3px;border-left-color:var(--gold);background:linear-gradient(90deg,rgba(234,203,116,.13),rgba(234,203,116,.02) 70%);animation:skbGold .8s ease-out 1}
+[data-skin="b"] .g-row.g-buy .g-v,[data-skin="b"] .g-row.g-buy .g-k{color:var(--gold)}
+@keyframes skbGold{0%{box-shadow:0 0 0 0 rgba(234,203,116,.55)}100%{box-shadow:0 0 26px -8px rgba(234,203,116,0)}}
+[data-skin="b"] .mgi-d,[data-skin="b"] .mc-price{font-weight:800}
 </style>
 </head>
 <body data-view="evaluate">
@@ -1747,6 +1837,7 @@ header{border-bottom:0;background:none}
       <div class="dr-item dr-row"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg></span><b data-i18n="stStars"></b><div class="lang-toggle" id="starsToggle"><button onclick="setStars(true)" data-i18n="stOn"></button><button onclick="setStars(false)" data-i18n="stOff"></button></div></div>
       <button class="dr-item" onclick="cycleDefaultView()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18"/></svg></span><b data-i18n="stDefault"></b><span class="set-cur" id="dvLbl"></span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <div class="dr-item dr-row"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M9.5 12.5l2 2 3.5-4"/></svg></span><b data-i18n="stExp"></b><div class="lang-toggle" id="expToggle"><button onclick="setExperimental(true)" data-i18n="stOn"></button><button onclick="setExperimental(false)" data-i18n="stOff"></button></div></div>
+      <div class="dr-item dr-row" style="display:none"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l2.2 5.4L20 9l-4.4 3.8L17 19l-5-3.2L7 19l1.4-6.2L4 9l5.8-.6z"/></svg></span><b data-i18n="stSkin"></b><div class="lang-toggle" id="skinToggle"><button onclick="setSkin('a')" data-i18n="skinA"></button><button onclick="setSkin('b')" data-i18n="skinB"></button></div></div>
     </div>
     <div class="dr-grid">
       <button class="dr-tile" onclick="closeDrawer();LOCK.menu()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b data-i18n="lkTitle"></b></button>
@@ -2097,7 +2188,22 @@ en:{
   sheetSubColl:'Collection', numFloorName:'+888 …… (floor)', mkHeldTip:'in portfolio',
   lotsTitle:'On the market now', lotsBuy:'buy', lotCheapest:'cheapest', lotsEmpty:'No active listings', lotsLoading:'Loading listings…', lotsNoProxy:'Live listings unavailable', lotsErr:'Couldn’t load'
 }};
-function t(k){ return I18N[S.lang][k] !== undefined ? I18N[S.lang][k] : k; }
+I18N.ru.stSkin='Стиль'; I18N.ru.skinA='Классик'; I18N.ru.skinB='Дерзкий';
+I18N.en.stSkin='Style'; I18N.en.skinA='Classic'; I18N.en.skinB='Bold';
+/* SKIN B voice pack — уверенность вместо вежливости (только когда включён скин B) */
+const VOICE_B={
+  ru:{ apprValue:'Вердикт Monet', tagline:'APPRAISAL TERMINAL',
+    gBuy:'Buy Zone', gBuyNote:'Ниже рынка. Такое висит недолго',
+    gFairNote:'Столько это стоит. Факт', gListNote:'Твоя цена. Не ниже',
+    gFastNote:'Надо слить быстро — вот планка',
+    hGuideBull:'Рынок прёт', hGuideBear:'Рынок остыл. Время охоты', hGuideFlat:'Рынок думает' },
+  en:{ apprValue:'The Monet verdict', tagline:'APPRAISAL TERMINAL',
+    gBuy:'Buy Zone', gBuyNote:'Below market. Won\u2019t last',
+    gFairNote:'What it\u2019s worth. Fact', gListNote:'Your price. Not lower',
+    gFastNote:'Need out fast \u2014 here\u2019s the bar',
+    hGuideBull:'Market is ripping', hGuideBear:'Market cooled. Hunting season', hGuideFlat:'Market undecided' }
+};
+function t(k){ if(S.skin==='b'){ const v=VOICE_B[S.lang]; if(v && v[k]!==undefined) return v[k]; } return I18N[S.lang][k] !== undefined ? I18N[S.lang][k] : k; }
 
 /* ========================================================================
    VALUATION ENGINES
@@ -2963,6 +3069,7 @@ function doEvaluate(){
   bumpDaily();
   addHistory(r);
   document.getElementById('result').innerHTML=resultCardHTML(r);
+  try{ skinBCountUp(); }catch(e){}
   try{ track('asset_evaluated'); track('buy_sell_seen'); }catch(e){}
   countUp('ptonNum', r.priceTON);
   syncFavButton();
@@ -3357,6 +3464,7 @@ function resultCardHTML(r){
       '<div class="appr-eyebrow">'+t('apprValue')+'</div>'+
       '<div class="arow"><div class="asset">'+escapeHTML(r.display)+'</div></div>'+
       '<div class="sub">'+subline+'</div>'+
+      (S.skin==='b'?'<div class="skb-serial">'+((r.rarity&&r.rarity.oneIn)?('EDITION \u00b7 1 / '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')):('MONET DROP \u00b7 '+apprDate()))+'</div>':'')+
       '<div class="price-ton"><span id="ptonNum">'+fmtTON(r.priceTON)+'</span><span class="u">TON</span></div>'+
       '<div class="price-range" id="prange">'+t('estLabel')+': '+fmtTON(lo)+'–'+fmtTON(hi)+' TON</div>'+
       (r.cat==='gifts'?'<div id="xmkt"></div>':'')+
@@ -3454,6 +3562,7 @@ function syncSettings(){ try{
   const stg=document.getElementById('starsToggle'); if(stg&&stg.children.length>=2){ const on=S.showStars!==false; stg.children[0].classList.toggle('on',on); stg.children[1].classList.toggle('on',!on); }
   const dvl=document.getElementById('dvLbl'); if(dvl) dvl.textContent=dvLabel();
   const exg=document.getElementById('expToggle'); if(exg&&exg.children.length>=2){ const on=S.showExperimental!==false; exg.children[0].classList.toggle('on',on); exg.children[1].classList.toggle('on',!on); }
+  const skg=document.getElementById('skinToggle'); if(skg&&skg.children.length>=2){ const on=S.skin==='b'; skg.children[0].classList.toggle('on',!on); skg.children[1].classList.toggle('on',on); }
   const ver=document.getElementById('setVer'); if(ver) ver.textContent='Monet v'+APP_VERSION;
   const pt=document.getElementById('premTile'); if(pt){ pt.style.display=S.premium?'none':''; const bx=pt.querySelector('b'); if(bx){ if(subActive()){ bx.innerHTML='Prime <i class="dr-free dr-free-sub">'+fmtUntil(S.premiumUntil)+'</i>'; } else if(launchFree()){ bx.innerHTML='Prime <i class="dr-free">'+t('freeNow')+'</i>'; } else { bx.innerHTML='Monet Prime'; } } }
 }catch(e){} }
@@ -4084,14 +4193,31 @@ function toggleTheme(){ S.theme=S.theme==='dark'?'light':'dark'; applyTheme(); s
 function applyTheme(){ S.theme='dark';
   document.documentElement.dataset.theme='dark';
   document.documentElement.removeAttribute('data-tint');
-  const tgCol='#163A2C';
-  const grad='radial-gradient(130% 100% at 50% -14%, #17492F 0%, #0B2718 48%, #040C07 100%)';
+  const skB=(S.skin==='b');
+  const tgCol=skB?'#0A0B0A':'#163A2C';
+  const grad=skB
+    ? 'radial-gradient(120% 80% at 50% -14%, #0A140D 0%, #030503 40%, #000 100%)'
+    : 'radial-gradient(130% 100% at 50% -14%, #17492F 0%, #0B2718 48%, #040C07 100%)';
   try{ if(window.tg){ if(tg.setBackgroundColor)tg.setBackgroundColor(tgCol); if(tg.setHeaderColor)tg.setHeaderColor(tgCol); if(tg.setBottomBarColor)tg.setBottomBarColor(tgCol);} }catch(e){}
   try{ const de=document.documentElement, bd=document.body;
     de.style.setProperty('background', grad,'important'); de.style.setProperty('background-attachment','fixed','important');
     if(bd) bd.style.setProperty('background','transparent','important'); }catch(e){}
 }
 function setTheme(v){ S.theme=v; S.themeSet=true; applyTheme(); save(); if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} }
+const SKIN_B_ENABLED=false;   /* включить скин B обратно: true + убрать display:none у пункта «Стиль» в настройках */
+function applySkin(){ if(!SKIN_B_ENABLED && S.skin==='b'){ S.skin='a'; try{save();}catch(e){} } if(S.skin==='b') document.documentElement.setAttribute('data-skin','b'); else document.documentElement.removeAttribute('data-skin'); try{ applyTheme(); }catch(e){} }
+function setSkin(v){ S.skin=(v==='b')?'b':'a'; save(); applySkin(); try{ applyI18N(); rebuildAll(); }catch(e){} try{ track(S.skin==='b'?'skin_b_on':'skin_b_off'); }catch(e){} if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} try{ syncSettings(); }catch(e){} }
+/* SKIN B: цифра оценки «прокручивается» + хаптика-выстрел в конце */
+function skinBCountUp(){ if(S.skin!=='b') return; try{
+  const el=document.getElementById('ptonNum'); if(!el) return;
+  const fin=el.textContent; const target=parseFloat(fin.replace(/\s/g,'').replace(',','.')); if(!isFinite(target)||target<=0) return;
+  const t0=performance.now(), dur=620;
+  const step=function(now){ const p=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-p,3);
+    el.textContent=fmtTON(target*e);
+    if(p<1) requestAnimationFrame(step);
+    else { el.textContent=fin; if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('medium');}catch(e){}} } };
+  requestAnimationFrame(step);
+}catch(e){} }
 function escapeHTML(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 // JSON for inline HTML attributes: escapes the double-quotes so onclick="f('+jattr(x)+')" doesn't break the attribute
 function jattr(v){ return JSON.stringify(v).replace(/"/g,'&quot;'); }
@@ -5381,6 +5507,7 @@ function init(){
   try{ const dv=S.defaultView; setView((dv==='evaluate'||dv==='market'||dv==='portfolio')?dv:'home'); }catch(e){ try{setView('home');}catch(_){} }
   try{ if(window.ALERTS){ ALERTS.check(); ALERTS.badge(); } }catch(e){}
   initTelegram();
+  try{ applySkin(); }catch(e){}
   try{ ADMIN.init(); }catch(e){}
   try{ track('open'); }catch(e){}
   try{ fetchEntitlement(); }catch(e){}
