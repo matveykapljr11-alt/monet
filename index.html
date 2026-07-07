@@ -4017,7 +4017,9 @@ function reportCode(r){ try{ if(!r) return '';
   }catch(e){} return ''; }
 function reportLink(r){ const c=reportCode(r); return c?(APP_LINK+'?startapp='+c):APP_LINK; }
 function handleStartParam(){ try{
-  const sp=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||''; if(!sp) return;
+  let sp=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||'';
+  if(!sp){ try{ const q=new URLSearchParams(location.search); sp=q.get('startapp')||q.get('tgWebAppStartParam')||''; }catch(e){} }
+  if(!sp) return;
   const m=sp.match(/^([gun])_(.+)$/); if(!m) return; const kind=m[1], val=m[2];
   if(kind==='g'){ const c=(COLLECTIONS.gifts||[]).find(x=>String(x.n).toLowerCase().replace(/[^a-z0-9]/g,'')===val.toLowerCase()); if(c) reEvalGo({cat:'gifts',display:c.n}); }
   else if(kind==='u'){ reEvalGo({cat:'username',display:'@'+val}); }
