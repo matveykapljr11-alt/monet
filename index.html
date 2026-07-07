@@ -3159,7 +3159,12 @@ async function loadGiftCross(r){
   const domBest=Math.round(Math.max(comps.pat?comps.pat.best:0, comps.back?comps.back.best:0, comps.model?comps.model.best:0));
   let marketAsk=0; { const cands=[exactAsk,domBest,crossAsk].filter(x=>x>0); if(cands.length) marketAsk=Math.min.apply(null,cands); }   // cheapest place to actually buy a match (ALL markets incl. Tonnel)
   // worth leans on REAL executed sales when available — sold beats asks
-  if(sold>0){ const w=salesArr?salesW:(comps.exact?0.5:0.34); const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; }
+  if(sold>0){ let w=salesArr?salesW:(comps.exact?0.5:0.34);
+    // sanity: без выбранных трейтов sold-лента — это ВСЕ модели вперемешку; если продажи в разы выше
+    // живого аска, они принадлежат редким вариациям и не должны надувать оценку обычного экземпляра
+    const askRef=Math.max(exactAsk||0, crossAsk||0);
+    if(!hasTrait && askRef>0 && sold>askRef*2.5) w=0;
+    if(w>0){ const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; } }
   // #5: server-learned hedonic — price by the most-valuable trait's premium LEARNED ON REAL SALES (not bare rarity), credibility-gated
   if(stats && stats.n>=8){
     const pm=stats.prem||{}; const gp=(o,nm)=>(o&&nm&&o[nm]>0)?o[nm]:0;
@@ -3169,6 +3174,7 @@ async function loadGiftCross(r){
   }
   if(stats && stats.n>=8 && stats.cv>0){ r.fsd=Math.max(0.05, Math.min(0.4, 0.6*(r.fsd||0.2)+0.4*Math.min(0.5,stats.cv))); }   // #4 range/confidence from REAL collection volatility
   if(crossAsk>0 && r.priceTON>crossAsk) r.priceTON=crossAsk;   // never value above the cheapest REAL buyable price across ALL markets (Tonnel included)
+  if(marketAsk>0 && r.priceTON>marketAsk*1.15) r.priceTON=Math.round(marketAsk*1.15);   // и не выше +15% к живому аску точного матча
   const lbFloor=Math.round(Math.max((c&&c.floor)||0, crossAsk>0?0:(domBest||0)));   // collection floor is the hard lower bound; trust real cross-market over Portals-derived domBest
   if(lbFloor>0 && r.priceTON<lbFloor) r.priceTON=lbFloor;
   // refresh the headline once from the final reconciled worth
@@ -3541,7 +3547,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='1.1';
+const APP_VERSION='1.2';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
