@@ -5514,9 +5514,11 @@ function init(){
   try{ track('open'); }catch(e){}
   try{ fetchEntitlement(); }catch(e){}
   try{ track('app_open'); }catch(e){}
-  try{ setTimeout(handleStartParam, 350); }catch(e){}   // #6: open shared report via deep link
   refreshRate();
-  updateFloorBadge(); refreshFloors(false);
+  updateFloorBadge();
+  // deep link открываем ПОСЛЕ загрузки живых флоров — иначе оценка возьмёт устаревший каталог
+  try{ Promise.resolve(refreshFloors(false)).catch(function(){}).then(function(){ setTimeout(handleStartParam,60); }); }
+  catch(e){ try{ refreshFloors(false); }catch(_){} setTimeout(handleStartParam,900); }
   try{ setInterval(function(){ if(document.visibilityState!=='hidden'){ try{ refreshFloors(false); }catch(e){} } }, 90000); }catch(e){}   // auto-refresh live floors every 90s
   try{ document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible'){ try{ refreshFloors(false); }catch(e){} } }); }catch(e){}   // refresh on return to app
   if(window.ONB && (S.onbVer||0) < 14) ONB.open();   // first-launch onboarding (once)
