@@ -2600,16 +2600,27 @@ function giftImg(slug){ return slug ? 'https://nft.fragment.com/gift/'+slug+'-1.
 function giftImgErr(el){ const s=el.getAttribute('data-slug'); const step=el.getAttribute('data-step')||'0';
   if(step==='0' && s){ el.setAttribute('data-step','1'); el.src='https://nft.fragment.com/gift/'+s+'-1.small.jpg'; }
   else { el.onerror=null; el.remove(); } }
-function attrMult(pct, strength){
-  pct=parseFloat(pct); if(isNaN(pct)||pct<=0) return 1;
-  let base;
-  if(pct<0.3) base=3.4;
-  else if(pct<1) base=2.3;
-  else if(pct<3) base=1.65;
-  else if(pct<8) base=1.32;
-  else if(pct<15) base=1.13;
-  else base=1;
-  return 1+(base-1)*strength;
+// smooth rarity premium (replaces the old step-function attrMult): a continuous
+// power-law in trait share % -> no pricing cliffs. pct = % of the collection that
+// carries this trait. Calibrated to sit between the old step levels, not on their edges.
+function rarityMult(pct, strength){
+  const p=parseFloat(pct); if(isNaN(p)||p<=0||p>=100) return 1;
+  const x=Math.log(100/p);                              // ln(1/share)
+  const prem = x>1.2 ? 0.084*Math.pow(x-1.2,2) : 0;     // traits >~30% of supply add ~nothing
+  return 1 + Math.min(2.6, prem)*strength;              // single-trait premium capped ~3.6x at strength 1
+}
+// unified, smooth low-serial premium (replaces two divergent step schedules).
+// strong=true when there are no trait-floor comps to lean on, so the serial carries
+// more of the value. The premium is prized at #1 and decays smoothly to ~0 past ~#2000.
+function serialMult(serial, strong){
+  const n=parseInt(serial,10); if(isNaN(n)||n<=0) return 1;
+  const L=Math.log10(n);
+  const gate=1/(1+Math.exp((L-3.4)*3));                 // logistic taper -> serial premium vanishes in the tail
+  const peak = strong ? 7 : 1.2, decay = strong ? 1.15 : 0.85;
+  let mult = 1 + peak*Math.exp(-decay*L)*gate;          // #1 is peak, no serial-tier cliffs
+  const s=String(n);
+  if(/^(\d)\1+$/.test(s) || /^[1-9]0+$/.test(s) || [7,77,777,7777,100,1000,10000].includes(n)) mult*=1.15;
+  return mult;                                          // repdigit / round / culturally-nice serials pay up
 }
 function fitRarityCurve(points, F0){
   const b0=0.55, a0=Math.log(Math.max(1,F0)*0.683);                 // global prior
@@ -2694,8 +2705,8 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
         tilt=Math.max(0.88, Math.min(1.12, 1+mom+lp)); } }catch(e){}
     if(Math.abs(tilt-1)>0.02){ price*=tilt; F.push({i:'📊',k:'fTilt',v:(tilt>=1?'+':'')+Math.round((tilt-1)*100)+'%',cls:tilt>=1?'plus':'minus'}); }
     // serial
-    if(!isNaN(serial)&&serial>0){ let m=1; if(serial===1)m=2.2; else if(serial<=10)m=1.6; else if(serial<=100)m=1.2;
-      if(m>1){ price*=m; F.push({i:'#️⃣',k:'fLowSerial',v:'×'+m,cls:'plus'}); } }
+    if(!isNaN(serial)&&serial>0){ const m=serialMult(serial,false);
+      if(m>1.01){ price*=m; F.push({i:'#️⃣',k:'fLowSerial',v:'×'+m.toFixed(2),cls:'plus'}); } }
     // D: per-collection self-tuning calibration + measured track record (backtest)
     const cr=calRec(col.slug);
     if(Math.abs(cr.m-1)>0.02){ price*=cr.m; F.push({i:'🤖',k:'fCal',v:'×'+cr.m.toFixed(2),cls:'neutral'}); }
@@ -2711,16 +2722,22 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
       accOut={n:cr.n, e:cr.e}; F.push({i:'🎯',k:'fMeasured',v:'±'+Math.round(cr.e*100)+'% · '+cr.n,cls:'neutral'}); }
   } else {
     price=base; F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
-    if(!isNaN(serial)&&serial>0){ let m=1, kk='fSerialGood', cl='plus';
-      if(serial===1){ m=8; kk='fSerialTop'; } else if(serial<=3){ m=5; kk='fSerialTop'; } else if(serial<=10){ m=3; kk='fSerialTop'; }
-      else if(serial<=100){ m=1.8; } else if(serial<=1000){ m=1.2; } else { m=1; cl='neutral'; kk='fSerialGood'; }
-      if([7,77,100,777,1000].includes(serial)){ m*=1.3; F.push({i:'🎯',k:'fSerialRound',v:'×1.3',cls:'plus'}); }
-      if(m!==1){ price*=m; F.push({i:'#️⃣',k:kk,v:'×'+m,cls:cl}); } }
-    const mB=attrMult(rBack,1.0), mP=attrMult(rPat,0.85), mM=attrMult(rModel,0.7);
-    if(mB>1){ price*=mB; F.push({i:'🎨',k:'fBackdrop',v:'×'+mB.toFixed(2),cls:'plus'}); }
-    if(mP>1){ price*=mP; F.push({i:'🌀',k:'fPattern',v:'×'+mP.toFixed(2),cls:'plus'}); }
-    if(mM>1){ price*=mM; F.push({i:'🧬',k:'fModel',v:'×'+mM.toFixed(2),cls:'plus'}); }
-    const attrTotal=mB*mP*mM; if(attrTotal>7){ const corr=7/attrTotal; price*=corr; F.push({i:'🧮',k:'fAttrCap',v:'×'+corr.toFixed(2),cls:'neutral'}); }
+    if(!isNaN(serial)&&serial>0){ const m=serialMult(serial,true);
+      const kk = serial<=10 ? 'fSerialTop' : 'fSerialGood';
+      if(m>1.01){ price*=m; F.push({i:'#️⃣',k:kk,v:'×'+m.toFixed(2),cls:'plus'}); } }
+    // Dominant trait sets the price level; each additional trait adds only a DAMPED premium.
+    // Independent rarities are deliberately NOT multiplied together — that over-prices joint
+    // scarcity (три независимых редкости ≠ произведение). This mirrors the liquidity-tempered
+    // combo logic the estimator uses when real trait floors exist.
+    // Type strengths follow real gift-market value order: MODEL drives price, then backdrop, then symbol.
+    const parts=[{m:rarityMult(rModel,1.0),i:'🧬',k:'fModel'},
+                 {m:rarityMult(rBack,0.7),i:'🎨',k:'fBackdrop'},
+                 {m:rarityMult(rPat,0.5),i:'🌀',k:'fPattern'}].sort((a,b)=>b.m-a.m);
+    let mult=parts[0].m; const addC=[0,0.45,0.28];
+    for(let i=1;i<parts.length;i++) mult += Math.max(0, parts[i].m-1)*addC[i];
+    mult=Math.min(mult, 6);   // hard cap on total trait premium for a single item
+    parts.forEach(o=>{ if(o.m>1.01) F.push({i:o.i,k:o.k,v:'×'+o.m.toFixed(2),cls:'plus'}); });
+    if(mult>1.01) price*=mult;
   }
   if((colId==='other')? (!isNaN(cf)&&cf>0) : (col&&col.floor>0)) price=Math.max(price, base);   // a specific item is never worth less than the collection floor
   price=Math.round(price);
@@ -3123,8 +3140,15 @@ async function loadGiftCross(r){
   if(lastResult!==r || r.ts!==stamp) return;   // user moved on
   const preEst=r.priceTON;
   if(exact) applyGiftCross(r, exact, hasTrait);
+  // ground truth for the self-tuning backtest: prefer the RECENCY-WEIGHTED ROBUST MEDIAN of the
+  // recent real-sales tape (one last print is noisy and swings calibration). Fall back to a single
+  // last sale, then to an exact ask, only when no tape exists.
+  const _tape = (exact&&Array.isArray(exact.sales)&&exact.sales.length) ? exact.sales
+              : (fp&&Array.isArray(fp.sales)&&fp.sales.length) ? fp.sales
+              : (fm&&Array.isArray(fm.sales)&&fm.sales.length) ? fm.sales
+              : (fb&&Array.isArray(fb.sales)&&fb.sales.length) ? fb.sales : null;
   const _ls=(exact&&exact.lastSale>0)?exact.lastSale:((fp&&fp.lastSale>0)?fp.lastSale:((fm&&fm.lastSale>0)?fm.lastSale:((fb&&fb.lastSale>0)?fb.lastSale:0)));
-  const _truth=_ls>0?_ls:((exact&&exact.exact&&exact.floor>0)?exact.floor:0);
+  const _truth = _tape ? recencyFair(_tape) : (_ls>0?_ls:((exact&&exact.exact&&exact.floor>0)?exact.floor:0));
   if(_truth>0 && c.slug) learnCal(c.slug, preEst, Math.round(_truth));   // backtest learns from REAL SALES, not just asks
   // comp engine: per-trait floors from BOTH Portals (data-floor) and Fragment
   const mk=(name,portals,frag)=>{ if(!name) return null; const vals=[portals, frag&&frag.floor].filter(v=>v>0); const best=vals.length?Math.min.apply(null,vals):0; return {name,portals:portals||0,frag:(frag&&frag.floor)||0,best,count:(frag&&frag.count)||0}; };
@@ -3148,10 +3172,10 @@ async function loadGiftCross(r){
   // === fair appraisal vs live market + verdict ===
   const exactAsk=(comps.exact && exact && exact.floor>0)?Math.round(exact.floor):0;
   // robust sold-based fair: prefer EXACT sales, else dominant-trait sales; median-of-cheapest-N with MAD outlier rejection
-  let salesArr=null, salesW=0, salesN=0;
-  if(exact && Array.isArray(exact.sales) && exact.sales.length){ salesArr=exact.sales; salesW=0.7; salesN=exact.salesN||salesArr.length; }
+  let salesArr=null, salesW=0, salesN=0, salesDetail=null;
+  if(exact && Array.isArray(exact.sales) && exact.sales.length){ salesArr=exact.sales; salesDetail=exact.salesDetail||null; salesW=0.7; salesN=exact.salesN||salesArr.length; }
   else { const cand=[[comps.model,fm],[comps.back,fb],[comps.pat,fp]].filter(x=>x[0]&&x[1]&&Array.isArray(x[1].sales)&&x[1].sales.length);
-    cand.sort((x,y)=>(y[0].best||0)-(x[0].best||0)); if(cand.length){ salesArr=cand[0][1].sales; salesW=0.5; salesN=cand[0][1].salesN||salesArr.length; } }
+    cand.sort((x,y)=>(y[0].best||0)-(x[0].best||0)); if(cand.length){ salesArr=cand[0][1].sales; salesDetail=cand[0][1].salesDetail||null; salesW=0.5; salesN=cand[0][1].salesN||salesArr.length; } }
   let soldFair = salesArr ? recencyFair(salesArr) : Math.round(_ls||0);
   // #5: blend the GLOBAL accumulated-sales median (server-learned), credibility by data volume
   if(stats && stats.med>0){ const gw=Math.min(0.5,(stats.n||0)/((stats.n||0)+10)); soldFair = soldFair>0 ? Math.round((1-gw)*soldFair + gw*stats.med) : Math.round(stats.med); }
@@ -3189,6 +3213,7 @@ async function loadGiftCross(r){
   }
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0; renderTradeBand(r);   // refine guidance with real market + sales
   renderGiftVerdict({exactAsk:marketAsk, sold, salesN, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0});
+  comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;   // real recent-sales tape for the transparency block
   renderGiftComps(r, comps);
 }
 function renderGiftVerdict(v){
@@ -3223,7 +3248,21 @@ function renderGiftComps(r, comps){
   const box=document.getElementById('giftComps'); if(!box) return; const ru=S.lang==='ru';
   const all=[comps.pat,comps.back,comps.model].filter(o=>o&&o.best>0);
   const found=all.length+(comps.exact?1:0);
-  if(!found){ box.innerHTML=''; return; }
+  // real recent-sales tape — the transparency block (proof of price), newest first
+  let tapeHTML='';
+  const tape=(comps.salesArr||[]).map(Number).filter(x=>x>0);
+  if(tape.length){
+    const detail=Array.isArray(comps.salesDetail)?comps.salesDetail:null;
+    const shown=tape.slice(0,12);
+    const sk=shown.slice().sort((a,b)=>a-b); const med=sk[Math.floor(sk.length/2)];
+    const chips=shown.map((x,i)=>{ const num=detail&&detail[i]&&detail[i].num?('#'+detail[i].num+' · '):'';
+      return '<span style="display:inline-flex;align-items:center;font-family:var(--font-m);font-weight:700;font-size:11.5px;color:'+(i===0?'#fff':'var(--txt-2)')+';background:'+(i===0?'var(--ton)':'var(--surface-2)')+';border:1px solid var(--line);border-radius:8px;padding:4px 8px">'+num+fmtTON(Math.round(x))+' TON</span>'; }).join('');
+    const moreN=(comps.salesN||tape.length)-shown.length;
+    tapeHTML='<div class="comps-h" style="margin-top:'+(found?'14px':'0')+'">'+(ru?'История реальных сделок':'Real sales history')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+chips+'</div>'+
+      '<div class="comps-range">'+(ru?'Медиана ':'Median ')+fmtTON(Math.round(med))+' TON'+(moreN>0?(' · +'+moreN+(ru?' ещё':' more')):'')+' · '+(ru?'новейшая слева':'newest left')+'</div>';
+  }
+  if(!found){ box.innerHTML=tapeHTML; return; }   // no per-trait comps -> show the sales tape alone (or nothing)
   let dom=null; all.forEach(o=>{ if(!dom||o.best>dom.best) dom=o; });
   const rowOf=(lbl,o)=>{ if(!o||o.best<=0) return ''; const src = (ru?'офиц. рынок':'official market');
     return '<div class="comp"><span class="cn">'+lbl+(o.name?' · '+escapeHTML(o.name):'')+'</span><span class="cp">'+fmtTON(o.best)+' TON <span style="opacity:.55;font-weight:600;font-size:.88em">'+src+'</span></span></div>'; };
@@ -3233,9 +3272,10 @@ function renderGiftComps(r, comps){
   const domLine = dom ? '<div class="comps-range">'+(ru?'Доминирует ':'Driven by ')+domLbl+' ≈ '+fmtTON(dom.best)+' TON · '+(ru?'ориентир ':'estimate ')+fmtTON(r.priceTON)+' TON</div>' : '';
   box.innerHTML='<div class="comps-h">'+(ru?'Сопоставимые сделки':'Comparable deals')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
     '<div class="comps-range">'+(ru?'Найдено сопоставимых: ':'Comparables found: ')+found+'</div>'+
-    ((comps.lastSale>0)?'<div class="comps-range" style="color:var(--good)">'+(ru?'Реальные сделки ≈ ':'Real sales ≈ ')+fmtTON(Math.round(comps.lastSale))+' TON</div>':'')+
+    ((comps.lastSale>0 && !tape.length)?'<div class="comps-range" style="color:var(--good)">'+(ru?'Реальные сделки ≈ ':'Real sales ≈ ')+fmtTON(Math.round(comps.lastSale))+' TON</div>':'')+
     domLine+exactLine+
     '<div class="comps-list">'+rows+'</div>'+
+    tapeHTML+
     '<div class="comps-note">'+(ru?'Цена идёт от самого ценного трейта — дешевле его не купить. Совпадение по узору / фону / модели на официальных рынках.':'Priced from the most-valued trait — it cannot be bought cheaper. Matched by symbol / backdrop / model on official markets.')+'</div>';
 }
 function applyGiftCross(r, d, hasTrait){
@@ -3358,10 +3398,17 @@ function whyText(r){ const plus=r.factors.filter(f=>f.cls==='plus').map(f=>t(f.k
 function estSpread(r){
   // an exact live match on the market = a hard fact, not a guess -> tight band, high confidence
   if(r&&r.fragExact) return 0.06;
-  if(r&&typeof r.fsd==='number') return r.fsd;
-  const p=r.priceTON;
-  let s = p<80?0.14 : p<1500?0.18 : p<40000?0.30 : 0.45;
-  if(r&&r.rarity&&r.rarity.oneIn){ s += Math.min(0.15, Math.log10(Math.max(1,r.rarity.oneIn))*0.03); }
+  let s;
+  if(r&&typeof r.fsd==='number'){ s=r.fsd; }
+  else {
+    const p=r.priceTON;
+    s = p<80?0.14 : p<1500?0.18 : p<40000?0.30 : 0.45;
+    if(r&&r.rarity&&r.rarity.oneIn){ s += Math.min(0.15, Math.log10(Math.max(1,r.rarity.oneIn))*0.03); }
+  }
+  // built on a seed floor with no live feed and no live comps -> don't fake confidence: widen the band
+  if(r && r.cat==='gifts' && !r.live && !r.fragExact && typeof FLOORS_SRC!=='undefined' && FLOORS_SRC!=='live'){
+    s = Math.max(s, 0.34);
+  }
   return Math.min(0.55, s);
 }
 function factorsHTML(r){ return (r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join(''); }
