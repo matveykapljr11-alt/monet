@@ -3364,7 +3364,10 @@ function guidance(r){
   let buyUnder=fairLo*(1-0.10-0.20*sp);                  // clear-deal threshold below fair
   let listLo=fairHi*(1+0.06+0.15*sp), listHi=fairHi*(1+0.18+0.30*sp);
   let fastHi=fairLo*(1-0.02-0.10*sp), fastLo;
-  const ask=r._mktAsk||0, sold=r._sold||0, floor=r._floor||0;   // gift market reality, when known
+  let ask=r._mktAsk||0, sold=r._sold||0, floor=r._floor||0;   // gift market reality, when known
+  // sanity: сигнал, расходящийся с оценкой в разы — глитч данных (кривой флор Portals), не рынок
+  const __sane=v=>v>0 && v>w/2.5 && v<w*2.5;
+  if(!__sane(ask)) ask=0; if(!__sane(sold)) sold=0; if(!__sane(floor)) floor=0;
   if(sold>0){ buyUnder=Math.min(buyUnder, sold*0.95); }
   if(ask>0){ buyUnder=Math.min(buyUnder, ask*0.98); fastHi=Math.min(fastHi, ask*0.97); }
   if(floor>0){ fastHi=Math.min(fastHi, floor*0.99); buyUnder=Math.min(buyUnder, floor); }  // can't buy a 'deal' above floor
@@ -3535,7 +3538,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='1.0';
+const APP_VERSION='1.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
