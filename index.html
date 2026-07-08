@@ -13,30 +13,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <!--
 ============================================================================
-  Monet — оценщик коллекционных активов Telegram / TON (Fragment.com)
+  Monet — оценщик коллекционных активов Telegram / GRAM (Fragment.com)
   Single-file, no frameworks. Offline-first. RU/EN bilingual.
 
-  КАЛИБРОВКА ФОРМУЛЫ (реальные сделки Fragment / маркетплейсы, май 2026; TON≈$1.76):
+  КАЛИБРОВКА ФОРМУЛЫ (реальные сделки Fragment / маркетплейсы, май 2026; GRAM≈$1.76):
   ---------------------------------------------------------------------------
   USERNAMES (продано / на аукционе):
     @news       — рекорд платформы (sold)
-    @auto       — ~900 000 TON (ранний рекорд, 4-букв. словарное слово)
+    @auto       — ~900 000 GRAM (ранний рекорд, 4-букв. словарное слово)
     @abet @cadb — among priciest 4-letter auctions (high min bids)
-    4-букв. бренд. — оффер 3 300 TON (~$9 500) за рядовое имя
-    @pavel      — 15 000 TON (hype-sale)
-    ordinary    — от нескольких сотен $; min ~126 TON
+    4-букв. бренд. — оффер 3 300 GRAM (~$9 500) за рядовое имя
+    @pavel      — 15 000 GRAM (hype-sale)
+    ordinary    — от нескольких сотен $; min ~126 GRAM
     диапазон рынка: «от пары сотен до 100k+ долларов»
   ANONYMOUS +888:
-    +888 8 888  — 300 000 TON (рекорд, all-same)
-    eights-only — min bid 34 729 TON (~$63k)
-    random      — старт 9 TON; floor вторички ~135–200 TON
-  GIFTS (floor, TON — волатильны):
-    Plush Pepe       — floor ~10 000–12 500 TON (OKX), 2 293 NFT
-      #2 — рекорд $295 100 (Getgems); #824 — 25 000 TON; showcase 15 000 TON
-    Durov's Cap      — ~1 100 TON (~$2 000)
+    +888 8 888  — 300 000 GRAM (рекорд, all-same)
+    eights-only — min bid 34 729 GRAM (~$63k)
+    random      — старт 9 GRAM; floor вторички ~135–200 GRAM
+  GIFTS (floor, GRAM — волатильны):
+    Plush Pepe       — floor ~10 000–12 500 GRAM (OKX), 2 293 NFT
+      #2 — рекорд $295 100 (Getgems); #824 — 25 000 GRAM; showcase 15 000 GRAM
+    Durov's Cap      — ~1 100 GRAM (~$2 000)
     Precious Peach / Signer Ring / Vintage Cigar / Perfume Bottle — high-tier
   ---------------------------------------------------------------------------
-  Маппинг: score 0–100 -> цена в TON по лог-кривой (floor..cap).
+  Маппинг: score 0–100 -> цена в GRAM по лог-кривой (floor..cap).
   Цена ориентировочная, НЕ оферта. Точная цена — только на Fragment.
 ============================================================================
 -->
@@ -1639,7 +1639,7 @@ header{border-bottom:0;background:none}
       <div class="hero-title" data-i18n="heroPitch"></div>
       <div class="hero-foot">
         <span class="hero-sub" data-i18n="heroSub"></span>
-        <span class="hero-rate" id="heroRate">1 TON ≈ $1.76</span>
+        <span class="hero-rate" id="heroRate">1 GRAM ≈ $1.76</span>
       </div>
     </div>
     <div class="subseg" id="subseg">
@@ -1677,7 +1677,7 @@ header{border-bottom:0;background:none}
     </div>
     <div id="mk-index"></div>
     <div class="mkt-controls">
-      <div class="mk-cur" id="mk-cur"><button class="on" onclick="MK.setCur('ton')">TON</button><button onclick="MK.setCur('usd')">$</button></div>
+      <div class="mk-cur" id="mk-cur"><button class="on" onclick="MK.setCur('ton')">GRAM</button><button onclick="MK.setCur('usd')">$</button></div>
     </div>
     <div class="mkt-search-row">
       <div class="mk-search">
@@ -1888,9 +1888,9 @@ header{border-bottom:0;background:none}
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 const BOT_HANDLE = '@monetnft_bot';
 const APP_LINK = 'https://t.me/monetnft_bot';   // deep link back to the bot/Mini App (virality)
-const RATE = { usd: 1.76, eur: 1.63 };           // TON -> fiat (calibrated May 2026; refreshed at runtime)
+const RATE = { usd: 1.76, eur: 1.63 };           // GRAM -> fiat (calibrated May 2026; refreshed at runtime)
 const STAR_USD = 0.013;                          // legacy USD/Star (unused)
-let STARS_PER_TON = 200;                          // Telegram Fragment peg: 200 Stars = 1 TON (override via proxy ?floors -> starsPerTon)
+let STARS_PER_TON = 200;                          // Telegram Fragment peg: 200 Stars = 1 GRAM (override via proxy ?floors -> starsPerTon)
 // ====== PREMIUM PRICING — edit prices here (Telegram Stars). Annual is cheaper per month. ======
 const PLANS = {
   month: { stars: 200,  days: 30  },   // ← цена помесячной подписки
@@ -1904,9 +1904,9 @@ function launchFree(){ return Date.now() < LAUNCH_FREE_UNTIL; }
 function subActive(){ return !!(S&&S.premiumUntil) && Date.now() < S.premiumUntil; }   // paid subscription still valid
 function proActive(){ return launchFree() || !!(S&&S.premium) || subActive(); }         // unified "has full access" check
 const FX_LABEL = { usd:'$', eur:'€' };
-// Converter currencies (value bridged through TON). flag + symbol + name.
+// Converter currencies (value bridged through GRAM). flag + symbol + name.
 const CURRENCIES = [
-  {c:'ton', fl:'💎', s:'TON', nru:'Toncoin',          nen:'Toncoin'},
+  {c:'ton', fl:'💎', s:'GRAM', nru:'Gram',          nen:'Gram'},
   {c:'usd', fl:'🇺🇸', s:'$',   nru:'Доллар США',        nen:'US Dollar'},
   {c:'eur', fl:'🇪🇺', s:'€',   nru:'Евро',              nen:'Euro'},
   {c:'rub', fl:'🇷🇺', s:'₽',   nru:'Рубль',             nen:'Russian Ruble'},
@@ -1939,7 +1939,7 @@ const CRYPTO_LOGO = { ton:'ton', usdt:'usdt', usdc:'usdc', btc:'btc', eth:'eth',
 function curLogoURL(c){ const s=CRYPTO_LOGO[c]; return s?('https://assets.coincap.io/assets/icons/'+s+'@2x.png'):null; }
 function curLogoErr(el){ const e=el.getAttribute('data-emo')||''; const sp=document.createElement('span'); sp.textContent=e; el.replaceWith(sp); }
 function curIcon(c,emoji){ const u=curLogoURL(c); return u?('<img class="cv-logo" src="'+u+'" data-emo="'+emoji+'" referrerpolicy="no-referrer" loading="lazy" decoding="async" alt="" onerror="curLogoErr(this)">'):emoji; }
-const FXRATES = {};  // value of 1 TON in each currency
+const FXRATES = {};  // value of 1 GRAM in each currency
 function recomputeFX(){ FXRATES.ton=1; FXRATES.usd=RATE.usd; for(const c in USD_CROSS) FXRATES[c]=RATE.usd*USD_CROSS[c]; FXRATES.eur=RATE.eur;
   for(const c in CRYPTO_USD){ if(CRYPTO_USD[c]>0) FXRATES[c]=RATE.usd/CRYPTO_USD[c]; } }
 function curInfo(c){ return CURRENCIES.find(x=>x.c===c)||CURRENCIES[0]; }
@@ -1982,8 +1982,8 @@ function save(){ lsSet('monet', JSON.stringify(S)); }
 ======================================================================== */
 const I18N = {
 ru:{
-  tagline:'оценочный дом · TON', heroSub:'Оценка по реальным сделкам · TON',
-  heroPitch:'Оценка · Рынок · Капитал · TON', confLabel:'Уверенность', confHigh:'высокая', confMid:'средняя', confLow:'низкая', estLabel:'Ориентир', liqLabel:'Ликвидность', liqLow:'низкая', liqMid:'средняя', liqHigh:'высокая', whyLabel:'Почему', tierLabel:'Категория',
+  tagline:'оценочный дом · GRAM', heroSub:'Оценка по реальным сделкам · GRAM',
+  heroPitch:'Оценка · Рынок · Капитал · GRAM', confLabel:'Уверенность', confHigh:'высокая', confMid:'средняя', confLow:'низкая', estLabel:'Ориентир', liqLabel:'Ликвидность', liqLow:'низкая', liqMid:'средняя', liqHigh:'высокая', whyLabel:'Почему', tierLabel:'Категория',
   gTitle:'Monet Guidance', gBuy:'Покупать до', gFair:'Рыночная цена', gList:'Выставлять от', gFast:'Быстрая продажа',
   gBuyNote:'Хорошая цена для покупки', gFairNote:'Нормальная рыночная цена', gListNote:'Хорошая цена для продажи', gFastNote:'Если нужно продать быстро',
   gAlertBtn:'Алерт на Buy Zone', gRecheck:'Перепроверять раз в неделю', gNoMarket:'Редкий актив · нет живого рынка — ориентир сделки', gOrient:'Ориентир сделки, не торговый сигнал',
@@ -1996,11 +1996,11 @@ ru:{
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
   pfAddTitle:'Добавить в портфель', pfPick:'Что добавить', pfHistNote:'7д — оценка по динамике рынка',
   pfImport:'Мои подарки', pfImportSub:'отметь свои — добавим с оценкой', pfImportSearch:'Поиск коллекции…', pfImportAdd:'Добавить в портфель', pfImportEmpty:'Ничего не найдено', pfImportOr:'или',
-  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, TON', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'P&L по активам', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, TON', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать в Stars', stDefault:'Экран по умолчанию', stExp:'Эксперим. активы', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
+  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, GRAM', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'P&L по активам', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, GRAM', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать в Stars', stDefault:'Экран по умолчанию', stExp:'Эксперим. активы', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
   pfAlloc:'Распределение', pfBest:'Лидер 24ч', pfWorst:'Аутсайдер 24ч', pfShare:'Поделиться',
   pfNetWorth:'Мой Telegram-капитал', pfOther:'прочее', pfAssets:'актив(а/ов)', pfEmptyCta:'Оцени актив и добавь в портфель',
   pfForecast:'Прогноз 30д', pfTier:'Статус', menuAssets:'Стоимость активов', pfToNext:'до', pfGoal:'Цель', pfSetGoal:'Поставить цель', pfGoalTitle:'Цель по капиталу',
-  pfGoalPh:'цель, TON', pfGoalSave:'Сохранить', pfGoalRemove:'Убрать цель', pfRemaining:'осталось', pfGoalReached:'Цель достигнута!', pfHidden:'Баланс скрыт',
+  pfGoalPh:'цель, GRAM', pfGoalSave:'Сохранить', pfGoalRemove:'Убрать цель', pfRemaining:'осталось', pfGoalReached:'Цель достигнута!', pfHidden:'Баланс скрыт',
   tierStandard:'Standard', tierBronze:'Novice', tierSilver:'Expert', tierGold:'Elite', tierPlatinum:'Platinum', tierBlack:'Black',
   cardTitle:'Моя карта', cardHolder:'ДЕРЖАТЕЛЬ', cardBalance:'Капитал', cardTap:'нажми, чтобы перевернуть', cardPerks:'Привилегии',
   rwTitle:'Награды', rwStreak:'дней подряд', rwPoints:'очков Monet', rwToReward:'до награды', rwRedeem:'Обменять на Prime', rwGotPremium:'Prime разблокирован!', rwDaily:'Ежедневный бонус', rwHave:'Prime активен',
@@ -2008,7 +2008,7 @@ ru:{
   evaluate:'Оценить', compare:'Сравнить',
   premiumActive:'Prime активен — лимиты сняты',
   catUsername:'Имя', catNumbers:'Номер', catGifts:'Подарок', catStickers:'Стикер',
-  phUsername:'username', phNumbers:'00000001', phGiftSerial:'номер NFT (опц.)', phRarity:'редкость, %', phFloor:'floor коллекции, TON',
+  phUsername:'username', phNumbers:'00000001', phGiftSerial:'номер NFT (опц.)', phRarity:'редкость, %', phFloor:'floor коллекции, GRAM',
   phBackdrop:'фон %', phPattern:'узор %', phModel:'модель %', attrHint:'Редкость трейтов — тапни, если знаешь (необязательно)', attrHintNew:'Редкость фона и узора в % — как на странице подарка. Меньше % = реже = дороже. Необязательно.',
   attrBackdrop:'Фон', attrPattern:'Узор', attrModel:'Модель',
   rkNone:'—', rkCommon:'Обычный', rkUncommon:'Нечастый', rkRare:'Редкий', rkEpic:'Эпик', rkLegendary:'Лег.', rkMythic:'Миф.', rarityOneIn:'≈ 1 из',
@@ -2061,8 +2061,8 @@ ru:{
   gameTitle:'Угадай цену', gameSub:'Оцени актив на глаз. Чем точнее — тем больше очков.',
   modeFun:'Фан', modeFunD:'25 сек · без штрафов · простые активы',
   modeChal:'Челлендж', modeChalD:'12 сек · штраф −50 · цель 700 → Prime',
-  gGuess:'Ваша цена в TON', gSubmit:'Ответить', gBest:'Рекорд',
-  gAsk:'Сколько стоит в TON?', gHint:'Чем ближе к реальной цене — тем больше очков. Набери 700 в режиме «Вызов» — откроется Prime.',
+  gGuess:'Ваша цена в GRAM', gSubmit:'Ответить', gBest:'Рекорд',
+  gAsk:'Сколько стоит в GRAM?', gHint:'Чем ближе к реальной цене — тем больше очков. Набери 700 в режиме «Вызов» — откроется Prime.',
   gPerfect:'В точку! +', gClose:'Близко! +', gOk:'Неплохо +', gFar:'Мимо +', gMiss:'Грубый промах ',
   gOver:'Игра окончена', gYourScore:'Очки', gNewBest:'Новый рекорд!', gAgain:'Ещё раз', gUnlock:'Prime разблокирован!',
   realAsset:'реальная сделка', floorTon:'floor',
@@ -2088,8 +2088,8 @@ ru:{
   lotsTitle:'На рынке сейчас', lotsBuy:'купить', lotCheapest:'дешевле всех', lotsEmpty:'Активных лотов нет', lotsLoading:'Загружаю лоты…', lotsNoProxy:'Live-лоты временно недоступны', lotsErr:'Не удалось загрузить'
 },
 en:{
-  tagline:'appraisal house · TON', heroSub:'Valued on real market deals · TON',
-  heroPitch:'Appraise · Market · Capital · TON', confLabel:'Confidence', confHigh:'high', confMid:'medium', confLow:'low', estLabel:'Range', liqLabel:'Liquidity', liqLow:'low', liqMid:'medium', liqHigh:'high', whyLabel:'Why', tierLabel:'Tier',
+  tagline:'appraisal house · GRAM', heroSub:'Valued on real market deals · GRAM',
+  heroPitch:'Appraise · Market · Capital · GRAM', confLabel:'Confidence', confHigh:'high', confMid:'medium', confLow:'low', estLabel:'Range', liqLabel:'Liquidity', liqLow:'low', liqMid:'medium', liqHigh:'high', whyLabel:'Why', tierLabel:'Tier',
   gTitle:'Monet Guidance', gBuy:'Buy under', gFair:'Market value', gList:'List for', gFast:'Fast sale',
   gBuyNote:'Good price to buy', gFairNote:'Normal market price', gListNote:'Good price to sell', gFastNote:'If you need to sell fast',
   gAlertBtn:'Alert at Buy Zone', gRecheck:'Re-check weekly', gNoMarket:'Rare asset · not a live market — deal guideline', gOrient:'Deal guideline, not a trading signal',
@@ -2102,11 +2102,11 @@ en:{
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
   pfAddTitle:'Add to portfolio', pfPick:'What to add', pfHistNote:'7d — estimated from market trend',
   pfImport:'My gifts', pfImportSub:'tap yours — added with a value', pfImportSearch:'Search collection…', pfImportAdd:'Add to portfolio', pfImportEmpty:'Nothing found', pfImportOr:'or',
-  estRange:'range', apprValue:'Estimated value', apprHouse:'appraisal house', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, TON', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, TON', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', hAllCash:'All in free cash', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist', lkTitle:'Password', lkSetNew:'New password', lkRepeat:'Repeat password', lkEnter:'Enter password', lkEnterCur:'Current password', lkChange:'Change password', lkRemove:'Remove password', lkSaved:'Password set', lkRemoved:'Password removed', stCurrency:'Currency', stStars:'Show in Stars', stDefault:'Default screen', stExp:'Experimental assets', stOn:'On', stOff:'Off', stOnboard:'Onboarding', stReset:'Reset data', stAbout:'About', stResetConfirm:'Delete all local data (portfolio, history, alerts)? This cannot be undone.',
+  estRange:'range', apprValue:'Estimated value', apprHouse:'appraisal house', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, GRAM', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, GRAM', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', hAllCash:'All in free cash', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist', lkTitle:'Password', lkSetNew:'New password', lkRepeat:'Repeat password', lkEnter:'Enter password', lkEnterCur:'Current password', lkChange:'Change password', lkRemove:'Remove password', lkSaved:'Password set', lkRemoved:'Password removed', stCurrency:'Currency', stStars:'Show in Stars', stDefault:'Default screen', stExp:'Experimental assets', stOn:'On', stOff:'Off', stOnboard:'Onboarding', stReset:'Reset data', stAbout:'About', stResetConfirm:'Delete all local data (portfolio, history, alerts)? This cannot be undone.',
   pfAlloc:'Allocation', pfBest:'Top 24h', pfWorst:'Worst 24h', pfShare:'Share',
   pfNetWorth:'My Telegram net worth', pfOther:'other', pfAssets:'assets', pfEmptyCta:'Evaluate an asset and add it to your portfolio',
   pfForecast:'30d forecast', pfTier:'Status', menuAssets:'Asset value', pfToNext:'to', pfGoal:'Goal', pfSetGoal:'Set a goal', pfGoalTitle:'Capital goal',
-  pfGoalPh:'goal, TON', pfGoalSave:'Save', pfGoalRemove:'Remove goal', pfRemaining:'left', pfGoalReached:'Goal reached!', pfHidden:'Balance hidden',
+  pfGoalPh:'goal, GRAM', pfGoalSave:'Save', pfGoalRemove:'Remove goal', pfRemaining:'left', pfGoalReached:'Goal reached!', pfHidden:'Balance hidden',
   tierStandard:'Standard', tierBronze:'Novice', tierSilver:'Expert', tierGold:'Elite', tierPlatinum:'Platinum', tierBlack:'Black',
   cardTitle:'My card', cardHolder:'CARDHOLDER', cardBalance:'Net worth', cardTap:'tap to flip', cardPerks:'Perks',
   rwTitle:'Rewards', rwStreak:'day streak', rwPoints:'Monet points', rwToReward:'to reward', rwRedeem:'Redeem for Prime', rwGotPremium:'Prime unlocked!', rwDaily:'Daily bonus', rwHave:'Prime active',
@@ -2114,7 +2114,7 @@ en:{
   evaluate:'Evaluate', compare:'Compare',
   premiumActive:'Prime active — limits removed',
   catUsername:'Name', catNumbers:'Number', catGifts:'Gift', catStickers:'Sticker',
-  phUsername:'username', phNumbers:'00000001', phGiftSerial:'NFT number (opt.)', phRarity:'rarity, %', phFloor:'collection floor, TON',
+  phUsername:'username', phNumbers:'00000001', phGiftSerial:'NFT number (opt.)', phRarity:'rarity, %', phFloor:'collection floor, GRAM',
   phBackdrop:'backdrop %', phPattern:'pattern %', phModel:'model %', attrHint:'Trait rarity — tap if you know it (optional)', attrHintNew:'Backdrop & symbol rarity in % — as shown on the gift. Lower % = rarer = pricier. Optional.',
   attrBackdrop:'Backdrop', attrPattern:'Symbol', attrModel:'Model',
   rkNone:'—', rkCommon:'Common', rkUncommon:'Uncommon', rkRare:'Rare', rkEpic:'Epic', rkLegendary:'Leg.', rkMythic:'Myth.', rarityOneIn:'≈ 1 in',
@@ -2165,8 +2165,8 @@ en:{
   gameTitle:'Guess the price', gameSub:'Eyeball the asset value. The closer you are, the more points.',
   modeFun:'Fun', modeFunD:'25s · no penalties · easy assets',
   modeChal:'Challenge', modeChalD:'12s · −50 penalty · goal 700 → Prime',
-  gGuess:'Your price in TON', gSubmit:'Submit', gBest:'Best',
-  gAsk:'How much in TON?', gHint:'The closer to the real price, the more points. Score 700 in Challenge to unlock Prime.',
+  gGuess:'Your price in GRAM', gSubmit:'Submit', gBest:'Best',
+  gAsk:'How much in GRAM?', gHint:'The closer to the real price, the more points. Score 700 in Challenge to unlock Prime.',
   gPerfect:'Spot on! +', gClose:'Close! +', gOk:'Not bad +', gFar:'Off +', gMiss:'Way off ',
   gOver:'Game over', gYourScore:'Score', gNewBest:'New record!', gAgain:'Play again', gUnlock:'Prime unlocked!',
   realAsset:'real deal', floorTon:'floor',
@@ -2304,7 +2304,7 @@ function scoreNumber(raw){
   return { priceTON, score, factors:F, display:pretty };
 }
 
-// gift collections (floors in TON, calibrated to public data; ic = artwork glyph)
+// gift collections (floors in GRAM, calibrated to public data; ic = artwork glyph)
 const COLLECTIONS = {
   gifts:[
     {id:'santahat', n:'Santa Hat', floor:42, ic:'🎅', slug:'santahat'},
@@ -2534,7 +2534,7 @@ function rerenderFloors(){
   document.querySelectorAll('.gift-grid').forEach(grid=>{
     grid.querySelectorAll('.gift-tile').forEach(btn=>{
       const id=btn.getAttribute('data-id'); if(id==='other') return;
-      const c=giftColById(id); const f=btn.querySelector('.gt-f'); if(c&&f) f.textContent=c.floor.toLocaleString('en-US')+' TON';
+      const c=giftColById(id); const f=btn.querySelector('.gt-f'); if(c&&f) f.textContent=c.floor.toLocaleString('en-US')+' GRAM';
     });
   });
   try{ if(window.MK&&window.MK.refresh) window.MK.refresh(); }catch(e){}
@@ -2544,7 +2544,7 @@ async function refreshFloors(manual){
   if(!base){ FLOORS_SRC=FLOORS_TS?'cache':'demo'; updateFloorBadge(); return; }
   if(manual) toast(t('flrLoading'));
   try{
-    // live floors endpoint: { ok, count, floors:{<shortname>:<TON>}, usdRate }
+    // live floors endpoint: { ok, count, floors:{<shortname>:<GRAM>}, usdRate }
     const fl=base.replace(/\/+$/,'')+'/?floors';
     const res=await fetch(fl,{cache:'no-store'}); if(!res.ok) throw 0;
     const j=await res.json();
@@ -2668,17 +2668,17 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
       // a listed floor is a real ask you can actually pay -> never inflate it via the rarity prior;
       // only correct a thin/overpriced floor *downward* when rarity says it should be cheaper.
       const v=(rvRaw>0 && rvRaw<fl)?(wF*fl+(1-wF)*rvRaw):fl;
-      return {v:Math.max(base,v), n:sup, listed:true, floor:fl, share, ic, k:kFloor, disp:Math.round(fl)+' TON'};
+      return {v:Math.max(base,v), n:sup, listed:true, floor:fl, share, ic, k:kFloor, disp:Math.round(fl)+' GRAM'};
     }
     const rv=base + trust*(rvRaw-base);                              // r2-weighted premium for unlisted traits
-    return {v:Math.max(base,rv), n:0, listed:false, floor:0, share, ic, k:kRare, disp:'≈'+Math.round(rv)+' TON ('+(ru?'редкость':'rarity')+')'};
+    return {v:Math.max(base,rv), n:0, listed:false, floor:0, share, ic, k:kRare, disp:'≈'+Math.round(rv)+' GRAM ('+(ru?'редкость':'rarity')+')'};
   };
   const items=[ trait(rModel,fModel,sModel,'🧬','fModelFl','fModelRare'),
                 trait(rBack ,fBack ,sBack ,'🎨','fBackFl' ,'fBackRare'),
                 trait(rPat  ,fPat  ,sPat  ,'🌀','fPatFl'  ,'fPatRare') ].filter(Boolean);
   let price, fsd;
   if(items.length){
-    F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
+    F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' GRAM',cls:'neutral'});
     items.forEach(o=>F.push({i:o.ic,k:o.k,v:o.disp,cls:'plus'}));
     const sorted=items.slice().sort((a,b)=>b.v-a.v);
     const anchor=sorted[0].v;
@@ -2696,7 +2696,7 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     const disagree=mean>0?sd/mean:0;                                 // estimators disagree -> less certain
     const wF0=0.30+0.40*liqF, wS0=0.40-0.30*liqF, wA0=0.30-0.10*liqF; // lean on floor; scarcity is a gentle add, not a multiplier
     let point=wF0*E_floor+wS0*E_scar+wA0*E_add;
-    if(comboEff>1.02){ F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(anchor*(comboEff-1))+' TON',cls:'plus'}); }
+    if(comboEff>1.02){ F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(anchor*(comboEff-1))+' GRAM',cls:'plus'}); }
     const calEff=1+(CAL-1)*(1-liqF); price=point*calEff; if(calEff>1.005) F.push({i:'📈',k:'fMktCal',v:'+'+Math.round((calEff-1)*100)+'%',cls:'plus'});
     // C: live demand / listing-pressure tilt
     let tilt=1; try{ const mm=Object.values(MK.data()).flat().find(x=>x.name===col.n);
@@ -2721,7 +2721,7 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     if(cr.n>=3){ const meas=Math.max(0.04, Math.min(0.4, cr.e)); const w=Math.min(0.75, cr.n/8); fsd=(1-w)*fsd + w*meas;   // confidence becomes MEASURED as track record grows
       accOut={n:cr.n, e:cr.e}; F.push({i:'🎯',k:'fMeasured',v:'±'+Math.round(cr.e*100)+'% · '+cr.n,cls:'neutral'}); }
   } else {
-    price=base; F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' TON',cls:'neutral'});
+    price=base; F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' GRAM',cls:'neutral'});
     if(!isNaN(serial)&&serial>0){ const m=serialMult(serial,true);
       const kk = serial<=10 ? 'fSerialTop' : 'fSerialGood';
       if(m>1.01){ price*=m; F.push({i:'#️⃣',k:kk,v:'×'+m.toFixed(2),cls:'plus'}); } }
@@ -2803,7 +2803,7 @@ function inputHTML(cat, idp){
       (slug?'<img class="gt-img" data-slug="'+slug+'" src="https://api.changes.tg/original/'+slug+'.png?size=256" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="giftImgErr(this)">':'')+'</div>';
     return '<button type="button" class="gift-tile'+(c.id===def?' on':'')+'" data-id="'+c.id+'" onclick="pickGift(\''+idp+'\',\''+c.id+'\')">'+
       art+'<div class="gt-n">'+(c.id==='other'?t('giftOther'):c.n)+'</div>'+
-      ((c.id==='other'||!(c.floor>0))?'':'<div class="gt-f">'+c.floor.toLocaleString('en-US')+' TON</div>')+
+      ((c.id==='other'||!(c.floor>0))?'':'<div class="gt-f">'+c.floor.toLocaleString('en-US')+' GRAM</div>')+
     '</button>';
   }).join('');
   const photo = idp==='e_' ?
@@ -2902,7 +2902,7 @@ function fillTraitSelect(sel, arr, fmap, smap){
     const key=String(o.name||'').toLowerCase();
     const fl=fmap?fmap[key]:0; const sup=smap?smap[key]:0;
     const flAttr=fl>0?(' data-floor="'+fl+'" data-supply="'+(sup||0)+'"'):'';
-    const flTxt=fl>0?(' · '+Math.round(fl)+' TON'):'';
+    const flTxt=fl>0?(' · '+Math.round(fl)+' GRAM'):'';
     return '<option value="'+pct+'" data-name="'+escapeHTML(o.name)+'"'+flAttr+'>'+escapeHTML(o.name)+' · '+pct+'%'+flTxt+'</option>';
   }).join('');
   sel.disabled=false;
@@ -2941,7 +2941,7 @@ function renderTraitList(){
     const fl=fmap[String(name).toLowerCase()]||0;
     return '<div class="trait-row'+(cur===name?' on':'')+'" onclick="pickTraitIdx('+i+')">'+
       '<div><div class="tr-n">'+escapeHTML(name)+'</div><div class="tr-r">'+pct+'%</div></div>'+
-      (fl>0?'<div class="tr-f">'+Math.round(fl)+' TON</div>':'')+'</div>';
+      (fl>0?'<div class="tr-f">'+Math.round(fl)+' GRAM</div>':'')+'</div>';
   }).join('');
   if(!list.length && q) html+='<div class="trait-row" style="cursor:default;color:var(--txt-3)"><div class="tr-n" style="color:var(--txt-3);font-weight:600">'+(ru?'Ничего не найдено':'Nothing found')+'</div></div>';
   document.getElementById('trait-list').innerHTML=html;
@@ -3017,7 +3017,7 @@ function evalPlaceholder(){
       '<button class="evp-chip" onclick="evalExample(\'numbers\',\'77777777\')">+888 777 7777</button>'+
       '<button class="evp-chip" onclick="evalExample(\'gift\',\'plushpepe\')">Plush Pepe</button>'+
     '</div>'+
-    '<div class="evp-pulse">'+(ru?'Рынок: ':'Market: ')+'Plush Pepe 11 000 · Heroic Helmet 215 · Signet Ring 45 TON</div>'+'<div class="evp-foot">'+(ru?'Оценка · Рынок · Капитал · TON':'Value · Market · Capital · TON')+'</div></div>';
+    '<div class="evp-pulse">'+(ru?'Рынок: ':'Market: ')+'Plush Pepe 11 000 · Heroic Helmet 215 · Signet Ring 45 GRAM</div>'+'<div class="evp-foot">'+(ru?'Оценка · Рынок · Капитал · GRAM':'Value · Market · Capital · GRAM')+'</div></div>';
 }
 function evalExample(kind,val){
   if(kind==='gift'){ pickCat('gifts'); try{ pickGift('e_', val); }catch(e){} setTimeout(function(){ try{doEvaluate();}catch(e){} },90); return; }
@@ -3193,7 +3193,7 @@ async function loadGiftCross(r){
   if(stats && stats.n>=8){
     const pm=stats.prem||{}; const gp=(o,nm)=>(o&&nm&&o[nm]>0)?o[nm]:0;
     const vals=[gp(pm.models,m),gp(pm.backdrops,b),gp(pm.symbols,p)].filter(x=>x>0);
-    if(vals.length){ const hed=Math.max.apply(null,vals);   // worth ~ the most-valuable trait's typical SALE price (server-learned, absolute TON)
+    if(vals.length){ const hed=Math.max.apply(null,vals);   // worth ~ the most-valuable trait's typical SALE price (server-learned, absolute GRAM)
       const cred=Math.min(0.5, stats.n/(stats.n+25)); if(hed>0) r.priceTON=Math.round((1-cred)*r.priceTON + cred*hed); }
   }
   if(stats && stats.n>=8 && stats.cv>0){ r.fsd=Math.max(0.05, Math.min(0.4, 0.6*(r.fsd||0.2)+0.4*Math.min(0.5,stats.cv))); }   // #4 range/confidence from REAL collection volatility
@@ -3205,7 +3205,7 @@ async function loadGiftCross(r){
   if(lastResult===r && r.ts===stamp){
     countUp('ptonNum', r.priceTON);
     const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(r.priceTON);
-    const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(r.priceTON*(1-sp)))+'–'+fmtTON(Math.round(r.priceTON*(1+sp)))+' TON';
+    const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(r.priceTON*(1-sp)))+'–'+fmtTON(Math.round(r.priceTON*(1+sp)))+' GRAM';
     const cv=document.getElementById('confVal'); if(cv){ const cc=confOf(r); cv.textContent=t(cc.k); cv.style.color=cc.c; }
     const lv=document.getElementById('liqVal'); if(lv){ const lq=liqOf(r); lv.textContent=t(lq.k); lv.style.color=lq.c; }
     const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
@@ -3220,12 +3220,12 @@ function renderGiftVerdict(v){
   const box=document.getElementById('giftVerdict'); if(!box) return; const ru=S.lang==='ru';
   if(!v.hasTrait && !v.exactAsk && !v.sold && !v.floor){ box.innerHTML=''; return; }
   const row=(l,val,c)=>'<div class="vd-row"><span class="vd-l">'+l+'</span><span class="vd-v"'+(c?' style="color:'+c+'"':'')+'>'+val+'</span></div>';
-  let rows=row(ru?'Оценка Monet':'Monet appraisal', fmtTON(Math.round(v.worth))+' TON');
-  const mkt = v.exactAsk>0 ? (fmtTON(v.exactAsk)+' TON')
-            : (v.floor>0 ? ((ru?'от ':'from ')+fmtTON(v.floor)+' TON')
+  let rows=row(ru?'Оценка Monet':'Monet appraisal', fmtTON(Math.round(v.worth))+' GRAM');
+  const mkt = v.exactAsk>0 ? (fmtTON(v.exactAsk)+' GRAM')
+            : (v.floor>0 ? ((ru?'от ':'from ')+fmtTON(v.floor)+' GRAM')
             : (ru?'нет точного листинга':'no exact listing'));
   rows+=row(ru?'На рынке сейчас':'On market now', mkt, (v.exactAsk>0||v.floor>0)?'':'var(--txt-3)');
-  if(v.sold>0) rows+=row(ru?'Реальные сделки':'Recent sales', '≈ '+fmtTON(v.sold)+' TON'+(v.salesN>1?' · '+v.salesN+(ru?' сд.':''):''), 'var(--good)');
+  if(v.sold>0) rows+=row(ru?'Реальные сделки':'Recent sales', '≈ '+fmtTON(v.sold)+' GRAM'+(v.salesN>1?' · '+v.salesN+(ru?' сд.':''):''), 'var(--good)');
   let vb='', note='';
   if(v.exactAsk>0 && v.sold>0){
     const d=Math.round((v.exactAsk - v.sold)/v.sold*100);
@@ -3256,23 +3256,23 @@ function renderGiftComps(r, comps){
     const shown=tape.slice(0,12);
     const sk=shown.slice().sort((a,b)=>a-b); const med=sk[Math.floor(sk.length/2)];
     const chips=shown.map((x,i)=>{ const num=detail&&detail[i]&&detail[i].num?('#'+detail[i].num+' · '):'';
-      return '<span style="display:inline-flex;align-items:center;font-family:var(--font-m);font-weight:700;font-size:11.5px;color:'+(i===0?'#fff':'var(--txt-2)')+';background:'+(i===0?'var(--ton)':'var(--surface-2)')+';border:1px solid var(--line);border-radius:8px;padding:4px 8px">'+num+fmtTON(Math.round(x))+' TON</span>'; }).join('');
+      return '<span style="display:inline-flex;align-items:center;font-family:var(--font-m);font-weight:700;font-size:11.5px;color:'+(i===0?'#fff':'var(--txt-2)')+';background:'+(i===0?'var(--ton)':'var(--surface-2)')+';border:1px solid var(--line);border-radius:8px;padding:4px 8px">'+num+fmtTON(Math.round(x))+' GRAM</span>'; }).join('');
     const moreN=(comps.salesN||tape.length)-shown.length;
     tapeHTML='<div class="comps-h" style="margin-top:'+(found?'14px':'0')+'">'+(ru?'История реальных сделок':'Real sales history')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+chips+'</div>'+
-      '<div class="comps-range">'+(ru?'Медиана ':'Median ')+fmtTON(Math.round(med))+' TON'+(moreN>0?(' · +'+moreN+(ru?' ещё':' more')):'')+' · '+(ru?'новейшая слева':'newest left')+'</div>';
+      '<div class="comps-range">'+(ru?'Медиана ':'Median ')+fmtTON(Math.round(med))+' GRAM'+(moreN>0?(' · +'+moreN+(ru?' ещё':' more')):'')+' · '+(ru?'новейшая слева':'newest left')+'</div>';
   }
   if(!found){ box.innerHTML=tapeHTML; return; }   // no per-trait comps -> show the sales tape alone (or nothing)
   let dom=null; all.forEach(o=>{ if(!dom||o.best>dom.best) dom=o; });
   const rowOf=(lbl,o)=>{ if(!o||o.best<=0) return ''; const src = (ru?'офиц. рынок':'official market');
-    return '<div class="comp"><span class="cn">'+lbl+(o.name?' · '+escapeHTML(o.name):'')+'</span><span class="cp">'+fmtTON(o.best)+' TON <span style="opacity:.55;font-weight:600;font-size:.88em">'+src+'</span></span></div>'; };
+    return '<div class="comp"><span class="cn">'+lbl+(o.name?' · '+escapeHTML(o.name):'')+'</span><span class="cp">'+fmtTON(o.best)+' GRAM <span style="opacity:.55;font-weight:600;font-size:.88em">'+src+'</span></span></div>'; };
   const rows=rowOf(ru?'Узор':'Symbol',comps.pat)+rowOf(ru?'Фон':'Backdrop',comps.back)+rowOf(ru?'Модель':'Model',comps.model);
   const domLbl = dom===comps.pat?(ru?'узор':'symbol'):dom===comps.back?(ru?'фон':'backdrop'):(ru?'модель':'model');
   const exactLine = comps.exact ? '<div class="comps-range" style="color:var(--good)">'+(ru?'✓ найден точный комп этой комбинации':'✓ exact comp for this combination found')+'</div>' : '';
-  const domLine = dom ? '<div class="comps-range">'+(ru?'Доминирует ':'Driven by ')+domLbl+' ≈ '+fmtTON(dom.best)+' TON · '+(ru?'ориентир ':'estimate ')+fmtTON(r.priceTON)+' TON</div>' : '';
+  const domLine = dom ? '<div class="comps-range">'+(ru?'Доминирует ':'Driven by ')+domLbl+' ≈ '+fmtTON(dom.best)+' GRAM · '+(ru?'ориентир ':'estimate ')+fmtTON(r.priceTON)+' GRAM</div>' : '';
   box.innerHTML='<div class="comps-h">'+(ru?'Сопоставимые сделки':'Comparable deals')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
     '<div class="comps-range">'+(ru?'Найдено сопоставимых: ':'Comparables found: ')+found+'</div>'+
-    ((comps.lastSale>0 && !tape.length)?'<div class="comps-range" style="color:var(--good)">'+(ru?'Реальные сделки ≈ ':'Real sales ≈ ')+fmtTON(Math.round(comps.lastSale))+' TON</div>':'')+
+    ((comps.lastSale>0 && !tape.length)?'<div class="comps-range" style="color:var(--good)">'+(ru?'Реальные сделки ≈ ':'Real sales ≈ ')+fmtTON(Math.round(comps.lastSale))+' GRAM</div>':'')+
     domLine+exactLine+
     '<div class="comps-list">'+rows+'</div>'+
     tapeHTML+
@@ -3291,7 +3291,7 @@ function applyGiftCross(r, d, hasTrait){
   const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(frag);
   // re-fit the Est. range around the new price (tight when it's an exact live match)
   const sp=estSpread(r);
-  const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(frag*(1-sp)))+'–'+fmtTON(Math.round(frag*(1+sp)))+' TON';
+  const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(frag*(1-sp)))+'–'+fmtTON(Math.round(frag*(1+sp)))+' GRAM';
   // bump confidence: an exact live listing is a fact -> show it as high
   const cv=document.getElementById('confVal'); if(cv){ const c=confOf(r); cv.textContent=t(c.k); cv.style.color=c.c; } const lv=document.getElementById('liqVal'); if(lv){ const l=liqOf(r); lv.textContent=t(l.k); lv.style.color=l.c; } const sv=document.getElementById('starsVal'); if(sv) sv.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
   // discreet buy CTA -> collection page (not the exact lot), neutral label, no ref
@@ -3319,9 +3319,9 @@ async function loadUserComps(display){
 function compsHTML(d){
   const fmt=(n)=>Math.round(n).toLocaleString('en-US').replace(/,/g,' ');
   if(!d||!d.count){ return '<div class="comps-h">'+t('compsTitle')+'</div><div class="comps-note">'+t('compsNone')+'</div>'; }
-  const list=(d.samples||[]).slice(0,5).map(s=>'<div class="comp"><span class="cn">'+escapeHTML(s.name)+'</span><span class="cp">'+fmt(s.price)+' TON</span></div>').join('');
+  const list=(d.samples||[]).slice(0,5).map(s=>'<div class="comp"><span class="cn">'+escapeHTML(s.name)+'</span><span class="cp">'+fmt(s.price)+' GRAM</span></div>').join('');
   return '<div class="comps-h">'+t('compsTitle')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
-    '<div class="comps-range">'+d.count+' '+t('compsAds')+' · '+fmt(d.min)+'–'+fmt(d.max)+' TON · '+t('compsMedian')+' '+fmt(d.median)+'</div>'+
+    '<div class="comps-range">'+d.count+' '+t('compsAds')+' · '+fmt(d.min)+'–'+fmt(d.max)+' GRAM · '+t('compsMedian')+' '+fmt(d.median)+'</div>'+
     '<div class="comps-list">'+list+'</div>'+
     '<div class="comps-note">'+t('compsNote')+'</div>';
 }
@@ -3329,7 +3329,7 @@ function lastSoldRow(floor, ch24, real){
   let val, est=false;
   if(real>0){ val=real; } else { const k=Math.max(-0.04,Math.min(0.06,(ch24/100)*0.25)); val=Math.round(floor*(1+k)); est=true; }
   return '<div class="mb-sold"><span class="k">'+t('brLastSold')+'</span>'+
-    '<span class="v">'+(est?'≈ ':'')+fmtTON(val)+' TON'+
+    '<span class="v">'+(est?'≈ ':'')+fmtTON(val)+' GRAM'+
       (est?' <span class="mb-est">'+t('brEstTag')+'</span>':' <span class="comps-live"><span class="flr-dot" style="background:var(--up)"></span>live</span>')+'</span></div>';
 }
 function marketBridgeHTML(r){
@@ -3444,7 +3444,7 @@ function guidanceInner(r){
   const hasMkt=!!(r._mktAsk>0||r._floor>0||r._sold>0);
   const floorsStale = (typeof FLOORS_SRC!=='undefined' && FLOORS_SRC==='demo') || (typeof FLOORS_TS!=='undefined' && FLOORS_TS>0 && (Date.now()-FLOORS_TS) > 45*60000);
   const gated = isGift && (lowConf || !hasMkt || floorsStale);   // #4: no confident zones on low-confidence / missing / stale data
-  const num=v=>fmtTON(v)+' TON', rng=(a,b)=>fmtTON(a)+'–'+fmtTON(b)+' TON';
+  const num=v=>fmtTON(v)+' GRAM', rng=(a,b)=>fmtTON(a)+'–'+fmtTON(b)+' GRAM';
   const row=(k,val,note,cls,lk)=>'<div class="g-row '+(cls||'')+(lk?' locked':'')+'"><div class="g-l"><span class="g-k">'+k+'</span><span class="g-note">'+note+'</span></div><div class="g-v">'+(lk?'<span class="g-lockv"><svg class="mi" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> •••</span>':val)+'</div></div>';
   let rows='', head='';
   if(r.cat==='numbers'){
@@ -3474,8 +3474,8 @@ function guidanceInner(r){
   let ctx='';
   if(r.cat==='gifts'||r.cat==='stickers'){
     const parts=[];
-    if(r._floor>0) parts.push((ru?'флор ':'floor ')+fmtTON(r._floor)+' TON');
-    if(r._mktAsk>0) parts.push((ru?'дешевле ':'cheapest ')+fmtTON(r._mktAsk)+' TON');
+    if(r._floor>0) parts.push((ru?'флор ':'floor ')+fmtTON(r._floor)+' GRAM');
+    if(r._mktAsk>0) parts.push((ru?'дешевле ':'cheapest ')+fmtTON(r._mktAsk)+' GRAM');
     if(r._salesN>0) parts.push(r._salesN+(ru?' сделок':' deals'));
     if(parts.length) ctx='<div class="g-ctx">'+parts.join(' · ')+'</div>';
   }
@@ -3524,8 +3524,8 @@ function resultCardHTML(r){
       '<div class="arow"><div class="asset">'+escapeHTML(r.display)+'</div></div>'+
       '<div class="sub">'+subline+'</div>'+
       (S.skin==='b'?'<div class="skb-serial">'+((r.rarity&&r.rarity.oneIn)?('EDITION \u00b7 1 / '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')):('MONET DROP \u00b7 '+apprDate()))+'</div>':'')+
-      '<div class="price-ton"><span id="ptonNum">'+fmtTON(r.priceTON)+'</span><span class="u">TON</span></div>'+
-      '<div class="price-range" id="prange">'+t('estLabel')+': '+fmtTON(lo)+'–'+fmtTON(hi)+' TON</div>'+
+      '<div class="price-ton"><span id="ptonNum">'+fmtTON(r.priceTON)+'</span><span class="u">GRAM</span></div>'+
+      '<div class="price-range" id="prange">'+t('estLabel')+': '+fmtTON(lo)+'–'+fmtTON(hi)+' GRAM</div>'+
       (r.cat==='gifts'?'<div id="xmkt"></div>':'')+
       '<div class="price-fiat"><span class="v" id="fiatVal">'+fmtFiat(r.priceTON)+'</span>'+
         '<span class="cur-toggle"><button class="'+(S.currency==='usd'?'on':'')+'" onclick="setCurrency(\'usd\')">USD</button><button class="'+(S.currency==='eur'?'on':'')+'" onclick="setCurrency(\'eur\')">EUR</button></span></div>'+
@@ -3569,13 +3569,13 @@ function explainText(r){
   const plus=r.factors.filter(f=>f.cls==='plus').map(f=>t(f.k).toLowerCase());
   const minus=r.factors.filter(f=>f.cls==='minus').map(f=>t(f.k).toLowerCase());
   if(S.lang==='ru'){
-    let s='<b>'+escapeHTML(r.display)+'</b> оценён в <b>'+fmtTON(r.priceTON)+' TON</b> ('+fmtFiat(r.priceTON)+') — категория «'+t(tier.k)+'». ';
+    let s='<b>'+escapeHTML(r.display)+'</b> оценён в <b>'+fmtTON(r.priceTON)+' GRAM</b> ('+fmtFiat(r.priceTON)+') — категория «'+t(tier.k)+'». ';
     if(plus.length) s+='Цену поднимают: '+plus.join(', ')+'. ';
     if(minus.length) s+='Снижают: '+minus.join(', ')+'. ';
     s+='Это ориентир по формуле, откалиброванной на реальных сделках. Финальную цену определяет рынок.';
     return s;
   }
-  let s='<b>'+escapeHTML(r.display)+'</b> is estimated at <b>'+fmtTON(r.priceTON)+' TON</b> ('+fmtFiat(r.priceTON)+') — “'+t(tier.k)+'” tier. ';
+  let s='<b>'+escapeHTML(r.display)+'</b> is estimated at <b>'+fmtTON(r.priceTON)+' GRAM</b> ('+fmtFiat(r.priceTON)+') — “'+t(tier.k)+'” tier. ';
   if(plus.length) s+='Value drivers: '+plus.join(', ')+'. ';
   if(minus.length) s+='Drags: '+minus.join(', ')+'. ';
   s+='This is a formula-based orientation, calibrated on real market deals. The market sets the final price.';
@@ -3729,14 +3729,14 @@ function cmpSlotHTML(k){ const c=cmpSel[k]?giftColById(cmpSel[k]):null; const on
   return '<button type="button" class="cmp-slot'+(on?' on':'')+'" onclick="cmpSetActive(\''+k+'\')">'+
     '<span class="cmp-slot-k">'+k+'</span>'+
     '<span class="cmp-slot-n">'+(c?escapeHTML(c.n):(S.lang==='ru'?'тапни и выбери':'tap to pick'))+'</span>'+
-    (c&&c.floor>0?'<span class="cmp-slot-f">'+c.floor.toLocaleString('en-US')+' TON</span>':'')+'</button>'; }
+    (c&&c.floor>0?'<span class="cmp-slot-f">'+c.floor.toLocaleString('en-US')+' GRAM</span>':'')+'</button>'; }
 function cmpSlotsHTML(){ return '<div class="cmp-slots" id="cc_slots">'+cmpSlotHTML('A')+'<span class="cmp-vs">VS</span>'+cmpSlotHTML('B')+'</div>'; }
 function giftCompareHTML(){
   const tiles=COLLECTIONS.gifts.map((c,i)=>{ const slug=c.slug;
     const art='<div class="gt-art" style="background:'+giftGrad(i)+'"><span class="gt-emo">'+c.ic+'</span>'+
       (slug?'<img class="gt-img" data-slug="'+slug+'" src="https://api.changes.tg/original/'+slug+'.png?size=256" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="giftImgErr(this)">':'')+'</div>';
     return '<button type="button" class="gift-tile" data-id="'+c.id+'" onclick="pickGiftCompare(\''+c.id+'\')">'+
-      art+'<div class="gt-n">'+c.n+'</div>'+(c.floor>0?'<div class="gt-f">'+c.floor.toLocaleString('en-US')+' TON</div>':'')+'</button>'; }).join('');
+      art+'<div class="gt-n">'+c.n+'</div>'+(c.floor>0?'<div class="gt-f">'+c.floor.toLocaleString('en-US')+' GRAM</div>':'')+'</button>'; }).join('');
   return cmpSlotsHTML()+
     '<div class="mk-search" style="margin:12px 2px 10px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg><input id="cc_gq" placeholder="'+t('mkSearchPh')+'" autocomplete="off" spellcheck="false" oninput="filterGifts(\'cc_\',this.value)"></div>'+
     '<div style="display:flex;gap:6px;margin:0 2px 10px;flex-wrap:wrap">'+
@@ -3779,7 +3779,7 @@ function doCompare(){
   }
   const aWin=a.priceTON>=b.priceTON;
   const ratio=Math.max(a.priceTON,b.priceTON)/Math.max(1,Math.min(a.priceTON,b.priceTON));
-  const col=(r,win)=>'<div class="cmp-col'+(win?' win':'')+'"><div class="ca">'+escapeHTML(r.display)+'</div><div class="cp">'+fmtTON(r.priceTON)+' TON</div><div class="ct">'+fmtFiat(r.priceTON)+' · '+t(tierOf(r.priceTON).k)+'</div></div>';
+  const col=(r,win)=>'<div class="cmp-col'+(win?' win':'')+'"><div class="ca">'+escapeHTML(r.display)+'</div><div class="cp">'+fmtTON(r.priceTON)+' GRAM</div><div class="ct">'+fmtFiat(r.priceTON)+' · '+t(tierOf(r.priceTON).k)+'</div></div>';
   let verdict;
   if(Math.abs(a.priceTON-b.priceTON)/Math.max(a.priceTON,b.priceTON)<0.03) verdict=t('cmpEqual');
   else verdict='<b>'+escapeHTML((aWin?a:b).display)+'</b> '+t('cmpDearer')+' '+ratio.toFixed(ratio<10?1:0)+(S.lang==='ru'?'×':'')+' '+(S.lang==='ru'?t('cmpTimes'):'');
@@ -3859,7 +3859,7 @@ function submitGuess(){
   const bonusTag = bonus>0 ? ' <span style="color:var(--up)">+'+(Number.isInteger(bonus)?bonus:bonus.toFixed(1))+sx+'</span>'
                  : bonus<0 ? ' <span style="color:var(--down)">'+bonus+sx+'</span>' : '';
   fb.className='g-fb '+cls;
-  fb.innerHTML=msg+' '+(pts>=0?'+':'')+pts+bonusTag+' <span style="color:var(--txt-3);font-weight:600">('+fmtTON(real)+' TON)</span>';
+  fb.innerHTML=msg+' '+(pts>=0?'+':'')+pts+bonusTag+' <span style="color:var(--txt-3);font-weight:600">('+fmtTON(real)+' GRAM)</span>';
   const f=document.getElementById('gTimerFill'); if(f)f.style.width=Math.min(100,game.time/game.total*100)+'%';
   game.locked=true;
   setTimeout(()=>{ if(!game)return; game.locked=false; nextQuestion(); renderGame(); },950);
@@ -3949,9 +3949,9 @@ async function exportCard(){
   // price
   x.fillStyle='#1F4D3D'; x.font='600 150px "Fraunces", serif';
   x.fillText(fmtTON(r.priceTON),540,600);
-  x.fillStyle='#19211A'; x.font='600 50px "Fraunces", serif'; x.fillText('TON',540,688);
+  x.fillStyle='#19211A'; x.font='600 50px "Fraunces", serif'; x.fillText('GRAM',540,688);
   const _sp=estSpread(r), elo=Math.round(r.priceTON*(1-_sp)), ehi=Math.round(r.priceTON*(1+_sp));
-  x.fillStyle='#7E8C78'; x.font='600 33px "Hanken Grotesk", sans-serif'; x.fillText(t('estLabel')+': '+fmtTON(elo)+'–'+fmtTON(ehi)+' TON  ·  '+fmtFiat(r.priceTON),540,748);
+  x.fillStyle='#7E8C78'; x.font='600 33px "Hanken Grotesk", sans-serif'; x.fillText(t('estLabel')+': '+fmtTON(elo)+'–'+fmtTON(ehi)+' GRAM  ·  '+fmtFiat(r.priceTON),540,748);
   // factors (room kept on the right for the seal)
   x.textAlign='left'; let fy=858;
   r.factors.filter(f=>f.cls==='plus').slice(0,3).forEach(f=>{
@@ -3967,7 +3967,7 @@ async function exportCard(){
   x.fillText(BOT_HANDLE+' · '+t('apprHouse')+' · '+apprDate(),120,1006);
   try{ track('share_card'); }catch(e){}
   const dlink=reportLink(r);
-  const capLine=(S.lang==='ru'?'Оценил в Monet: ':'Appraised on Monet: ')+r.display+' · '+fmtTON(r.priceTON)+' TON → '+dlink;
+  const capLine=(S.lang==='ru'?'Оценил в Monet: ':'Appraised on Monet: ')+r.display+' · '+fmtTON(r.priceTON)+' GRAM → '+dlink;
   cv.toBlob(async (blob)=>{
     const file=new File([blob],'monet-'+r.display.replace(/\W/g,'')+'.png',{type:'image/png'});
     if(navigator.canShare && navigator.canShare({files:[file]})){
@@ -4030,8 +4030,8 @@ function renderDrawer(){
         '<div class="pi"><div class="ph">'+escapeHTML(handle)+'</div><div class="ps">'+tierBadge(tier.idx)+' '+tier.name+'</div>'+proPill()+'</div>'+
         '<div class="pts"><svg class="pstar" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg>'+(S.points||0)+'</div>'+
       '</div>'+
-      '<div class="dp-cap"><span class="dp-cap-l">'+t('menuAssets')+'</span><span class="dp-cap-v">'+(hb?'\u2022\u2022\u2022\u2022':fmtTON(cap)+' <span>TON</span>')+'</span></div>'+
-      (next ? '<div class="dp-bar"><i style="width:'+pct.toFixed(0)+'%"></i></div><div class="dp-next">'+t('pfToNext')+' '+next.name+': '+(hb?'\u2022\u2022\u2022\u2022':fmtTON(next.need)+' TON')+'</div>'
+      '<div class="dp-cap"><span class="dp-cap-l">'+t('menuAssets')+'</span><span class="dp-cap-v">'+(hb?'\u2022\u2022\u2022\u2022':fmtTON(cap)+' <span>GRAM</span>')+'</span></div>'+
+      (next ? '<div class="dp-bar"><i style="width:'+pct.toFixed(0)+'%"></i></div><div class="dp-next">'+t('pfToNext')+' '+next.name+': '+(hb?'\u2022\u2022\u2022\u2022':fmtTON(next.need)+' GRAM')+'</div>'
             : '<div class="dp-next">'+tier.name+' \u00b7 MAX</div>'); }
   const el=document.getElementById('dlist'); let html='';
   if(curDTab==='history'){
@@ -4048,7 +4048,7 @@ function renderDrawer(){
   } else {
     const deals=TOP_DEALS[curCat]||TOP_DEALS.username;
     html='<div style="font-size:11px;color:var(--txt-3);text-align:center;margin-bottom:12px">'+t('topNote')+'</div>';
-    html+=deals.map((d,i)=>'<div class="litem"><div class="rank">'+(i+1)+'</div><div class="lmid"><div class="la">'+escapeHTML(d.display)+'</div><div class="ls">'+d.note+'</div></div><div class="lp">'+fmtTON(d.priceTON)+' TON</div></div>').join('');
+    html+=deals.map((d,i)=>'<div class="litem"><div class="rank">'+(i+1)+'</div><div class="lmid"><div class="la">'+escapeHTML(d.display)+'</div><div class="ls">'+d.note+'</div></div><div class="lp">'+fmtTON(d.priceTON)+' GRAM</div></div>').join('');
   }
   el.innerHTML = html.includes('litem') ? '<div class="ledger">'+html+'</div>' : html;
   try{ syncSettings(); }catch(e){}
@@ -4057,7 +4057,7 @@ function litemHTML(it,fav,idx){
   const click = fav ? ('reEvalFav('+idx+')') : (idx!=null ? ('reEvalHist('+idx+')') : '');
   return '<div class="litem"'+(click?' onclick="'+click+'" style="cursor:pointer"':'')+'><div class="lic">'+catIcon(it.cat)+'</div>'+
     '<div class="lmid"><div class="la">'+escapeHTML(it.display)+'</div><div class="ls">'+t(tierOf(it.priceTON).k)+'</div></div>'+
-    '<div class="lp">'+(S.hideBalance?'••••':fmtTON(it.priceTON)+' TON')+'</div>'+
+    '<div class="lp">'+(S.hideBalance?'••••':fmtTON(it.priceTON)+' GRAM')+'</div>'+
     (fav?'<div class="lx" onclick="event.stopPropagation();removeFav('+idx+')">✕</div>':'')+'</div>';
 }
 function removeFav(i){ S.favorites.splice(i,1); save(); renderDrawer(); syncFavButton(); }
@@ -4285,11 +4285,11 @@ function jattr(v){ return JSON.stringify(v).replace(/"/g,'&quot;'); }
 let toastTimer;
 function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2400); }
 
-/* ---- live TON rate (optional, runtime fetch; falls back to defaults) ---- */
+/* ---- live GRAM rate (optional, runtime fetch; falls back to defaults) ---- */
 function updateHeroRate(){
   const el=document.getElementById('heroRate'); if(!el) return;
   const sym=symOf(S.currency), v=fxOf(S.currency);
-  el.textContent='1 TON ≈ '+sym+(v).toFixed(2);
+  el.textContent='1 GRAM ≈ '+sym+(v).toFixed(2);
 }
 async function refreshRate(){
   try{
@@ -4381,8 +4381,8 @@ window.MK = (function(){
   function r2(){ return RATE.usd; }
   function toCur(t){ return cur==='ton'?t:t*r2(); }
   function grp(n){ return Math.round(n).toLocaleString('en-US').replace(/,/g,' '); }
-  function fmtPrice(t){ const v=toCur(t); return cur==='usd'?('$'+grp(v)):(grp(v)+' TON'); }
-  function fmtCompact(t){ let v=toCur(t); const p=cur==='usd'?'$':'',s=cur==='ton'?' TON':''; let o;
+  function fmtPrice(t){ const v=toCur(t); return cur==='usd'?('$'+grp(v)):(grp(v)+' GRAM'); }
+  function fmtCompact(t){ let v=toCur(t); const p=cur==='usd'?'$':'',s=cur==='ton'?' GRAM':''; let o;
     if(v>=1e9)o=(v/1e9).toFixed(2)+'B'; else if(v>=1e6)o=(v/1e6).toFixed(2)+'M'; else if(v>=1e3)o=(v/1e3).toFixed(1)+'K'; else o=Math.round(v); return p+o+s; }
   function fmtD(x){ return Math.abs(x)<0.05?'—':((x>=0?'+':'')+x.toFixed(1)+'%'); }
   function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -4405,7 +4405,7 @@ window.MK = (function(){
     const ru=S.lang==='ru';
     return '<div class="mgi">'+
       '<div class="mgi-lab">'+t('mgiTitle')+(x.live?' <span class="comps-live"><span class="flr-dot" style="background:var(--up)"></span>live</span>':'')+'</div>'+
-      '<div class="mgi-row"><div class="mgi-val">'+fmtCompact(x.cap)+' <span class="u">TON</span></div>'+
+      '<div class="mgi-row"><div class="mgi-val">'+fmtCompact(x.cap)+' <span class="u">GRAM</span></div>'+
         '<div class="mgi-d" style="font-size:14px;font-weight:800;color:'+(upR?'var(--up)':'var(--down)')+'">'+fmtD(chR)+' · '+(idxRange===7?(ru?'7д':'7d'):'24'+t('mgiH'))+'</div></div>'+
       '<div class="mgi-chart">'+bigChart(ser,upR)+'</div>'+
       '<div class="mk-range mgi-range"><button class="'+(idxRange===7?'on':'')+'" onclick="MK.setIdxRange(7)">'+(ru?'7Д':'7D')+'</button><button class="'+(idxRange===30?'on':'')+'" onclick="MK.setIdxRange(30)">'+(ru?'30Д':'30D')+'</button></div>'+
@@ -4444,7 +4444,7 @@ window.MK = (function(){
 
   function heldQty(name){ const list=(typeof S==='object'&&S.portfolio)||[]; let q=0; list.forEach(h=>{ if(h.display===name) q+=(h.qty||1); }); return q; }
   function setCat(c){ cat=c; document.querySelectorAll('#mk-pills button').forEach(b=>b.classList.toggle('on',b.dataset.cat===c)); render(); }
-  function setCur(c){ cur=c; document.querySelectorAll('#mk-cur button').forEach(b=>b.classList.toggle('on',(c==='ton')===(b.textContent==='TON'))); render(); }
+  function setCur(c){ cur=c; document.querySelectorAll('#mk-cur button').forEach(b=>b.classList.toggle('on',(c==='ton')===(b.textContent==='GRAM'))); render(); }
   function onSort(k){ sortKey=k; sortAsc=false; render(); }
 
   let sheetA=null, sheetRange=30;
@@ -4646,12 +4646,12 @@ window.PF = (function(){
       window._pfPicks=picks;
       const ladder=['Standard','Bronze','Silver','Gold','Platinum','Black'];
       const quick=picks.map((g,i)=>'<div class="pf-item"><div class="ic">'+('<span>'+g.icon+'</span>'+gimg(g.name))+'</div>'+
-        '<div class="mid"><b>'+escapeHTML(g.name)+'</b><span>'+(RU?'флор':'floor')+' '+grp(g.price)+' TON</span></div>'+
+        '<div class="mid"><b>'+escapeHTML(g.name)+'</b><span>'+(RU?'флор':'floor')+' '+grp(g.price)+' GRAM</span></div>'+
         '<button class="pf-addbtn" onclick="pfQuickAdd('+i+')">+ '+(RU?'в портфель':'add')+'</button></div>').join('');
       box.innerHTML=
         '<div class="pf-hero" style="text-align:center">'+
           '<div class="lbl">'+(RU?'Твой Telegram-капитал':'Your Telegram net worth')+'</div>'+
-          '<div class="tot" style="opacity:.45">0 <span style="font-size:.5em;font-weight:700;opacity:.85">TON</span></div>'+
+          '<div class="tot" style="opacity:.45">0 <span style="font-size:.5em;font-weight:700;opacity:.85">GRAM</span></div>'+
           '<div class="fiat" style="opacity:.8">'+(RU?'появится здесь, как добавишь активы':'shows up here once you add assets')+'</div>'+
           '<div class="pf-crange" style="justify-content:center;flex-wrap:wrap">'+ladder.map((s,i)=>'<button style="cursor:default">'+tierBadge(i)+' '+s+'</button>').join('')+'</div>'+
         '</div>'+
@@ -4679,8 +4679,8 @@ window.PF = (function(){
         '</div></div>' : '';
     const rows=list.map((h,i)=>{ const p=curPrice(h)*(h.qty||1); const d=ch24(h); const u=d>=0;
       return '<div class="pf-item"><div class="ic">'+picHTML(h)+'</div>'+
-        '<div class="mid" onclick="PF.editOpen('+i+')" style="cursor:pointer"><b>'+escapeHTML(h.display)+'</b><span>'+(h.qty>1?h.qty+' × '+grp(curPrice(h))+' TON':grp(curPrice(h))+' TON')+(h.buy!=null?' · <span style="color:'+(curPrice(h)>=h.buy?'var(--up)':'var(--down)')+'">'+(curPrice(h)>=h.buy?'+':'')+(h.buy>0?((curPrice(h)-h.buy)/h.buy*100).toFixed(0):'0')+'%</span>':'')+'</span></div>'+
-        '<div class="rt"><div class="v">'+(hidden?'••••':grp(p))+' TON</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'+':'')+d.toFixed(1)+'%'):'—')+'</div></div>'+
+        '<div class="mid" onclick="PF.editOpen('+i+')" style="cursor:pointer"><b>'+escapeHTML(h.display)+'</b><span>'+(h.qty>1?h.qty+' × '+grp(curPrice(h))+' GRAM':grp(curPrice(h))+' GRAM')+(h.buy!=null?' · <span style="color:'+(curPrice(h)>=h.buy?'var(--up)':'var(--down)')+'">'+(curPrice(h)>=h.buy?'+':'')+(h.buy>0?((curPrice(h)-h.buy)/h.buy*100).toFixed(0):'0')+'%</span>':'')+'</span></div>'+
+        '<div class="rt"><div class="v">'+(hidden?'••••':grp(p))+' GRAM</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'+':'')+d.toFixed(1)+'%'):'—')+'</div></div>'+
         '<div class="pf-rowacts"><button class="pf-sell" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
     const eyeIcon = hidden
       ? '<svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.1A9 9 0 0 1 21 12a14 14 0 0 1-2.3 3M6.1 6.1A14 14 0 0 0 3 12a9 9 0 0 0 12 6.5"/></svg>'
@@ -4693,17 +4693,17 @@ window.PF = (function(){
             '<button class="pf-eye" onclick="PF.toggleHide()" aria-label="hide">'+eyeIcon+'</button>'+
           '</div></div>'+
         '<div class="tot">'+(hidden
-            ? '<span class="pf-masked">••••••</span> <span style="font-size:.5em;font-weight:700;opacity:.85">TON</span>'
-            : '<span id="pf-tot">'+grp(tot)+'</span> <span style="font-size:.5em;font-weight:700;opacity:.85">TON</span>')+'</div>'+
+            ? '<span class="pf-masked">••••••</span> <span style="font-size:.5em;font-weight:700;opacity:.85">GRAM</span>'
+            : '<span id="pf-tot">'+grp(tot)+'</span> <span style="font-size:.5em;font-weight:700;opacity:.85">GRAM</span>')+'</div>'+
         '<div class="fiat">≈ '+(hidden?'••••':fiat(tot))+'</div>'+
-        (hidden?'':'<div class="pf-range">'+t('estRange')+': '+grp(lo)+' – '+grp(hi)+' TON</div>')+
+        (hidden?'':'<div class="pf-range">'+t('estRange')+': '+grp(lo)+' – '+grp(hi)+' GRAM</div>')+
         '<div class="chg" style="color:#fff">'+(Math.abs(w24)<0.05?'— · '+t('pfChange24'):(up?'▲':'▼')+' '+Math.abs(w24).toFixed(1)+'% · '+t('pfChange24'))+'</div>'+
         '<div class="pf-chart">'+sparkSVG(valueSeries(chartRange))+'</div>'+
         '<div class="pf-crange"><button class="'+(chartRange===7?'on':'')+'" onclick="PF.setRange(7)">'+(S.lang==='ru'?'7Д':'7D')+'</button><button class="'+(chartRange===30?'on':'')+'" onclick="PF.setRange(30)">'+(S.lang==='ru'?'30Д':'30D')+'</button></div>'+
       '</div>'+
       (hidden?'':('<div class="pf-bankrow">'+
-        '<div class="pf-bcard" onclick="PF.info(\'forecast\')" style="cursor:pointer"><div class="k">'+t('pfForecast')+' ›</div><div class="v">'+(hidden?'••••':grp(fc.val)+' TON')+'</div><div class="s" style="color:'+(fc.pct>=0?'var(--up)':'var(--down)')+'">'+(fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'%</div></div>'+
-        '<div class="pf-bcard" onclick="PF.info(\'status\')" style="cursor:pointer"><div class="k">'+t('pfTier')+' ›</div><div class="v">'+tierBadge(tier.idx)+' '+tier.name+'</div><div class="s" style="color:var(--txt-3)">'+(tier.next?(t('pfToNext')+' '+tier.next.name+': '+grp(tier.next.need)+' TON'):'MAX')+'</div></div>'+
+        '<div class="pf-bcard" onclick="PF.info(\'forecast\')" style="cursor:pointer"><div class="k">'+t('pfForecast')+' ›</div><div class="v">'+(hidden?'••••':grp(fc.val)+' GRAM')+'</div><div class="s" style="color:'+(fc.pct>=0?'var(--up)':'var(--down)')+'">'+(fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'%</div></div>'+
+        '<div class="pf-bcard" onclick="PF.info(\'status\')" style="cursor:pointer"><div class="k">'+t('pfTier')+' ›</div><div class="v">'+tierBadge(tier.idx)+' '+tier.name+'</div><div class="s" style="color:var(--txt-3)">'+(tier.next?(t('pfToNext')+' '+tier.next.name+': '+grp(tier.next.need)+' GRAM'):'MAX')+'</div></div>'+
       '</div>'+
       pnlHTML()+ goalCard+ cashHTML()))+ (window.BANK?window.BANK.rewardsCardHTML():'')+
       insights+ alloc+
@@ -4728,9 +4728,9 @@ window.PF = (function(){
   function goalHTML(tot){ const g=parseFloat(S.goal)||0;
     if(g<=0) return '<button class="pf-setgoal" onclick="PF.openGoal()"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg> '+t('pfSetGoal')+'</button>';
     const pct=Math.min(100, tot/g*100); const reached=tot>=g; const rem=Math.max(0,g-tot);
-    return '<div class="pf-goalcard"><div class="gh"><b><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg> '+t('pfGoal')+': '+grp(g)+' TON</b><button class="edit" onclick="PF.openGoal()">✎</button></div>'+
+    return '<div class="pf-goalcard"><div class="gh"><b><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg> '+t('pfGoal')+': '+grp(g)+' GRAM</b><button class="edit" onclick="PF.openGoal()">✎</button></div>'+
       '<div class="pf-bar"><i style="width:'+pct.toFixed(1)+'%"></i></div>'+
-      '<div class="gm">'+(reached?'<span style="color:var(--up)">'+t('pfGoalReached')+'</span>':'<span>'+t('pfRemaining')+': '+grp(rem)+' TON</span>')+'<span class="pct">'+pct.toFixed(0)+'%</span></div></div>'; }
+      '<div class="gm">'+(reached?'<span style="color:var(--up)">'+t('pfGoalReached')+'</span>':'<span>'+t('pfRemaining')+': '+grp(rem)+' GRAM</span>')+'<span class="pct">'+pct.toFixed(0)+'%</span></div></div>'; }
 
   function toggleHide(){ const apply=function(){ S.hideBalance=!S.hideBalance; save(); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} render(); }; if(window.LOCK&&LOCK.has()){ LOCK.verify(apply); } else { apply(); } }
   function openGoal(){ const cur=parseFloat(S.goal)||'';
@@ -4759,14 +4759,14 @@ window.PF = (function(){
     x.fillStyle='#fff'; x.font='800 46px "Hanken Grotesk", sans-serif'; x.textAlign='left'; x.fillText('Monet',90,150);
     x.font='700 30px "Hanken Grotesk", sans-serif'; x.fillStyle='rgba(255,255,255,.85)'; x.fillText(t('pfNetWorth'),90,330);
     x.fillStyle='#fff'; x.font='800 150px "Hanken Grotesk", sans-serif'; const numW=x.measureText(grp(tot)).width; x.fillText(grp(tot),90,500);
-    x.font='800 60px "Hanken Grotesk", sans-serif'; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('TON',90+numW+24,500);
+    x.font='800 60px "Hanken Grotesk", sans-serif'; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('GRAM',90+numW+24,500);
     x.font='600 40px "Hanken Grotesk", sans-serif'; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('≈ '+fiat(tot),90,565);
     // top holdings
     const top=list.map(h=>({n:h.display,v:curPrice(h)*(h.qty||1)})).sort((a,b)=>b.v-a.v).slice(0,4);
     let yy=700; x.font='700 26px "Hanken Grotesk"'; x.fillStyle='rgba(255,255,255,.75)'; x.fillText((S.lang==='ru'?'ТОП АКТИВЫ':'TOP HOLDINGS'),90,yy-24);
     top.forEach(it=>{ x.fillStyle='rgba(255,255,255,.14)'; roundRect(x,90,yy,900,72,18); x.fill();
       x.fillStyle='#fff'; x.font='700 32px "Hanken Grotesk"'; x.textAlign='left'; x.fillText(it.n.length>22?it.n.slice(0,21)+'…':it.n,116,yy+47);
-      x.font='800 32px "Hanken Grotesk"'; x.textAlign='right'; x.fillText(grp(it.v)+' TON',964,yy+47); x.textAlign='left'; yy+=86; });
+      x.font='800 32px "Hanken Grotesk"'; x.textAlign='right'; x.fillText(grp(it.v)+' GRAM',964,yy+47); x.textAlign='left'; yy+=86; });
     x.textAlign='center'; x.fillStyle='rgba(255,255,255,.8)'; x.font='500 26px "Hanken Grotesk"';
     x.fillText(BOT_HANDLE+' · '+(S.lang==='ru'?'оцени свой Telegram-капитал':'value your Telegram capital'),540,1030);
     const capLine=(S.lang==='ru'?'Мой Telegram-капитал в Monet':'My Telegram capital on Monet')+' → '+APP_LINK;
@@ -4797,7 +4797,7 @@ window.PF = (function(){
   }
   let sellIdx=-1, editIdx=-1;
   function cashHTML(){ const c=Math.round(S.cash||0); if(c<=0) return '';
-    return '<div class="pf-goalcard"><div class="gh"><b><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg> '+t('pfCash')+': '+grp(c)+' TON</b><button class="edit" onclick="PF.withdraw()">'+t('pfWithdraw')+'</button></div></div>'; }
+    return '<div class="pf-goalcard"><div class="gh"><b><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg> '+t('pfCash')+': '+grp(c)+' GRAM</b><button class="edit" onclick="PF.withdraw()">'+t('pfWithdraw')+'</button></div></div>'; }
   function pnlHTML(){ const list=S.portfolio||[]; let cost=0,val=0;
     list.forEach(h=>{ const b=(h.buy!=null?h.buy:h.priceTON)||0; const q=h.qty||1; cost+=b*q; val+=curPrice(h)*q; });
     const unreal=Math.round(val-cost);
@@ -4805,13 +4805,13 @@ window.PF = (function(){
     if(cost<=0 && real===0) return '';
     const upct=cost>0?(val-cost)/cost*100:0; const uc=unreal>=0?'var(--up)':'var(--down)'; const rc=real>=0?'var(--up)':'var(--down)';
     return '<div class="pf-bankrow">'+
-      '<div class="pf-bcard" onclick="PF.info(\'unreal\')" style="cursor:pointer"><div class="k">'+t('pfUnreal')+' ›</div><div class="v" style="color:'+uc+'">'+(unreal>=0?'+':'')+grp(unreal)+' TON</div><div class="s" style="color:'+uc+'">'+(upct>=0?'▲':'▼')+' '+Math.abs(upct).toFixed(1)+'%</div></div>'+
-      '<div class="pf-bcard" onclick="PF.openJournal()" style="cursor:pointer"><div class="k">'+t('pfRealized')+' ›</div><div class="v" style="color:'+rc+'">'+(real>=0?'+':'')+grp(real)+' TON</div><div class="s" style="color:var(--txt-3)">'+t('pfFromSales')+'</div></div>'+
+      '<div class="pf-bcard" onclick="PF.info(\'unreal\')" style="cursor:pointer"><div class="k">'+t('pfUnreal')+' ›</div><div class="v" style="color:'+uc+'">'+(unreal>=0?'+':'')+grp(unreal)+' GRAM</div><div class="s" style="color:'+uc+'">'+(upct>=0?'▲':'▼')+' '+Math.abs(upct).toFixed(1)+'%</div></div>'+
+      '<div class="pf-bcard" onclick="PF.openJournal()" style="cursor:pointer"><div class="k">'+t('pfRealized')+' ›</div><div class="v" style="color:'+rc+'">'+(real>=0?'+':'')+grp(real)+' GRAM</div><div class="s" style="color:var(--txt-3)">'+t('pfFromSales')+'</div></div>'+
     '</div>'; }
   function sell(i){ const h=(S.portfolio||[])[i]; if(!h) return; sellIdx=i; const est=Math.round(curPrice(h)*(h.qty||1));
     document.getElementById('pf-sheet').innerHTML=
       '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div class="nm"><b>'+t('pfSellTitle')+'</b><span>'+escapeHTML(h.display)+'</span></div><button class="x" onclick="PF.closeAdd()">\u2715</button></div>'+
-      '<div class="pf-selln">'+t('pfSellEst')+': <b>'+grp(est)+' TON</b></div>'+
+      '<div class="pf-selln">'+t('pfSellEst')+': <b>'+grp(est)+' GRAM</b></div>'+
       '<div class="pf-addrow"><input id="pf-sell-in" class="big" inputmode="decimal" placeholder="'+t('pfSellPh')+'" value="'+est+'">'+
       '<button class="btn" onclick="PF.doSell()">'+t('pfSellBtn')+'</button></div>';
     document.getElementById('pf-scrim').classList.add('open');
@@ -4827,11 +4827,11 @@ window.PF = (function(){
     S.portfolio.splice(sellIdx,1); sellIdx=-1;
     snapshot(); save(); closeAdd();
     if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
-    toast(t('pfSold')+' +'+grp(v)+' TON'); render();
+    toast(t('pfSold')+' +'+grp(v)+' GRAM'); render();
     if(S.notify && typeof syncNotify==='function') syncNotify(false); }
   function withdraw(){ const cur=Math.round(S.cash||0); if(cur<=0) return;
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="nm"><b>'+t('pfWithdraw')+'</b><span>'+t('pfCash')+': '+grp(cur)+' TON</span></div><button class="x" onclick="PF.closeAdd()">\u2715</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="nm"><b>'+t('pfWithdraw')+'</b><span>'+t('pfCash')+': '+grp(cur)+' GRAM</span></div><button class="x" onclick="PF.closeAdd()">\u2715</button></div>'+
       '<div class="pf-selln">'+t('pfWithdrawHint')+'</div>'+
       '<div class="pf-addrow"><input id="pf-wd-in" class="big" inputmode="decimal" value="'+cur+'">'+
       '<button class="btn" onclick="PF.doWithdraw()">'+t('pfWithdrawBtn')+'</button></div>';
@@ -4842,7 +4842,7 @@ window.PF = (function(){
   function editOpen(i){ const h=(S.portfolio||[])[i]; if(!h) return; editIdx=i; const est=Math.round(curPrice(h)); const buy=(h.buy!=null?h.buy:'');
     document.getElementById('pf-sheet').innerHTML=
       '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z"/><path d="M14.5 6.5l3 3"/></svg></div><div class="nm"><b>'+t('pfEditTitle')+'</b><span>'+escapeHTML(h.display)+'</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
-      '<div class="pf-selln">'+t('pfSellEst')+': <b>'+grp(est)+' TON</b></div>'+
+      '<div class="pf-selln">'+t('pfSellEst')+': <b>'+grp(est)+' GRAM</b></div>'+
       '<div class="pf-addrow"><input id="pf-ebuy" class="big" inputmode="decimal" placeholder="'+t('pfBuyPh')+'" value="'+buy+'">'+
         '<input id="pf-eqty" class="big" type="number" min="1" value="'+(h.qty||1)+'">'+
         '<button class="btn" onclick="PF.doEdit()">'+t('pfEditSave')+'</button>'+
@@ -4863,11 +4863,11 @@ window.PF = (function(){
     const avg=tr.reduce((s,x)=>s+x.ret,0)/n; const best=tr.slice().sort((a,b)=>b.pl-a.pl)[0]; const rc=realized>=0?'var(--up)':'var(--down)'; const ac=avg>=0?'var(--up)':'var(--down)';
     const stat=(k,v,c,s)=>'<div class="pf-bcard"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div>'+(s?'<div class="s" style="color:var(--txt-3)">'+s+'</div>':'')+'</div>';
     const rows=tr.map(r=>{ const dt=new Date(r.ts).toLocaleDateString(ru?'ru-RU':'en-US',{day:'numeric',month:'short'}); const pc=r.pl>=0?'var(--up)':'var(--down)';
-      return '<div class="mc-item"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:15px">'+catIcon(r.c)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(r.d)+'</div><div class="mc-sub">'+dt+' · '+grp(r.sold)+' TON</div></div><div class="mc-right"><div class="mc-price" style="color:'+pc+'">'+(r.pl>=0?'+':'')+grp(Math.round(r.pl))+'</div><div style="font-size:11px;font-weight:700;color:'+pc+'">'+(r.ret>=0?'+':'')+r.ret.toFixed(0)+'%</div></div></div>'; }).join('');
+      return '<div class="mc-item"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:15px">'+catIcon(r.c)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(r.d)+'</div><div class="mc-sub">'+dt+' · '+grp(r.sold)+' GRAM</div></div><div class="mc-right"><div class="mc-price" style="color:'+pc+'">'+(r.pl>=0?'+':'')+grp(Math.round(r.pl))+'</div><div style="font-size:11px;font-weight:700;color:'+pc+'">'+(r.ret>=0?'+':'')+r.ret.toFixed(0)+'%</div></div></div>'; }).join('');
     box.innerHTML=head+
-      '<div class="pf-bankrow" style="margin-top:6px">'+stat(t('pfRealized'),(realized>=0?'+':'')+grp(realized)+' TON',rc)+stat(t('jrWin'),winrate.toFixed(0)+'%')+'</div>'+
+      '<div class="pf-bankrow" style="margin-top:6px">'+stat(t('pfRealized'),(realized>=0?'+':'')+grp(realized)+' GRAM',rc)+stat(t('jrWin'),winrate.toFixed(0)+'%')+'</div>'+
       '<div class="pf-bankrow">'+stat(t('jrTrades'),''+n)+stat(t('jrAvg'),(avg>=0?'+':'')+avg.toFixed(0)+'%',ac)+'</div>'+
-      (best&&best.pl>0?'<div class="pf-selln" style="margin:12px 2px 8px">'+t('jrBest')+': <b>'+escapeHTML(best.d)+'</b> · <span style="color:var(--up)">+'+grp(Math.round(best.pl))+' TON ('+best.ret.toFixed(0)+'%)</span></div>':'')+
+      (best&&best.pl>0?'<div class="pf-selln" style="margin:12px 2px 8px">'+t('jrBest')+': <b>'+escapeHTML(best.d)+'</b> · <span style="color:var(--up)">+'+grp(Math.round(best.pl))+' GRAM ('+best.ret.toFixed(0)+'%)</span></div>':'')+
       '<div class="mc-ledger">'+rows+'</div>';
     document.getElementById('jr-scrim').classList.add('open'); }
   function closeJournal(){ document.getElementById('jr-scrim').classList.remove('open'); }
@@ -4917,12 +4917,12 @@ window.PF = (function(){
     if(kind==='unreal'){
       const list=S.portfolio||[]; let cost=0,val=0;
       const rows=list.map(h=>{ const b=(h.buy!=null?h.buy:h.priceTON)||0; const q=h.qty||1; const c=b*q, v=curPrice(h)*q; cost+=c; val+=v; const pl=v-c, pc=c>0?pl/c*100:0; const col=pl>=0?'var(--up)':'var(--down)';
-        return '<div class="mc-item"><div class="mc-main"><div class="mc-name">'+escapeHTML(h.display)+'</div><div class="mc-sub">'+(q>1?q+' × ':'')+grp(curPrice(h))+' TON'+(h.buy!=null?' · '+(ru?'вход ':'in ')+grp(h.buy)+' TON':(ru?' · вход не задан':' · no entry set'))+'</div></div><div class="mc-right"><div class="mc-price" style="color:'+col+'">'+(pl>=0?'+':'')+grp(Math.round(pl))+' TON</div><div style="font-size:11px;font-weight:700;color:'+col+'">'+(pc>=0?'+':'')+pc.toFixed(0)+'%</div></div></div>'; }).join('');
+        return '<div class="mc-item"><div class="mc-main"><div class="mc-name">'+escapeHTML(h.display)+'</div><div class="mc-sub">'+(q>1?q+' × ':'')+grp(curPrice(h))+' GRAM'+(h.buy!=null?' · '+(ru?'вход ':'in ')+grp(h.buy)+' GRAM':(ru?' · вход не задан':' · no entry set'))+'</div></div><div class="mc-right"><div class="mc-price" style="color:'+col+'">'+(pl>=0?'+':'')+grp(Math.round(pl))+' GRAM</div><div style="font-size:11px;font-weight:700;color:'+col+'">'+(pc>=0?'+':'')+pc.toFixed(0)+'%</div></div></div>'; }).join('');
       const unreal=Math.round(val-cost), pct=cost>0?(val-cost)/cost*100:0, uc=unreal>=0?'var(--up)':'var(--down)';
       html=head(ru?'P&L по активам':'Asset P&L')+
         dim(ru?'Прибыль или убыток по активам, которые ты <b>ещё держишь</b>: текущая стоимость минус цена покупки. Пока не продал — это «бумажный» результат.':'Profit or loss on assets you <b>still hold</b>: current value minus what you paid. Until you sell, it’s on paper.')+
-        '<div class="pf-bankrow">'+sc(ru?'Вложено':'Invested', grp(Math.round(cost))+' TON')+sc(ru?'Сейчас стоит':'Worth now', grp(Math.round(val))+' TON')+'</div>'+
-        '<div class="pf-bankrow" style="grid-template-columns:1fr">'+sc(ru?'P&L по активам':'Asset P&L', (unreal>=0?'+':'')+grp(unreal)+' TON', uc, (pct>=0?'▲':'▼')+' '+Math.abs(pct).toFixed(1)+'%')+'</div>'+
+        '<div class="pf-bankrow">'+sc(ru?'Вложено':'Invested', grp(Math.round(cost))+' GRAM')+sc(ru?'Сейчас стоит':'Worth now', grp(Math.round(val))+' GRAM')+'</div>'+
+        '<div class="pf-bankrow" style="grid-template-columns:1fr">'+sc(ru?'P&L по активам':'Asset P&L', (unreal>=0?'+':'')+grp(unreal)+' GRAM', uc, (pct>=0?'▲':'▼')+' '+Math.abs(pct).toFixed(1)+'%')+'</div>'+
         (rows?('<div class="pf-sec-h" style="margin-top:6px"><b>'+(ru?'По каждому активу':'By asset')+'</b></div><div class="mc-ledger">'+rows+'</div>'):dim(ru?'Добавь цену покупки у активов, чтобы видеть P&L.':'Add a buy price to your assets to see P&L.'));
     }
     else if(kind==='forecast'){
@@ -4930,18 +4930,18 @@ window.PF = (function(){
       const fcc=fc.pct>=0?'var(--up)':'var(--down)';
       html=head(ru?'Прогноз на 30 дней':'30-day forecast')+
         dim(ru?'Ориентир стоимости портфеля через месяц. Строится от недельного тренда твоих активов: тренд затухает к концу месяца, потолок ±25%. Это оценка, а не гарантия.':'A 30-day estimate of your portfolio. Built from your holdings’ weekly trend — the trend fades toward month-end, capped at ±25%. An estimate, not a guarantee.')+
-        '<div class="pf-bankrow">'+sc(ru?'Сейчас':'Now', grp(Math.round(tot))+' TON')+sc(ru?'Через 30 дней':'In 30 days', grp(fc.val)+' TON', fcc, (fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'%')+'</div>'+
+        '<div class="pf-bankrow">'+sc(ru?'Сейчас':'Now', grp(Math.round(tot))+' GRAM')+sc(ru?'Через 30 дней':'In 30 days', grp(fc.val)+' GRAM', fcc, (fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'%')+'</div>'+
         '<div class="pf-bankrow">'+sc(ru?'За 24 часа':'Past 24h', (c24>=0?'+':'')+c24.toFixed(1)+'%', c24>=0?'var(--up)':'var(--down)')+sc(ru?'Недельный тренд':'Weekly trend', (w7>=0?'+':'')+w7.toFixed(1)+'%', w7>=0?'var(--up)':'var(--down)')+'</div>';
     }
     else if(kind==='status'){
       const tr=tierOfNW(tot); const TN=['Standard','Bronze','Silver','Gold','Platinum','Black'], TMIN=[0,100,1000,10000,50000,250000];
       let idx=0; for(let i=0;i<TMIN.length;i++){ if(tot>=TMIN[i]) idx=i; }
       const pctp = tr.next? Math.max(6, Math.min(100, tot/(tot+tr.next.need)*100)) : 100;
-      const ladder=TN.map((nm,i)=>'<div class="mc-item"'+(i===idx?' style="background:rgba(55,210,138,.08)"':'')+'><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center">'+tierBadge(i)+'</div><div class="mc-main"><div class="mc-name">'+nm+'</div><div class="mc-sub">'+(TMIN[i]===0?(ru?'старт':'start'):(ru?'от ':'from ')+grp(TMIN[i])+' TON')+'</div></div>'+(i===idx?'<div class="mc-right"><div class="mc-price" style="color:var(--up)">'+(ru?'ты здесь':'you’re here')+'</div></div>':'')+'</div>').join('');
+      const ladder=TN.map((nm,i)=>'<div class="mc-item"'+(i===idx?' style="background:rgba(55,210,138,.08)"':'')+'><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center">'+tierBadge(i)+'</div><div class="mc-main"><div class="mc-name">'+nm+'</div><div class="mc-sub">'+(TMIN[i]===0?(ru?'старт':'start'):(ru?'от ':'from ')+grp(TMIN[i])+' GRAM')+'</div></div>'+(i===idx?'<div class="mc-right"><div class="mc-price" style="color:var(--up)">'+(ru?'ты здесь':'you’re here')+'</div></div>':'')+'</div>').join('');
       html=head(ru?'Статус':'Status')+
         '<div style="text-align:center;margin:14px 0 8px;font-size:16px;font-weight:800">'+tierBadge(idx,'big')+' '+tr.name+'</div>'+
         '<div class="dp-bar" style="background:rgba(255,255,255,.12)"><i style="width:'+pctp.toFixed(0)+'%;background:var(--up)"></i></div>'+
-        dim('<div style="text-align:center">'+(tr.next?((ru?'До «':'To “')+tr.next.name+(ru?'»: ':'”: ')+'<b>'+grp(tr.next.need)+' TON</b>'):(ru?'Максимальный уровень':'Top tier'))+'</div>')+
+        dim('<div style="text-align:center">'+(tr.next?((ru?'До «':'To “')+tr.next.name+(ru?'»: ':'”: ')+'<b>'+grp(tr.next.need)+' GRAM</b>'):(ru?'Максимальный уровень':'Top tier'))+'</div>')+
         '<div class="pf-sec-h" style="margin-top:10px"><b>'+(ru?'Уровни по капиталу':'Tiers by capital')+'</b></div><div class="mc-ledger">'+ladder+'</div>';
     }
     else return;
@@ -5005,12 +5005,12 @@ window.BANK = (function(){
     const front='<div class="mface mfront" style="background:'+th.f+'"><div class="sheen"></div>'+
       '<div class="row"><span class="wm">Monet</span><svg class="wifi" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round"><path d="M8 7a8 8 0 0 1 0 10"/><path d="M12 4.5a12 12 0 0 1 0 15"/><path d="M16 2a16 16 0 0 1 0 20"/></svg></div>'+
       '<div class="chip"><span></span><span></span><span></span></div>'+
-      '<div class="bal"><div class="l">'+t('cardBalance')+'</div><div class="v">'+grp(v)+' <span style="font-size:.55em;opacity:.85">TON</span></div></div>'+
+      '<div class="bal"><div class="l">'+t('cardBalance')+'</div><div class="v">'+grp(v)+' <span style="font-size:.55em;opacity:.85">GRAM</span></div></div>'+
       '<div class="foot"><div class="h"><small>'+t('cardHolder')+'</small>'+escapeHTML(h)+'</div><div class="tier">'+tierBadge(tr.idx,'big')+' '+tr.name+'</div></div></div>';
     const back='<div class="mface mback"><div class="stripe"></div>'+
       '<div class="num">MNT •••• •••• '+l4+'</div>'+
       '<h5>'+t('cardPerks')+' · '+tr.name+'</h5><ul>'+perks(tr.idx).map(p=>'<li>'+p+'</li>').join('')+'</ul>'+
-      '<div style="margin-top:auto;font-size:11px;opacity:.6;position:relative;z-index:1">monet · TON · ∞</div></div>';
+      '<div style="margin-top:auto;font-size:11px;opacity:.6;position:relative;z-index:1">monet · GRAM · ∞</div></div>';
     return '<div class="mcard" id="mcard" onclick="BANK.flip()">'+front+back+'</div>'+
       '<div class="card-tap">'+t('cardTap')+'</div>'+
       '<div class="card-actions"><button class="pri" onclick="BANK.closeCard()">'+(S.lang==='ru'?'Закрыть':'Close')+'</button></div>'; }
@@ -5033,7 +5033,7 @@ window.BANK = (function(){
     x.fillStyle='rgba(255,255,255,.85)'; roundRect(x,cx+50,cy+135,90,66,14); x.fill();
     x.fillStyle='rgba(255,255,255,.85)'; x.font='600 30px "Hanken Grotesk"'; x.fillText(t('cardBalance').toUpperCase(),cx+50,cy+330);
     x.fillStyle='#fff'; x.font='800 96px "Hanken Grotesk"'; const bw=x.measureText(grp(v)).width; x.fillText(grp(v),cx+50,cy+420);
-    x.font='800 40px "Hanken Grotesk"'; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('TON',cx+50+bw+18,cy+420);
+    x.font='800 40px "Hanken Grotesk"'; x.fillStyle='rgba(255,255,255,.9)'; x.fillText('GRAM',cx+50+bw+18,cy+420);
     x.fillStyle='#fff'; x.font='700 34px "Hanken Grotesk"'; x.fillText(h.length>22?h.slice(0,21)+'…':h,cx+50,cy+ch-50);
     const TIER_COL=['#82907A','#A6713C','#86909C','#C2A044','#3F8794','#2E2E33'];
     const tb=tr.name; x.font='800 30px "Hanken Grotesk"'; x.textAlign='right';
@@ -5063,12 +5063,12 @@ window.BANK = (function(){
     const curBtn=(side,info,code)=>'<button class="wz-cur" onclick="BANK.pick(\''+side+'\')"><span class="fl">'+curIcon(info.c,info.fl)+'</span><b>'+code.toUpperCase()+'</b><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>';
     return '<div class="cv-page">'+
       '<div class="cv-head"><button class="cv-back" onclick="goHome()" aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>'+t('cvTitle')+'</h2></div>'+
-      '<div class="cv-seg"><button class="'+(cvMode==='ton'?'on':'')+'" onclick="BANK.setConvMode(\'ton\')"><svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3 6 9l6 12 6-12-3-6"/></svg> TON</button><button class="'+(cvMode==='all'?'on':'')+'" onclick="BANK.setConvMode(\'all\')">'+t('cvAll')+'</button></div>'+
+      '<div class="cv-seg"><button class="'+(cvMode==='ton'?'on':'')+'" onclick="BANK.setConvMode(\'ton\')"><svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3 6 9l6 12 6-12-3-6"/></svg> GRAM</button><button class="'+(cvMode==='all'?'on':'')+'" onclick="BANK.setConvMode(\'all\')">'+t('cvAll')+'</button></div>'+
       '<div class="wz">'+
         '<div class="wz-rate-card"><div class="sheen"></div><div class="ml">'+t('cvMid')+'</div><div class="rt" id="cv-rate"></div></div>'+
         '<div class="wz-lbl">'+t('cvAmount')+'</div>'+
         '<div class="wz-row primary"><input class="wz-amt" id="cv-a" inputmode="decimal" value="'+(cvAmt||'')+'" oninput="BANK.calc(\'from\')">'+
-          (cvMode==='ton'?'<div class="wz-cur locked"><span class="fl">'+curIcon('ton','💎')+'</span><b>TON</b></div>':curBtn('from',f,cvFrom))+'</div>'+
+          (cvMode==='ton'?'<div class="wz-cur locked"><span class="fl">'+curIcon('ton','💎')+'</span><b>GRAM</b></div>':curBtn('from',f,cvFrom))+'</div>'+
         '<div class="wz-swapwrap"><button class="wz-swap" onclick="BANK.cvSwap()" title="'+t('cvSwap')+'"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4 4 7.5M7 4l3 3.5M17 20V4M17 20l3-3.5M17 20l-3-3.5"/></svg></button></div>'+
         '<div class="wz-lbl">'+t('cvConverted')+'</div>'+
         '<div class="wz-row soft"><input class="wz-amt" id="cv-b" inputmode="decimal" value="'+fmtNum(out)+'" oninput="BANK.calc(\'to\')">'+curBtn('to',tc,cvTo)+'</div>'+
@@ -5119,7 +5119,7 @@ window.VF = (function(){
   const TRAITS = {
     'Plush Pepe':{ m:[['Classic',38],['Hoodie',22],['Astronaut',12],['Pharaoh',7],['Samurai',4],['Golden',1.2],['Diamond',0.4]],
       b:[['Onyx Black',20,'#1b1b1f'],['Forest',16,'#234a31'],['Sky',14,'#3f6fa3'],['Crimson',9,'#7a2230'],['Royal Purple',5,'#4b2e6b'],['Aurora',1.5,'#2e9b8f'],['Pure Gold',0.6,'#caa24b']],
-      s:[['None',30],['Hearts',18],['Stars',12],['Skulls',7],['Crowns',3],['Toncoin',1],['Diamonds',0.3]] },
+      s:[['None',30],['Hearts',18],['Stars',12],['Skulls',7],['Crowns',3],['Gram',1],['Diamonds',0.3]] },
     "Durov's Cap":{ m:[['Standard',60],['Signed',25],['Vintage',12],['Founder',3]],
       b:[['Telegram Blue',22,'#2aabee'],['Graphite',18,'#2c2c30'],['Sand',10,'#c8b48a'],['Emerald',4,'#1f7a52'],['Platinum',1,'#cfd6dd']],
       s:[['None',50],['Paper Plane',22],['Lock',8],['Crown',2]] },
@@ -5168,7 +5168,7 @@ window.VF = (function(){
     if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} }
   function close(){ document.getElementById('vf-scrim').classList.remove('open'); }
   function pick(kind,val){ sel[kind]=(sel[kind]===val?null:val); render(); lookup(); }
-  function fmtP(t){ return grp(t)+' TON'; }
+  function fmtP(t){ return grp(t)+' GRAM'; }
   function render(){ const T=TRAITS[cur]; if(!T) return; const r=rarity(), fv=fair();
     const sp = fv.val<1500?0.18 : fv.val<40000?0.30 : 0.45;
     const lo=Math.round(fv.val*(1-sp)), hi=Math.round(fv.val*(1+sp));
@@ -5229,9 +5229,9 @@ window.ONB = (function(){
   const G=(e,c)=>({k:'g',e,c,img:FIMG(e)}), U=(t)=>({k:'u',t}), Nm=(t)=>({k:'n',t});
   function heroes(ru){ return [
     '<div class="onb-logo">'+sealSVG()+'</div><div class="onb-cl">'+(ru?'оценщик активов Telegram':'Telegram asset appraiser')+'</div>',
-    '<div class="onb-badge">≈ 165<span class="u">TON</span></div>',
+    '<div class="onb-badge">≈ 165<span class="u">GRAM</span></div>',
     '<div class="onb-chips"><div class="onb-chip"><span class="cl">'+(ru?'Рынок A':'Market A')+'</span><span class="cv">190</span></div><span class="onb-vs">VS</span><div class="onb-chip win"><span class="cl">'+(ru?'Рынок Б':'Market B')+'</span><span class="cv">165</span><span class="cw">'+(ru?'дешевле':'cheapest')+'</span></div></div>',
-    '<div class="onb-nw"><div class="l">'+(ru?'Твой капитал':'Net worth')+'</div><div class="v">12 480 <span style="font-size:.5em;opacity:.8">TON</span></div><div class="t"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 3l2.6 5.7 6.4.6-4.8 4.2 1.4 6.2L12 16.8 6.4 19.9l1.4-6.2L3 9.5l6.4-.6z"/></svg> Elite</div></div>'
+    '<div class="onb-nw"><div class="l">'+(ru?'Твой капитал':'Net worth')+'</div><div class="v">12 480 <span style="font-size:.5em;opacity:.8">GRAM</span></div><div class="t"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 3l2.6 5.7 6.4.6-4.8 4.2 1.4 6.2L12 16.8 6.4 19.9l1.4-6.2L3 9.5l6.4-.6z"/></svg> Elite</div></div>'
   ]; }
   function slides(){ const ru=S.lang==='ru'; const H=heroes(ru); return [
     {bg:'s0', kr:(ru?'01 · ОЦЕНОЧНЫЙ ДОМ':'01 · APPRAISAL HOUSE'), dc:['#43A87C','#2E7D5E','#7FE0B4'], hero:H[0],
@@ -5245,7 +5245,7 @@ window.ONB = (function(){
       t:ru?'Покупай не дороже рынка':'Never overpay the market', s:ru?'Сравниваем площадки и показываем, где актив дешевле.':'We compare marketplaces and show where an asset is cheaper.'},
     {bg:'s3', kr:(ru?'04 · КАПИТАЛ':'04 · CAPITAL'), dc:['#43A87C','#3A7D63','#7FE0B4'], hero:H[3],
       fl:[G('👑','#D9A441'),G('🧸','#E86FA6'),U('@durov'),G('🪙','#D9A441'),Nm('0007'),G('💎','#6B8BE8'),G('🦋','#3FA9C2'),U('@nft'),G('🌹','#E05670'),G('🎩','#46B27E'),Nm('1337'),G('🔮','#A06BE8')],
-      t:ru?'Собери свой портфель':'Build your portfolio', s:ru?'Следи за капиталом, статусом и движением рынка в TON.':'Track your capital, status and the market — in TON.'}
+      t:ru?'Собери свой портфель':'Build your portfolio', s:ru?'Следи за капиталом, статусом и движением рынка в GRAM.':'Track your capital, status and the market — in GRAM.'}
   ]; }
   function render(){ const ru=S.lang==='ru'; const sl=slides(); const last=i===N-1;
     const cards=sl.map(s=>'<div class="onb-slide '+s.bg+'"><div class="onb-stage"><div class="onb-bg"></div>'+decor(s.dc[0],s.dc[1],s.dc[2])+'<div class="onb-stars"></div><div class="onb-ring"></div>'+floaters(s.fl)+'<div class="onb-center">'+s.hero+'</div></div><div class="onb-cap"><div class="onb-kicker">'+s.kr+'</div><h2>'+s.t+'</h2><p>'+s.s+'</p></div></div>').join('');
@@ -5342,8 +5342,8 @@ window.HOME=(function(){
   function aGlyph(k){ return k==='sell'?'<svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>':k==='buy'?'<svg class="mi" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>':k==='alert'?'<svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>':'<svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'; }
   function aLabel(k){ return k==='sell'?t('actSell'):k==='buy'?t('actBuy'):k==='alert'?t('actAlert'):t('actAppr'); }
   function actRow(e){ const hb=!!S.hideBalance; let sub=aLabel(e.k);
-    if(e.k==='sell'&&e.basis!=null&&!hb){ const pl=(e.price||0)-e.basis; sub+=' · <span style="color:'+(pl>=0?'var(--up)':'var(--down)')+'">'+(pl>=0?'+':'')+fmtTON(pl)+' TON</span>'; }
-    return '<div class="mc-item" style="cursor:default"><div class="mc-rank" style="font-style:normal;font-size:10.5px">'+rel(e.ts)+'</div><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:14px">'+aGlyph(e.k)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(e.display)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right"><div class="mc-price">'+(hb?'••••':fmtTON(e.price||0)+' TON')+'</div></div></div>'; }
+    if(e.k==='sell'&&e.basis!=null&&!hb){ const pl=(e.price||0)-e.basis; sub+=' · <span style="color:'+(pl>=0?'var(--up)':'var(--down)')+'">'+(pl>=0?'+':'')+fmtTON(pl)+' GRAM</span>'; }
+    return '<div class="mc-item" style="cursor:default"><div class="mc-rank" style="font-style:normal;font-size:10.5px">'+rel(e.ts)+'</div><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:14px">'+aGlyph(e.k)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(e.display)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right"><div class="mc-price">'+(hb?'••••':fmtTON(e.price||0)+' GRAM')+'</div></div></div>'; }
   function go(v){ setView(v); }
   function addToPf(){ go('portfolio'); if(window.PF&&PF.openAdd) PF.openAdd(); }
   function shareCap(){ if(window.PF&&PF.share) PF.share(); }
@@ -5359,7 +5359,7 @@ window.HOME=(function(){
     '<button onclick="HOME.go(\'market\')"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M9 20V5M14 20v-7M19 20V8"/></svg></span><b>'+t('hQMarket')+'</b></button>'+
   '</div>'; }
   function pulse(){ const g=gidx(),mv=movers(); return '<div class="home-sec"><b>'+t('hPulse')+'</b><a onclick="HOME.go(\'market\')">'+t('hAll')+' →</a></div>'+
-    '<div class="mgi" style="cursor:pointer" onclick="HOME.go(\'market\')"><div class="mgi-lab">'+t('mgiTitle')+'</div><div class="mgi-row"><div class="mgi-val">'+compact(g.cap)+' <span class="u">TON</span></div><div class="mgi-d" style="font-size:14px;font-weight:800;color:'+(g.ch24>=0?'var(--up)':'var(--down)')+'">'+pct(g.ch24)+' · 24'+t('mgiH')+'</div></div></div>'+
+    '<div class="mgi" style="cursor:pointer" onclick="HOME.go(\'market\')"><div class="mgi-lab">'+t('mgiTitle')+'</div><div class="mgi-row"><div class="mgi-val">'+compact(g.cap)+' <span class="u">GRAM</span></div><div class="mgi-d" style="font-size:14px;font-weight:800;color:'+(g.ch24>=0?'var(--up)':'var(--down)')+'">'+pct(g.ch24)+' · 24'+t('mgiH')+'</div></div></div>'+
     (mv?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">'+mover(mv.u,true)+mover(mv.d,false)+'</div>':''); }
   function topMovers(){ const g=mkAll().filter(x=>x.cat==='gifts'&&typeof x.ch24==='number'&&x.ch24!==0);
     const ups=g.filter(x=>x.ch24>0).sort((a,b)=>b.ch24-a.ch24).slice(0,3);
@@ -5372,7 +5372,7 @@ window.HOME=(function(){
       '<img class="mk-gimg" data-slug="'+s+'" src="https://api.changes.tg/original/'+s+'.png?size=128" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="giftImgErr(this)" alt="">'+
     '</div>'; }
   function gRow2(x){ const up=x.ch24>=0;
-    return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')">'+giftPic(x)+'<div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+(S.lang==='ru'?'флор':'floor')+' '+fmtTON(x.price)+' TON</div></div><div class="mc-right"><div class="mc-price" style="color:'+(up?'var(--up)':'var(--down)')+'">'+(up?'+':'')+x.ch24.toFixed(1)+'%</div></div></div>'; }
+    return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')">'+giftPic(x)+'<div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+(S.lang==='ru'?'флор':'floor')+' '+fmtTON(x.price)+' GRAM</div></div><div class="mc-right"><div class="mc-price" style="color:'+(up?'var(--up)':'var(--down)')+'">'+(up?'+':'')+x.ch24.toFixed(1)+'%</div></div></div>'; }
   // undervalued = live floor has fallen INTO the Buy Zone derived from the recent (pre-dip) level
   function undervalued(){ const g=mkAll().filter(x=>x.cat==='gifts'&&x.price>0); const out=[];
     g.forEach(x=>{ const ch7=typeof x.ch7==='number'?x.ch7:0; if(ch7>=0) return;
@@ -5385,7 +5385,7 @@ window.HOME=(function(){
     return out.slice(0,3); }
   function uvRow(o){ const x=o.x, ru=S.lang==='ru';
     const right = o.inZone ? '<div class="mc-price" style="color:var(--up)"><svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3 6 9l6 12 6-12-3-6"/></svg> -'+o.disc+'%</div>' : '<div class="mc-price" style="color:var(--warn)">-'+o.disc+'%</div>';
-    const sub=(ru?'флор':'floor')+' '+fmtTON(x.price)+' TON'+(o.inZone?' · '+t('hInZone'):'');
+    const sub=(ru?'флор':'floor')+' '+fmtTON(x.price)+' GRAM'+(o.inZone?' · '+t('hInZone'):'');
     return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')">'+giftPic(x)+'<div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right">'+right+'</div></div>'; }
   function guidanceCard(){ const data=mkAll(); if(!data.length) return ''; const ru=S.lang==='ru'; const pro=proActive();
     const g=gidx(), mv=topMovers(), uv=undervalued(); if(!mv.ups.length && !mv.dips.length && !uv.length) return '';
@@ -5429,7 +5429,7 @@ window.HOME=(function(){
   function dismissDigest(){ try{ S.lastDigest=digestKey(); save(); }catch(e){} render(); }
   function watchlist(){ const wl=S.watchlist||[]; if(!wl.length) return ''; const ru=S.lang==='ru';
     const rows=wl.map((name,i)=>{ const m=mkBy(name); const fl=m?m.price:0; const ch=m?(m.ch24||0):0; const cc=ch>=0?'var(--up)':'var(--down)';
-      return '<div class="mc-item" style="cursor:pointer" onclick="if(window.MK)MK.openSheet(\''+(m?m.id:'')+'\')"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:14px">'+(m?catIcon(m.cat):'•')+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(name)+'</div><div class="mc-sub">'+(ru?'флор':'floor')+' '+(fl?fmtTON(fl)+' TON':'—')+'</div></div><div class="mc-right"><div class="mc-price" style="color:'+cc+'">'+(ch>=0?'+':'')+ch.toFixed(1)+'%</div></div><button class="del" style="margin-left:8px" onclick="event.stopPropagation();wlRemoveAt('+i+')">✕</button></div>'; }).join('');
+      return '<div class="mc-item" style="cursor:pointer" onclick="if(window.MK)MK.openSheet(\''+(m?m.id:'')+'\')"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:14px">'+(m?catIcon(m.cat):'•')+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(name)+'</div><div class="mc-sub">'+(ru?'флор':'floor')+' '+(fl?fmtTON(fl)+' GRAM':'—')+'</div></div><div class="mc-right"><div class="mc-price" style="color:'+cc+'">'+(ch>=0?'+':'')+ch.toFixed(1)+'%</div></div><button class="del" style="margin-left:8px" onclick="event.stopPropagation();wlRemoveAt('+i+')">✕</button></div>'; }).join('');
     return '<div class="home-sec"><b>'+t('hWatch')+'</b></div><div class="mc-ledger">'+rows+'</div>'; }
   function render(){ const box=document.getElementById('homeBody'); if(!box) return;
     try{ if(window.ALERTS) ALERTS.check(); }catch(e){}
@@ -5444,7 +5444,7 @@ window.HOME=(function(){
       box.innerHTML=html; return;
     }
     html+='<div class="pf-hero"><div class="topline"><div class="lbl">'+t('hCapital')+'</div>'+(S.hideBalance?'':'<span class="pf-tier">'+tier.ic+' '+tier.name+'</span>'+proPill())+'</div>'+
-      '<div class="tot">'+(S.hideBalance?'••••':fmtTON(cap))+' <span style="font-size:.38em;opacity:.8;font-weight:600">TON</span></div>'+
+      '<div class="tot">'+(S.hideBalance?'••••':fmtTON(cap))+' <span style="font-size:.38em;opacity:.8;font-weight:600">GRAM</span></div>'+
       '<div class="fiat">≈ '+(S.hideBalance?'••••':fmtFiat(cap))+'</div>'+
       '<div class="chg" style="background:'+(ch.c24>=0?'rgba(95,233,170,.2)':'rgba(232,120,108,.2)')+'">'+(Math.abs(ch.c24)<0.05?'— · '+t('pfChange24'):(ch.c24>=0?'▲':'▼')+' '+Math.abs(ch.c24).toFixed(1)+'% · '+t('pfChange24'))+'</div>'+((hs.length===0&&(S.cash>0))?'<div class="cap-cash"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg> '+t('hAllCash')+'</div>':'')+'</div>';
     html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px">'+
@@ -5471,7 +5471,7 @@ window.ALERTS=(function(){
       const hit = cur>0 && (a.dir==='above'? cur>=a.target : cur<=a.target);
       if(hit){ fired++;
         try{ if(!Array.isArray(S.activity))S.activity=[]; S.activity.unshift({type:'alert', display:a.display, cat:a.cat||catOf(a.display), price:Math.round(cur), target:a.target, ts:Date.now()}); if(S.activity.length>120)S.activity=S.activity.slice(0,120); }catch(e){}
-        try{ toast(''+a.display+' — '+t('alTriggered')+' '+grp(a.target)+' TON'); }catch(e){}
+        try{ toast(''+a.display+' — '+t('alTriggered')+' '+grp(a.target)+' GRAM'); }catch(e){}
       } else keep.push(a); });
     if(fired){ S.alerts=keep; try{save();}catch(e){} }
     badge(); if(fired){ try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){} }
@@ -5485,7 +5485,7 @@ window.ALERTS=(function(){
     const on=!!S.notify, hasTg=!!(tg&&tg.initData), hasProxy=!!proxyURL();
     let warn=''; if(!hasProxy) warn='<div class="al-hint" style="color:var(--down);margin-top:8px">'+t('ntfNoProxy')+'</div>'; else if(!hasTg) warn='<div class="al-hint" style="color:var(--down);margin-top:8px">'+t('ntfNoTg')+'</div>';
     const items = list.length ? list.map(a=>{ const cur=priceOf(a.display);
-      return '<div class="al-item"><div class="al-main"><b>'+escapeHTML(a.display)+'</b><span>'+(a.dir==='above'?t('alAbove'):t('alBelow'))+' '+grp(a.target)+' TON'+(cur>0?' · '+t('alNow')+' '+grp(cur)+' TON':'')+'</span></div><button class="del" onclick="ALERTS.remove('+a.id+')">✕</button></div>'; }).join('')
+      return '<div class="al-item"><div class="al-main"><b>'+escapeHTML(a.display)+'</b><span>'+(a.dir==='above'?t('alAbove'):t('alBelow'))+' '+grp(a.target)+' GRAM'+(cur>0?' · '+t('alNow')+' '+grp(cur)+' GRAM':'')+'</span></div><button class="del" onclick="ALERTS.remove('+a.id+')">✕</button></div>'; }).join('')
       : '<div class="al-empty">'+t('alEmpty')+'</div>';
     document.getElementById('al-sheet').innerHTML=
       '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('alTitle')+'</b><span>'+t('alSub')+'</span></div><button class="x" onclick="ALERTS.close()">✕</button></div>'+
