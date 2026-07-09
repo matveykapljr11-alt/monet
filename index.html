@@ -3535,6 +3535,13 @@ function resultCardHTML(r){
     '<div class="rbody">'+
       '<div class="cert-specs">'+'<div class="cs-row"><span class="cs-l">'+t('confLabel')+'</span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+t(cc.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('liqLabel')+'</span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+t(lq.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('tierLabel')+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+
       tradeBandHTML(r)+
+      '<div class="acts">'+
+        '<button class="act portf" onclick="addEvalToPortfolio()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>'+t('pfAddBtn')+'</button>'+
+        '<button class="act fav" id="favBtn" onclick="toggleFav()"><span><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 3l2.6 5.7 6.4.6-4.8 4.2 1.4 6.2L12 16.8 6.4 19.9l1.4-6.2L3 9.5l6.4-.6z"/></svg></span><span id="favLbl">'+t('favAdd')+'</span></button>'+
+        '<button class="act" onclick="toggleExplain()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></span>'+t('explainBtn')+'</button>'+
+        '<button class="act frag" onclick="openFragment()"><span><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>'+t('checkFrag')+'</button>'+
+      '</div>'+
+      '<div class="explain" id="explainBox">'+explainText(r)+'</div>'+
       (r.rarity?'<div class="rarity-line"><span class="rrank" style="background:'+r.rarity.color+'1f;color:'+r.rarity.color+'"><span class="rd" style="background:'+r.rarity.color+'"></span>'+t(r.rarity.key)+'</span><span class="rone">'+t('rarityOneIn')+' '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')+'</span></div>':'')+
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
@@ -3544,13 +3551,6 @@ function resultCardHTML(r){
       marketBridgeHTML(r)+
       (r.cat==='username' && proxyURL() ? '<div class="comps" id="usernameComps"><div class="comps-load">'+t('compsLoading')+'</div></div>' : '')+
       (r.cat==='gifts' && proxyURL() ? '<div class="comps" id="giftComps"></div>' : '')+
-      '<div class="acts">'+
-        '<button class="act portf" onclick="addEvalToPortfolio()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>'+t('pfAddBtn')+'</button>'+
-        '<button class="act fav" id="favBtn" onclick="toggleFav()"><span><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 3l2.6 5.7 6.4.6-4.8 4.2 1.4 6.2L12 16.8 6.4 19.9l1.4-6.2L3 9.5l6.4-.6z"/></svg></span><span id="favLbl">'+t('favAdd')+'</span></button>'+
-        '<button class="act" onclick="toggleExplain()"><span><svg class="mi" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.3 1 2.5h6c0-1.2.2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg></span>'+t('explainBtn')+'</button>'+
-        '<button class="act frag" onclick="openFragment()"><span><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>'+t('checkFrag')+'</button>'+
-      '</div>'+
-      '<div class="explain" id="explainBox">'+explainText(r)+'</div>'+
     '</div></div>';
 }
 function countUp(id, target){
