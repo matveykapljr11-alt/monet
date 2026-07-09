@@ -1900,7 +1900,7 @@ const PLANS = {
 let currentPlan = 'year';                          // выбранный план в окне покупки (по умолчанию — годовой)
 const PREMIUM_STARS = PLANS.month.stars;           // legacy alias
 // Launch promo: everything is free for everyone until this moment (device-local time), then the paywall returns automatically.
-const LAUNCH_FREE_UNTIL = new Date(2026,6,5,0,0,0).getTime();   // 5 Jul 2026 00:00 local
+const LAUNCH_FREE_UNTIL = Date.UTC(2026,6,12,21,0,0);   // 13 Jul 2026 00:00 MSK (UTC+3) — same instant for everyone
 function launchFree(){ return Date.now() < LAUNCH_FREE_UNTIL; }
 function subActive(){ return !!(S&&S.premiumUntil) && Date.now() < S.premiumUntil; }   // paid subscription still valid
 function proActive(){ return launchFree() || !!(S&&S.premium) || subActive(); }         // unified "has full access" check
