@@ -2620,7 +2620,7 @@ function serialMult(serial, strong){
   const peak = strong ? 7 : 1.2, decay = strong ? 1.15 : 0.85;
   let mult = 1 + peak*Math.exp(-decay*L)*gate;          // #1 is peak, no serial-tier cliffs
   const s=String(n);
-  if(/^(\d)\1+$/.test(s) || /^[1-9]0+$/.test(s) || [7,77,777,7777,100,1000,10000].includes(n)) mult*=1.15;
+  if(/^(\d)\1+$/.test(s) || /^[1-9]0+$/.test(s) || [7,77,777,7777,100,1000,10000].includes(n)) mult*=1.3;
   return mult;                                          // repdigit / round / culturally-nice serials pay up
 }
 function fitRarityCurve(points, F0){
@@ -2647,22 +2647,31 @@ function learnCal(slug, modelEst, truth){
   r.n=Math.min(999, r.n+1);
   if(!S.cal) S.cal={}; S.cal[slug]={m:Math.round(r.m*1000)/1000, n:r.n, e:Math.round(r.e*1000)/1000}; save();
 }
-function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, fPat, fModel, sBack, sPat, sModel){
+function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, fPat, fModel, sBack, sPat, sModel, bName){
   const list=COLLECTIONS[cat];
   const col=list.find(c=>c.id===colId)||list[list.length-1];
   const F=[]; const ru=S.lang==='ru'; let accOut=null;
   const cf=parseFloat(customFloor);
   const base=(colId==='other'&&!isNaN(cf)&&cf>0)?cf:(col.floor>0?col.floor:100);
   serial=parseInt(serial,10);
+  /* ===== ФОНЫ (база знаний, июль 2026) =====
+     1) Флоры фонов из Portals ГЛОБАЛЬНЫЕ (min по всем 116 коллекциям) — как per-collection данные это мусор.
+     2) Редкость фона рынком НЕ оплачивается (фоны 0.82% стоят как фоны 1.4%).
+     3) Премию в реальных сделках несут только: Black (~2x), Onyx Black (~1.8x), нейтральные (~1.12x). */
+  const BD_PREM={'black':2.0,'onyx black':1.8,'ivory white':1.12,'roman silver':1.12,'platinum':1.12};
+  const bdMult=BD_PREM[String(bName||'').toLowerCase()]||1;
+  let fBackEff=parseFloat(fBack);
+  if(!(fBackEff>0) || fBackEff<base*1.15) fBackEff=0;   // глобальный флор ниже флора коллекции = данных нет
   // ===== Monet Valuation v5: 3-estimator ensemble + R²-trusted rarity + demand tilt + self-tuning calibration =====
   const CAL=1.10, RECON_K=4, COMBO_EXP=0.15, COMBO_CAP=1.6, TRAIT_CAP=6, GLOBAL_CAP=8;
   let curve=null; try{ curve=col.slug&&TRAITS_CACHE[col.slug]&&TRAITS_CACHE[col.slug].curve; }catch(e){}
   if(!curve) curve={a:Math.log(Math.max(1,base)*0.683), b:0.55, n:0, r2:0};
   const trust=Math.max(0.25, Math.min(1, curve.r2||0));              // B: trust the curve as much as rarity predicts here
-  const trait=(rPct,f,s,ic,kFloor,kRare)=>{
+  const trait=(rPct,f,s,ic,kFloor,kRare,noCurve)=>{
     const rp=parseFloat(rPct), fl=parseFloat(f), sup=parseFloat(s)||0;
     const share=(!isNaN(rp)&&rp>0)?rp/100:0;
     if(fl<=0 && !(share>0)) return null;
+    if(fl<=0 && noCurve) return null;   // без листингов и без права на кривую редкости — трейт не оценивается
     const rvRaw=share>0?Math.max(base, Math.min(base*TRAIT_CAP, curveVal(curve,share))):0;
     if(fl>0){
       const wF=sup/(sup+RECON_K);                                    // many listings -> trust floor; thin -> lean on curve
@@ -2674,9 +2683,14 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     const rv=base + trust*(rvRaw-base);                              // r2-weighted premium for unlisted traits
     return {v:Math.max(base,rv), n:0, listed:false, floor:0, share, ic, k:kRare, disp:'≈'+Math.round(rv)+' GRAM ('+(ru?'редкость':'rarity')+')'};
   };
+  const backItem=(function(){
+    if(fBackEff>0){ const sup=parseFloat(sBack)||0; const v=Math.max(base*bdMult,fBackEff);
+      return {v:Math.max(base,v),n:sup,listed:true,floor:fBackEff,share:0,ic:'🎨',k:'fBackFl',disp:Math.round(fBackEff)+' GRAM'}; }
+    if(bdMult>1) return {v:base*bdMult,n:0,listed:false,floor:0,share:0,ic:'🎨',k:'fBackRare',disp:'\u00d7'+bdMult.toFixed(1)+(ru?' (фон)':' (backdrop)')};
+    return null; })();
   const items=[ trait(rModel,fModel,sModel,'🧬','fModelFl','fModelRare'),
-                trait(rBack ,fBack ,sBack ,'🎨','fBackFl' ,'fBackRare'),
-                trait(rPat  ,fPat  ,sPat  ,'🌀','fPatFl'  ,'fPatRare') ].filter(Boolean);
+                backItem,
+                trait(rPat  ,fPat  ,sPat  ,'🌀','fPatFl'  ,'fPatRare',true) ].filter(Boolean);
   let price, fsd;
   if(items.length){
     F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' GRAM',cls:'neutral'});
@@ -2731,9 +2745,11 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     // scarcity (три независимых редкости ≠ произведение). This mirrors the liquidity-tempered
     // combo logic the estimator uses when real trait floors exist.
     // Type strengths follow real gift-market value order: MODEL drives price, then backdrop, then symbol.
+    // база знаний: редкость фона рынком не оплачивается (премия только у Black/Onyx/нейтральных),
+    // редкость узора без листингов — тоже («на узор в 90% случаев можно забить»)
     const parts=[{m:rarityMult(rModel,1.0),i:'🧬',k:'fModel'},
-                 {m:rarityMult(rBack,0.7),i:'🎨',k:'fBackdrop'},
-                 {m:rarityMult(rPat,0.5),i:'🌀',k:'fPattern'}].sort((a,b)=>b.m-a.m);
+                 {m:bdMult,i:'🎨',k:'fBackdrop'},
+                 {m:1,i:'🌀',k:'fPattern'}].sort((a,b)=>b.m-a.m);
     let mult=parts[0].m; const addC=[0,0.45,0.28];
     for(let i=1;i<parts.length;i++) mult += Math.max(0, parts[i].m-1)*addC[i];
     mult=Math.min(mult, 6);   // hard cap on total trait premium for a single item
@@ -3066,13 +3082,15 @@ function valueFor(cat, prefix){
   const selAttr=(id,attr)=>{ const s=g(id); if(!s||s.selectedIndex<0) return 0; const o=s.options[s.selectedIndex]; const f=o&&o.getAttribute(attr); return f?parseFloat(f):0; };
   const selFloor=(id)=>selAttr(id,'data-floor');
   const selSup=(id)=>selAttr(id,'data-supply');
+  const selNm=(id)=>{ const sl=g(id); if(!sl||sl.selectedIndex<0) return ''; const o=sl.options[sl.selectedIndex]; return (o&&o.getAttribute('data-name'))||''; };
   return scoreGift(cat, g(prefix+'col').value, g(prefix+'serial').value,
     g(prefix+'rback')?g(prefix+'rback').value:null,
     g(prefix+'rpat')?g(prefix+'rpat').value:null,
     g(prefix+'rmodel')?g(prefix+'rmodel').value:null,
     fEl?fEl.value:null,
     selFloor(prefix+'rback'), selFloor(prefix+'rpat'), selFloor(prefix+'rmodel'),
-    selSup(prefix+'rback'), selSup(prefix+'rpat'), selSup(prefix+'rmodel'));
+    selSup(prefix+'rback'), selSup(prefix+'rpat'), selSup(prefix+'rmodel'),
+    selNm(prefix+'rback'));
 }
 function fmtTON(n){ n=+n||0;
   if(n>0 && n<15){ return n.toFixed(2).replace(/\.?0+$/,''); }   // cheap assets: up to 2 decimals (1.12), trailing zeros trimmed
@@ -3162,7 +3180,7 @@ async function loadGiftCross(r){
       const fEl=document.getElementById('e_floor');
       const r2=scoreGift('gifts', (document.getElementById('e_col')||{}).value, (document.getElementById('e_serial')||{}).value||'',
         (document.getElementById('e_rback')||{}).value||null, (document.getElementById('e_rpat')||{}).value||null, (document.getElementById('e_rmodel')||{}).value||null,
-        fEl?fEl.value:null, mFb, mFp, mFm, sv2(comps.back,'e_rback'), sv2(comps.pat,'e_rpat'), sv2(comps.model,'e_rmodel'));
+        fEl?fEl.value:null, mFb, mFp, mFm, sv2(comps.back,'e_rback'), sv2(comps.pat,'e_rpat'), sv2(comps.model,'e_rmodel'), b);
       if(r2 && r2.priceTON>0){ ourEst=r2.priceTON; ourR=r2;
         if(!comps.exact){ r.priceTON=r2.priceTON; r.factors=r2.factors; r.fsd=r2.fsd; }
       }
@@ -3598,7 +3616,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='1.2';
+const APP_VERSION='1.3';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
