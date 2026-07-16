@@ -4536,6 +4536,26 @@ window.MK = (function(){
         if(sheetA && sheetA.name===name){ const b=document.getElementById('mk-lots'); if(b) b.innerHTML=lotsHTML(lotsSane(items)); } })
       .catch(()=>{ if(sheetA && sheetA.name===name){ const b=document.getElementById('mk-lots'); if(b) b.innerHTML=lotsShell(t('lotsErr')); } });
   }
+  function posHTML(a){ try{
+    const ru=S.lang==='ru';
+    const hs=(S.portfolio||[]).filter(h=>h.display===a.name||String(h.display).split(' #')[0]===a.name);
+    if(!hs.length) return '';
+    const qty=hs.reduce((x,h)=>x+(h.qty||1),0);
+    const val=qty*a.price;
+    let bq=0,inv=0; hs.forEach(h=>{ if(h.buy!=null&&h.buy>0){ bq+=(h.qty||1); inv+=h.buy*(h.qty||1); } });
+    const avg=bq>0?inv/bq:0;
+    const pnl=bq>0?(a.price-avg)*bq:null, pnlPct=(avg>0)?((a.price-avg)/avg*100):null;
+    const d24=val*(a.ch24||0)/100;
+    let share=0; try{ const t0=PF.totalTON(); if(t0>0) share=val/t0*100; }catch(e){}
+    const row=(k,v,cls)=>'<div class="row"><span class="k">'+k+'</span><span class="v"'+(cls?' style="color:'+cls+'"':'')+'>'+v+'</span></div>';
+    return '<div class="mk-kv" style="margin-top:4px"><div class="row" style="border-bottom:0;padding-bottom:2px"><span class="k" style="color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;font-size:10px;font-weight:800">'+(ru?'Моя позиция':'My position')+'</span></div>'+
+      row(ru?'В портфеле':'Holding', qty+' '+t('mkPcs'))+
+      row(ru?'Стоимость':'Value', grp(Math.round(val))+' GRAM')+
+      (avg>0?row(ru?'Средняя покупка':'Avg buy', grp(Math.round(avg))+' GRAM'):'')+
+      (pnl!=null?row('P&L', (pnl>=0?'+':'')+grp(Math.round(pnl))+' GRAM ('+(pnlPct>=0?'+':'')+pnlPct.toFixed(1)+'%)', pnl>=0?'var(--up)':'var(--down)'):'')+
+      row(ru?'За 24ч':'24h', (d24>=0?'+':'')+grp(Math.round(d24))+' GRAM', d24>=0?'var(--up)':'var(--down)')+
+      (share>0?row(ru?'Доля портфеля':'Portfolio share', share.toFixed(1)+'%'):'')+
+      '</div>'; }catch(e){ return ''; } }
   function renderSheet(){ const a=sheetA; if(!a)return; const up24=a.ch24>=0;
     const ser=sheetRange===7?a.ser.slice(-7):a.ser;
     const links=(MKTLINK[a.cat]||[]).map((m,i)=>'<a class="'+(i===0?'primary':'ghost')+'" href="'+refLink(m[1])+'" target="_blank" rel="noopener">'+m[0]+'</a>').join('');
@@ -4551,7 +4571,7 @@ window.MK = (function(){
       '<div class="mk-range"><button class="'+(sheetRange===7?'on':'')+'" onclick="MK.setRange(7)">'+(S.lang==='ru'?'7Д':'7D')+'</button><button class="'+(sheetRange===30?'on':'')+'" onclick="MK.setRange(30)">'+(S.lang==='ru'?'30Д':'30D')+'</button></div>'+
       '<div class="mk-kv">'+rows+'</div>'+
       (a.cat==='gifts'?'<div class="mk-lots" id="mk-lots"></div>':'')+
-      (heldQty(a.name)?'<div class="mk-held-line">'+t('mkHeld')+': '+heldQty(a.name)+' '+t('mkPcs')+'</div>':'')+
+      posHTML(a)+
       '<button class="btn" style="margin-bottom:9px" onclick="PF.addAsset({cat:\''+a.cat+'\',display:'+jattr(a.name)+',priceTON:'+Math.round(a.price)+',qty:1}); MK.closeSheet();"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> '+(heldQty(a.name)?t('mkAddMore'):t('pfAddBtn'))+'</button>'+
       '<button class="btn ghost" style="margin-bottom:9px" onclick="MK.closeSheet(); ALERTS.quick('+jattr(a.name)+',\''+a.cat+'\','+Math.round(a.price)+');"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> '+t('alSetShort')+'</button>'+
       '<button class="btn ghost" style="margin-bottom:9px" onclick="toggleWatch('+jattr(a.name)+'); MK.openSheet('+jattr(a.id)+');">'+(wlHas(a.name)?'★ '+t('wlOn'):'☆ '+t('wlAdd'))+'</button>'+
@@ -4625,8 +4645,9 @@ window.PF = (function(){
   function grp(n){ n=Math.round(n); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); }
   function fiat(ton){ const v=Math.round(ton*fxOf(S.currency)); return symOf(S.currency)+v.toLocaleString('en-US'); }
   function mkByName(name){ if(!name) return null; const key=String(name).toLowerCase().replace(/^🎁\s*/,'').trim();
+    const base=key.split(' #')[0];   // «Plush Pepe #834» -> живые данные коллекции «Plush Pepe»
     const data=(window.MK&&window.MK.data&&window.MK.data())||{};
-    for(const c in data){ const m=data[c].find(g=>g.name.toLowerCase()===key); if(m) return m; } return null; }
+    for(const c in data){ const m=data[c].find(g=>g.name.toLowerCase()===key||g.name.toLowerCase()===base); if(m) return m; } return null; }
   function giftByName(name){ const m=mkByName(name); return (m&&m.cat==='gifts')?m:null; }
   function pfJit(seed){ const s=String(seed); let h=2166136261; for(let i=0;i<s.length;i++){ h=Math.imul(h^s.charCodeAt(i),16777619); } h>>>=0;
     const mag=0.2+(h%1000)/1000*1.0; return +(((h>>5)&1?-1:1)*mag).toFixed(1); }
@@ -4714,11 +4735,16 @@ window.PF = (function(){
         '<div class="pf-donut">'+donutSVG(segs)+'<div class="ctr"><b>'+list.length+'</b><span>'+t('pfHoldings')+'</span></div></div>'+
         '<div class="pf-leg">'+segs.map(s=>'<div class="lr"><span class="dot" style="background:'+s.color+'"></span><span class="ln">'+escapeHTML(s.name)+'</span><span class="lp">'+s.pct.toFixed(0)+'%</span></div>').join('')+'</div>'+
         '</div></div>' : '';
-    const rows=list.map((h,i)=>{ const p=curPrice(h)*(h.qty||1); const d=ch24(h); const u=d>=0;
+    const sortKey=S.pfSort||'value';
+    const __idx=list.map((h,i)=>({h,i}));
+    if(sortKey==='value') __idx.sort((a,b)=>curPrice(b.h)*(b.h.qty||1)-curPrice(a.h)*(a.h.qty||1));
+    else if(sortKey==='ch') __idx.sort((a,b)=>ch24(b.h)-ch24(a.h));
+    else if(sortKey==='pnl'){ const pl=x=>{ const h=x.h; if(h.buy==null||!(h.buy>0)) return -1e15; return (curPrice(h)-h.buy)*(h.qty||1); }; __idx.sort((a,b)=>pl(b)-pl(a)); }
+    const rows=__idx.map(({h,i})=>{ const p=curPrice(h)*(h.qty||1); const d=ch24(h); const u=d>=0;
       return '<div class="pf-item"><div class="ic">'+picHTML(h)+'</div>'+
-        '<div class="mid" onclick="PF.editOpen('+i+')" style="cursor:pointer"><b>'+escapeHTML(h.display)+'</b><span>'+(h.qty>1?h.qty+' × '+grp(curPrice(h))+' GRAM':grp(curPrice(h))+' GRAM')+(h.buy!=null?' · <span style="color:'+(curPrice(h)>=h.buy?'var(--up)':'var(--down)')+'">'+(curPrice(h)>=h.buy?'+':'')+(h.buy>0?((curPrice(h)-h.buy)/h.buy*100).toFixed(0):'0')+'%</span>':'')+'</span></div>'+
+        '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+escapeHTML(h.display)+'</b><span>'+(h.qty>1?h.qty+' × '+grp(curPrice(h))+' GRAM':grp(curPrice(h))+' GRAM')+(h.buy!=null?' · <span style="color:'+(curPrice(h)>=h.buy?'var(--up)':'var(--down)')+'">'+(curPrice(h)>=h.buy?'+':'')+(h.buy>0?((curPrice(h)-h.buy)/h.buy*100).toFixed(0):'0')+'%</span>':'')+'</span></div>'+
         '<div class="rt"><div class="v">'+(hidden?'••••':grp(p))+' GRAM</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'+':'')+d.toFixed(1)+'%'):'—')+'</div></div>'+
-        '<div class="pf-rowacts"><button class="pf-sell" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
+        '<div class="pf-rowacts"><button class="pf-sell" title="edit" onclick="PF.editOpen('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button><button class="pf-sell" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
     const eyeIcon = hidden
       ? '<svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.1A9 9 0 0 1 21 12a14 14 0 0 1-2.3 3M6.1 6.1A14 14 0 0 0 3 12a9 9 0 0 0 12 6.5"/></svg>'
       : '<svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -4734,7 +4760,7 @@ window.PF = (function(){
             : '<span id="pf-tot">'+grp(tot)+'</span> <span style="font-size:.5em;font-weight:700;opacity:.85">GRAM</span>')+'</div>'+
         '<div class="fiat">≈ '+(hidden?'••••':fiat(tot))+'</div>'+
         (hidden?'':'<div class="pf-range">'+t('estRange')+': '+grp(lo)+' – '+grp(hi)+' GRAM</div>')+
-        '<div class="chg" style="color:#fff">'+(Math.abs(w24)<0.05?'— · '+t('pfChange24'):(up?'▲':'▼')+' '+Math.abs(w24).toFixed(1)+'% · '+t('pfChange24'))+'</div>'+
+        '<div class="chg" style="color:#fff">'+(Math.abs(w24)<0.05?'— · '+t('pfChange24'):(up?'▲':'▼')+' '+Math.abs(w24).toFixed(1)+'% · '+t('pfChange24'))+(function(){const w7=weighted(ch7); return Math.abs(w7)<0.05?'':'  ·  '+(w7>=0?'▲':'▼')+' '+Math.abs(w7).toFixed(1)+'% · '+(S.lang==='ru'?'7д':'7d');})()+'</div>'+
         '<div class="pf-chart">'+sparkSVG(valueSeries(chartRange))+'</div>'+
         '<div class="pf-crange"><button class="'+(chartRange===7?'on':'')+'" onclick="PF.setRange(7)">'+(S.lang==='ru'?'7Д':'7D')+'</button><button class="'+(chartRange===30?'on':'')+'" onclick="PF.setRange(30)">'+(S.lang==='ru'?'30Д':'30D')+'</button></div>'+
       '</div>'+
@@ -4745,6 +4771,9 @@ window.PF = (function(){
       pnlHTML()+ goalCard+ cashHTML()))+ (window.BANK?window.BANK.rewardsCardHTML():'')+
       insights+ alloc+
       '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
+      (list.length>2?'<div class="pf-crange" style="margin:0 0 10px">'+[['value',(S.lang==='ru'?'По стоимости':'By value')],['ch','24ч'],['pnl','P&L']].map(o=>'<button class="'+(sortKey===o[0]?'on':'')+'" onclick="PF.setSort(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>':'')+
+      (function(){ const nb=list.filter(h=>h.buy==null||!(h.buy>0)).length; if(!nb||hidden) return '';
+        return '<div style="font-size:11.5px;color:var(--txt-3);font-weight:600;margin:0 2px 10px;line-height:1.4">💡 '+(S.lang==='ru'?('У '+nb+' актив(ов) не указана цена покупки — добавь её (✎), чтобы видеть P&L'):(nb+' asset(s) have no buy price — add it (✎) to see P&L'))+'</div>'; })()+
       '<div class="pf-list">'+rows+'</div>';
     if(!hidden) animateTotal(tot);
   }
@@ -4876,6 +4905,11 @@ window.PF = (function(){
     setTimeout(()=>{const el=document.getElementById('pf-wd-in');if(el){el.focus();try{el.select();}catch(e){}}},80); }
   function doWithdraw(){ const v=parseFloat((document.getElementById('pf-wd-in').value||'').replace(/[^\d.]/g,''))||0;
     S.cash=Math.max(0,(S.cash||0)-v); save(); closeAdd(); render(); toast(t('pfWithdrawn')); }
+  function details(i){ const h=(S.portfolio||[])[i]; if(!h) return;
+    const base=String(h.display).split(' #')[0];
+    let m=null; try{ m=Object.values(MK.data()).flat().find(x=>x.name===h.display||x.name===base); }catch(e){}
+    if(m){ MK.openSheet(m.id); return; }
+    editOpen(i); }
   function editOpen(i){ const h=(S.portfolio||[])[i]; if(!h) return; editIdx=i; const est=Math.round(curPrice(h)); const buy=(h.buy!=null?h.buy:'');
     document.getElementById('pf-sheet').innerHTML=
       '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z"/><path d="M14.5 6.5l3 3"/></svg></div><div class="nm"><b>'+t('pfEditTitle')+'</b><span>'+escapeHTML(h.display)+'</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
@@ -4984,7 +5018,8 @@ window.PF = (function(){
     else return;
     document.getElementById('pf-sheet').innerHTML=html;
     document.getElementById('pf-scrim').classList.add('open'); }
-  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
+  function setSort(k){ S.pfSort=k; try{save();}catch(e){} render(); }
+  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, details, setSort, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
 })();
 
 
