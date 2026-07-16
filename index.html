@@ -558,6 +558,9 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pf-empty p{color:var(--txt-2);font-weight:600;font-size:14px;margin:12px auto 18px;max-width:280px}
 .pf-list{display:flex;flex-direction:column;gap:9px}
 .pf-item{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:13px 15px;box-shadow:var(--shadow);animation:rise .35s}
+.pf-spkbox{width:58px;flex:none;display:flex;align-items:center}
+.pf-spk{width:58px;height:22px;display:block;opacity:.9}
+@media(max-width:379px){.pf-spkbox{display:none}}
 .pf-item .ic{width:42px;height:42px;border-radius:12px;background:var(--bg2);display:grid;place-items:center;font-size:21px;flex:none}
 .pf-item .mid{flex:1;min-width:0}
 .pf-item .mid b{font-weight:700;font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
@@ -568,6 +571,16 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pf-item .rt .d.up{color:var(--up)} .pf-item .rt .d.down{color:var(--down)}
 .pf-item .del{border:0;background:var(--bg2);color:var(--txt-3);width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;flex:none}
 .pf-rowacts{display:flex;flex-direction:column;gap:6px;flex:none}
+.pf-step{display:flex;align-items:center;gap:12px;justify-content:center;margin:6px 0 10px}
+.pf-step button{width:42px;height:42px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--txt);font-size:20px;font-weight:800;cursor:pointer}
+.pf-step .q{font-family:var(--font-d);font-weight:800;font-size:24px;min-width:56px;text-align:center}
+.pf-chips{display:flex;gap:7px;margin:2px 0 10px}
+.pf-chips button{flex:1;border:1px solid var(--line-2);background:var(--surface-2);color:var(--txt-2);border-radius:10px;padding:9px 4px;font-size:12px;font-weight:800;cursor:pointer}
+.pf-chips button.on{background:var(--ton);color:#04130C;border-color:transparent}
+.pf-prev{text-align:center;font-size:13.5px;font-weight:700;margin:4px 0 12px;color:var(--txt-2)}
+.pf-prev b{font-family:var(--font-d)}
+.pf-lbl{font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin:8px 2px 6px}
+@media(max-width:479px){.pf-rowacts{display:none}.pf-item .mid b{max-width:120px}}
 .pf-sell{border:0;background:rgba(86,197,148,.16);color:var(--ton);width:30px;height:30px;border-radius:50%;cursor:pointer;flex:none;display:grid;place-items:center;padding:0}
 .pf-sell svg{width:15px;height:15px}
 .pf-selln{font-size:13px;color:var(--txt-2);margin:2px 0 10px}
@@ -4555,7 +4568,13 @@ window.MK = (function(){
       (pnl!=null?row('P&L', (pnl>=0?'+':'')+grp(Math.round(pnl))+' GRAM ('+(pnlPct>=0?'+':'')+pnlPct.toFixed(1)+'%)', pnl>=0?'var(--up)':'var(--down)'):'')+
       row(ru?'За 24ч':'24h', (d24>=0?'+':'')+grp(Math.round(d24))+' GRAM', d24>=0?'var(--up)':'var(--down)')+
       (share>0?row(ru?'Доля портфеля':'Portfolio share', share.toFixed(1)+'%'):'')+
-      '</div>'; }catch(e){ return ''; } }
+      '</div>'+
+      (function(){ const idx=(S.portfolio||[]).findIndex(h=>h.display===a.name||String(h.display).split(' #')[0]===a.name);
+        if(idx<0) return '';
+        return '<div style="display:flex;gap:8px;margin:10px 0 4px">'+
+          '<button class="btn ghost" style="flex:1;margin:0" onclick="MK.closeSheet();PF.editOpen('+idx+')">\u270e '+(ru?'Изменить':'Edit')+'</button>'+
+          '<button class="btn ghost" style="flex:1;margin:0" onclick="MK.closeSheet();PF.sell('+idx+')">'+(ru?'Продать':'Sell')+'</button>'+
+        '</div>'; })(); }catch(e){ return ''; } }
   function renderSheet(){ const a=sheetA; if(!a)return; const up24=a.ch24>=0;
     const ser=sheetRange===7?a.ser.slice(-7):a.ser;
     const links=(MKTLINK[a.cat]||[]).map((m,i)=>'<a class="'+(i===0?'primary':'ghost')+'" href="'+refLink(m[1])+'" target="_blank" rel="noopener">'+m[0]+'</a>').join('');
@@ -4727,7 +4746,8 @@ window.PF = (function(){
     const goalCard=goalHTML(tot);
     const bw=bestWorst();
     const oneMover = bw && bw.best===bw.worst;
-    const insights = bw ? '<div class="pf-insights'+(oneMover?' one':'')+'">'+
+    const showIns = bw && list.length>=2;
+    const insights = showIns ? '<div class="pf-insights'+(oneMover?' one':'')+'">'+
         insCard('▲',oneMover?t('h24'):t('pfBest'),bw.best,ch24(bw.best))+
         (oneMover?'':insCard('▼',t('pfWorst'),bw.worst,ch24(bw.worst)))+'</div>' : '';
     const segs=allocation();
@@ -4742,8 +4762,9 @@ window.PF = (function(){
     else if(sortKey==='pnl'){ const pl=x=>{ const h=x.h; if(h.buy==null||!(h.buy>0)) return -1e15; return (curPrice(h)-h.buy)*(h.qty||1); }; __idx.sort((a,b)=>pl(b)-pl(a)); }
     const rows=__idx.map(({h,i})=>{ const p=curPrice(h)*(h.qty||1); const d=ch24(h); const u=d>=0;
       return '<div class="pf-item"><div class="ic">'+picHTML(h)+'</div>'+
-        '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+escapeHTML(h.display)+'</b><span>'+(h.qty>1?h.qty+' × '+grp(curPrice(h))+' GRAM':grp(curPrice(h))+' GRAM')+(h.buy!=null?' · <span style="color:'+(curPrice(h)>=h.buy?'var(--up)':'var(--down)')+'">'+(curPrice(h)>=h.buy?'+':'')+(h.buy>0?((curPrice(h)-h.buy)/h.buy*100).toFixed(0):'0')+'%</span>':'')+'</span></div>'+
-        '<div class="rt"><div class="v">'+(hidden?'••••':grp(p))+' GRAM</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'+':'')+d.toFixed(1)+'%'):'—')+'</div></div>'+
+        '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+escapeHTML(h.display)+'</b><span>'+(function(){ const ru=S.lang==='ru'; const q=h.qty||1; const parts=[]; if(q>1) parts.push(q+' '+(ru?'шт':'pcs')); if(h.buy!=null&&h.buy>0){ const pnl=(curPrice(h)-h.buy)*q; const pct=(curPrice(h)-h.buy)/h.buy*100; const c=pnl>=0?'var(--up)':'var(--down)'; parts.push((ru?'вход ':'in ')+grp(h.buy)); parts.push('<span style="color:'+c+'">'+(pnl>=0?'+':'−')+grp(Math.abs(Math.round(pnl)))+' ('+(pct>=0?'+':'')+pct.toFixed(0)+'%)</span>'); } else parts.push(ru?'вход не указан':'no entry price'); return parts.join(' · '); })()+'</span></div>'+
+        '<div class="pf-spkbox" onclick="PF.details('+i+')" style="cursor:pointer">'+rowSpark(h)+'</div>'+
+        '<div class="rt" onclick="PF.details('+i+')" style="cursor:pointer"><div class="v">'+(hidden?'••••':grp(p))+' GRAM</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+'% · '+(S.lang==='ru'?'24ч':'24h')):'—')+'</div></div>'+
         '<div class="pf-rowacts"><button class="pf-sell" title="edit" onclick="PF.editOpen('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button><button class="pf-sell" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
     const eyeIcon = hidden
       ? '<svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.1A9 9 0 0 1 21 12a14 14 0 0 1-2.3 3M6.1 6.1A14 14 0 0 0 3 12a9 9 0 0 0 12 6.5"/></svg>'
@@ -4765,12 +4786,12 @@ window.PF = (function(){
         '<div class="pf-crange"><button class="'+(chartRange===7?'on':'')+'" onclick="PF.setRange(7)">'+(S.lang==='ru'?'7Д':'7D')+'</button><button class="'+(chartRange===30?'on':'')+'" onclick="PF.setRange(30)">'+(S.lang==='ru'?'30Д':'30D')+'</button></div>'+
       '</div>'+
       (hidden?'':('<div class="pf-bankrow">'+
-        '<div class="pf-bcard" onclick="PF.info(\'forecast\')" style="cursor:pointer"><div class="k">'+t('pfForecast')+' ›</div><div class="v">'+(hidden?'••••':grp(fc.val)+' GRAM')+'</div><div class="s" style="color:'+(fc.pct>=0?'var(--up)':'var(--down)')+'">'+(fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'%</div></div>'+
-        '<div class="pf-bcard" onclick="PF.info(\'status\')" style="cursor:pointer"><div class="k">'+t('pfTier')+' ›</div><div class="v">'+tierBadge(tier.idx)+' '+tier.name+'</div><div class="s" style="color:var(--txt-3)">'+(tier.next?(t('pfToNext')+' '+tier.next.name+': '+grp(tier.next.need)+' GRAM'):'MAX')+'</div></div>'+
+        (list.length>=2?'<div class="pf-bcard" onclick="PF.info(\'forecast\')" style="cursor:pointer"><div class="k">'+t('pfForecast')+' ›</div><div class="v">'+(hidden?'••••':grp(fc.val)+' GRAM')+'</div><div class="s" style="color:'+(fc.pct>=0?'var(--up)':'var(--down)')+'">'+(fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'% · '+(S.lang==='ru'?'если тренд 7д сохранится':'if 7d trend holds')+'</div></div>':'')+
+        '<div class="pf-bcard" onclick="PF.info(\'status\')" style="cursor:pointer'+(list.length>=2?'':';grid-column:1/-1')+'"><div class="k">'+t('pfTier')+' ›</div><div class="v">'+tierBadge(tier.idx)+' '+tier.name+'</div><div class="s" style="color:var(--txt-3)">'+(tier.next?(t('pfToNext')+' '+tier.next.name+': '+grp(tier.next.need)+' GRAM'):'MAX')+'</div></div>'+
       '</div>'+
       pnlHTML()+ goalCard+ cashHTML()))+ (window.BANK?window.BANK.rewardsCardHTML():'')+
       insights+ alloc+
-      '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
+      '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><span style="flex:1"></span>'+(function(){ try{ if(typeof FLOORS_TS!=='undefined'&&FLOORS_TS>0) return '<span style="font-size:10px;color:var(--txt-3);font-weight:700;margin-right:10px">'+(S.lang==='ru'?'данные: ':'data: ')+fmtAgo(FLOORS_TS)+'</span>'; }catch(e){} return ''; })()+'<button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
       (list.length>2?'<div class="pf-crange" style="margin:0 0 10px">'+[['value',(S.lang==='ru'?'По стоимости':'By value')],['ch','24ч'],['pnl','P&L']].map(o=>'<button class="'+(sortKey===o[0]?'on':'')+'" onclick="PF.setSort(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>':'')+
       (function(){ const nb=list.filter(h=>h.buy==null||!(h.buy>0)).length; if(!nb||hidden) return '';
         return '<div style="font-size:11.5px;color:var(--txt-3);font-weight:600;margin:0 2px 10px;line-height:1.4">💡 '+(S.lang==='ru'?('У '+nb+' актив(ов) не указана цена покупки — добавь её (✎), чтобы видеть P&L'):(nb+' asset(s) have no buy price — add it (✎) to see P&L'))+'</div>'; })()+
@@ -4844,6 +4865,7 @@ window.PF = (function(){
 
 
   function addAsset(a){ if(!a||!a.display) return; try{ track('add_to_portfolio', a.display); }catch(e){} if(!Array.isArray(S.portfolio))S.portfolio=[];
+    if(a.buy==null && a.priceTON>0) a.buy=Math.round(a.priceTON);   // как в трекерах: покупка по текущему рынку, можно поправить в ✎
     const cat=({gifts:'gift',usernames:'username'})[a.cat]||a.cat;
     const ex=S.portfolio.find(h=>h.cat===cat && h.display===a.display);
     // a specific NFT number is unique in the world -> can only be held once
@@ -4864,33 +4886,66 @@ window.PF = (function(){
   let sellIdx=-1, editIdx=-1;
   function cashHTML(){ const c=Math.round(S.cash||0); if(c<=0) return '';
     return '<div class="pf-goalcard"><div class="gh"><b><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg> '+t('pfCash')+': '+grp(c)+' GRAM</b><button class="edit" onclick="PF.withdraw()">'+t('pfWithdraw')+'</button></div></div>'; }
+  function rowSpark(h){ try{
+    const m=mkByName(h.display); if(!m||!Array.isArray(m.ser)||m.ser.length<3) return '';
+    const ser=m.ser.slice(-7); const up=(m.ch7!=null?m.ch7:((ser[ser.length-1]-ser[0])/ser[0]*100))>=0;
+    const w=58,hh=22,pad=2,min=Math.min(...ser),max=Math.max(...ser),rg=(max-min)||1;
+    const pts=ser.map((v,i)=>[pad+i/(ser.length-1)*(w-2*pad),hh-pad-((v-min)/rg)*(hh-2*pad)]);
+    const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    const col=up?'var(--up)':'var(--down)';
+    return '<svg class="pf-spk" viewBox="0 0 '+w+' '+hh+'" preserveAspectRatio="none"><path d="'+line+'" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+  }catch(e){ return ''; } }
   function pnlHTML(){ const list=S.portfolio||[]; let cost=0,val=0;
     list.forEach(h=>{ const b=(h.buy!=null?h.buy:h.priceTON)||0; const q=h.qty||1; cost+=b*q; val+=curPrice(h)*q; });
     const unreal=Math.round(val-cost);
     const real=Math.round((S.realized||[]).reduce((s,r)=>s+((r.sold||0)-(r.basis!=null?r.basis:r.est||0)),0));
-    if(cost<=0 && real===0) return '';
+    if((cost<=0 || Math.abs(unreal)<1) && real===0) return '';   // нулевые карточки — шум, не показываем
     const upct=cost>0?(val-cost)/cost*100:0; const uc=unreal>=0?'var(--up)':'var(--down)'; const rc=real>=0?'var(--up)':'var(--down)';
     return '<div class="pf-bankrow">'+
       '<div class="pf-bcard" onclick="PF.info(\'unreal\')" style="cursor:pointer"><div class="k">'+t('pfUnreal')+' ›</div><div class="v" style="color:'+uc+'">'+(unreal>=0?'+':'')+grp(unreal)+' GRAM</div><div class="s" style="color:'+uc+'">'+(upct>=0?'▲':'▼')+' '+Math.abs(upct).toFixed(1)+'%</div></div>'+
       '<div class="pf-bcard" onclick="PF.openJournal()" style="cursor:pointer"><div class="k">'+t('pfRealized')+' ›</div><div class="v" style="color:'+rc+'">'+(real>=0?'+':'')+grp(real)+' GRAM</div><div class="s" style="color:var(--txt-3)">'+t('pfFromSales')+'</div></div>'+
     '</div>'; }
-  function sell(i){ const h=(S.portfolio||[])[i]; if(!h) return; sellIdx=i; const est=Math.round(curPrice(h)*(h.qty||1));
+  let sellQty=1;
+  function sell(i){ const h=(S.portfolio||[])[i]; if(!h) return; sellIdx=i; const ru=S.lang==='ru';
+    const unit=Math.round(curPrice(h)); const q=h.qty||1; sellQty=q;
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div class="nm"><b>'+t('pfSellTitle')+'</b><span>'+escapeHTML(h.display)+'</span></div><button class="x" onclick="PF.closeAdd()">\u2715</button></div>'+
-      '<div class="pf-selln">'+t('pfSellEst')+': <b>'+grp(est)+' GRAM</b></div>'+
-      '<div class="pf-addrow"><input id="pf-sell-in" class="big" inputmode="decimal" placeholder="'+t('pfSellPh')+'" value="'+est+'">'+
-      '<button class="btn" onclick="PF.doSell()">'+t('pfSellBtn')+'</button></div>';
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div class="nm"><b>'+t('pfSellTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(unit)+' GRAM</span></div><button class="x" onclick="PF.closeAdd()">\u2715</button></div>'+
+      (q>1?('<div class="pf-lbl">'+(ru?'Сколько продал':'Quantity sold')+'</div>'+
+        '<div class="pf-step"><button onclick="PF.sQty(-1)">−</button><span class="q" id="pf-sq">'+q+'</span><button onclick="PF.sQty(1)">+</button></div>'+
+        '<div class="pf-chips">'+[[25,'25%'],[50,'50%'],[75,'75%'],[100,'MAX']].map(o=>'<button onclick="PF.sPct('+o[0]+')">'+o[1]+'</button>').join('')+'</div>'):'')+
+      '<div class="pf-lbl">'+(ru?'Цена продажи за штуку':'Sell price per item')+'</div>'+
+      '<div class="pf-addrow" style="margin-bottom:0"><input id="pf-sell-in" class="big" inputmode="decimal" placeholder="'+t('pfSellPh')+'" value="'+unit+'" oninput="PF.sPrev()"></div>'+
+      '<div class="pf-chips"><button onclick="PF.sSet('+unit+')">'+(ru?'По рынку':'Market')+' · '+grp(unit)+'</button><button onclick="PF.sSet('+Math.round(unit*0.95)+')">−5%</button><button onclick="PF.sSet('+Math.round(unit*1.05)+')">+5%</button></div>'+
+      '<div class="pf-prev" id="pf-sprev"></div>'+
+      '<button class="btn" onclick="PF.doSell()">'+t('pfSellBtn')+'</button>';
     document.getElementById('pf-scrim').classList.add('open');
-    setTimeout(()=>{const el=document.getElementById('pf-sell-in');if(el){el.focus();try{el.select();}catch(e){}}},80); }
+    sPrev(); }
+  function sQty(d){ const h=(S.portfolio||[])[sellIdx]; if(!h) return; const el=document.getElementById('pf-sq'); if(!el) return;
+    sellQty=Math.max(1,Math.min(h.qty||1,(parseInt(el.textContent,10)||1)+d)); el.textContent=sellQty; sPrev(); }
+  function sPct(p){ const h=(S.portfolio||[])[sellIdx]; if(!h) return; const el=document.getElementById('pf-sq'); if(!el) return;
+    sellQty=Math.max(1,Math.round((h.qty||1)*p/100)); el.textContent=sellQty; sPrev(); }
+  function sSet(v){ const el=document.getElementById('pf-sell-in'); if(!el) return; el.value=v; sPrev(); }
+  function sPrev(){ try{ const h=(S.portfolio||[])[sellIdx]; if(!h) return; const ru=S.lang==='ru';
+    const el=document.getElementById('pf-sprev'); if(!el) return;
+    const unit=parseFloat((document.getElementById('pf-sell-in').value||'').replace(/[^\d.]/g,''))||0;
+    const total=unit*sellQty;
+    const bunit=(h.buy!=null&&h.buy>0)?h.buy:null;
+    let pl=''; if(bunit!=null){ const pnl=(unit-bunit)*sellQty, pct=(unit-bunit)/bunit*100, c=pnl>=0?'var(--up)':'var(--down)';
+      pl=' · P&L: <b style="color:'+c+'">'+(pnl>=0?'+':'')+grp(Math.round(pnl))+' ('+(pct>=0?'+':'')+pct.toFixed(0)+'%)</b>'; }
+    el.innerHTML=(ru?'Получишь: ':'You get: ')+'<b>'+grp(Math.round(total))+' GRAM</b>'+pl;
+  }catch(e){} }
   function doSell(){ const h=(S.portfolio||[])[sellIdx]; if(!h){ closeAdd(); return; }
-    const v=parseFloat((document.getElementById('pf-sell-in').value||'').replace(/[^\d.]/g,''))||0;
-    const basis=Math.round((h.buy!=null?h.buy:h.priceTON||0)*(h.qty||1));
+    const unit=parseFloat((document.getElementById('pf-sell-in').value||'').replace(/[^\d.]/g,''))||0;
+    const q=Math.max(1,Math.min(h.qty||1,sellQty||1));
+    const v=Math.round(unit*q);
+    const basis=Math.round((h.buy!=null?h.buy:h.priceTON||0)*q);
     S.cash=(S.cash||0)+v;
     if(!Array.isArray(S.realized))S.realized=[];
-    S.realized.unshift({display:h.display,cat:h.cat,sold:v,basis:basis,qty:h.qty||1,ts:Date.now()});
+    S.realized.unshift({display:h.display,cat:h.cat,sold:v,basis:basis,qty:q,ts:Date.now()});
     if(S.realized.length>100)S.realized=S.realized.slice(0,100);
     try{ if(!Array.isArray(S.activity))S.activity=[]; S.activity.unshift({type:'sell', display:h.display, cat:h.cat, sold:v, basis:basis, ts:Date.now()}); if(S.activity.length>120)S.activity=S.activity.slice(0,120); }catch(e){}
-    S.portfolio.splice(sellIdx,1); sellIdx=-1;
+    if(q>=(h.qty||1)){ S.portfolio.splice(sellIdx,1); } else { h.qty=(h.qty||1)-q; }
+    sellIdx=-1;
     snapshot(); save(); closeAdd();
     if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
     toast(t('pfSold')+' +'+grp(v)+' GRAM'); render();
@@ -4910,20 +4965,37 @@ window.PF = (function(){
     let m=null; try{ m=Object.values(MK.data()).flat().find(x=>x.name===h.display||x.name===base); }catch(e){}
     if(m){ MK.openSheet(m.id); return; }
     editOpen(i); }
-  function editOpen(i){ const h=(S.portfolio||[])[i]; if(!h) return; editIdx=i; const est=Math.round(curPrice(h)); const buy=(h.buy!=null?h.buy:'');
+  function editOpen(i){ const h=(S.portfolio||[])[i]; if(!h) return; editIdx=i; const ru=S.lang==='ru';
+    const est=Math.round(curPrice(h)); const buy=(h.buy!=null?h.buy:'');
+    const unique=/#\s*\d+/.test(String(h.display))||h.cat==='username'||h.cat==='numbers';
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z"/><path d="M14.5 6.5l3 3"/></svg></div><div class="nm"><b>'+t('pfEditTitle')+'</b><span>'+escapeHTML(h.display)+'</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
-      '<div class="pf-selln">'+t('pfSellEst')+': <b>'+grp(est)+' GRAM</b></div>'+
-      '<div class="pf-addrow"><input id="pf-ebuy" class="big" inputmode="decimal" placeholder="'+t('pfBuyPh')+'" value="'+buy+'">'+
-        '<input id="pf-eqty" class="big" type="number" min="1" value="'+(h.qty||1)+'">'+
-        '<button class="btn" onclick="PF.doEdit()">'+t('pfEditSave')+'</button>'+
-        '<button class="btn ghost" onclick="PF.sell('+i+')">'+t('pfSell')+'</button></div>';
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z"/><path d="M14.5 6.5l3 3"/></svg></div><div class="nm"><b>'+t('pfEditTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(est)+' GRAM</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
+      (unique?'':('<div class="pf-lbl">'+(ru?'Количество':'Quantity')+'</div>'+
+      '<div class="pf-step"><button onclick="PF.eQty(-1)">−</button><span class="q" id="pf-eqty-v">'+(h.qty||1)+'</span><button onclick="PF.eQty(1)">+</button></div>'))+
+      '<div class="pf-lbl">'+(ru?'Цена покупки за штуку':'Buy price per item')+'</div>'+
+      '<div class="pf-addrow" style="margin-bottom:0"><input id="pf-ebuy" class="big" inputmode="decimal" placeholder="'+t('pfBuyPh')+'" value="'+buy+'" oninput="PF.ePrev()"></div>'+
+      '<div class="pf-chips"><button onclick="PF.eSetBuy('+est+')">'+(ru?'По рынку':'Market')+' · '+grp(est)+'</button><button onclick="PF.eSetBuy(\'\')">'+(ru?'Не помню':'Skip')+'</button></div>'+
+      '<div class="pf-prev" id="pf-eprev"></div>'+
+      '<button class="btn" onclick="PF.doEdit()">'+t('pfEditSave')+'</button>'+
+      '<button class="btn ghost" style="margin-top:9px" onclick="PF.sell('+i+')">'+t('pfSell')+'</button>';
     document.getElementById('pf-scrim').classList.add('open');
-    setTimeout(()=>{const el=document.getElementById('pf-ebuy');if(el)el.focus();},80); }
+    ePrev(); }
+  function eQty(d){ const el=document.getElementById('pf-eqty-v'); if(!el) return; let q=Math.max(1,(parseInt(el.textContent,10)||1)+d); el.textContent=q; ePrev(); }
+  function eSetBuy(v){ const el=document.getElementById('pf-ebuy'); if(!el) return; el.value=v; ePrev(); }
+  function ePrev(){ try{ const h=(S.portfolio||[])[editIdx]; if(!h) return; const ru=S.lang==='ru';
+    const el=document.getElementById('pf-eprev'); if(!el) return;
+    const qEl=document.getElementById('pf-eqty-v'); const q=qEl?Math.max(1,parseInt(qEl.textContent,10)||1):(h.qty||1);
+    const bv=parseFloat((document.getElementById('pf-ebuy').value||'').replace(/[^\d.]/g,''));
+    const est=Math.round(curPrice(h));
+    if(!(bv>0)){ el.innerHTML=(ru?'Стоимость позиции: ':'Position value: ')+'<b>'+grp(est*q)+' GRAM</b>'; return; }
+    const pnl=(est-bv)*q, pct=(est-bv)/bv*100, c=pnl>=0?'var(--up)':'var(--down)';
+    el.innerHTML='P&L: <b style="color:'+c+'">'+(pnl>=0?'+':'')+grp(Math.round(pnl))+' GRAM ('+(pct>=0?'+':'')+pct.toFixed(1)+'%)</b>';
+  }catch(e){} }
   function doEdit(){ const h=(S.portfolio||[])[editIdx]; if(!h){ closeAdd(); return; }
     const bv=(document.getElementById('pf-ebuy').value||'').replace(/[^\d.]/g,''); h.buy = bv?Math.round(parseFloat(bv)):null;
     const unique=/#\s*\d+/.test(String(h.display))||h.cat==='username'||h.cat==='numbers';
-    const q=Math.max(1,parseInt(document.getElementById('pf-eqty').value||'1',10)||1); h.qty=unique?1:q;
+    const qEl=document.getElementById('pf-eqty-v');
+    const q=qEl?Math.max(1,parseInt(qEl.textContent,10)||1):(h.qty||1); h.qty=unique?1:q;
     snapshot(); save(); closeAdd(); render(); }
   function openJournal(){ const box=document.getElementById('jr-sheet'); if(!box) return; const ru=S.lang==='ru';
     const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h13a1 1 0 0 1 1 1v15H7a2 2 0 0 1-2-2z"/><path d="M9 8h7M9 12h7"/></svg></div><div class="nm"><b>'+t('jrTitle')+'</b><span>'+t('pfFromSales')+'</span></div><button class="x" onclick="PF.closeJournal()">✕</button></div>';
@@ -5019,7 +5091,7 @@ window.PF = (function(){
     document.getElementById('pf-sheet').innerHTML=html;
     document.getElementById('pf-scrim').classList.add('open'); }
   function setSort(k){ S.pfSort=k; try{save();}catch(e){} render(); }
-  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, details, setSort, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
+  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, details, setSort, eQty, eSetBuy, ePrev, sQty, sPct, sSet, sPrev, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
 })();
 
 
@@ -5061,15 +5133,18 @@ window.BANK = (function(){
   function redeem(){ if(S.premium||(S.points||0)<REDEEM) return; S.points-=REDEEM; S.premium=true; save();
     try{updatePremiumUI();}catch(e){} if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
     toast(t('rwGotPremium')); if(window.PF) window.PF.render(); }
-  function rewardsCardHTML(){ const p=S.points||0; const pct=Math.min(100,p/REDEEM*100);
+  function rewardsCardHTML(){ const p=S.points||0; const pct=Math.min(100,p/REDEEM*100); const ru=S.lang==='ru';
     let foot;
     if(S.premium) foot='<div class="have">✓ '+t('rwHave')+'</div>';
     else if(p>=REDEEM) foot='<button class="redeem" onclick="BANK.redeem()">'+t('rwRedeem')+'</button>';
-    else foot='<div class="rm"><span>'+t('rwToReward')+'</span><span>'+grp(REDEEM-p)+' / '+REDEEM+'</span></div>';
-    return '<div class="pf-rw"><div class="rh">'+
-      '<span class="pill"><span class="e">⭐</span>'+grp(p)+' <span style="font-weight:600;color:var(--txt-3);font-size:12px">'+t('rwPoints')+'</span></span>'+
+    else foot='<div class="rm"><span>'+grp(p)+' / '+REDEEM+'</span><span>'+(ru?'осталось':'left')+' '+grp(REDEEM-p)+'</span></div>';
+    return '<div class="pf-rw">'+
+      '<div class="rh"><span class="pill"><span class="e">⭐</span>'+grp(p)+'</span>'+
+        '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px">'+t('rwPoints')+'</div>'+
+        (S.premium?'':'<div style="font-size:11px;color:var(--txt-3);font-weight:600;margin-top:1px">'+(ru?'Набери '+REDEEM+' — получишь Prima бесплатно':'Collect '+REDEEM+' — get Prima free')+'</div>')+'</div>'+
       (S.premium?'<span class="pill pts"><span class="e"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg></span></span>':'')+'</div>'+
-      '<div class="bar"><i style="width:'+pct.toFixed(1)+'%"></i></div>'+foot+'</div>'; }
+      '<div class="bar"><i style="width:'+pct.toFixed(1)+'%"></i></div>'+foot+
+      (S.premium?'':'<div style="font-size:10.5px;color:var(--txt-3);font-weight:600;margin-top:8px">'+(ru?'⭐ +10 — заход раз в день · +5 — новый актив в портфеле':'⭐ +10 — daily visit · +5 — each new asset')+'</div>')+'</div>'; }
 
   /* ---------- monet card ---------- */
   function tierObj(){ const i=tIdx(nw()); return {ic:TIC[i],name:t(TN[i]),idx:i}; }
