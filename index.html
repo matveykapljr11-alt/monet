@@ -558,6 +558,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pf-empty p{color:var(--txt-2);font-weight:600;font-size:14px;margin:12px auto 18px;max-width:280px}
 .pf-list{display:flex;flex-direction:column;gap:9px}
 .pf-item{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:13px 15px;box-shadow:var(--shadow);animation:rise .35s}
+.mk-delta.none{color:var(--txt-3)!important;background:transparent!important}
 .pf-spkbox{width:58px;flex:none;display:flex;align-items:center}
 .pf-spk{width:58px;height:22px;display:block;opacity:.9}
 @media(max-width:379px){.pf-spkbox{display:none}}
@@ -603,6 +604,19 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .lg-b{margin-bottom:14px}
 .lg-b b{display:block;font-size:13.5px;font-weight:800;margin-bottom:4px;color:var(--txt)}
 .lg-b p{margin:0;font-size:12.5px;line-height:1.55;color:var(--txt-2);font-weight:500}
+.bulk-ta{width:100%;min-height:110px;max-height:180px;border:1px solid var(--line-2);background:var(--bg2);border-radius:14px;padding:12px 14px;color:var(--txt);font-family:var(--mono,ui-monospace,monospace);font-size:12.5px;line-height:1.6;outline:none;resize:vertical;margin-bottom:8px}
+.bulk-hint{font-size:11.5px;color:var(--txt-3);font-weight:600;margin:0 2px 12px;line-height:1.4}
+.bulk-list{max-height:38vh;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-bottom:10px}
+.bulk-row{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.bulk-row .bi{color:var(--up);font-weight:800;flex:none}
+.bulk-row.bad .bi{color:var(--down)}
+.bulk-row.bad .bm b{color:var(--txt-3)}
+.bulk-row .bm{flex:1;min-width:0}
+.bulk-row .bm b{display:block;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bulk-row .bm span{font-size:11px;color:var(--txt-3);font-weight:600}
+.bulk-row .bp{font-family:var(--font-d);font-weight:700;font-size:13.5px;white-space:nowrap}
+.bulk-total{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--bg2);border-radius:12px;margin-bottom:10px;font-size:12.5px;font-weight:700;color:var(--txt-2)}
+.bulk-total b{font-family:var(--font-d);font-size:16px;color:var(--txt)}
 @media(max-width:359px){.res-cta{grid-template-columns:1fr}}
 [data-skin="b"][data-theme="dark"] .link-row{background:#141614;border-color:var(--line)}
 [data-skin="b"][data-theme="dark"] .pf-sig{background:#141614;border:1px solid var(--line)}
@@ -1773,6 +1787,9 @@ header{border-bottom:0;background:none}
   <div class="mk-sheet" id="cur-sheet"></div>
 </div>
 
+<div class="mk-scrim" id="bulk-scrim" onclick="if(event.target===this)closeBulk()">
+  <div class="mk-sheet" id="bulk-sheet"></div>
+</div>
 <div class="mk-scrim" id="legal-scrim" onclick="if(event.target===this)closeLegal()">
   <div class="mk-sheet" id="legal-sheet"></div>
 </div>
@@ -1928,6 +1945,7 @@ const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : 
 const BOT_HANDLE = '@monetnft_bot';
 const APP_LINK = 'https://t.me/monetnft_bot';   // deep link back to the bot/Mini App (virality)
 const RATE = { usd: 1.76, eur: 1.63 };           // GRAM -> fiat (calibrated May 2026; refreshed at runtime)
+let RATE_SRC='default';                          // default | server | live — чтобы не затирать лучший источник худшим
 const STAR_USD = 0.013;                          // legacy USD/Star (unused)
 let STARS_PER_TON = 200;                          // Telegram Fragment peg: 200 Stars = 1 GRAM (override via proxy ?floors -> starsPerTon)
 // ====== PREMIUM PRICING — edit prices here (Telegram Stars). Annual is cheaper per month. ======
@@ -2488,14 +2506,19 @@ function refLink(url){
 }
 /* quick-add from empty portfolio (index into window._pfPicks; avoids quoting issues) */
 function pfQuickAdd(i){ const g=(window._pfPicks||[])[i]; if(g&&window.PF){ PF.addAsset({cat:'gifts',display:g.name,priceTON:Math.round(g.price),qty:1}); } }
-let FLOORS_LIVE={}, FLOORS_COUNT={}, FLOORS_CH24={}, FLOORS_SALE={}, FLOORS_SRC='demo', FLOORS_TS=0, NUMBERS_FLOOR=0;
+let FLOORS_LIVE={}, FLOORS_COUNT={}, FLOORS_CH24={}, FLOORS_CH7={}, FLOORS_CH24_SRC='', FLOORS_SALE={}, FLOORS_SRC='demo', FLOORS_TS=0, NUMBERS_FLOOR=0;
 const STATIC_GIFT_FLOOR={}; COLLECTIONS.gifts.forEach(c=>{ STATIC_GIFT_FLOOR[c.id]=c.floor; });
-function parseFloors(j){
-  const floors={}, counts={}, meta={}, sales={};
+function parseFloors(j, env){
+  const floors={}, counts={}, meta={}, sales={}, ch24={}, ch7={};
+  const E=(env&&typeof env==='object')?env:j;   // дельты лежат в конверте ответа, а не внутри floors
   const putF=(k,v)=>{ v=parseFloat(v); if(k&&!isNaN(v)&&v>0) floors[String(k).toLowerCase().trim()]=v; };
   const putC=(k,v)=>{ v=parseInt(v,10); if(k&&!isNaN(v)&&v>0) counts[String(k).toLowerCase().trim()]=v; };
   const putS=(k,v)=>{ v=parseFloat(v); if(k&&!isNaN(v)&&v>0) sales[String(k).toLowerCase().trim()]=v; };
-  if(!j||typeof j!=='object') return {floors,counts,meta,sales};
+  if(!j||typeof j!=='object') return {floors,counts,meta,sales,ch24,ch7};
+  // честные дельты с сервера (снапшоты 24ч и 7д в KV)
+  try{ if(E.ch24&&typeof E.ch24==='object'){ for(const k in E.ch24){ const v=parseFloat(E.ch24[k]); if(!isNaN(v)) ch24[String(k).toLowerCase().trim()]=v; } } }catch(e){}
+  try{ if(E.ch7&&typeof E.ch7==='object'){ for(const k in E.ch7){ const v=parseFloat(E.ch7[k]); if(!isNaN(v)) ch7[String(k).toLowerCase().trim()]=v; } } }catch(e){}
+  try{ if(E.ch24Since) meta.ch24Since=E.ch24Since; if(E.ch7Since) meta.ch7Since=E.ch7Since; }catch(e){}
   const src=(j.data&&typeof j.data==='object')?j.data:j;
   for(const k in src){
     if(k.charAt(0)==='_'){ if(k==='_numbersFloor'){ const n=parseFloat(src[k]); if(n>0) meta.numbersFloor=n; }
@@ -2509,7 +2532,7 @@ function parseFloors(j){
       putS(k, node.lastSale!=null?node.lastSale:(node.lastPrice!=null?node.lastPrice:node.lastSold));
     }
   }
-  return {floors,counts,meta,sales};
+  return {floors,counts,meta,sales,ch24,ch7};
 }
 // auto-extend the gift catalogue with any NEW collection the proxy floors know about
 // (newly-released gifts appear on the markets -> they must show up in Оценка too, not just on the Market screen)
@@ -2538,7 +2561,7 @@ function applyLiveFloors(map, counts, sales){
     else if(STATIC_GIFT_FLOOR[c.id]!=null) c.floor=STATIC_GIFT_FLOOR[c.id];
   });
   if(_added>0){ try{ if(curView==='evaluate' && curCat==='gifts' && !lastResult && typeof buildEvaluateInput==='function') buildEvaluateInput(); }catch(e){} }
-  try{ if(window.MK&&window.MK.patchFloors) window.MK.patchFloors(map, counts||FLOORS_COUNT, FLOORS_CH24, sales||FLOORS_SALE); }catch(e){}
+  try{ if(window.MK&&window.MK.patchFloors) window.MK.patchFloors(map, counts||FLOORS_COUNT, FLOORS_CH24, sales||FLOORS_SALE, FLOORS_CH7); }catch(e){}
   try{ if(window.MK&&window.MK.patchNumbersFloor&&NUMBERS_FLOOR>0) window.MK.patchNumbersFloor(NUMBERS_FLOOR); }catch(e){}
   return n;
 }
@@ -2669,14 +2692,24 @@ async function refreshFloors(manual){
     const j=await res.json();
     const raw=(j&&j.floors&&typeof j.floors==='object')?j.floors:j;  // accept either shape
     if(j && +j.starsPerTon>0) STARS_PER_TON=+j.starsPerTon;
-    const {floors,counts,meta,sales}=parseFloors(raw);
+    // Курс с нашего же прокси. Без этого при недоступном CoinGecko (лимиты/сеть) все цены
+    // в USD/RUB/EUR молча считались по курсу, зашитому в код в мае 2026.
+    if(j && +j.usdRate>0 && RATE_SRC!=='live'){
+      RATE.usd=+j.usdRate; RATE.eur=RATE.usd*0.92; RATE_SRC='server';
+      try{ recomputeFX(); }catch(e){} try{ updateHeroRate(); }catch(e){}
+      try{ if(window.MK) MK.onRate(); if(window.PF) window.PF.onRate(); }catch(e){}
+    }
+    const {floors,counts,meta,sales,ch24:srvCh24,ch7:srvCh7}=parseFloors(raw, j);
     if(!Object.keys(floors).length) throw 0;
     // Portals keys are shortnames (e.g. "astralshard"); mirror each onto the
     // collection's full lowercased name so name-based lookups (gifts + Market) match.
     COLLECTIONS.gifts.forEach(c=>{ const s=c.slug||String(c.n).toLowerCase().replace(/[^a-z0-9]/g,'');
       if(floors[s]!=null) floors[String(c.n).toLowerCase()]=floors[s]; });
     FLOORS_LIVE=floors; FLOORS_COUNT=counts; FLOORS_SALE=sales||{}; NUMBERS_FLOOR=meta.numbersFloor||0; FLOORS_TS=Date.now(); FLOORS_SRC='live';
-    updateFloorSnapshots(floors);
+    // дельты: серверные (честные, для всех) в приоритете; локальный снапшот — запасной вариант
+    if(srvCh24&&Object.keys(srvCh24).length){ FLOORS_CH24=srvCh24; FLOORS_CH24_SRC='server'; }
+    else { updateFloorSnapshots(floors); FLOORS_CH24_SRC=Object.keys(FLOORS_CH24||{}).length?'local':''; }
+    FLOORS_CH7 = (srvCh7&&Object.keys(srvCh7).length)? srvCh7 : {};
     try{ localStorage.setItem('monet_floors',JSON.stringify({map:floors,counts,meta,sales,ts:FLOORS_TS})); }catch(e){}
     const n=applyLiveFloors(floors, counts, FLOORS_SALE);
     rerenderFloors(); updateFloorBadge();
@@ -2754,6 +2787,16 @@ function fitRarityCurve(points, F0){
   return {a:Z*aRaw+(1-Z)*a0, b:Z*b+(1-Z)*b0, n:n, r2:r2};
 }
 function curveVal(curve, share){ if(!curve||!(share>0)) return 0; return Math.exp(curve.a + curve.b*Math.log(1/share)); }
+// Мягкое насыщение вместо обрыва: жёсткий Math.min(cap, v) делал полку — всё, что реже
+// ~1.5% тиража, стоило одинаково (1-из-67 = 1-из-10000). Здесь кривая asymptotически
+// подходит к потолку, но НИКОГДА его не превышает и остаётся строго монотонной.
+function softCap(v, base, cap){
+  if(!(v>0)||!(base>0)||!(cap>1)) return v;
+  const x=v/base, K=cap*0.7;                       // до колена K — без искажений
+  if(x<=K) return v;
+  const y=cap-(cap-K)*Math.exp(-(x-K)/(cap-K));
+  return base*y;
+}
 function calRec(slug){ if(!S.cal) S.cal={}; let r=S.cal[slug]; if(typeof r==='number') r={m:r,n:0,e:0}; if(!r||typeof r!=='object') r={m:1,n:0,e:0}; return {m:r.m||1, n:r.n||0, e:r.e||0}; }
 function learnCal(slug, modelEst, truth){
   if(!slug||!(modelEst>0)||!(truth>0)) return;                       // backtest: learn from a real exact comp (ground truth)
@@ -2779,18 +2822,20 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
   const BD_PREM={'black':2.0,'onyx black':1.8,'ivory white':1.12,'roman silver':1.12,'platinum':1.12};
   const bdMult=BD_PREM[String(bName||'').toLowerCase()]||1;
   let fBackEff=parseFloat(fBack);
-  if(!(fBackEff>0) || fBackEff<base*1.15) fBackEff=0;   // глобальный флор ниже флора коллекции = данных нет
+  if(!(fBackEff>0) || fBackEff<base*1.15 || fBackEff>base*50) fBackEff=0;   // ниже флора коллекции = данных нет; в 50 раз выше = мусор
   // ===== Monet Valuation v5: 3-estimator ensemble + R²-trusted rarity + demand tilt + self-tuning calibration =====
   const CAL=1.10, RECON_K=4, COMBO_EXP=0.15, COMBO_CAP=1.6, TRAIT_CAP=6, GLOBAL_CAP=8;
   let curve=null; try{ curve=col.slug&&TRAITS_CACHE[col.slug]&&TRAITS_CACHE[col.slug].curve; }catch(e){}
   if(!curve) curve={a:Math.log(Math.max(1,base)*0.683), b:0.55, n:0, r2:0};
   const trust=Math.max(0.25, Math.min(1, curve.r2||0));              // B: trust the curve as much as rarity predicts here
+  const FLOOR_SANE=50;   // флор трейта >50x флора коллекции — мусор в данных, а не настоящий аск
   const trait=(rPct,f,s,ic,kFloor,kRare,noCurve)=>{
-    const rp=parseFloat(rPct), fl=parseFloat(f), sup=parseFloat(s)||0;
+    const rp=parseFloat(rPct), sup=parseFloat(s)||0;
+    let fl=parseFloat(f); if(!(fl>0) || fl>base*FLOOR_SANE) fl=0;   // иначе кривой ответ Portals улетал в оценку как есть
     const share=(!isNaN(rp)&&rp>0)?rp/100:0;
     if(fl<=0 && !(share>0)) return null;
     if(fl<=0 && noCurve) return null;   // без листингов и без права на кривую редкости — трейт не оценивается
-    const rvRaw=share>0?Math.max(base, Math.min(base*TRAIT_CAP, curveVal(curve,share))):0;
+    const rvRaw=share>0?Math.max(base, softCap(curveVal(curve,share), base, TRAIT_CAP)):0;
     if(fl>0){
       const wF=sup/(sup+RECON_K);                                    // many listings -> trust floor; thin -> lean on curve
       // a listed floor is a real ask you can actually pay -> never inflate it via the rarity prior;
@@ -3789,7 +3834,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='1.9';
+const APP_VERSION='2.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4369,6 +4414,104 @@ async function buyPremium(){
     tg.openInvoice(link, function(status){ if(status==='paid'){ try{track('invoice_paid'); track('payment_success', plan+(promoCode?('+'+promoCode):''));}catch(e){} grantSub(plan); try{pollEntitlement();}catch(e){} } else if(status==='failed'){ toast(t('pmFail')); } });
   }catch(e){ toast(t('pmSoon')); }
 }
+/* ================= ПАКЕТНЫЙ ИМПОРТ: пачка ссылок -> портфель одним тапом ================= */
+let BULK_ITEMS=[];
+function openBulk(){
+  const ru=S.lang==='ru'; BULK_ITEMS=[];
+  const box=document.getElementById('bulk-sheet'); if(!box) return;
+  box.innerHTML=
+    '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v5M9.5 13.5 12 11l2.5 2.5"/></svg></div>'+
+      '<div class="nm"><b>'+(ru?'Импорт портфеля':'Import portfolio')+'</b><span>'+(ru?'вставь ссылки на свои подарки':'paste links to your gifts')+'</span></div>'+
+      '<button class="x" onclick="closeBulk()">✕</button></div>'+
+    '<textarea id="bulk-in" class="bulk-ta" placeholder="'+(ru?'t.me/nft/PlushPepe-834\nt.me/nft/SignetRing-16098\nt.me/nft/ScaredCat-14774':'t.me/nft/PlushPepe-834\nt.me/nft/SignetRing-16098')+'" oninput="bulkCount()"></textarea>'+
+    '<div class="bulk-hint" id="bulk-hint">'+(ru?'По одной ссылке в строке. Можно скопировать прямо из профиля или чата.':'One link per line. Copy them from your profile or a chat.')+'</div>'+
+    '<button class="btn" id="bulk-btn" onclick="bulkRun()" disabled>'+(ru?'Распознать':'Recognise')+'</button>'+
+    '<div id="bulk-res"></div>';
+  document.getElementById('bulk-scrim').classList.add('open');
+  setTimeout(function(){ const el=document.getElementById('bulk-in'); if(el) el.focus(); },80);
+  try{ track('bulk_open'); }catch(e){}
+}
+function closeBulk(){ const s=document.getElementById('bulk-scrim'); if(s) s.classList.remove('open'); }
+function bulkLinks(){ const el=document.getElementById('bulk-in'); if(!el) return [];
+  const out=[], seen={};
+  String(el.value||'').split(/[\s,;]+/).forEach(function(x){
+    const m=String(x).match(/(?:t\.me\/nft\/)?([A-Za-z0-9_]+)-(\d+)/);
+    if(m){ const k=(m[1]+'-'+m[2]).toLowerCase(); if(!seen[k]){ seen[k]=1; out.push({name:m[1], num:m[2]}); } }
+  });
+  return out.slice(0,30); }
+function bulkCount(){ const n=bulkLinks().length, b=document.getElementById('bulk-btn'), h=document.getElementById('bulk-hint'), ru=S.lang==='ru';
+  if(b){ b.disabled=!n; b.textContent=n?((ru?'Распознать ':'Recognise ')+n):(ru?'Распознать':'Recognise'); }
+  if(h&&n) h.textContent=ru?('Найдено ссылок: '+n+(n>=30?' (максимум за раз)':'')):('Links found: '+n); }
+async function bulkRun(){
+  const ru=S.lang==='ru'; const links=bulkLinks(); if(!links.length) return;
+  const btn=document.getElementById('bulk-btn'); const res=document.getElementById('bulk-res');
+  if(btn){ btn.disabled=true; btn.textContent=ru?'Читаю подарки…':'Reading gifts…'; }
+  const base=proxyURL();
+  BULK_ITEMS=[];
+  // грузим пачками по 5, чтобы не убить прокси и не словить лимит
+  for(let i=0;i<links.length;i+=5){
+    const chunk=links.slice(i,i+5);
+    const got=await Promise.all(chunk.map(async function(L){
+      let d=null;
+      try{ if(base){ const r=await fetch(base.replace(/\/+$/,'')+'/?gift='+encodeURIComponent(L.name+'-'+L.num),{cache:'no-store'}); if(r.ok) d=await r.json(); } }catch(e){}
+      const slug=(d&&d.ok?d.slug:L.name.toLowerCase().replace(/[^a-z0-9]/g,''));
+      const col=(COLLECTIONS.gifts||[]).find(function(c){ return (c.slug||String(c.n).toLowerCase().replace(/[^a-z0-9]/g,''))===slug; });
+      if(!col) return { bad:true, name:L.name+' #'+L.num, why:(ru?'нет в каталоге':'not in catalogue') };
+      const price=bulkPrice(col, d);
+      return { ok:true, col:col, num:L.num, display:col.n+' #'+L.num,
+               model:(d&&d.model)||'', backdrop:(d&&d.backdrop)||'', symbol:(d&&d.symbol)||'', price:price };
+    }));
+    BULK_ITEMS=BULK_ITEMS.concat(got);
+    if(res) res.innerHTML=bulkListHTML(true);
+  }
+  if(btn){ btn.style.display='none'; }
+  if(res) res.innerHTML=bulkListHTML(false);
+  try{ track('bulk_parsed', String(BULK_ITEMS.filter(function(x){return x.ok;}).length)); }catch(e){}
+}
+/* цена экземпляра: флор модели, если он есть в живых данных, иначе флор коллекции */
+function bulkPrice(col, d){
+  let p=col.floor>0?col.floor:0;
+  try{
+    const tc=TRAITS_CACHE[col.slug];
+    if(tc && d && d.model){ const f=tc.fm[String(d.model).toLowerCase()]; if(f>0) p=Math.max(p,f); }
+  }catch(e){}
+  try{
+    if(d && d.backdrop){ const bd=String(d.backdrop).toLowerCase();
+      const BD={'black':2.0,'onyx black':1.8,'ivory white':1.12,'roman silver':1.12,'platinum':1.12};
+      if(BD[bd]) p=Math.max(p, (col.floor||0)*BD[bd]); }
+  }catch(e){}
+  return Math.round(p);
+}
+function bulkListHTML(loading){
+  const ru=S.lang==='ru';
+  const ok=BULK_ITEMS.filter(function(x){ return x.ok; });
+  const bad=BULK_ITEMS.filter(function(x){ return x.bad; });
+  const total=ok.reduce(function(a,x){ return a+(x.price||0); },0);
+  const rows=ok.map(function(x){
+    const tr=[x.model,x.backdrop].filter(Boolean).join(' · ');
+    return '<div class="bulk-row"><span class="bi">✓</span><div class="bm"><b>'+escapeHTML(x.display)+'</b>'+(tr?'<span>'+escapeHTML(tr)+'</span>':'')+'</div><div class="bp">'+fmtTON(x.price)+' GRAM</div></div>';
+  }).join('');
+  const badRows=bad.map(function(x){
+    return '<div class="bulk-row bad"><span class="bi">✕</span><div class="bm"><b>'+escapeHTML(x.name)+'</b><span>'+escapeHTML(x.why)+'</span></div></div>';
+  }).join('');
+  return (rows||badRows?'<div class="bulk-list">'+rows+badRows+'</div>':'')+
+    (ok.length?'<div class="bulk-total"><span>'+(ru?'Итого':'Total')+' · '+ok.length+' '+(ru?'шт':'pcs')+'</span><b>'+fmtTON(total)+' GRAM</b></div>':'')+
+    (loading?'<div class="bulk-hint">'+(ru?'Читаю…':'Reading…')+'</div>':
+      (ok.length?'<button class="btn" onclick="bulkAddAll()">'+(ru?'Добавить всё в портфель':'Add all to portfolio')+'</button>':''));
+}
+function bulkAddAll(){
+  const ru=S.lang==='ru'; const ok=BULK_ITEMS.filter(function(x){ return x.ok; });
+  let n=0;
+  ok.forEach(function(x){
+    try{ if(window.PF){ PF.addAsset({cat:'gifts', display:x.display, priceTON:x.price, qty:1,
+      model:x.model||undefined, backdrop:x.backdrop||undefined, num:x.num||undefined, silent:true}); n++; } }catch(e){}
+  });
+  try{ track('bulk_added', String(n)); }catch(e){}
+  closeBulk();
+  try{ setView('portfolio'); }catch(e){}
+  try{ toast((ru?'Добавлено в портфель: ':'Added to portfolio: ')+n); }catch(e){}
+  if(tg&&tg.HapticFeedback){ try{ tg.HapticFeedback.notificationOccurred('success'); }catch(e){} }
+}
 /* ---- ПОРТФЕЛЬ НА СЕРВЕРЕ: pull при старте, push при изменениях (дебаунс) ---- */
 let PF_PUSH_T=null, PF_PULLED=false;
 function pfTouch(){ S.pfUpdated=Date.now(); try{save();}catch(e){} pfPush(); }
@@ -4568,7 +4711,7 @@ async function refreshRate(){
   try{
     const res=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network,bitcoin,ethereum,tether,solana,binancecoin,notcoin,tron,usd-coin&vs_currencies=usd,eur,rub,gbp,jpy,cny,inr,try,uah,ils,pln,aed',{cache:'no-store'});
     if(!res.ok)return; const j=await res.json(); const p=j['the-open-network'];
-    if(p&&p.usd){ RATE.usd=p.usd; RATE.eur=p.eur||p.usd*0.92;
+    if(p&&p.usd){ RATE.usd=p.usd; RATE.eur=p.eur||p.usd*0.92; RATE_SRC='live';
       const cg={bitcoin:'btc',ethereum:'eth',tether:'usdt',solana:'sol',binancecoin:'bnb',notcoin:'not',tron:'trx','usd-coin':'usdc'};
       for(const id in cg){ if(j[id]&&j[id].usd>0) CRYPTO_USD[cg[id]]=j[id].usd; }
       recomputeFX();
@@ -4643,21 +4786,22 @@ window.MK = (function(){
   function series(s,tr,n){ const r=rng(s),out=[]; let v=100; for(let i=0;i<n;i++){ const drift=(tr/100)*(i/(n-1)); const noise=(r()-0.5)*0.06; v=100*(1+drift)*(1+noise); out.push(v);} return out; }
   const MARKET={};
   function jitter(seed){ const r=rng(seed); const mag=0.2+r()*0.9; return (r()<0.5?-1:1)*mag; } // ±0.2..1.1%
-  for(const c in RAW){ MARKET[c]=RAW[c].map((a,i)=>{ let [name,icon,price,supply,ch24,ch7]=a;
-    if(!ch24) ch24=+jitter(name+'d').toFixed(1);
-    if(!ch7) ch7=+(jitter(name+'w')*2.4).toFixed(1);
-    return { id:c+i,cat:c,name,icon,price,supply,ch24,ch7,cap:price*supply,
-      vol:supply>1?Math.round(price*supply*(0.01+Math.abs(ch24)/100*0.4)):0,
-      holders:supply>1?Math.round(supply*(0.35+rng(name)()*0.25)):1,
-      ath:Math.round(price*(1.2+rng(name+'a')()*0.9)), ser:series(name,ch7,30) }; }); }
+  // сид — только каркас каталога. Все рыночные числа приходят живыми; чего нет — null, а не генерация.
+  for(const c in RAW){ MARKET[c]=RAW[c].map((a,i)=>{ let [name,icon,price,supply]=a;
+    // Дельты из сида — выдуманные числа. Берём только с сервера; нет данных → null → «—».
+    return { id:c+i,cat:c,name,icon,price,supply,
+      ch24:null, ch7:null,
+      cap:price*supply, vol:null, holders:null, ath:null, ser:series(name,0,30) }; }); }
 
   function r2(){ return RATE.usd; }
   function toCur(t){ return cur==='ton'?t:t*r2(); }
   function grp(n){ return Math.round(n).toLocaleString('en-US').replace(/,/g,' '); }
-  function fmtPrice(t){ const v=toCur(t); return cur==='usd'?('$'+grp(v)):(grp(v)+' GRAM'); }
+  // Цены дешёвых активов округлялись в ноль (0.42 -> «0 GRAM»). Тот же порог 15, что и в fmtTON.
+  function grpP(n){ if(n>0&&n<15) return n.toFixed(2).replace(/\.?0+$/,''); return grp(n); }
+  function fmtPrice(t){ const v=toCur(t); return cur==='usd'?('$'+grpP(v)):(grpP(v)+' GRAM'); }
   function fmtCompact(t,bare){ let v=toCur(t); const p=cur==='usd'?'$':'',s=(!bare&&cur==='ton')?' GRAM':''; let o;
     if(v>=1e9)o=(v/1e9).toFixed(2)+'B'; else if(v>=1e6)o=(v/1e6).toFixed(2)+'M'; else if(v>=1e3)o=(v/1e3).toFixed(1)+'K'; else o=Math.round(v); return p+o+s; }
-  function fmtD(x){ return Math.abs(x)<0.05?'—':((x>=0?'+':'')+x.toFixed(1)+'%'); }
+  function fmtD(x){ if(x==null||isNaN(x)) return '—'; return Math.abs(x)<0.05?'—':((x>=0?'+':'')+x.toFixed(1)+'%'); }
   function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function spark(ser,up){ const w=104,h=38,pad=3,min=Math.min(...ser),max=Math.max(...ser),rg=(max-min)||1;
     const pts=ser.map((v,i)=>[pad+i/(ser.length-1)*(w-2*pad),h-pad-((v-min)/rg)*(h-2*pad)]);
@@ -4668,12 +4812,14 @@ window.MK = (function(){
 
   function list(){ let l=MARKET[cat].slice(); const q=(document.getElementById('mk-q').value||'').trim().toLowerCase();
     if(q) l=l.filter(a=>a.name.toLowerCase().includes(q)); l.sort((a,b)=>sortAsc?a[sortKey]-b[sortKey]:b[sortKey]-a[sortKey]); return l; }
-  function gindex(){ const g=MARKET.gifts||[]; let cap=0,c24=0,c7=0,listed=0,live=false;
-    g.forEach(a=>{ cap+=a.cap; c24+=a.ch24*a.cap; c7+=a.ch7*a.cap; listed+=(a.listed||0); if(a.live) live=true; });
-    const wc=cap||1; let ser=null; const arrs=g.map(a=>a.ser).filter(Boolean);
+  function gindex(){ const g=MARKET.gifts||[]; let cap=0,c24=0,c7=0,w24=0,w7=0,listed=0,live=false;
+    g.forEach(a=>{ const c=a.cap||0; cap+=c;
+      if(a.ch24!=null){ c24+=a.ch24*c; w24+=c; }
+      if(a.ch7!=null){ c7+=a.ch7*c; w7+=c; }
+      listed+=(a.listed||0); if(a.live) live=true; }); let ser=null; const arrs=g.map(a=>a.ser).filter(Boolean);
     if(arrs.length){ const L=Math.min.apply(null,arrs.map(a=>a.length)); ser=[];
       for(let i=0;i<L;i++){ let s=0,n=0; arrs.forEach(a=>{ const v=a[a.length-L+i]; if(v!=null){s+=v;n++;} }); ser.push(n?s/n:0); } }
-    return { cap, ch24:c24/wc, ch7:c7/wc, count:g.length, listed, live, ser:ser||[1,1.02,1.01,1.03] }; }
+    return { cap, ch24:(w24>0?c24/w24:null), ch7:(w7>0?c7/w7:null), count:g.length, listed, live, ser:ser||[1,1.02,1.01,1.03] }; }
   function indexHTML(){ const x=gindex(); const up=x.ch24>=0; const ser=idxRange===7?x.ser.slice(-7):x.ser; const chR=idxRange===7?x.ch7:x.ch24; const upR=chR>=0;
     const ru=S.lang==='ru';
     return '<div class="mgi">'+
@@ -4694,9 +4840,9 @@ window.MK = (function(){
   function iconHTML(a){ if(a.cat!=='gifts') return a.icon;
     const slug=String(a.name).toLowerCase().replace(/[^a-z0-9]/g,'');
     return '<span class="mk-gemo">'+a.icon+'</span><img class="mk-gimg" data-slug="'+slug+'" src="https://api.changes.tg/original/'+slug+'.png?size=128" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="giftImgErr(this)" alt="">'; }
-  function itemHTML(a,i){ const gifts=a.cat==='gifts'; const up24=a.ch24>=0, up7=a.ch7>=0;
+  function itemHTML(a,i){ const gifts=a.cat==='gifts'; const up24=(a.ch24||0)>=0, up7=(a.ch7||0)>=0;
     const bits=[];
-    if(gifts){ bits.push(a.supply>1?grp(a.supply)+' '+t('mkPcs'):'1/1'); if(a.listed) bits.push('~'+grp(a.listed)+' '+t('mkOnSale')); if(a.live) bits.push('live'); }
+    if(gifts){ bits.push(a.supply>1?((a.supplyKnown===false?'≈':'')+grp(a.supply)+' '+t('mkPcs')):'1/1'); if(a.listed) bits.push('~'+grp(a.listed)+' '+t('mkOnSale')); if(a.live) bits.push('live'); }
     else bits.push(a.cat==='usernames'?t('mkUType'):t('mkNType'));
     return '<div class="mc-item" onclick="MK.openSheet(\''+a.id+'\')">'+
       '<div class="mc-rank">'+pad2(i+1)+'</div>'+
@@ -4704,8 +4850,10 @@ window.MK = (function(){
       '<div class="mc-main"><div class="mc-name">'+esc(a.name)+(heldQty(a.name)?' <span class="mk-held" title="'+t('mkHeldTip')+'">●</span>':'')+'</div>'+
         '<div class="mc-sub">'+bits.join(' · ')+'</div></div>'+
       '<div class="mc-right"><div class="mc-price" id="mkpx-'+a.id+'">'+fmtPrice(a.price)+'</div>'+
-        '<div class="mc-deltas"><span class="mk-delta '+(up24?'up':'down')+'" id="mkd-'+a.id+'">'+fmtD(a.ch24)+'</span>'+
-          '<span class="d7 '+(up7?'up':'down')+'">7'+(S.lang==='ru'?'д':'d')+' '+fmtD(a.ch7)+'</span></div></div>'+
+        '<div class="mc-deltas">'+
+          (a.ch24!=null?'<span class="mk-delta '+(up24?'up':'down')+'" id="mkd-'+a.id+'">'+fmtD(a.ch24)+'</span>':'<span class="mk-delta none" id="mkd-'+a.id+'">—</span>')+
+          (a.ch7!=null?'<span class="d7 '+(up7?'up':'down')+'">7'+(S.lang==='ru'?'д':'d')+' '+fmtD(a.ch7)+'</span>':'')+
+        '</div></div>'+
     '</div>'; }
   function render(){ if(!MARKET[cat]) return; renderMovers();
     const eb=document.getElementById('mkt-eyebrow'); if(eb) eb.textContent=(cat==='gifts'?t('mktEbGifts'):cat==='usernames'?t('mktEbU'):t('mktEbN'));
@@ -4802,8 +4950,13 @@ window.MK = (function(){
     const ser=sheetRange===7?a.ser.slice(-7):a.ser;
     const links=(MKTLINK[a.cat]||[]).map((m,i)=>'<a class="'+(i===0?'primary':'ghost')+'" href="'+refLink(m[1])+'" target="_blank" rel="noopener">'+m[0]+'</a>').join('');
     const rows=a.supply>1
-      ? kv(t('kvCap'),fmtCompact(a.cap))+kv(t('brLastSold'),soldVal(a))+kv(t('kvVol24'),a.vol?fmtCompact(a.vol):'—')+kv(t('kvSupply'),grp(a.supply)+' '+t('mkPcs'))+(a.listed?kv(t('kvOnSale'),'~'+grp(a.listed)+' '+t('mkPcs')):'')+kv(t('kvHolders'),'~'+grp(a.holders))+kv(t('kvAth'),fmtPrice(a.ath))+kv(t('kvTicker'),'GIFT')
-      : kv(t('kvValue'),fmtPrice(a.price))+kv(t('brLastSold'),soldVal(a))+kv(t('kvType'),a.cat==='usernames'?'Username':'+888 Number')+kv(t('kvMint'),'1 of 1')+kv(t('kvAth'),fmtPrice(a.ath));
+      ? (a.cap>0?kv(t('kvCap'),fmtCompact(a.cap)+(a.supplyKnown===false?' *':'')):'')+kv(t('brLastSold'),soldVal(a))+
+        (a.vol>0?kv(t('kvVol24'),fmtCompact(a.vol)):'')+
+        kv(t('kvSupply'),grp(a.supply)+' '+t('mkPcs')+(a.supplyKnown===false?' *':''))+
+        (a.listed?kv(t('kvOnSale'),'~'+grp(a.listed)+' '+t('mkPcs')):'')+
+        (a.holders>0?kv(t('kvHolders'),'~'+grp(a.holders)):'')+
+        (a.ath>0?kv(t('kvAth'),fmtPrice(a.ath)):'')+kv(t('kvTicker'),'GIFT')
+      : kv(t('kvValue'),fmtPrice(a.price))+kv(t('brLastSold'),soldVal(a))+kv(t('kvType'),a.cat==='usernames'?'Username':'+888 Number')+kv(t('kvMint'),'1 of 1')+(a.ath>0?kv(t('kvAth'),fmtPrice(a.ath)):'');
     const liveTag=a.live?' <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#1F7A52;vertical-align:middle"><span style="width:6px;height:6px;border-radius:50%;background:#1F7A52;display:inline-block"></span>live</span>':'';
     document.getElementById('mk-sheet').innerHTML=
       '<div class="mk-sheet-h"><div class="ic">'+iconHTML(a)+'</div><div class="nm"><b>'+esc(a.name)+'</b><span>'+(a.supply>1?t('sheetSubColl')+' · '+grp(a.supply)+' '+t('mkPcs'):(a.cat==='usernames'?'Telegram username':'Anonymous number'))+'</span></div><button class="x" onclick="MK.closeSheet()">✕</button></div>'+
@@ -4822,38 +4975,43 @@ window.MK = (function(){
       '<div class="mk-mkt">'+links+'</div>';
     if(a.cat==='gifts') loadLots(a.name); }
 
-  function tick(){ if(document.getElementById('view-market').classList.contains('hidden')) return;
-    list().forEach(a=>{ if(!a.live) return; /* honest: only animate assets with real live data, never demo */ const uniq=a.supply===1; if(uniq && Math.random()>0.5) return; const drift=(Math.random()-0.5)*(uniq?0.007:0.012);
-      a.price=Math.max(1,a.price*(1+drift)); a.ch24=Math.max(-40,Math.min(60,a.ch24+drift*100)); a.cap=a.price*a.supply;
-      const px=document.getElementById('mkpx-'+a.id), d=document.getElementById('mkd-'+a.id);
-      if(px){ px.textContent=fmtPrice(a.price); px.classList.remove('mk-fu','mk-fd'); void px.offsetWidth; px.classList.add(drift>=0?'mk-fu':'mk-fd'); }
-      if(d){ const up=a.ch24>=0; d.textContent=fmtD(a.ch24); d.className='mk-delta '+(up?'up':'down'); } }); }
+  // Цены НЕ анимируем: рисовать движение без сделок — враньё. Числа меняются только когда приходят живые флоры (крон раз в 5 мин).
+  function tick(){ /* no-op: honest prices only */ }
 
   function onRate(){ render(); }
   function slugify(s){ return String(s).toLowerCase().replace(/[^a-z0-9]/g,''); }
   function prettyGift(slug){ return slug.charAt(0).toUpperCase()+slug.slice(1); }
-  function patchFloors(map, counts, ch24, sales){ if(!map) return; const g=MARKET.gifts; if(!g) return;
+  function patchFloors(map, counts, ch24, sales, ch7){ if(!map) return; const g=MARKET.gifts; if(!g) return;
     const bySlug={}; g.forEach(a=>{ bySlug[slugify(a.name)]=a; });
+    // Карта флоров содержит и слаг ('plushpepe'), и зеркало полного имени ('plush pepe').
+    // Дельты приходят только под слагом, поэтому переиндексируем их по слагу —
+    // иначе второй проход по зеркалу затирал живую дельту на null.
+    const D24={}, D7={}; if(ch24) for(const k in ch24){ const sl=slugify(k); if(sl) D24[sl]=ch24[k]; }
+    if(ch7) for(const k in ch7){ const sl=slugify(k); if(sl) D7[sl]=ch7[k]; }
     for(const key in map){ const f=map[key]; if(!(typeof f==='number'&&f>0)) continue;
       const slug=slugify(key); if(!slug) continue;
       let a=bySlug[slug];
       if(a){ a.price=f;
         if(counts&&counts[key]>0) a.listed=counts[key];
-        if(ch24&&ch24[key]!=null) a.ch24=ch24[key];
+        // ЧЕСТНО: дельты только с сервера. Нет данных — null, а не сгенерированное число
+        a.ch24=(D24[slug]!=null)?D24[slug]:null;
+        a.ch7=(D7[slug]!=null)?D7[slug]:null;
         if(sales&&sales[key]>0) a.lastSale=sales[key];
-        a.cap=f*a.supply;
-        a.vol=a.supply>1?Math.round(f*a.supply*(0.01+Math.abs(a.ch24)/100*0.4)):0;
-        a.ath=Math.max(a.ath,Math.round(f*1.1)); a.live=true;
+        // тираж неизвестен -> капитализацию не считаем: иначе честный null затирался
+        // выдуманным числом при первом же обновлении флоров
+        a.cap=(a.supplyKnown===false)?null:f*a.supply;
+        if(a.ch7!=null) a.ser=series(slug,a.ch7,30);
+        a.vol=null;   // источника объёма нет — не выдумываем
+        a.ath=null;   // источника ATH нет — не выдумываем
+        a.live=true;
       } else {
         // NEW collection straight from live proxy floors — auto-added so the market shows EVERY gift
-        const supply=10000;
-        const nc=(ch24&&ch24[key]!=null)?ch24[key]:+jitter(slug+'d').toFixed(1);
-        const nw=+(jitter(slug+'w')*2.2).toFixed(1);
-        a={ id:'gx_'+slug, cat:'gifts', name:prettyGift(slug), icon:'🎁', price:f, supply,
-            ch24:nc, ch7:nw, cap:f*supply, vol:Math.round(f*supply*0.02),
-            holders:Math.round(supply*0.4), ath:Math.round(f*1.2),
+        const supply=10000;   // тираж неизвестен — оценка; помечаем ниже supplyKnown:false
+        a={ id:'gx_'+slug, cat:'gifts', name:prettyGift(slug), icon:'🎁', price:f, supply, supplyKnown:false,
+            ch24:(D24[slug]!=null)?D24[slug]:null, ch7:(D7[slug]!=null)?D7[slug]:null,
+            cap:null, vol:null, holders:null, ath:null,
             listed:(counts&&counts[key])||0, lastSale:(sales&&sales[key])||0,
-            live:true, dyn:true, ser:series(slug,nw,30) };
+            live:true, dyn:true, ser:series(slug,(D7[slug]!=null)?D7[slug]:0,30) };
         g.push(a); bySlug[slug]=a;
       }
     }
@@ -4872,7 +5030,7 @@ window.MK = (function(){
     if(!it){ it={id:'numfloor',cat:'numbers',name:t('numFloorName'),icon:'🔢',supply:1,ch24:0,ch7:0,vol:0,holders:1,ser:series('numfloor',0,30)}; arr.unshift(it); }
     it.price=f; it.cap=f; it.ath=Math.round(f*1.2); it.live=true;
     if(document.getElementById('mk-q')) render(); }
-  function init(){ if(started) return; started=true; setInterval(tick,3500); }
+  function init(){ if(started) return; started=true; }   // без тикера: цены двигает только рынок, не Math.random()
   return { render, setCat, setCur, onSort, openSheet, closeSheet, setRange, setIdxRange, onRate, init, data:()=>MARKET, patchFloors, patchNumbersFloor, refresh, bridge };
 })();
 
@@ -4894,8 +5052,8 @@ window.PF = (function(){
   function pfJit(seed){ const s=String(seed); let h=2166136261; for(let i=0;i<s.length;i++){ h=Math.imul(h^s.charCodeAt(i),16777619); } h>>>=0;
     const mag=0.2+(h%1000)/1000*1.0; return +(((h>>5)&1?-1:1)*mag).toFixed(1); }
   function curPrice(h){ if((h.cat==='gift'||h.cat==='gifts')){ const g=giftByName(h.display); if(g) return g.price; } return h.priceTON; }
-  function ch24(h){ const m=mkByName(h.display); if(m) return m.ch24; return pfJit((h.display||'')+'d'); }
-  function ch7(h){ const m=mkByName(h.display); if(m) return m.ch7; return +(pfJit((h.display||'')+'w')*2.2).toFixed(1); }
+  function ch24(h){ const m=mkByName(h.display); return (m&&m.ch24!=null)?m.ch24:0; }   // нет данных = 0, а не случайное число
+  function ch7(h){ const m=mkByName(h.display); return (m&&m.ch7!=null)?m.ch7:0; }
 
   function total(){ return (S.portfolio||[]).reduce((s,h)=>s+curPrice(h)*(h.qty||1),0) + (S.cash||0); }
   function weighted(fn){ const t=total()||1; return (S.portfolio||[]).reduce((s,h)=>s+fn(h)*curPrice(h)*(h.qty||1),0)/t; }
@@ -4955,7 +5113,7 @@ window.PF = (function(){
           '<div class="fiat" style="opacity:.8">'+(RU?'появится здесь, как добавишь активы':'shows up here once you add assets')+'</div>'+
           '<div class="pf-crange" style="justify-content:center;flex-wrap:wrap">'+ladder.map((s,i)=>'<button style="cursor:default">'+tierBadge(i)+' '+s+'</button>').join('')+'</div>'+
         '</div>'+
-        (quick?'<div class="pf-sec-h"><b><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11l-1 8.5L18.5 10H12z"/></svg> '+(RU?'Быстро добавить':'Quick add')+'</b><button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div><div class="pf-list">'+quick+'</div>':'')+
+        (quick?'<div class="pf-sec-h"><b><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11l-1 8.5L18.5 10H12z"/></svg> '+(RU?'Быстро добавить':'Quick add')+'</b><button class="pf-addbtn" style="margin-right:7px" onclick="openBulk()">⇪ '+(RU?'Импорт':'Import')+'</button><button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div><div class="pf-list">'+quick+'</div>':'')+
         '<button class="btn" style="margin-top:16px" onclick="setView(\'evaluate\')">'+t('pfEmptyCta')+'</button>'+
         '<p class="mk-foot" style="margin-top:12px">'+(RU?'Добавляй подарки, ники и номера — следи за капиталом, статусом и целью.':'Add gifts, usernames and numbers — track your capital, status and goal.')+'</p>';
       _shown=0; return;
@@ -5014,7 +5172,7 @@ window.PF = (function(){
       '</div>'+
       pnlHTML()+ goalCard+ cashHTML()))+ (window.BANK?window.BANK.rewardsCardHTML():'')+
       insights+ alloc+
-      '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><span style="flex:1"></span>'+(function(){ try{ if(typeof FLOORS_TS!=='undefined'&&FLOORS_TS>0) return '<span onclick="PF.refresh()" style="font-size:10px;color:var(--txt-3);font-weight:700;margin-right:10px;cursor:pointer">'+(S.lang==='ru'?'данные: ':'data: ')+fmtAgo(FLOORS_TS)+' ⟳</span>'; }catch(e){} return ''; })()+'<button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
+      '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><span style="flex:1"></span>'+(function(){ try{ if(typeof FLOORS_TS!=='undefined'&&FLOORS_TS>0) return '<span onclick="PF.refresh()" style="font-size:10px;color:var(--txt-3);font-weight:700;margin-right:10px;cursor:pointer">'+(S.lang==='ru'?'данные: ':'data: ')+fmtAgo(FLOORS_TS)+' ⟳</span>'; }catch(e){} return ''; })()+'<button class="pf-addbtn" style="margin-right:7px" onclick="openBulk()">⇪ '+(S.lang==='ru'?'Импорт':'Import')+'</button><button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
       posSignals()+
       (list.length>2?'<div class="pf-crange" style="margin:0 0 10px">'+[['value',(S.lang==='ru'?'По стоимости':'By value')],['ch','24ч'],['pnl','P&L']].map(o=>'<button class="'+(sortKey===o[0]?'on':'')+'" onclick="PF.setSort(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>':'')+
       (function(){ const nb=list.filter(h=>h.buy==null||!(h.buy>0)).length; if(!nb||hidden) return '';
@@ -5102,10 +5260,12 @@ window.PF = (function(){
       S.portfolio.push({id:a.id, cat, display:a.display, priceTON:Math.round(a.priceTON||0), buy:(a.buy!=null?Math.round(a.buy):null), qty:unique?1:(a.qty||1), ts:Date.now(), addedAt:a.addedAt||Date.now(), model:a.model||undefined, backdrop:a.backdrop||undefined, num:a.num||undefined});
     }
     try{ if(!Array.isArray(S.activity))S.activity=[]; S.activity.unshift({type:'buy', display:a.display, cat, price:Math.round((a.buy!=null?a.buy:a.priceTON)||0), ts:Date.now()}); if(S.activity.length>120)S.activity=S.activity.slice(0,120); }catch(e){}
-    snapshot(); save(); pfTouch(); if(window.BANK) window.BANK.award(5);
-    if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
-    toast(t('pfInPf')+' ✓');
-    if(curView==='portfolio') render();
+    snapshot(); save(); pfTouch(); if(window.BANK && !a.silent) window.BANK.award(5);
+    if(!a.silent){
+      if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
+      toast(t('pfInPf')+' ✓');
+    }
+    if(curView==='portfolio' && !a.silent) render();
     if(S.notify && typeof syncNotify==='function') syncNotify(false);
   }
   let sellIdx=-1, editIdx=-1;
@@ -5727,8 +5887,8 @@ window.HOME=(function(){
   function mkBy(n){ return mkAll().find(x=>x.name===n)||null; }
   function compact(v){ v=Math.round(v||0); if(v>=1e9)return (v/1e9).toFixed(2)+'B'; if(v>=1e6)return (v/1e6).toFixed(2)+'M'; if(v>=1e3)return (v/1e3).toFixed(1)+'K'; return ''+v; }
   function pct(n){ n=n||0; return Math.abs(n)<0.05?'—':((n>=0?'+':'')+n.toFixed(1)+'%'); }
-  function capCh(){ const hs=S.portfolio||[]; let val=0,a=0,b=0; hs.forEach(h=>{ const v=(h.priceTON||0)*(h.qty||1); val+=v; const m=mkBy(h.display); if(m){ a+=v*(m.ch24||0); b+=v*(m.ch7||0); } }); return val>0?{c24:a/val,c7:b/val}:{c24:0,c7:0}; }
-  function gidx(){ const g=mkAll().filter(x=>x.cat==='gifts'); let cap=0,c=0; g.forEach(x=>{ cap+=x.cap||0; c+=(x.ch24||0)*(x.cap||0); }); return {cap,ch24:cap>0?c/cap:0}; }
+  function capCh(){ const hs=S.portfolio||[]; let val=0,a=0,b=0,w24=0,w7=0; hs.forEach(h=>{ const v=(h.priceTON||0)*(h.qty||1); val+=v; const m=mkBy(h.display); if(m){ if(m.ch24!=null){ a+=v*m.ch24; w24+=v; } if(m.ch7!=null){ b+=v*m.ch7; w7+=v; } } }); return {c24:w24>0?a/w24:0, c7:w7>0?b/w7:0}; }
+  function gidx(){ const g=mkAll().filter(x=>x.cat==='gifts'); let cap=0,c=0,w=0; g.forEach(x=>{ const cp=x.cap||0; cap+=cp; if(x.ch24!=null){ c+=x.ch24*cp; w+=cp; } }); return {cap,ch24:w>0?c/w:null}; }
   function movers(){ const g=mkAll().filter(x=>x.cat==='gifts'&&x.ch24); if(g.length<2)return null; const u=g.slice().sort((p,q)=>q.ch24-p.ch24)[0],d=g.slice().sort((p,q)=>p.ch24-q.ch24)[0]; return {u,d}; }
   function rel(ts){ if(!ts)return''; const ru=S.lang==='ru'; const k=Math.floor((Date.now()-ts)/86400000); if(k<=0)return ru?'сег':'now'; if(k===1)return ru?'вчера':'1d'; return k+(ru?'д':'d'); }
   function mover(x,up){ return '<div class="mk-stat" style="cursor:pointer" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')"><div class="l" style="color:'+(up?'var(--up)':'var(--down)')+'">'+t(up?'moverUp':'moverDown')+'</div><div class="v" style="font-size:13.5px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHTML(x.name)+'</div><div class="d" style="color:'+(up?'var(--up)':'var(--down)')+'">'+pct(x.ch24)+'</div></div>'; }
@@ -5779,7 +5939,7 @@ window.HOME=(function(){
       (ru?'флор ':'floor ')+fmtTON(o.x.price)+' GRAM'+(o.inZone?' · '+t('hInZone'):''))).join(''); }
     if(mom.length){ body+='<div class="g-mini-h" style="margin-top:12px">'+(ru?'Импульс · растут 7д':'Momentum · up 7d')+'</div>'+mom.map(x=>row(x,
       '<div class="mc-price" style="color:var(--up)">+'+(x.ch7||0).toFixed(1)+'%</div>',
-      (ru?'флор ':'floor ')+fmtTON(x.price)+' GRAM · 24ч '+((x.ch24>=0?'+':'')+(x.ch24||0).toFixed(1))+'%')).join(''); }
+      (ru?'флор ':'floor ')+fmtTON(x.price)+' GRAM · 24ч '+pct(x.ch24))).join(''); }
     if(heavy.length){ body+='<div class="g-mini-h" style="margin-top:12px">'+(ru?'Тяжеловесы · долгосрок':'Blue chips · long term')+'</div>'+heavy.map(x=>row(x,
       '<div class="mc-price">'+compact(x.cap)+'</div>',
       (ru?'флор ':'floor ')+fmtTON(x.price)+' GRAM · '+(ru?'капа':'cap'))).join(''); }
@@ -5806,7 +5966,7 @@ window.HOME=(function(){
       '<img class="mk-gimg" data-slug="'+s+'" src="https://api.changes.tg/original/'+s+'.png?size=128" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="giftImgErr(this)" alt="">'+
     '</div>'; }
   function gRow2(x){ const up=x.ch24>=0;
-    return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')">'+giftPic(x)+'<div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+(S.lang==='ru'?'флор':'floor')+' '+fmtTON(x.price)+' GRAM</div></div><div class="mc-right"><div class="mc-price" style="color:'+(up?'var(--up)':'var(--down)')+'">'+(up?'+':'')+x.ch24.toFixed(1)+'%</div></div></div>'; }
+    return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')">'+giftPic(x)+'<div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+(S.lang==='ru'?'флор':'floor')+' '+fmtTON(x.price)+' GRAM</div></div><div class="mc-right"><div class="mc-price" style="color:'+(up?'var(--up)':'var(--down)')+'">'+pct(x.ch24)+'</div></div></div>'; }
   // undervalued = live floor has fallen INTO the Buy Zone derived from the recent (pre-dip) level
   function undervalued(){ const g=mkAll().filter(x=>x.cat==='gifts'&&x.price>0); const out=[];
     g.forEach(x=>{ const ch7=typeof x.ch7==='number'?x.ch7:0; if(ch7>=0) return;
@@ -5889,7 +6049,7 @@ window.HOME=(function(){
       stat(ru?'P&L по активам':'Unrealized P&L',(pnl>=0?'+':'−')+grpn(Math.abs(pnl))+' GRAM',pnl>=0?'var(--up)':'var(--down)')+
       stat(ru?'Заработано с продаж':'Realized',(realized>=0?'+':'−')+grpn(Math.abs(realized))+' GRAM',realized>=0?'var(--up)':'var(--down)')+
     '</div>'+
-    '<div class="ph-move" onclick="HOME.openActivity()"><div><b>'+(ru?'Движения':'Activity')+'</b><span>'+(fd.length?(fd.length+' '+(ru?'событ. за сегодня':'events today')+' · '+(ru?'рынок ':'index ')+(g.ch24>=0?'+':'')+g.ch24.toFixed(1)+'%'):(ru?'событий пока нет':'no events yet'))+'</span></div><div class="ph-orb"></div></div>'+
+    '<div class="ph-move" onclick="HOME.openActivity()"><div><b>'+(ru?'Движения':'Activity')+'</b><span>'+(fd.length?(fd.length+' '+(ru?'событ. за сегодня':'events today')+' · '+(ru?'рынок ':'index ')+pct(g.ch24)+''):(ru?'событий пока нет':'no events yet'))+'</span></div><div class="ph-orb"></div></div>'+
     '<div class="ph-card" onclick="setView(\'portfolio\')">'+
       '<div class="ph-row"><div class="ph-sum">'+grpn(cap)+' <span>GRAM</span></div><div class="ph-tag" style="color:'+(ch.c24>=0?'var(--up)':'var(--down)')+'">'+(ch.c24>=0?'▲':'▼')+' '+Math.abs(ch.c24).toFixed(1)+'% · 24ч</div></div>'+
       '<div class="ph-sub">'+(ru?'Портфель':'Portfolio')+' · '+hs.length+' '+(ru?'актив.':'assets')+'</div>'+
@@ -5899,7 +6059,7 @@ window.HOME=(function(){
       '<div class="ph-row"><div class="ph-sum">'+grpn(cash)+' <span>GRAM</span></div>'+(realized>0?'<div class="ph-tag" style="color:var(--up)">+'+grpn(realized)+' '+(ru?'заработано':'earned')+'</div>':'')+'</div>'+
       '<div class="ph-sub">'+(ru?'Свободные средства':'Cash balance')+'</div>'+
     '</div>'+
-    '<div class="ph-move" onclick="setView(\'market\')"><div><b>'+(ru?'Рынок':'Market')+'</b><span>Monet Gift Index · '+compact(g.cap)+' GRAM · '+(g.ch24>=0?'+':'')+g.ch24.toFixed(1)+'%</span></div><div class="ph-orb" style="background:conic-gradient(from 200deg,#3ADE8F,#1F6B4C,#C8A24B,#3ADE8F)"></div></div>'+
+    '<div class="ph-move" onclick="setView(\'market\')"><div><b>'+(ru?'Рынок':'Market')+'</b><span>Monet Gift Index · '+compact(g.cap)+' GRAM · '+pct(g.ch24)+'</span></div><div class="ph-orb" style="background:conic-gradient(from 200deg,#3ADE8F,#1F6B4C,#C8A24B,#3ADE8F)"></div></div>'+
     digestCard(); }
   function render(){ const box=document.getElementById('homeBody'); if(!box) return;
     try{ if(window.ALERTS) ALERTS.check(); }catch(e){}
@@ -5916,7 +6076,7 @@ window.HOME=(function(){
         '<div class="lbl" style="opacity:.92;font-size:17px;letter-spacing:0;text-transform:none;font-family:var(--font-d);font-weight:700">'+(ru?'Сколько стоит твой подарок?':'What is your gift worth?')+'</div>'+
         '<div class="fiat" style="margin:8px auto 0;max-width:320px;font-size:13.5px;opacity:.9">'+(ru?'Вставь ссылку — покажем цену, диапазон и уверенность по реальным сделкам.':'Paste a link — get price, range and confidence from real trades.')+'</div>'+
         '<button class="btn" style="margin-top:16px;max-width:320px" onclick="HOME.go(\'evaluate\')">'+(ru?'Оценить подарок':'Value a gift')+'</button>'+
-        '<button class="btn ghost" style="margin-top:9px;max-width:320px" onclick="HOME.addToPf()">'+(ru?'Добавить в портфель':'Add to portfolio')+'</button>'+
+        '<button class="btn ghost" style="margin-top:9px;max-width:320px" onclick="openBulk()">'+(ru?'Импортировать портфель':'Import portfolio')+'</button>'+
       '</div>'+
       (ex?('<div class="home-sec" style="margin-top:16px"><b>'+(ru?'Пример оценки':'Example')+'</b></div>'+
         '<div class="mc-item" style="cursor:pointer" onclick="if(window.MK)MK.openSheet(\''+ex.id+'\')">'+giftPic(ex)+
