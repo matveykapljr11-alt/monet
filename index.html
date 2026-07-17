@@ -577,6 +577,17 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pf-chips{display:flex;gap:7px;margin:2px 0 10px}
 .pf-chips button{flex:1;border:1px solid var(--line-2);background:var(--surface-2);color:var(--txt-2);border-radius:10px;padding:9px 4px;font-size:12px;font-weight:800;cursor:pointer}
 .pf-chips button.on{background:var(--ton);color:#04130C;border-color:transparent}
+.pf-sig{display:flex;align-items:center;gap:11px;background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:11px 13px;margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow)}
+.pf-sig .si{font-size:18px;flex:none}
+.pf-sig .sm{flex:1;min-width:0}
+.pf-sig .sm b{display:block;font-size:13.5px;font-weight:800;letter-spacing:-.1px}
+.pf-sig .sm span{font-size:11.5px;color:var(--txt-2);font-weight:600}
+.pf-sig .chev{width:16px;height:16px;color:var(--txt-3);flex:none}
+.pm-code{display:flex;gap:8px;margin:10px 0 4px}
+.pm-code input{flex:1;border:1px solid var(--line-2);background:var(--bg2);border-radius:12px;padding:11px 14px;color:var(--txt);font-family:var(--font-b);font-weight:700;font-size:14px;outline:none;letter-spacing:1px}
+.pm-code button{border:1px solid var(--line-2);background:var(--surface-2);color:var(--txt);border-radius:12px;padding:0 18px;font-weight:800;cursor:pointer}
+.pm-code-msg{font-size:11.5px;font-weight:700;min-height:16px;margin-bottom:4px}
+[data-skin="b"][data-theme="dark"] .pf-sig{background:#141614;border:1px solid var(--line)}
 .pf-prev{text-align:center;font-size:13.5px;font-weight:700;margin:4px 0 12px;color:var(--txt-2)}
 .pf-prev b{font-family:var(--font-d)}
 .pf-lbl{font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin:8px 2px 6px}
@@ -1540,94 +1551,66 @@ header{border-bottom:0;background:none}
 [data-theme="dark"] ::placeholder{color:rgba(159,182,171,.55)}
 
 /* ============================================================
-   SKIN B v3 — «TERMINAL». Полный слом классика:
-   плоский чёрный холст, острые углы, нумерованная навигация,
-   моноширинные тех-детали, объект как дроп. Классик не затронут.
+   SKIN B v4 — «ГРАФИТ» (Plata-стиль). Нейтральный тёмный холст,
+   карточки-острова, зелёный и золото только акцентами.
+   Hero и CTA остаются брендовыми. Классик не затронут.
    ============================================================ */
-[data-skin="b"]{ --font-d:'Hanken Grotesk',system-ui,sans-serif; --mono:ui-monospace,'SF Mono','JetBrains Mono',Menlo,Consolas,monospace; }
 [data-skin="b"][data-theme="dark"]{
-  --surface:#0A0B0A; --surface-2:#080908;
-  --bg:#050605; --bg2:#0E100E;
-  --line:#212621; --line-2:#333B33;
-  --txt:#F4F6F3; --txt-2:#9AA69C; --txt-3:#5C665D;
-  --ton:#39FF9C; --ton-soft:#6FFFBE; --gold:#EACB74; --gold-soft:#F3DFA6;
-  --glow:rgba(57,255,156,.05);
-  --up:#39FF9C; --down:#FF6A55; --good:#39FF9C; --warn:#EACB74;
-  --up-bg:rgba(57,255,156,.1); --down-bg:rgba(255,106,85,.1);
-  --shadow:none;
+  --surface:#161816; --surface-2:#131513;
+  --bg:#0B0C0B; --bg2:#1A1C1A;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.14);
+  --txt:#F4F5F4; --txt-2:#A7ADA8; --txt-3:#6E746F;
+  --glow:rgba(61,222,143,.05);
+  --shadow:0 22px 48px -26px rgba(0,0,0,.75), 0 4px 14px -8px rgba(0,0,0,.5);
 }
-[data-skin="b"] body::before{opacity:.12}
-/* ---- СЛОМ №1: никакой «карты в карте» — плоский чёрный холст ---- */
-[data-skin="b"][data-theme="dark"] .wrap{background:transparent;border:0;box-shadow:none;border-radius:0}
-/* ---- СЛОМ №2: острые углы везде ---- */
-[data-skin="b"] .rcard,[data-skin="b"] .panel,[data-skin="b"] .mk-tcard,[data-skin="b"] .dr-card,[data-skin="b"] .mk-sheet,[data-skin="b"] .pf-alloc,[data-skin="b"] .pf-bcard,[data-skin="b"] .pf-goalcard,[data-skin="b"] .pf-rw,[data-skin="b"] .pf-ins,[data-skin="b"] .modal,[data-skin="b"] .hero-card,[data-skin="b"] .pf-hero,[data-skin="b"] .gift-grid,[data-skin="b"] .gift-tile,[data-skin="b"] .gift-tile .gt-art,[data-skin="b"] .g-row,[data-skin="b"] .mk-stat,[data-skin="b"] .mk-mover,[data-skin="b"] .pf-item,[data-skin="b"] .mc-ledger,[data-skin="b"] .ledger,[data-skin="b"] .eval-ph,[data-skin="b"] .verdict-card,[data-skin="b"] .dr-profile,[data-skin="b"] .dr-tile,[data-skin="b"] .comps,[data-skin="b"] .photo-card,[data-skin="b"] .g-timer,[data-skin="b"] .g-q,[data-skin="b"] .g-over-card,[data-skin="b"] .wz-rate-card{border-radius:0!important}
-[data-skin="b"] #evalBtn,[data-skin="b"] .tabs,[data-skin="b"] .tab,[data-skin="b"] .cat,[data-skin="b"] .subseg,[data-skin="b"] input,[data-skin="b"] select,[data-skin="b"] textarea,[data-skin="b"] .search-wrap,[data-skin="b"] .mk-search,[data-skin="b"] .drnav-item{border-radius:0!important}
-/* ---- поверхности: плоский чёрный + волосяные линии ---- */
-[data-skin="b"][data-theme="dark"] .mk-tcard,[data-skin="b"][data-theme="dark"] .mk-stat,[data-skin="b"][data-theme="dark"] .mk-mover,[data-skin="b"][data-theme="dark"] .panel,[data-skin="b"][data-theme="dark"] .rcard,[data-skin="b"][data-theme="dark"] .eval-ph,[data-skin="b"][data-theme="dark"] .mk-sheet,[data-skin="b"][data-theme="dark"] .pf-item,[data-skin="b"][data-theme="dark"] .pf-bcard,[data-skin="b"][data-theme="dark"] .pf-goalcard,[data-skin="b"][data-theme="dark"] .pf-rw,[data-skin="b"][data-theme="dark"] .pf-ins,[data-skin="b"][data-theme="dark"] .pf-alloc,[data-skin="b"][data-theme="dark"] .dr-card,[data-skin="b"][data-theme="dark"] .mc-ledger,[data-skin="b"][data-theme="dark"] .ledger,[data-skin="b"][data-theme="dark"] .verdict-card,[data-skin="b"][data-theme="dark"] .gift-grid{
-  background:#080908; border:1px solid var(--line); box-shadow:none;
+[data-skin="b"] body::before{opacity:.25}
+/* холст: нейтральный графит, карточка-обёртка почти сливается с фоном */
+[data-skin="b"][data-theme="dark"] .wrap{background:rgba(255,255,255,.015);border:1px solid var(--line);box-shadow:none}
+/* карточки: чистые тёмные острова без зелёных градиентов */
+[data-skin="b"][data-theme="dark"] .mk-tcard,[data-skin="b"][data-theme="dark"] .mk-stat,[data-skin="b"][data-theme="dark"] .mk-mover,[data-skin="b"][data-theme="dark"] .panel,[data-skin="b"][data-theme="dark"] .rcard,[data-skin="b"][data-theme="dark"] .eval-ph,[data-skin="b"][data-theme="dark"] .mk-sheet,[data-skin="b"][data-theme="dark"] .pf-item,[data-skin="b"][data-theme="dark"] .pf-bcard,[data-skin="b"][data-theme="dark"] .pf-goalcard,[data-skin="b"][data-theme="dark"] .pf-rw,[data-skin="b"][data-theme="dark"] .pf-ins,[data-skin="b"][data-theme="dark"] .pf-alloc,[data-skin="b"][data-theme="dark"] .dr-card,[data-skin="b"][data-theme="dark"] .mc-ledger,[data-skin="b"][data-theme="dark"] .ledger,[data-skin="b"][data-theme="dark"] .verdict-card,[data-skin="b"][data-theme="dark"] .gift-grid,[data-skin="b"][data-theme="dark"] .modal{
+  background:#141614;border:1px solid var(--line);box-shadow:var(--shadow);
 }
-[data-skin="b"][data-theme="dark"] .drawer{background:#040504;border-right:1px solid var(--line)}
-/* ---- СЛОМ №3: зелёная «кредитка» профиля и hero — чёрные постеры ---- */
-[data-skin="b"][data-theme="dark"] .dr-profile{background:#080908;border:1px solid var(--line-2);box-shadow:none}
-[data-skin="b"] .dr-profile::before{display:none}
-[data-skin="b"][data-theme="dark"] .hero-card,[data-skin="b"][data-theme="dark"] .pf-hero{background:#060706;border:1px solid var(--line-2);box-shadow:none;color:var(--txt)}
-[data-skin="b"] .hero-card::after,[data-skin="b"] .hero-sheen,[data-skin="b"] .hero-chip,[data-skin="b"] .hero-wifi{display:none}
-[data-skin="b"] .hero-rate{background:transparent;border:1px solid var(--line-2);box-shadow:none;font-family:var(--mono);letter-spacing:1px}
-/* ---- типографика: плакат ---- */
-[data-skin="b"] .brand-txt h1{font-weight:800;letter-spacing:1px;text-transform:uppercase}
-[data-skin="b"] .brand-txt p{font-family:var(--mono);text-transform:uppercase;letter-spacing:2.4px;font-size:8.5px;color:var(--ton)}
-[data-skin="b"] .logo{border-radius:0;box-shadow:0 0 0 1px var(--line-2)}
-[data-skin="b"] .hero-title{font-weight:800;letter-spacing:-1px;text-transform:uppercase;font-size:clamp(26px,7.4vw,42px);line-height:.96}
-[data-skin="b"][data-theme="dark"] .asset-disp .asset{font-weight:800;letter-spacing:-.5px;text-transform:uppercase}
-[data-skin="b"][data-theme="dark"] .asset-disp .price-ton{font-weight:800;font-size:clamp(54px,15vw,92px);letter-spacing:-4px}
-[data-skin="b"] .mgi-val{font-weight:800;letter-spacing:-1.4px}
-/* ---- СЛОМ №4: нумерованная навигация как у Devils ---- */
-[data-skin="b"] .dr-nav{counter-reset:skbnav}
-[data-skin="b"] .drnav-item{font-family:var(--mono);text-transform:uppercase;letter-spacing:1.6px;font-size:11.5px;font-weight:700}
-[data-skin="b"] .drnav-item::before{counter-increment:skbnav;content:"0" counter(skbnav);font-family:var(--mono);font-size:9px;color:var(--txt-3);letter-spacing:0;min-width:16px}
-[data-skin="b"] .drnav-item.on{background:var(--ton);color:#02110A}
-[data-skin="b"] .drnav-item.on::before{color:#02110A}
-[data-skin="b"] .drnav-item svg{display:none}
-/* ---- СЛОМ №5: плитки подарков — тёмные витрины, объект на полке ---- */
-[data-skin="b"][data-theme="dark"] .gift-tile{background:#0A0B0A;border:1px solid var(--line)}
-[data-skin="b"][data-theme="dark"] .gift-tile .gt-art{background:#111311!important;box-shadow:inset 0 0 0 1px var(--line)}
-[data-skin="b"][data-theme="dark"] .gift-tile.sel,[data-skin="b"][data-theme="dark"] .gift-tile[aria-pressed="true"]{border-color:var(--ton);box-shadow:0 0 0 1px var(--ton)}
-[data-skin="b"] .gift-tile .gt-f{font-family:var(--mono);color:var(--ton);font-size:10px;letter-spacing:.5px}
-[data-skin="b"] .gift-tile .gt-n{text-transform:uppercase;letter-spacing:.4px;font-size:10px}
-/* ---- тех-детали: моноширинный капс ---- */
-[data-skin="b"] .appr-eyebrow,[data-skin="b"][data-theme="dark"] .asset-disp .appr-eyebrow,[data-skin="b"] .mkt-eyebrow,[data-skin="b"] .gift-label,[data-skin="b"] .dr-sec,[data-skin="b"] .mgi-lab,[data-skin="b"] .cs-l,[data-skin="b"] .g-k,[data-skin="b"] .lots-h,[data-skin="b"] .mb-h,[data-skin="b"] .mc-rank{
-  font-family:var(--mono);font-style:normal!important;font-weight:700;text-transform:uppercase;letter-spacing:2.2px;font-size:10px}
-[data-skin="b"][data-theme="dark"] .asset-disp .appr-eyebrow{color:var(--gold)}
-[data-skin="b"] .mc-rank{color:var(--gold)}
-[data-skin="b"] .cert-foot,[data-skin="b"] .price-range,[data-skin="b"] .hero-sub,[data-skin="b"] .g-note,[data-skin="b"] .mc-sub,[data-skin="b"] .lot-sub,[data-skin="b"] .mgi-meta{font-family:var(--mono);letter-spacing:.4px}
-[data-skin="b"] .cert-foot{text-transform:uppercase;letter-spacing:1.8px;font-size:9px}
-[data-skin="b"] .skb-serial{font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:2.6px;color:var(--gold);margin-top:8px;text-transform:uppercase}
-[data-skin="b"] .wrap::after{content:"MONET\2122 \00B7 APPRAISAL TERMINAL \00B7 SIGNAL LIVE \00B7 55\00B0 45' N / 37\00B0 37' E";display:block;margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:9px;letter-spacing:2.6px;color:var(--txt-3);text-align:center;text-transform:uppercase}
-/* ---- витрина дропа ---- */
-[data-skin="b"][data-theme="dark"] .asset-disp{background:radial-gradient(140% 110% at 50% 0%, #0F2416 0%, #070807 60%);border-bottom:1px solid var(--gold);box-shadow:none}
-[data-skin="b"] .wax-seal{opacity:.4}
-/* ---- CTA: неоновая плита ---- */
-[data-skin="b"] #evalBtn:not([disabled]){
-  background:var(--ton,#39FF9C);color:#02110A;
-  text-transform:uppercase;letter-spacing:2px;font-weight:800;
-  box-shadow:0 0 0 1px #02110A, 0 14px 40px -12px rgba(57,255,156,.55);
+[data-skin="b"] .rcard,[data-skin="b"] .panel,[data-skin="b"] .mk-tcard,[data-skin="b"] .dr-card,[data-skin="b"] .mk-sheet,[data-skin="b"] .pf-alloc,[data-skin="b"] .pf-bcard,[data-skin="b"] .pf-goalcard{border-radius:22px}
+[data-skin="b"] .pf-item,[data-skin="b"] .pf-ins,[data-skin="b"] .mk-stat,[data-skin="b"] .mk-mover{border-radius:20px}
+/* меню и таббар: нейтральные */
+[data-skin="b"][data-theme="dark"] .drawer{background:#0D0F0D}
+[data-skin="b"][data-theme="dark"] .tabbar{background:rgba(20,22,20,.92);border-color:var(--line)}
+/* элементы на фоне: тише */
+[data-skin="b"][data-theme="dark"] .subseg,[data-skin="b"][data-theme="dark"] .mainnav,[data-skin="b"][data-theme="dark"] .mk-pills,[data-skin="b"][data-theme="dark"] .cv-seg,[data-skin="b"][data-theme="dark"] .cv-row{background:rgba(255,255,255,.03);border:1px solid var(--line)}
+[data-skin="b"][data-theme="dark"] .mc-ledger,[data-skin="b"][data-theme="dark"] .ledger,[data-skin="b"][data-theme="dark"] .dr-card{background:rgba(255,255,255,.02)}
+/* цифры чуть громче, подписи тише — Plata-иерархия */
+[data-skin="b"] .pf-hero .tot,[data-skin="b"] .mgi-val{letter-spacing:-1px}
+[data-skin="b"] .mkt-eyebrow,[data-skin="b"] .gift-label,[data-skin="b"] .dr-sec{color:var(--txt-3)}
+/* позитив/негатив — единственный цвет на нейтральном */
+[data-skin="b"][data-theme="dark"]{--up:#3ADE8F;--down:#FF7A66}
+/* --- Plata-структура дома (только скин Графит) --- */
+.ph-top{display:flex;align-items:center;gap:12px;padding:4px 2px 16px}
+.ph-av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#2E6B54,#163A2C);display:grid;place-items:center;font-weight:800;font-size:18px;color:#EAF4EE;flex:none}
+.ph-id b{display:block;font-size:16.5px;font-weight:800;letter-spacing:-.2px}
+.ph-id span{font-size:11.5px;color:var(--txt-3);font-weight:600}
+.ph-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.ph-stat{background:#141614;border:1px solid var(--line);border-radius:18px;padding:13px 15px}
+.ph-stat .k{font-size:10.5px;font-weight:700;color:var(--txt-3);margin-bottom:5px}
+.ph-stat .v{font-family:var(--font-d);font-weight:700;font-size:16.5px;letter-spacing:-.3px}
+.ph-move{display:flex;align-items:center;gap:12px;background:#141614;border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-bottom:12px;cursor:pointer}
+.ph-move b{display:block;font-size:15px;font-weight:800;letter-spacing:-.2px}
+.ph-move span{font-size:11.5px;color:var(--txt-3);font-weight:600}
+.ph-move>div:first-child{flex:1;min-width:0}
+.ph-orb{width:38px;height:38px;border-radius:50%;background:conic-gradient(from 40deg,#FF6A55,#C8A24B,#3ADE8F,#4C7CFF,#FF6A55);filter:blur(.5px) saturate(1.15);flex:none}
+.ph-card{background:#141614;border:1px solid var(--line);border-radius:22px;padding:18px;margin-bottom:12px;cursor:pointer;box-shadow:var(--shadow)}
+.ph-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ph-sum{font-family:var(--font-d);font-weight:700;font-size:30px;letter-spacing:-1px}
+.ph-sum span{font-size:.45em;font-weight:800;color:var(--txt-3)}
+.ph-tag{font-size:11.5px;font-weight:800;white-space:nowrap}
+.ph-sub{font-size:12px;color:var(--txt-2);font-weight:600;margin:3px 0 12px}
+.ph-chips{display:flex;gap:8px;flex-wrap:wrap}
+.ph-chip{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:7px 11px 7px 7px;font-size:12px;font-weight:700;cursor:pointer}
+.ph-chip .mc-ic,.ph-chip img{width:26px!important;height:26px!important;border-radius:9px!important;font-size:14px!important}
+.ph-chip.ph-add{padding:7px 14px;font-size:16px;color:var(--txt-2);justify-content:center}
+/* пилюльный плавающий таббар */
+@media(max-width:899px){
+  [data-skin="b"] .tabbar{left:14px;right:14px;bottom:12px;border-radius:28px}
 }
-[data-skin="b"] #evalBtn:not([disabled]):hover{background:var(--ton-soft,#6FFFBE)}
-[data-skin="b"] #evalBtn:not([disabled]):active{transform:scale(.985)}
-[data-skin="b"][data-theme="dark"] #evalBtn[disabled]{background:#101210;color:#5C665D}
-/* ---- сегменты/табы: терминальный капс ---- */
-[data-skin="b"] .tab,[data-skin="b"] .subseg button,[data-skin="b"] .cat b,[data-skin="b"] .dtabs button,[data-skin="b"] .mk-range button{font-family:var(--mono);text-transform:uppercase;letter-spacing:1.2px;font-size:10.5px;font-weight:700}
-[data-skin="b"][data-theme="dark"] .subseg.on,[data-skin="b"][data-theme="dark"] .pill.on{background:var(--ton)!important;color:#02110A!important}
-[data-skin="b"][data-theme="dark"] .tab.on,[data-skin="b"][data-theme="dark"] .desk-only .tab.on{background:var(--ton);color:#02110A}
-[data-skin="b"][data-theme="dark"] .mk-range button.on{background:var(--ton);color:#02110A}
-/* ---- движение ---- */
-[data-skin="b"] button,[data-skin="b"] .gift-tile,[data-skin="b"] .mc-item,[data-skin="b"] .pf-item,[data-skin="b"] .mk-mover,[data-skin="b"] .cat,[data-skin="b"] .tab,[data-skin="b"] .dr-tile,[data-skin="b"] .drnav-item{transition-duration:.15s}
-[data-skin="b"] .gift-tile:active,[data-skin="b"] .dr-tile:active,[data-skin="b"] .mk-mover:active,[data-skin="b"] .cat:active{transform:scale(.96)}
-/* ---- Buy Zone: единственная золотая вспышка ---- */
-[data-skin="b"] .g-row.g-buy{border:1px solid rgba(234,203,116,.6);border-left-width:3px;border-left-color:var(--gold);background:linear-gradient(90deg,rgba(234,203,116,.13),rgba(234,203,116,.02) 70%);animation:skbGold .8s ease-out 1}
-[data-skin="b"] .g-row.g-buy .g-v,[data-skin="b"] .g-row.g-buy .g-k{color:var(--gold)}
-@keyframes skbGold{0%{box-shadow:0 0 0 0 rgba(234,203,116,.55)}100%{box-shadow:0 0 26px -8px rgba(234,203,116,0)}}
-[data-skin="b"] .mgi-d,[data-skin="b"] .mc-price{font-weight:800}
 </style>
 </head>
 <body data-view="evaluate">
@@ -1844,6 +1827,7 @@ header{border-bottom:0;background:none}
     <div class="dr-grid">
       <button class="dr-tile dr-prem" id="premTile" onclick="closeDrawer();openPremium()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8l4 3 4-6 4 6 4-3-1.6 11H5.6z"/></svg></span><b>Monet Prima</b></button>
       <button class="dr-tile dr-deskhide" onclick="closeDrawer();BANK.openCard()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18M7 14.5h3"/></svg></span><b data-i18n="myCard"></b></button>
+      <button class="dr-tile" onclick="closeDrawer();HOME.openBuyIdeas()"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span><b data-i18n="stBuyIdeas"></b></button>
       <button class="dr-tile" onclick="closeDrawer();ALERTS.open()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><b data-i18n="alTitle"></b></button>
       <button class="dr-tile" onclick="closeDrawer();PF.openJournal()"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M4 5h13a2 2 0 0 1 2 2v12H6a2 2 0 0 1-2-2zM8 9h7M8 13h7"/></svg></span><b data-i18n="jrTitle"></b></button>
       <button class="dr-tile dr-deskhide" onclick="closeDrawer();setView('converter')"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v15M7 19l-3-3.5M7 19l3-3.5M17 20V5M17 5l-3 3.5M17 5l3 3.5"/></svg></span><b data-i18n="conv"></b></button>
@@ -1863,7 +1847,7 @@ header{border-bottom:0;background:none}
       <div class="dr-item dr-row"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg></span><span class="set-txt"><b data-i18n="stStars"></b><small data-i18n="stStarsD"></small></span><div class="lang-toggle" id="starsToggle"><button onclick="setStars(true)" data-i18n="stOn"></button><button onclick="setStars(false)" data-i18n="stOff"></button></div></div>
       <button class="dr-item" onclick="cycleDefaultView()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18"/></svg></span><span class="set-txt"><b data-i18n="stDefault"></b><small data-i18n="stDefaultD"></small></span><span class="set-cur" id="dvLbl"></span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <div class="dr-item dr-row"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M9.5 12.5l2 2 3.5-4"/></svg></span><span class="set-txt"><b data-i18n="stExp"></b><small data-i18n="stExpD"></small></span><div class="lang-toggle" id="expToggle"><button onclick="setExperimental(true)" data-i18n="stOn"></button><button onclick="setExperimental(false)" data-i18n="stOff"></button></div></div>
-      <div class="dr-item dr-row" style="display:none"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l2.2 5.4L20 9l-4.4 3.8L17 19l-5-3.2L7 19l1.4-6.2L4 9l5.8-.6z"/></svg></span><b data-i18n="stSkin"></b><div class="lang-toggle" id="skinToggle"><button onclick="setSkin('a')" data-i18n="skinA"></button><button onclick="setSkin('b')" data-i18n="skinB"></button></div></div>
+      <div class="dr-item dr-row"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l2.2 5.4L20 9l-4.4 3.8L17 19l-5-3.2L7 19l1.4-6.2L4 9l5.8-.6z"/></svg></span><b data-i18n="stSkin"></b><div class="lang-toggle" id="skinToggle"><button onclick="setSkin('a')" data-i18n="skinA"></button><button onclick="setSkin('b')" data-i18n="skinB"></button></div></div>
     </div>
     <div class="dr-grid">
       <button class="dr-tile" onclick="closeDrawer();LOCK.menu()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b data-i18n="lkTitle"></b></button>
@@ -1897,6 +1881,8 @@ header{border-bottom:0;background:none}
     <div class="pm-promo" id="pmPromo" style="display:none"></div>
     <div class="plan" id="planList"></div>
     <div class="plan-pick" id="planPick"></div>
+    <div class="pm-code"><input id="pmCode" inputmode="numeric" placeholder="Промокод" onkeydown="if(event.key===\'Enter\')applyPromo()"><button onclick="applyPromo()">OK</button></div>
+    <div id="pmCodeMsg" class="pm-code-msg"></div>
     <button class="btn gold" id="pmBuyBtn" onclick="buyPremium()"></button>
     <p class="winhint" data-i18n="pmWin"></p>
   </div>
@@ -1918,6 +1904,9 @@ const RATE = { usd: 1.76, eur: 1.63 };           // GRAM -> fiat (calibrated May
 const STAR_USD = 0.013;                          // legacy USD/Star (unused)
 let STARS_PER_TON = 200;                          // Telegram Fragment peg: 200 Stars = 1 GRAM (override via proxy ?floors -> starsPerTon)
 // ====== PREMIUM PRICING — edit prices here (Telegram Stars). Annual is cheaper per month. ======
+const PROMO_CODES = { '777': 0.95 };   // код -> скидка
+let promoDisc=0, promoCode='';
+function effStars(p){ return Math.max(1, Math.round(PLANS[p].stars*(1-promoDisc))); }
 const PLANS = {
   month: { stars: 200,  days: 30  },   // ← цена помесячной подписки
   year:  { stars: 1400, days: 365 },   // ← цена годовой подписки (выгоднее в месяц)
@@ -2217,24 +2206,14 @@ en:{
   sheetSubColl:'Collection', numFloorName:'+888 …… (floor)', mkHeldTip:'in portfolio',
   lotsTitle:'On the market now', lotsBuy:'buy', lotCheapest:'cheapest', lotsEmpty:'No active listings', lotsLoading:'Loading listings…', lotsNoProxy:'Live listings unavailable', lotsErr:'Couldn’t load'
 }};
+I18N.ru.stBuyIdeas='Что купить'; I18N.en.stBuyIdeas='What to buy';
 I18N.ru.stStarsD='Дублировать цены в звёздах Telegram'; I18N.en.stStarsD='Also show prices in Telegram Stars';
 I18N.ru.stDefaultD='Какая вкладка открывается при запуске'; I18N.en.stDefaultD='Which tab opens on launch';
 I18N.ru.stExpD='Оценка юзернеймов и +888-номеров (бета)'; I18N.en.stExpD='Username & +888 number appraisal (beta)';
-I18N.ru.stSkin='Стиль'; I18N.ru.skinA='Классик'; I18N.ru.skinB='Дерзкий';
-I18N.en.stSkin='Style'; I18N.en.skinA='Classic'; I18N.en.skinB='Bold';
+I18N.ru.stSkin='Стиль'; I18N.ru.skinA='Классик'; I18N.ru.skinB='Графит';
+I18N.en.stSkin='Style'; I18N.en.skinA='Classic'; I18N.en.skinB='Graphite';
 /* SKIN B voice pack — уверенность вместо вежливости (только когда включён скин B) */
-const VOICE_B={
-  ru:{ apprValue:'Вердикт Monet', tagline:'APPRAISAL TERMINAL',
-    gBuy:'Buy Zone', gBuyNote:'Ниже рынка. Такое висит недолго',
-    gFairNote:'Столько это стоит. Факт', gListNote:'Твоя цена. Не ниже',
-    gFastNote:'Надо слить быстро — вот планка',
-    hGuideBull:'Рынок прёт', hGuideBear:'Рынок остыл. Время охоты', hGuideFlat:'Рынок думает' },
-  en:{ apprValue:'The Monet verdict', tagline:'APPRAISAL TERMINAL',
-    gBuy:'Buy Zone', gBuyNote:'Below market. Won\u2019t last',
-    gFairNote:'What it\u2019s worth. Fact', gListNote:'Your price. Not lower',
-    gFastNote:'Need out fast \u2014 here\u2019s the bar',
-    hGuideBull:'Market is ripping', hGuideBear:'Market cooled. Hunting season', hGuideFlat:'Market undecided' }
-};
+const VOICE_B={ru:{},en:{}};
 function t(k){ if(S.skin==='b'){ const v=VOICE_B[S.lang]; if(v && v[k]!==undefined) return v[k]; } return I18N[S.lang][k] !== undefined ? I18N[S.lang][k] : k; }
 
 /* ========================================================================
@@ -4157,9 +4136,12 @@ function renderPlanCards(){
     +'<span class="plan-price">'+price+' ⭐</span>'
     +(sub?'<span class="plan-sub">'+sub+'</span>':'')
     +'</button>';
-  wrap.innerHTML=card('month', PLANS.month.stars, t('perMo'), '')
-    + card('year', PLANS.year.stars, planPerMo()+' ⭐ '+t('perMo'), save>0? t('save')+' '+save+'%' : '');
-  const bb=document.getElementById('pmBuyBtn'); if(bb) bb.innerHTML=t('pmGet')+' · '+PLANS[currentPlan].stars+' ⭐';
+  const price=(p)=> promoDisc>0
+    ? '<s style="opacity:.55;font-weight:600">'+PLANS[p].stars+'</s> '+effStars(p)
+    : PLANS[p].stars;
+  wrap.innerHTML=card('month', price('month'), t('perMo'), promoDisc>0?'−'+Math.round(promoDisc*100)+'%':'')
+    + card('year', price('year'), (promoDisc>0?Math.max(1,Math.round(effStars('year')/12)):planPerMo())+' ⭐ '+t('perMo'), promoDisc>0?'−'+Math.round(promoDisc*100)+'%':(save>0? t('save')+' '+save+'%' : ''));
+  const bb=document.getElementById('pmBuyBtn'); if(bb) bb.innerHTML=t('pmGet')+' · '+effStars(currentPlan)+' ⭐';
 }
 function renderPlan(){
   document.getElementById('planList').innerHTML=
@@ -4171,7 +4153,18 @@ function renderPlan(){
     '<div class="prow"><span class="pi">★</span>'+t('pro1')+' · '+t('pro2')+'</div>';
   renderPlanCards();
 }
-function openPremium(){ try{ track('premium_click'); }catch(e){} if(S.premium){ toast(t('premiumGranted')); return; } renderPlan();
+function applyPromo(){ const el=document.getElementById('pmCode'); const msg=document.getElementById('pmCodeMsg'); if(!el) return;
+  const code=(el.value||'').trim();
+  const ru=S.lang==='ru';
+  if(PROMO_CODES[code]){ promoDisc=PROMO_CODES[code]; promoCode=code; S.promoCode=code; try{save();}catch(e){}
+    if(msg){ msg.style.color='var(--up)'; msg.textContent=(ru?'Промокод применён: скидка −':'Promo applied: −')+Math.round(promoDisc*100)+'%'; }
+    renderPlanCards(); try{ track('promo_applied'); }catch(e){} if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}} }
+  else { promoDisc=0; promoCode=''; if(msg){ msg.style.color='var(--down)'; msg.textContent=ru?'Такого промокода нет':'Invalid promo code'; } renderPlanCards(); } }
+function openPremium(){ try{ track('premium_click'); }catch(e){} if(S.premium){ toast(t('premiumGranted')); return; }
+  if(S.promoCode&&PROMO_CODES[S.promoCode]){ promoDisc=PROMO_CODES[S.promoCode]; promoCode=S.promoCode; }
+  renderPlan();
+  setTimeout(function(){ try{ const el=document.getElementById('pmCode'); const msg=document.getElementById('pmCodeMsg');
+    if(el&&promoCode){ el.value=promoCode; if(msg){ msg.style.color='var(--up)'; msg.textContent=(S.lang==='ru'?'Промокод применён: скидка −':'Promo applied: −')+Math.round(promoDisc*100)+'%'; } } }catch(e){} },50);
   const pr=document.getElementById('pmPromo');
   if(pr){ if(launchFree()){ pr.innerHTML='<div class="pm-promo-t">'+t('freeLaunch')+'</div><div class="pm-promo-s">'+t('freeLaunchNote')+'</div>'; pr.style.display=''; }
           else if(subActive()){ pr.innerHTML='<div class="pm-promo-t">'+t('subActive')+'</div><div class="pm-promo-s">'+t('subUntil')+' '+fmtUntil(S.premiumUntil)+'</div>'; pr.style.display=''; }
@@ -4183,7 +4176,7 @@ async function buyPremium(){
     if(!(tg && tg.openInvoice)){ toast(t('pmSoon')); return; }
     const plan=currentPlan, p=PLANS[plan]||PLANS.month;
     const base=proxyURL(); let link='';
-    if(base){ try{ const res=await fetch(base.replace(/\/+$/,'')+'/?invoice=premium&plan='+plan+'&stars='+p.stars,{cache:'no-store'}); if(res.ok){ const j=await res.json(); link=(j&&j.link)||''; } }catch(e){} }
+    if(base){ try{ const res=await fetch(base.replace(/\/+$/,'')+'/?invoice=premium&plan='+plan+'&stars='+effStars(plan)+(promoCode?'&promo='+encodeURIComponent(promoCode):''),{cache:'no-store'}); if(res.ok){ const j=await res.json(); link=(j&&j.link)||''; } }catch(e){} }
     if(!link){ toast(t('pmSoon')); return; }
     try{ track('invoice_started'); }catch(e){}
     tg.openInvoice(link, function(status){ if(status==='paid'){ try{track('invoice_paid');}catch(e){} grantSub(plan); try{pollEntitlement();}catch(e){} } else if(status==='failed'){ toast(t('pmFail')); } });
@@ -4305,9 +4298,9 @@ function applyTheme(){ S.theme='dark';
   document.documentElement.dataset.theme='dark';
   document.documentElement.removeAttribute('data-tint');
   const skB=(S.skin==='b');
-  const tgCol=skB?'#0A0B0A':'#163A2C';
+  const tgCol=skB?'#0D0E0D':'#163A2C';
   const grad=skB
-    ? 'radial-gradient(120% 80% at 50% -14%, #0A140D 0%, #030503 40%, #000 100%)'
+    ? 'radial-gradient(120% 90% at 50% -12%, #171A17 0%, #0C0D0C 52%, #070807 100%)'
     : 'radial-gradient(130% 100% at 50% -14%, #17492F 0%, #0B2718 48%, #040C07 100%)';
   try{ if(window.tg){ if(tg.setBackgroundColor)tg.setBackgroundColor(tgCol); if(tg.setHeaderColor)tg.setHeaderColor(tgCol); if(tg.setBottomBarColor)tg.setBottomBarColor(tgCol);} }catch(e){}
   try{ const de=document.documentElement, bd=document.body;
@@ -4315,9 +4308,9 @@ function applyTheme(){ S.theme='dark';
     if(bd) bd.style.setProperty('background','transparent','important'); }catch(e){}
 }
 function setTheme(v){ S.theme=v; S.themeSet=true; applyTheme(); save(); if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} }
-const SKIN_B_ENABLED=false;   /* включить скин B обратно: true + убрать display:none у пункта «Стиль» в настройках */
+const SKIN_B_ENABLED=true;   /* включить скин B обратно: true + убрать display:none у пункта «Стиль» в настройках */
 function applySkin(){ if(!SKIN_B_ENABLED && S.skin==='b'){ S.skin='a'; try{save();}catch(e){} } if(S.skin==='b') document.documentElement.setAttribute('data-skin','b'); else document.documentElement.removeAttribute('data-skin'); try{ applyTheme(); }catch(e){} }
-function setSkin(v){ S.skin=(v==='b')?'b':'a'; save(); applySkin(); try{ applyI18N(); rebuildAll(); }catch(e){} try{ track(S.skin==='b'?'skin_b_on':'skin_b_off'); }catch(e){} if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} try{ syncSettings(); }catch(e){} }
+function setSkin(v){ S.skin=(v==='b')?'b':'a'; save(); applySkin(); try{ applyI18N(); rebuildAll(); }catch(e){} try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){} try{ track(S.skin==='b'?'skin_b_on':'skin_b_off'); }catch(e){} if(window.tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} try{ syncSettings(); }catch(e){} }
 /* SKIN B: цифра оценки «прокручивается» + хаптика-выстрел в конце */
 function skinBCountUp(){ if(S.skin!=='b') return; try{
   const el=document.getElementById('ptonNum'); if(!el) return;
@@ -4791,7 +4784,8 @@ window.PF = (function(){
       '</div>'+
       pnlHTML()+ goalCard+ cashHTML()))+ (window.BANK?window.BANK.rewardsCardHTML():'')+
       insights+ alloc+
-      '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><span style="flex:1"></span>'+(function(){ try{ if(typeof FLOORS_TS!=='undefined'&&FLOORS_TS>0) return '<span style="font-size:10px;color:var(--txt-3);font-weight:700;margin-right:10px">'+(S.lang==='ru'?'данные: ':'data: ')+fmtAgo(FLOORS_TS)+'</span>'; }catch(e){} return ''; })()+'<button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
+      '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><span style="flex:1"></span>'+(function(){ try{ if(typeof FLOORS_TS!=='undefined'&&FLOORS_TS>0) return '<span onclick="PF.refresh()" style="font-size:10px;color:var(--txt-3);font-weight:700;margin-right:10px;cursor:pointer">'+(S.lang==='ru'?'данные: ':'data: ')+fmtAgo(FLOORS_TS)+' ⟳</span>'; }catch(e){} return ''; })()+'<button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
+      posSignals()+
       (list.length>2?'<div class="pf-crange" style="margin:0 0 10px">'+[['value',(S.lang==='ru'?'По стоимости':'By value')],['ch','24ч'],['pnl','P&L']].map(o=>'<button class="'+(sortKey===o[0]?'on':'')+'" onclick="PF.setSort(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>':'')+
       (function(){ const nb=list.filter(h=>h.buy==null||!(h.buy>0)).length; if(!nb||hidden) return '';
         return '<div style="font-size:11.5px;color:var(--txt-3);font-weight:600;margin:0 2px 10px;line-height:1.4">💡 '+(S.lang==='ru'?('У '+nb+' актив(ов) не указана цена покупки — добавь её (✎), чтобы видеть P&L'):(nb+' asset(s) have no buy price — add it (✎) to see P&L'))+'</div>'; })()+
@@ -4886,6 +4880,31 @@ window.PF = (function(){
   let sellIdx=-1, editIdx=-1;
   function cashHTML(){ const c=Math.round(S.cash||0); if(c<=0) return '';
     return '<div class="pf-goalcard"><div class="gh"><b><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg> '+t('pfCash')+': '+grp(c)+' GRAM</b><button class="edit" onclick="PF.withdraw()">'+t('pfWithdraw')+'</button></div></div>'; }
+  function posSignals(){ try{
+    const ru=S.lang==='ru'; const list=S.portfolio||[]; if(!list.length) return '';
+    const tot=total()||1; const out=[];
+    list.forEach((h,i)=>{
+      const base=String(h.display).split(' #')[0]; const m=mkByName(base); if(!m) return;
+      const ch7=typeof m.ch7==='number'?m.ch7:0; const val=curPrice(h)*(h.qty||1);
+      // 1) актив упал в Buy Zone — можно докупить
+      if(ch7<0){ const ref=m.price/(1+ch7/100);
+        if(ref>m.price){ const p=m.price, sp=p<80?0.14:(p<1500?0.18:0.30);
+          const buyUnder=ref*(1-sp)*(1-0.10-0.20*sp);
+          if(p<=buyUnder) out.push({pr:0,i,ic:'💎',txt:(ru?'В Buy Zone — можно докупить дешевле на ':'In Buy Zone — dip of ')+Math.round((1-p/ref)*100)+'%',name:base}); } }
+      // 2) сильный недельный рост — подумать о фиксации
+      if(ch7>=15) out.push({pr:1,i,ic:'🎯',txt:(ru?'+':'+')+ch7.toFixed(0)+'% '+(ru?'за 7д — подумай о фиксации части':'in 7d — consider taking profit'),name:base});
+      // 3) концентрация
+      if(list.length>1 && val/tot>=0.5) out.push({pr:2,i,ic:'⚠️',txt:Math.round(val/tot*100)+'% '+(ru?'портфеля в одном активе':'of portfolio in one asset'),name:base});
+    });
+    if(!out.length) return '';
+    out.sort((a,b)=>a.pr-b.pr);
+    const seen=new Set(); const rows=[];
+    out.forEach(o=>{ if(seen.has(o.name)||rows.length>=3) return; seen.add(o.name);
+      rows.push('<div class="pf-sig" onclick="PF.details('+o.i+')"><span class="si">'+o.ic+'</span><div class="sm"><b>'+escapeHTML(o.name)+'</b><span>'+o.txt+'</span></div><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>'); });
+    return '<div class="pf-sec-h" style="margin-top:2px"><b>'+(ru?'Обрати внимание':'Worth a look')+'</b></div>'+rows.join('');
+  }catch(e){ return ''; } }
+  function refresh(){ try{ toast(S.lang==='ru'?'Обновляю данные…':'Refreshing…'); }catch(e){}
+    try{ Promise.resolve(refreshFloors(true)).catch(function(){}).then(function(){ setTimeout(function(){ try{ render(); }catch(e){} },300); }); }catch(e){ render(); } }
   function rowSpark(h){ try{
     const m=mkByName(h.display); if(!m||!Array.isArray(m.ser)||m.ser.length<3) return '';
     const ser=m.ser.slice(-7); const up=(m.ch7!=null?m.ch7:((ser[ser.length-1]-ser[0])/ser[0]*100))>=0;
@@ -5091,7 +5110,7 @@ window.PF = (function(){
     document.getElementById('pf-sheet').innerHTML=html;
     document.getElementById('pf-scrim').classList.add('open'); }
   function setSort(k){ S.pfSort=k; try{save();}catch(e){} render(); }
-  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, details, setSort, eQty, eSetBuy, ePrev, sQty, sPct, sSet, sPrev, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
+  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, details, setSort, refresh, eQty, eSetBuy, ePrev, sQty, sPct, sSet, sPrev, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, totalTON: total, tier: ()=>tierOfNW(total()) };
 })();
 
 
@@ -5500,6 +5519,43 @@ window.HOME=(function(){
       (fd.length?'<div class="mc-ledger">'+fd.map(actRow).join('')+'</div>':'<div class="al-empty">'+t('hEmptyS')+'</div>');
     document.getElementById('act-scrim').classList.add('open'); }
   function closeActivity(){ document.getElementById('act-scrim').classList.remove('open'); }
+  function openBuyIdeas(){ const box=document.getElementById('act-sheet'); if(!box) return; const ru=S.lang==='ru';
+    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><div class="nm"><b>'+(ru?'Что купить':'What to buy')+'</b><span>'+(ru?'идеи по живому рынку':'live market ideas')+'</span></div><button class="x" onclick="HOME.closeActivity()">✕</button></div>';
+    if(!proActive()){
+      box.innerHTML=head+'<div class="guide-card g-free" style="margin-top:6px">'+
+        '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="HOME.closeActivity();openPremium()">'+t('gGetPrime')+'</button></div>';
+      document.getElementById('act-scrim').classList.add('open'); return; }
+    const g=mkAll().filter(x=>x.cat==='gifts'&&x.price>0);
+    // 1. недооценены (вход): флор упал к Buy Zone от недавнего уровня
+    const uv=[]; g.forEach(x=>{ const ch7=typeof x.ch7==='number'?x.ch7:0; if(ch7>=0) return;
+      const ref=x.price/(1+ch7/100); if(!(ref>x.price)) return;
+      const p=x.price, sp=p<80?0.14:(p<1500?0.18:0.30);
+      const buyUnder=ref*(1-sp)*(1-0.10-0.20*sp);
+      const disc=Math.round((1-x.price/ref)*100); if(disc<3) return;
+      uv.push({x, disc, inZone:x.price<=buyUnder}); });
+    uv.sort((a,b)=>(b.inZone-a.inZone)||(b.disc-a.disc));
+    const dipNames=new Set(uv.slice(0,8).map(o=>o.x.name));
+    // 2. импульс: растут неделю
+    const mom=g.filter(x=>(x.ch7||0)>1&&!dipNames.has(x.name)).sort((a,b)=>(b.ch7||0)-(a.ch7||0)).slice(0,8);
+    // 3. тяжеловесы: топ по капитализации, не падающие
+    const used=new Set([...dipNames,...mom.map(x=>x.name)]);
+    const heavy=g.slice().sort((a,b)=>(b.cap||0)-(a.cap||0)).filter(x=>(x.ch7||0)>-2&&!used.has(x.name)).slice(0,5);
+    const row=(x,right,sub)=>'<div class="mc-item" style="cursor:pointer;padding:9px 10px" onclick="HOME.closeActivity();if(window.MK)MK.openSheet(\''+x.id+'\')">'+giftPic(x)+
+      '<div class="mc-main"><div class="mc-name" style="font-size:13.5px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right">'+right+'</div></div>';
+    let body='';
+    if(uv.length){ body+='<div class="g-mini-h" style="margin-top:10px">'+(ru?'Вход · недооценены':'Entry · undervalued')+'</div>'+uv.slice(0,8).map(o=>row(o.x,
+      '<div class="mc-price" style="color:'+(o.inZone?'var(--up)':'var(--warn)')+'">−'+o.disc+'%</div>',
+      (ru?'флор ':'floor ')+fmtTON(o.x.price)+' GRAM'+(o.inZone?' · '+t('hInZone'):''))).join(''); }
+    if(mom.length){ body+='<div class="g-mini-h" style="margin-top:12px">'+(ru?'Импульс · растут 7д':'Momentum · up 7d')+'</div>'+mom.map(x=>row(x,
+      '<div class="mc-price" style="color:var(--up)">+'+(x.ch7||0).toFixed(1)+'%</div>',
+      (ru?'флор ':'floor ')+fmtTON(x.price)+' GRAM · 24ч '+((x.ch24>=0?'+':'')+(x.ch24||0).toFixed(1))+'%')).join(''); }
+    if(heavy.length){ body+='<div class="g-mini-h" style="margin-top:12px">'+(ru?'Тяжеловесы · долгосрок':'Blue chips · long term')+'</div>'+heavy.map(x=>row(x,
+      '<div class="mc-price">'+compact(x.cap)+'</div>',
+      (ru?'флор ':'floor ')+fmtTON(x.price)+' GRAM · '+(ru?'капа':'cap'))).join(''); }
+    if(!body) body='<div class="al-empty">'+(ru?'Сейчас явных идей нет — рынок ровный':'No clear ideas right now')+'</div>';
+    box.innerHTML=head+body+'<div class="mk-foot" style="margin-top:12px">'+(ru?'Ориентир по рынку, не оферта. Тапни по коллекции — график, лоты и добавление в портфель.':'Market guidance, not an offer.')+'</div>';
+    document.getElementById('act-scrim').classList.add('open');
+    try{ track('buy_ideas_open'); }catch(e){} }
   function qa(){ return '<div class="home-qa">'+
     '<button onclick="HOME.go(\'evaluate\')"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M3.5 12.5 11 5a2 2 0 0 1 1.4-.6h4.6a2 2 0 0 1 2 2v4.6a2 2 0 0 1-.6 1.4l-7.5 7.5a2 2 0 0 1-2.8 0l-4.6-4.6a2 2 0 0 1 0-2.8Z"/><circle cx="15.5" cy="8.5" r="1.4"/></svg></span><b>'+t('hQEval')+'</b></button>'+
     '<button onclick="HOME.addToPf()"><span class="qa-ic"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><b>'+t('hQAdd')+'</b></button>'+
@@ -5578,8 +5634,45 @@ window.HOME=(function(){
     const rows=wl.map((name,i)=>{ const m=mkBy(name); const fl=m?m.price:0; const ch=m?(m.ch24||0):0; const cc=ch>=0?'var(--up)':'var(--down)';
       return '<div class="mc-item" style="cursor:pointer" onclick="if(window.MK)MK.openSheet(\''+(m?m.id:'')+'\')"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:14px">'+(m?catIcon(m.cat):'•')+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(name)+'</div><div class="mc-sub">'+(ru?'флор':'floor')+' '+(fl?fmtTON(fl)+' GRAM':'—')+'</div></div><div class="mc-right"><div class="mc-price" style="color:'+cc+'">'+(ch>=0?'+':'')+ch.toFixed(1)+'%</div></div><button class="del" style="margin-left:8px" onclick="event.stopPropagation();wlRemoveAt('+i+')">✕</button></div>'; }).join('');
     return '<div class="home-sec"><b>'+t('hWatch')+'</b></div><div class="mc-ledger">'+rows+'</div>'; }
+  function plataHome(){ const ru=S.lang==='ru';
+    const u=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{};
+    const name=u.username?('@'+u.username):(u.first_name||'Monet');
+    const cap=(window.PF&&PF.totalTON)?PF.totalTON():0;
+    const tier=(window.PF&&PF.tier)?PF.tier():{ic:'',name:''};
+    const ch=capCh(); const hs=S.portfolio||[]; const g=gidx(); const fd=feed(3);
+    const cash=S.cash||0;
+    const realized=Math.round((S.realized||[]).reduce((x,r)=>x+((r.sold||0)-(r.basis!=null?r.basis:r.est||0)),0));
+    let pnl=0,inv=0; hs.forEach(h=>{ if(h.buy!=null&&h.buy>0){ const q=h.qty||1; inv+=h.buy*q; pnl+=(((mkBy(String(h.display).split(' #')[0])||{}).price)||h.priceTON||0)*q-h.buy*q; } });
+    const av=(name[0]==='@'?name[1]:name[0]||'M').toUpperCase();
+    // чипы активов внутри карточки портфеля (топ-4 по стоимости)
+    const top=hs.slice().sort((x,y)=>((y.priceTON||0)*(y.qty||1))-((x.priceTON||0)*(x.qty||1))).slice(0,4);
+    const chip=(h)=>{ const m=mkBy(String(h.display).split(' #')[0]); const i=(S.portfolio||[]).indexOf(h);
+      const ic=m?giftPic(m):'<div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:15px;border-radius:12px">'+(h.cat==='username'?'@':'#')+'</div>';
+      return '<div class="ph-chip" onclick="event.stopPropagation();PF.details('+i+')">'+ic+'<span>'+escapeHTML(String(h.display).split(' #')[0]).slice(0,10)+'</span></div>'; };
+    const chips=top.map(chip).join('')+'<div class="ph-chip ph-add" onclick="event.stopPropagation();PF.openAdd()">+</div>';
+    const grpn=n=>{ n=Math.round(n); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); };
+    const stat=(k,v,c)=>'<div class="ph-stat"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div></div>';
+    return ''+
+    '<div class="ph-top"><div class="ph-av">'+av+'</div><div class="ph-id"><b>'+escapeHTML(name)+'</b><span>'+(ru?'Ты — ':'You are ')+tier.ic+' '+tier.name+'</span></div><button class="hbell" onclick="ALERTS.open()" style="margin-left:auto"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button></div>'+
+    '<div class="ph-stats">'+
+      stat(ru?'P&L по активам':'Unrealized P&L',(pnl>=0?'+':'−')+grpn(Math.abs(pnl))+' GRAM',pnl>=0?'var(--up)':'var(--down)')+
+      stat(ru?'Заработано с продаж':'Realized',(realized>=0?'+':'−')+grpn(Math.abs(realized))+' GRAM',realized>=0?'var(--up)':'var(--down)')+
+    '</div>'+
+    '<div class="ph-move" onclick="HOME.openActivity()"><div><b>'+(ru?'Движения':'Activity')+'</b><span>'+(fd.length?(fd.length+' '+(ru?'событ. за сегодня':'events today')+' · '+(ru?'рынок ':'index ')+(g.ch24>=0?'+':'')+g.ch24.toFixed(1)+'%'):(ru?'событий пока нет':'no events yet'))+'</span></div><div class="ph-orb"></div></div>'+
+    '<div class="ph-card" onclick="setView(\'portfolio\')">'+
+      '<div class="ph-row"><div class="ph-sum">'+grpn(cap)+' <span>GRAM</span></div><div class="ph-tag" style="color:'+(ch.c24>=0?'var(--up)':'var(--down)')+'">'+(ch.c24>=0?'▲':'▼')+' '+Math.abs(ch.c24).toFixed(1)+'% · 24ч</div></div>'+
+      '<div class="ph-sub">'+(ru?'Портфель':'Portfolio')+' · '+hs.length+' '+(ru?'актив.':'assets')+'</div>'+
+      '<div class="ph-chips">'+(hs.length?chips:'<div class="ph-chip ph-add" onclick="event.stopPropagation();PF.openAdd()">+</div>')+'</div>'+
+    '</div>'+
+    '<div class="ph-card" onclick="PF.info(\'unreal\')">'+
+      '<div class="ph-row"><div class="ph-sum">'+grpn(cash)+' <span>GRAM</span></div>'+(realized>0?'<div class="ph-tag" style="color:var(--up)">+'+grpn(realized)+' '+(ru?'заработано':'earned')+'</div>':'')+'</div>'+
+      '<div class="ph-sub">'+(ru?'Свободные средства':'Cash balance')+'</div>'+
+    '</div>'+
+    '<div class="ph-move" onclick="setView(\'market\')"><div><b>'+(ru?'Рынок':'Market')+'</b><span>Monet Gift Index · '+compact(g.cap)+' GRAM · '+(g.ch24>=0?'+':'')+g.ch24.toFixed(1)+'%</span></div><div class="ph-orb" style="background:conic-gradient(from 200deg,#3ADE8F,#1F6B4C,#C8A24B,#3ADE8F)"></div></div>'+
+    digestCard(); }
   function render(){ const box=document.getElementById('homeBody'); if(!box) return;
     try{ if(window.ALERTS) ALERTS.check(); }catch(e){}
+    if(S.skin==='b'){ box.innerHTML=plataHome(); return; }
     const cap=(window.PF&&PF.totalTON)?PF.totalTON():0; const tier=(window.PF&&PF.tier)?PF.tier():{ic:'',name:''};
     const ch=capCh(); const hs=S.portfolio||[]; const fd=feed();
     const empty=cap<=0&&!fd.length&&!hs.length;
@@ -5604,7 +5697,7 @@ window.HOME=(function(){
                      : ('<div class="lots-note" style="text-align:center;padding:16px;color:var(--txt-3)">'+t('hEmptyS')+'</div>');
     box.innerHTML=html;
   }
-  return { render, go, addToPf, shareCap, openHistory, openActivity, closeActivity, dismissDigest };
+  return { render, go, addToPf, shareCap, openHistory, openActivity, closeActivity, dismissDigest, openBuyIdeas };
 })();
 window.ALERTS=(function(){
   function grp(n){ n=Math.round(n); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); }
