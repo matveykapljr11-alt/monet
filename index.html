@@ -196,6 +196,8 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .gift-tile .gt-n{font-size:11px;font-weight:700;color:var(--txt);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .gift-tile .gt-f{font-size:10px;font-weight:700;color:var(--ton)}
 .flr-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:var(--txt-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;margin:2px 2px 11px;cursor:pointer;user-select:none}
+.flr-badge.flr-demo{color:#fff;background:#D9483B;border-color:#D9483B}
+.eval-invalid{margin:14px 2px;padding:14px 16px;border-radius:13px;background:var(--surface-2);border:1px solid var(--line);color:var(--txt-2);font-size:13.5px;font-weight:600;text-align:center}
 .flr-badge:active{background:var(--bg2)}
 .flr-dot{width:7px;height:7px;border-radius:50%;flex:none}
 .flr-rf{width:13px;height:13px;stroke:var(--txt-3);fill:none;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;margin-left:1px}
@@ -1006,6 +1008,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 @keyframes mkfu{0%{background:var(--up-bg)}100%{background:transparent}}
 @keyframes mkfd{0%{background:var(--down-bg)}100%{background:transparent}}
 .mk-foot{margin-top:16px;text-align:center;font-size:11px;color:var(--txt-3);line-height:1.6}
+.mk-demobanner{margin:0 2px 12px;padding:10px 13px;border-radius:12px;background:#D9483B;color:#fff;font-size:12.5px;font-weight:700;line-height:1.4}
 .mk-scrim{position:fixed;inset:0;background:rgba(18,28,18,.46);backdrop-filter:blur(5px);z-index:60;display:none;align-items:flex-end;justify-content:center}
 .mk-scrim.open{display:flex;animation:mkfade .25s}
 @keyframes mkfade{from{opacity:0}to{opacity:1}}
@@ -1740,6 +1743,7 @@ header{border-bottom:0;background:none}
     </div>
     <div class="mk-movers" id="mk-movers"></div>
     <div class="mkt-listhead"><span id="mk-listcount"></span><span class="mkt-listlbl" id="mk-sortlbl"></span></div>
+    <div id="mk-demobanner" class="mk-demobanner" style="display:none"></div>
     <div class="mc-ledger" id="mk-list"></div>
   </section>
 
@@ -2079,10 +2083,11 @@ ru:{
   photoMatched:'Похоже на', photoConf:'уверенность',
   photoFail:'Не удалось распознать — выберите вручную',
   photoOffline:'Распознавание по фото требует интернета. Выберите вручную',
+  photoNeedProxy:'Распознавание по фото требует подключённого прокси. Выберите вручную',
   photoHint:'ИИ-распознавание онлайн · результат ориентировочный, проверьте выбор',
   photoSerial:'серийный № с фото',
-  hintMin:'введите 3+ символа', hintOk:'✓ можно оценивать', hintNumOk:'✓ номер готов к оценке',
-  hintNum:'введите цифры номера (после +888)', hintGift:'выберите коллекцию и серийный №',
+  hintMin:'введите 4+ символа', hintOk:'✓ можно оценивать', hintNumOk:'✓ номер готов к оценке',
+  hintNum:'введите все 8 цифр номера (после +888)', hintGift:'выберите коллекцию и серийный №',
   hintBadChars:'допустимы a–z, 0–9, _', cmpNeed:'заполните оба поля',
   tierCommon:'Обычный', tierPremium:'Премиум', tierVip:'VIP', tierTop:'Топ-эксклюзив',
   estPrice:'Ориентир', favAdd:'В избранное', favRem:'В избранном', share:'Карточка',
@@ -2102,7 +2107,7 @@ ru:{
   fGiftFloor:'Floor коллекции', fSerialTop:'Низкий серийный №', fSerialGood:'Хороший серийный №',
   fSerialRound:'Красивый №', fRarityHigh:'Высокая редкость', fRarityMid:'Средняя редкость',
   fBackdrop:'Редкий фон', fPattern:'Редкий узор', fModel:'Редкая модель', fAttrCap:'Сглаживание редкости',
-  fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка', fModelRare:'Модель · по редкости', fBackRare:'Фон · по редкости', fPatRare:'Узор · по редкости', fShrink:'Поправка на данные', fTilt:'Спрос рынка', fCal:'Авто-калибровка', fMeasured:'Измеренная точность',
+  fModelFl:'Флор модели', fBackFl:'Флор фона', fPatFl:'Флор символа', fLowSerial:'Низкий серийный №', fCombo:'Премия за комбинацию', fMktCal:'Рыночная калибровка', fModelRare:'Модель · по редкости', fBackRare:'Фон · по редкости', fPatRare:'Узор · по редкости', fShrink:'Поправка на данные', fTilt:'Спрос рынка', fCal:'Авто-калибровка', fMeasured:'Измеренная точность', fUnameShort:'Слишком короткий', fNumRun:'Серия одинаковых цифр',
   drawerTitle:'Меню', tabHistory:'История', tabFav:'Мои', tabTop:'Топ', drActions:'Действия', drLists:'Списки', drSettings:'Настройки', drLanguage:'Язык', drTheme:'Тема', thLight:'Светлая', thDark:'Тёмная',
   emptyHistory:'Здесь появятся ваши оценки', emptyFav:'Добавьте оценки в избранное звёздочкой',
   lockedHistory:'История ограничена 3 записями. Prima — без лимитов',
@@ -2185,10 +2190,11 @@ en:{
   photoMatched:'Looks like', photoConf:'confidence',
   photoFail:'Couldn’t recognize — pick manually',
   photoOffline:'Photo recognition needs internet. Pick manually',
+  photoNeedProxy:'Photo recognition needs a configured proxy. Pick manually',
   photoHint:'Online AI recognition · result is a guess, double-check the pick',
   photoSerial:'serial # from photo',
-  hintMin:'enter 3+ characters', hintOk:'✓ ready to evaluate', hintNumOk:'✓ number ready',
-  hintNum:'enter the number digits (after +888)', hintGift:'pick a collection and serial #',
+  hintMin:'enter 4+ characters', hintOk:'✓ ready to evaluate', hintNumOk:'✓ number ready',
+  hintNum:'enter all 8 digits (after +888)', hintGift:'pick a collection and serial #',
   hintBadChars:'allowed: a–z, 0–9, _', cmpNeed:'fill in both fields',
   tierCommon:'Common', tierPremium:'Premium', tierVip:'VIP', tierTop:'Top-exclusive',
   estPrice:'Estimate', favAdd:'Favorite', favRem:'Favorited', share:'Share card',
@@ -2207,7 +2213,7 @@ en:{
   fGiftFloor:'Collection floor', fSerialTop:'Low serial #', fSerialGood:'Good serial #',
   fSerialRound:'Beautiful #', fRarityHigh:'High rarity', fRarityMid:'Medium rarity',
   fBackdrop:'Rare backdrop', fPattern:'Rare pattern', fModel:'Rare model', fAttrCap:'Rarity smoothing',
-  fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration', fModelRare:'Model · by rarity', fBackRare:'Backdrop · by rarity', fPatRare:'Pattern · by rarity', fShrink:'Data adjustment', fTilt:'Market demand', fCal:'Auto-calibration', fMeasured:'Measured accuracy',
+  fModelFl:'Model floor', fBackFl:'Backdrop floor', fPatFl:'Symbol floor', fLowSerial:'Low serial #', fCombo:'Combination premium', fMktCal:'Market calibration', fModelRare:'Model · by rarity', fBackRare:'Backdrop · by rarity', fPatRare:'Pattern · by rarity', fShrink:'Data adjustment', fTilt:'Market demand', fCal:'Auto-calibration', fMeasured:'Measured accuracy', fUnameShort:'Too short', fNumRun:'Repeated-digit run',
   drawerTitle:'Menu', tabHistory:'History', tabFav:'Mine', tabTop:'Top', drActions:'Actions', drLists:'Lists', drSettings:'Settings', drLanguage:'Language', drTheme:'Theme', thLight:'Light', thDark:'Dark',
   emptyHistory:'Your evaluations will appear here', emptyFav:'Star evaluations to save them',
   lockedHistory:'History capped at 3. Prima — unlimited',
@@ -2299,6 +2305,10 @@ function scoreUsername(raw){
   const name = raw.toLowerCase().replace(/[^a-z0-9_]/g,'');
   const len = name.length;
   const F = [];
+  // Валидация: пустой ввод, «!!!» и односимвольные @x не оцениваем — их нельзя подтвердить, а модель выдавала 1M
+  if(len < 4){ const ru=S.lang==='ru';
+    return { priceTON:0, score:0, invalid:true, cat:'username', display:'@'+(name||'—'),
+      factors:[{i:'⚠️',k:'fUnameShort',v:(ru?'минимум 4 символа':'min 4 characters'),cls:'minus'}] }; }
   const lenMap = {1:40,2:35,3:30,4:24,5:18,6:13,7:9,8:6,9:4,10:3};
   let lenScore = lenMap[len] !== undefined ? lenMap[len] : 2;
   // brand / premium dictionary words are desirable regardless of length — don't let length sink them
@@ -2346,6 +2356,10 @@ function scoreNumber(raw){
   const uniq = new Set(d.split('')).size;
   const lead = (d.match(/^0+/)||[''])[0].length;
   const trail = (d.match(/0+$/)||[''])[0].length;
+  // максимальная серия одинаковых цифр в любой позиции + признак, что она у хвоста
+  let maxRun=1; { let cur=1; for(let i=1;i<d.length;i++){ if(d[i]===d[i-1]){ cur++; if(cur>maxRun)maxRun=cur; } else cur=1; } }
+  let tailRun=1; for(let i=d.length-1;i>0 && d[i]===d[i-1];i--) tailRun++;
+  const runAtTail = (tailRun===maxRun && maxRun>=3);
 
   if(isAllSame(d)){ s+=60; if(d.length>=7) s+=20; F.push({i:'🔁',k:'fNumAllSame',v:'+'+(d.length>=7?80:60),cls:'plus'}); }
   else {
@@ -2353,10 +2367,13 @@ function scoreNumber(raw){
     if(asc.includes(d)||desc.includes(d)){ s+=45; F.push({i:'📈',k:'fNumSeq',v:'+45',cls:'plus'}); }
     else if(isRepeatedBlock(d)){ s+=25; F.push({i:'🔂',k:'fRepeat',v:'+25',cls:'plus'}); }
     else if(isPalindrome(d)){ s+=30; F.push({i:'🪞',k:'fPalindrome',v:'+30',cls:'plus'}); }
-    else if(/^(\d)\1(\d)\2/.test(d)){ s+=20; F.push({i:'👯',k:'fNumPair',v:'+20',cls:'plus'}); }
+    else if(maxRun<4 && /^(\d)\1(\d)\2/.test(d)){ s+=20; F.push({i:'👯',k:'fNumPair',v:'+20',cls:'plus'}); }
   }
   if(lead>0){ const b=Math.min(28,lead*5); s+=b; F.push({i:'🔻',k:'fNumSmall',v:'+'+b,cls:'plus'}); }
   if(trail>0 && lead===0){ const b=Math.min(24,trail*4); s+=b; F.push({i:'⭕',k:'fNumRound',v:'+'+b,cls:'plus'}); }
+  // Серия одинаковых цифр в ЛЮБОЙ позиции (рынок ценит 88888, 99999 и т.п.). Хвостовая серия — премиальнее.
+  if(maxRun>=3 && !isAllSame(d)){ let b=Math.min(55,(maxRun-2)*12); if(runAtTail) b=Math.min(62,b+16);
+    s+=b; F.push({i:'🎯',k:'fNumRun',v:'+'+b,cls:'plus'}); }
   const ub=(8-Math.min(8,uniq))*3; if(ub>0){ s+=ub; }
   if(d.replace(/^0+/,'').length<=2){ s+=10; F.push({i:'✨',k:'fNumShort',v:'+10',cls:'plus'}); }
 
@@ -2657,14 +2674,18 @@ function fmtAgo(ms){ const s=Math.max(0,(Date.now()-ms)/1000);
   const h=Math.floor(mi/60); if(h<24) return h+t('flrHr'); return Math.floor(h/24)+t('flrDay'); }
 function updateFloorBadge(){
   const live=FLOORS_SRC==='live', cache=FLOORS_SRC==='cache', demo=!live&&!cache;
-  document.querySelectorAll('.flr-badge').forEach(b=>{ b.style.display=demo?'none':'inline-flex'; });
-  if(demo) return;
+  const rf='<svg class="flr-rf" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 5v4h-4M20 12a8 8 0 0 1-13.7 5.6M4 19v-4h4"/></svg>';
+  if(demo){
+    // НЕ прячем: демо-цены — примерные, пользователь не должен принять их за рыночные
+    const html='<span class="flr-dot" style="background:#D9483B"></span><span>'+t('flrDemo')+'</span>'+rf;
+    document.querySelectorAll('.flr-badge').forEach(b=>{ b.style.display='inline-flex'; b.classList.add('flr-demo'); b.innerHTML=html; });
+    return;
+  }
   const dot=live?'#1F7A52':'#E89B3C';
   const label=live?t('flrLive'):t('flrCache');
   const ago=FLOORS_TS?(' · '+fmtAgo(FLOORS_TS)):'';
-  const html='<span class="flr-dot" style="background:'+dot+'"></span><span>'+label+ago+'</span>'+
-    '<svg class="flr-rf" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6M20 5v4h-4M20 12a8 8 0 0 1-13.7 5.6M4 19v-4h4"/></svg>';
-  document.querySelectorAll('.flr-badge').forEach(b=>{ b.innerHTML=html; });
+  const html='<span class="flr-dot" style="background:'+dot+'"></span><span>'+label+ago+'</span>'+rf;
+  document.querySelectorAll('.flr-badge').forEach(b=>{ b.style.display='inline-flex'; b.classList.remove('flr-demo'); b.innerHTML=html; });
 }
 function loadFloorCache(){
   try{ const r=JSON.parse(localStorage.getItem('monet_floors')||'null');
@@ -2819,12 +2840,14 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
      1) Флоры фонов из Portals ГЛОБАЛЬНЫЕ (min по всем 116 коллекциям) — как per-collection данные это мусор.
      2) Редкость фона рынком НЕ оплачивается (фоны 0.82% стоят как фоны 1.4%).
      3) Премию в реальных сделках несут только: Black (~2x), Onyx Black (~1.8x), нейтральные (~1.12x). */
-  const BD_PREM={'black':2.0,'onyx black':1.8,'ivory white':1.12,'roman silver':1.12,'platinum':1.12};
+  // Премии по СДЕЛКАМ, а не по аску: аск Black ~9× флора, но реальные сделки ~1.2-1.3×.
+  // Плоские ×2.0 удваивали рядовой экземпляр (флор фона 4.8 не может удвоить 30-GRAM подарок).
+  const BD_PREM={'black':1.18,'onyx black':1.14,'ivory white':1.04,'roman silver':1.04,'platinum':1.04};
   const bdMult=BD_PREM[String(bName||'').toLowerCase()]||1;
   let fBackEff=parseFloat(fBack);
   if(!(fBackEff>0) || fBackEff<base*1.15 || fBackEff>base*50) fBackEff=0;   // ниже флора коллекции = данных нет; в 50 раз выше = мусор
   // ===== Monet Valuation v5: 3-estimator ensemble + R²-trusted rarity + demand tilt + self-tuning calibration =====
-  const CAL=1.10, RECON_K=4, COMBO_EXP=0.15, COMBO_CAP=1.6, TRAIT_CAP=6, GLOBAL_CAP=8;
+  const CAL=1.03, RECON_K=4, COMBO_EXP=0.15, COMBO_CAP=1.6, TRAIT_CAP=6, GLOBAL_CAP=8;
   let curve=null; try{ curve=col.slug&&TRAITS_CACHE[col.slug]&&TRAITS_CACHE[col.slug].curve; }catch(e){}
   if(!curve) curve={a:Math.log(Math.max(1,base)*0.683), b:0.55, n:0, r2:0};
   const trust=Math.max(0.25, Math.min(1, curve.r2||0));              // B: trust the curve as much as rarity predicts here
@@ -2840,7 +2863,10 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
       const wF=sup/(sup+RECON_K);                                    // many listings -> trust floor; thin -> lean on curve
       // a listed floor is a real ask you can actually pay -> never inflate it via the rarity prior;
       // only correct a thin/overpriced floor *downward* when rarity says it should be cheaper.
-      const v=(rvRaw>0 && rvRaw<fl)?(wF*fl+(1-wF)*rvRaw):fl;
+      let v=(rvRaw>0 && rvRaw<fl)?(wF*fl+(1-wF)*rvRaw):fl;
+      // Тонкий флор из 1-2 листингов, в разы выше коллекции — это единичные аски, а не рынок
+      // (реальные сделки на Tonnel в разы ниже). Тянем к базе тем сильнее, чем меньше листингов.
+      if(sup>0 && sup<=3 && v>base*2){ const wThin=sup/(sup+3); v=base+(v-base)*wThin; }
       return {v:Math.max(base,v), n:sup, listed:true, floor:fl, share, ic, k:kFloor, disp:Math.round(fl)+' GRAM'};
     }
     const rv=base + trust*(rvRaw-base);                              // r2-weighted premium for unlisted traits
@@ -2892,7 +2918,10 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     let ath=0; try{ const mm=Object.values(MK.data()).flat().find(x=>x.name===col.n); if(mm&&mm.ath) ath=mm.ath; }catch(e){}
     const hardCap=Math.max(base*GLOBAL_CAP, ath>0?ath*1.2:0);
     price=Math.round(price); if(hardCap>0&&price>hardCap){ price=Math.round(hardCap); F.push({i:'🧮',k:'fAttrCap',v:'cap',cls:'neutral'}); }
-    const lf=items.filter(o=>o.listed).map(o=>o.floor); if(lf.length){ price=Math.max(price, Math.round(Math.max.apply(null,lf))); }
+    // Нижняя граница = реальный аск, НО тонкий флор из 1-2 листингов в разы выше коллекции
+    // не считаем твёрдой границей (это единичный аск, а не рынок — реально продаётся ниже).
+    const lf=items.filter(o=>o.listed && !(o.n>0 && o.n<=3 && o.floor>base*2)).map(o=>o.floor);
+    if(lf.length){ price=Math.max(price, Math.round(Math.max.apply(null,lf))); }
     // confidence: data availability + estimator disagreement
     const sumN=items.reduce((a,o)=>a+(o.n||0),0); const listedFrac=items.filter(o=>o.listed).length/items.length;
     fsd=Math.max(0.05, Math.min(0.36, 0.05+0.20*(1-listedFrac)+0.15/Math.sqrt(1+sumN)+0.25*disagree));
@@ -3265,11 +3294,11 @@ function onInputChange(){
     let v=m.value.replace(/^@+/,'').toLowerCase();
     const clean=v.replace(/[^a-z0-9_]/g,'');
     if(v!==clean){ m.value=clean; v=clean; }
-    if(clean.length<3){ hint.className='hint dim'; hint.textContent=t('hintMin'); }
+    if(clean.length<4){ hint.className='hint dim'; hint.textContent=t('hintMin'); }
     else { hint.className='hint ok'; hint.textContent=t('hintOk'); ok=true; }
   } else if(curCat==='numbers'){
     let v=m.value.replace(/\D/g,'').slice(0,8); m.value=v;
-    if(!v.length){ hint.className='hint dim'; hint.textContent=t('hintNum'); }
+    if(v.length<8){ hint.className='hint dim'; hint.textContent=t('hintNum'); }
     else { hint.className='hint ok'; hint.textContent=t('hintNumOk'); ok=true; }
   } else {
     // gifts / stickers — always evaluable (collection has a default)
@@ -3311,6 +3340,10 @@ function doEvaluate(){
   try{ track('start_appraisal'); track('appraise_start', curCat); }catch(e){}
   if(!checkDaily()) return;
   const r=valueFor(curCat,'e_'); r.cat=curCat; r.ts=Date.now();
+  if(r && r.invalid){ try{ track('appraise_invalid', curCat); }catch(e){}
+    const el=document.getElementById('result');
+    if(el) el.innerHTML='<div class="eval-invalid">⚠️ '+escapeHTML((r.factors&&r.factors[0]&&r.factors[0].v)||'invalid')+'</div>';
+    return; }
   if(!r||!(r.priceTON>0)){ try{ track('appraise_error', curCat); }catch(e){} }
   lastResult=r;
   bumpDaily();
@@ -3714,7 +3747,9 @@ function guidanceInner(r){
     if(!hasMkt){ bits=[ru?'данных рынка нет':'market data unavailable']; }
     else {
       if(mins>=0){ const fresh = mins<1?(ru?'обновлено только что':'updated just now'):(ru?'обновлено ':'updated ')+mins+(ru?' мин назад':' min ago'); bits.push((stale?(ru?'кэш · ':'cached · '):'')+fresh); }
-      if(r._scanned>0) bits.push(r._scanned+(ru?' лотов просканировано':' listings scanned'));
+      if(r._scanned>0){ const n=r._scanned;
+        const ruLot=(n%10===1&&n%100!==11)?' лот':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?' лота':' лотов';
+        bits.push(ru?(n+ruLot+' просканировано'):(n+' listing'+(n===1?'':'s')+' scanned')); }
     }
     if(bits.length) trust='<div class="g-trust"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg> '+bits.join(' · ')+'</div>';
   }
@@ -3885,6 +3920,7 @@ async function identifyByPhoto(file){
   const url=URL.createObjectURL(file);
   box.innerHTML=photoCard(url, t('photoAnalyzing'), '', '<div class="spinner"></div>');
   if(navigator.onLine===false){ box.innerHTML=photoCard(url, t('photoOffline'), ''); return; }
+  if(!proxyURL()){ box.innerHTML=photoCard(url, t('photoNeedProxy'), ''); return; }   // без прокси прямой запрос в Anthropic = CORS+401
   let media=file.type && /^image\//.test(file.type) ? file.type : 'image/jpeg';
   let b64; try{ b64=await fileToBase64(file); }catch(e){ box.innerHTML=photoCard(url, t('photoFail'), ''); return; }
   const cat=curCat;
@@ -4022,7 +4058,7 @@ function doCompare(){
   const col=(r,win)=>'<div class="cmp-col'+(win?' win':'')+'"><div class="ca">'+escapeHTML(r.display)+'</div><div class="cp">'+fmtTON(r.priceTON)+' GRAM</div><div class="ct">'+fmtFiat(r.priceTON)+' · '+t(tierOf(r.priceTON).k)+'</div></div>';
   let verdict;
   if(Math.abs(a.priceTON-b.priceTON)/Math.max(a.priceTON,b.priceTON)<0.03) verdict=t('cmpEqual');
-  else verdict='<b>'+escapeHTML((aWin?a:b).display)+'</b> '+t('cmpDearer')+' '+ratio.toFixed(ratio<10?1:0)+(S.lang==='ru'?'×':'')+' '+(S.lang==='ru'?t('cmpTimes'):'');
+  else verdict='<b>'+escapeHTML((aWin?a:b).display)+'</b> '+t('cmpDearer')+' '+ratio.toFixed(ratio<10?1:0)+'×';
   document.getElementById('cmpResult').innerHTML='<div class="cmp-grid">'+col(a,aWin)+col(b,!aWin)+'</div><div class="cmp-verdict">'+verdict+'</div>';
 }
 
@@ -4612,6 +4648,7 @@ function bumpDaily(){ if(proActive())return; if(S.dail.date!==todayStr())S.dail=
 ======================================================================== */
 let evalMode='single';
 function setView(v){
+  if(!document.getElementById('view-'+v)) v='home';   // неизвестный экран -> дом, а не пустота
   curView=v;
   try{ document.body.setAttribute('data-view',v); }catch(e){}
   try{ const dc=document.getElementById('globalDisclaimer'); if(dc) dc.style.display=(v==='evaluate')?'':'none'; }catch(e){}
@@ -4861,6 +4898,12 @@ window.MK = (function(){
     const L=list();
     const lc=document.getElementById('mk-listcount'); if(lc) lc.textContent=L.length+' '+(cat==='gifts'?t('mkColls'):t('mkPositions'));
     const sl=document.getElementById('mk-sortlbl'); if(sl) sl.textContent=t(SORTLBL[sortKey]||'sortCap');
+    const demo=(typeof FLOORS_SRC!=='undefined' && FLOORS_SRC==='demo');
+    const mb=document.getElementById('mk-demobanner');
+    if(mb){ if(demo && cat==='gifts'){ mb.style.display='block'; mb.innerHTML=(S.lang==='ru'
+        ?'⚠️ Демо-цены — не рыночные. Нет связи с сервером, показаны примерные значения.'
+        :'⚠️ Demo prices — not live. No server connection; approximate values shown.'); }
+      else mb.style.display='none'; }
     const box=document.getElementById('mk-list'); if(box) box.innerHTML=L.map((a,i)=>itemHTML(a,i)).join('')||'<div class="mc-empty">'+t('mkEmpty')+'</div>'; }
 
   function heldQty(name){ const list=(typeof S==='object'&&S.portfolio)||[]; let q=0; list.forEach(h=>{ if(h.display===name) q+=(h.qty||1); }); return q; }
@@ -5346,6 +5389,8 @@ window.PF = (function(){
   }catch(e){} }
   function doSell(){ const h=(S.portfolio||[])[sellIdx]; if(!h){ closeAdd(); return; }
     const unit=parseFloat((document.getElementById('pf-sell-in').value||'').replace(/[^\d.]/g,''))||0;
+    if(!(unit>0)){ try{ if(tg&&tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error'); }catch(e){}
+      toast(S.lang==='ru'?'Укажите цену продажи':'Enter a sale price'); return; }   // мусор/0 не пишем в журнал
     const q=Math.max(1,Math.min(h.qty||1,sellQty||1));
     const v=Math.round(unit*q);
     const basis=Math.round((h.buy!=null?h.buy:h.priceTON||0)*q);
@@ -5369,7 +5414,11 @@ window.PF = (function(){
     document.getElementById('pf-scrim').classList.add('open');
     setTimeout(()=>{const el=document.getElementById('pf-wd-in');if(el){el.focus();try{el.select();}catch(e){}}},80); }
   function doWithdraw(){ const v=parseFloat((document.getElementById('pf-wd-in').value||'').replace(/[^\d.]/g,''))||0;
-    S.cash=Math.max(0,(S.cash||0)-v); save(); closeAdd(); render(); toast(t('pfWithdrawn')); }
+    const bal=Math.round(S.cash||0);
+    if(!(v>0)){ toast(S.lang==='ru'?'Укажите сумму':'Enter an amount'); return; }
+    const actual=Math.min(v,bal);   // нельзя вывести больше баланса
+    S.cash=Math.max(0,bal-actual); save(); closeAdd(); render();
+    toast(t('pfWithdrawn')+' '+grp(actual)+' GRAM'); }
   function details(i){ const h=(S.portfolio||[])[i]; if(!h) return;
     const base=String(h.display).split(' #')[0];
     let m=null; try{ m=Object.values(MK.data()).flat().find(x=>x.name===h.display||x.name===base); }catch(e){}
