@@ -197,6 +197,8 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .gift-tile .gt-f{font-size:10px;font-weight:700;color:var(--ton)}
 .flr-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:var(--txt-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;margin:2px 2px 11px;cursor:pointer;user-select:none}
 .flr-badge.flr-demo{color:#fff;background:#D9483B;border-color:#D9483B}
+.factor.total{border-top:1px solid var(--line);margin-top:4px;padding-top:10px;font-weight:800}
+.factor.total .fv{color:var(--txt);font-size:15px}
 .eval-invalid{margin:14px 2px;padding:14px 16px;border-radius:13px;background:var(--surface-2);border:1px solid var(--line);color:var(--txt-2);font-size:13.5px;font-weight:600;text-align:center}
 .mk-delta.flat{color:var(--txt-3)}
 .flr-badge:active{background:var(--bg2)}
@@ -1673,7 +1675,7 @@ header{border-bottom:0;background:none}
         <p data-i18n="tagline"></p>
       </div>
     </div>
-    <button class="hbell" id="hbell" onclick="ALERTS.open()" aria-label="alerts"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="hbell-badge" id="hbell-badge"></span></button>
+    <button class="hbell" id="hbell" onclick="ALERTS.open()" aria-label="Уведомления и алерты"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="hbell-badge" id="hbell-badge"></span></button>
   </header>
 
   <!-- ============ EVALUATE (+ compare toggle) ============ -->
@@ -1857,7 +1859,7 @@ header{border-bottom:0;background:none}
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
     <h2 id="drawerTitle"></h2>
-    <button class="hbtn" onclick="closeDrawer()">✕</button>
+    <button class="hbtn" aria-label="Закрыть" onclick="closeDrawer()">✕</button>
   </div>
   <div class="dr-top">
     <nav class="dr-nav">
@@ -1923,7 +1925,7 @@ header{border-bottom:0;background:none}
 </div>
 <div class="modal-scrim" id="premiumModal" onclick="if(event.target===this)closePremium()">
   <div class="modal">
-    <span class="close" onclick="closePremium()">✕</span>
+    <span class="close" role="button" tabindex="0" aria-label="Закрыть" onclick="closePremium()">✕</span>
     <div class="crown"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg></div>
     <h2 data-i18n="pmTitle"></h2>
     <p class="msub" data-i18n="pmSub"></p>
@@ -2071,7 +2073,7 @@ ru:{
   tierStandard:'Standard', tierBronze:'Novice', tierSilver:'Expert', tierGold:'Elite', tierPlatinum:'Platinum', tierBlack:'Black',
   cardTitle:'Моя карта', cardHolder:'ДЕРЖАТЕЛЬ', cardBalance:'Капитал', cardTap:'нажми, чтобы перевернуть', cardPerks:'Привилегии',
   rwTitle:'Награды', rwStreak:'дней подряд', rwPoints:'очков Monet', rwToReward:'до награды', rwRedeem:'Обменять на Prima', rwGotPremium:'Prima разблокирован!', rwDaily:'Ежедневный бонус', rwHave:'Prima активен',
-  cvTitle:'Конвертер', cvSwap:'Поменять', cvRate:'курс', cvMid:'Средний рыночный курс', cvSearch:'Поиск валюты', cvAmount:'Сумма', cvConverted:'Получится', cvAll:'Валюты', cvCrypto:'Криптовалюты', cvFiat:'Валюты', myCard:'Карта', conv:'Конвертер',
+  cvTitle:'Конвертер', cvSwap:'Поменять', cvRate:'курс', cvMid:'Средний рыночный курс', cvSearch:'Поиск валюты', cvAmount:'Сумма', cvConverted:'Получится', cvAll:'Валюты', cvCrypto:'Криптовалюты', cvFiat:'Валюты', myCard:'Статус', conv:'Конвертер',
   evaluate:'Оценить', compare:'Сравнить',
   premiumActive:'Prima активен — лимиты сняты',
   catUsername:'Имя', catNumbers:'Номер', catGifts:'Подарок', catStickers:'Стикер',
@@ -2178,7 +2180,7 @@ en:{
   tierStandard:'Standard', tierBronze:'Novice', tierSilver:'Expert', tierGold:'Elite', tierPlatinum:'Platinum', tierBlack:'Black',
   cardTitle:'My card', cardHolder:'CARDHOLDER', cardBalance:'Net worth', cardTap:'tap to flip', cardPerks:'Perks',
   rwTitle:'Rewards', rwStreak:'day streak', rwPoints:'Monet points', rwToReward:'to reward', rwRedeem:'Redeem for Prima', rwGotPremium:'Prima unlocked!', rwDaily:'Daily bonus', rwHave:'Prima active',
-  cvTitle:'Converter', cvSwap:'Swap', cvRate:'rate', cvMid:'Mid-market rate', cvSearch:'Search currency', cvAmount:'Amount', cvConverted:'Converted to', cvAll:'Currencies', cvCrypto:'Crypto', cvFiat:'Currencies', myCard:'Card', conv:'Converter',
+  cvTitle:'Converter', cvSwap:'Swap', cvRate:'rate', cvMid:'Mid-market rate', cvSearch:'Search currency', cvAmount:'Amount', cvConverted:'Converted to', cvAll:'Currencies', cvCrypto:'Crypto', cvFiat:'Currencies', myCard:'Status', conv:'Converter',
   evaluate:'Evaluate', compare:'Compare',
   premiumActive:'Prima active — limits removed',
   catUsername:'Name', catNumbers:'Number', catGifts:'Gift', catStickers:'Sticker',
@@ -2267,7 +2269,8 @@ I18N.ru.linkGo='Оценить'; I18N.en.linkGo='Value it';
 I18N.ru.linkParsing='Читаю подарок…'; I18N.en.linkParsing='Reading the gift…';
 I18N.ru.linkBad='Не похоже на ссылку t.me/nft/…'; I18N.en.linkBad='Not a t.me/nft/… link';
 I18N.ru.linkFail='Не удалось прочитать подарок — выбери вручную'; I18N.en.linkFail='Couldn\u2019t read the gift — pick manually';
-I18N.ru.linkNoCol='Коллекции нет в каталоге'; I18N.en.linkNoCol='Collection not in catalogue';
+I18N.ru.linkFloorOnly='Оценка по флору · трейты уточни вручную'; I18N.en.linkFloorOnly='Floor-based · set traits manually';
+I18N.ru.linkNoCol='Коллекции нет в каталоге — выбери вручную ниже'; I18N.en.linkNoCol='Collection not in catalogue — pick it below';
 I18N.ru.linkOk='Распознано'; I18N.en.linkOk='Recognised';
 I18N.ru.stStarsD='Дублировать цены в звёздах Telegram'; I18N.en.stStarsD='Also show prices in Telegram Stars';
 I18N.ru.stDefaultD='Какая вкладка открывается при запуске'; I18N.en.stDefaultD='Which tab opens on launch';
@@ -2309,13 +2312,13 @@ function scoreUsername(raw){
   // Валидация: пустой ввод, «!!!» и односимвольные @x не оцениваем — их нельзя подтвердить, а модель выдавала 1M
   if(len < 4){ const ru=S.lang==='ru';
     return { priceTON:0, score:0, invalid:true, cat:'username', display:'@'+(name||'—'),
-      factors:[{i:'warn',k:'fUnameShort',v:(ru?'минимум 4 символа':'min 4 characters'),cls:'minus'}] }; }
+      factors:[{i:'⚠️',k:'fUnameShort',v:(ru?'минимум 4 символа':'min 4 characters'),cls:'minus'}] }; }
   const lenMap = {1:40,2:35,3:30,4:24,5:18,6:13,7:9,8:6,9:4,10:3};
   let lenScore = lenMap[len] !== undefined ? lenMap[len] : 2;
   // brand / premium dictionary words are desirable regardless of length — don't let length sink them
   if(BRANDS.has(name)) lenScore = Math.max(lenScore, 28);
   else if(PREMIUM_WORDS.has(name)) lenScore = Math.max(lenScore, 20);
-  F.push({i:'ruler',k:'fLen',v:t('fLenV')(len),cls:len<=5?'plus':'neutral'});
+  F.push({i:'📏',k:'fLen',v:t('fLenV')(len),cls:len<=5?'plus':'neutral'});
 
   const lettersOnly = /^[a-z]+$/.test(name);
   const digitsOnly = /^[0-9]+$/.test(name);
@@ -2328,21 +2331,21 @@ function scoreUsername(raw){
   else if(COMMON.has(name)){ wordScore=20; wk='fWordCommon'; wcls='plus'; }
   else if(lettersOnly && pronounceable(name)){ wordScore=10; wk='fPronounce'; wcls='plus'; }
   else if(hasDigit && /[a-z]/.test(name)){ wordScore=4; wk='fMixed'; wcls='minus'; }
-  if(!digitsOnly) F.push({i:wcls==='plus'?'spark':(wcls==='minus'?'warn':'dot'),k:wk,v:'+'+wordScore,cls:wcls});
+  if(!digitsOnly) F.push({i:wcls==='plus'?'✨':(wcls==='minus'?'⚠️':'•'),k:wk,v:'+'+wordScore,cls:wcls});
 
   let pat=0;
-  if(isAllSame(name)){ pat=20; F.push({i:'repeat',k:'fAllSame',v:'+20',cls:'plus'}); }
-  else if(isPalindrome(name)){ pat=15; F.push({i:'mirror',k:'fPalindrome',v:'+15',cls:'plus'}); }
-  else if(isRepeatedBlock(name)){ pat=10; F.push({i:'repeat',k:'fRepeat',v:'+10',cls:'plus'}); }
-  else if(hasDoubleRun(name)){ pat=6; F.push({i:'repeat',k:'fDoubleRun',v:'+6',cls:'plus'}); }
+  if(isAllSame(name)){ pat=20; F.push({i:'🔁',k:'fAllSame',v:'+20',cls:'plus'}); }
+  else if(isPalindrome(name)){ pat=15; F.push({i:'🪞',k:'fPalindrome',v:'+15',cls:'plus'}); }
+  else if(isRepeatedBlock(name)){ pat=10; F.push({i:'🔂',k:'fRepeat',v:'+10',cls:'plus'}); }
+  else if(hasDoubleRun(name)){ pat=6; F.push({i:'🔂',k:'fDoubleRun',v:'+6',cls:'plus'}); }
 
   let bonus=0;
-  if(len<=2){ const sb=len===1?18:10; bonus+=sb; F.push({i:'rare',k:'fShortRare',v:'+'+sb,cls:'plus'}); }
-  if(BRANDS.has(name)){ bonus+=20; F.push({i:'brand',k:'fWordBrand',v:'+20',cls:'plus'}); }
-  if(lettersOnly && !hasUnder){ bonus+=5; F.push({i:'letters',k:'fLettersOnly',v:'+5',cls:'plus'}); }
-  if((BRANDS.has(name)||PREMIUM_WORDS.has(name)||COMMON.has(name)) && len<=5){ bonus+=5; F.push({i:'gem',k:'fShortDict',v:'+5',cls:'plus'}); }
+  if(len<=2){ const sb=len===1?18:10; bonus+=sb; F.push({i:'💠',k:'fShortRare',v:'+'+sb,cls:'plus'}); }
+  if(BRANDS.has(name)){ bonus+=20; F.push({i:'🏆',k:'fWordBrand',v:'+20',cls:'plus'}); }
+  if(lettersOnly && !hasUnder){ bonus+=5; F.push({i:'🔤',k:'fLettersOnly',v:'+5',cls:'plus'}); }
+  if((BRANDS.has(name)||PREMIUM_WORDS.has(name)||COMMON.has(name)) && len<=5){ bonus+=5; F.push({i:'💎',k:'fShortDict',v:'+5',cls:'plus'}); }
   let digitFlair=0;
-  if(digitsOnly){ const ns=scoreNumber(name); digitFlair=Math.round(ns.score*0.25); bonus+=digitFlair; F.push({i:'digits',k:'fDigitsOnly',v:'+'+digitFlair,cls:'plus'}); }
+  if(digitsOnly){ const ns=scoreNumber(name); digitFlair=Math.round(ns.score*0.25); bonus+=digitFlair; F.push({i:'🔢',k:'fDigitsOnly',v:'+'+digitFlair,cls:'plus'}); }
 
   const score = Math.max(0,Math.min(100, lenScore+wordScore+pat+bonus));
   const priceTON = mapLog(score, 8, 1000000, 1.0);
@@ -2362,21 +2365,21 @@ function scoreNumber(raw){
   let tailRun=1; for(let i=d.length-1;i>0 && d[i]===d[i-1];i--) tailRun++;
   const runAtTail = (tailRun===maxRun && maxRun>=3);
 
-  if(isAllSame(d)){ s+=60; if(d.length>=7) s+=20; F.push({i:'repeat',k:'fNumAllSame',v:'+'+(d.length>=7?80:60),cls:'plus'}); }
+  if(isAllSame(d)){ s+=60; if(d.length>=7) s+=20; F.push({i:'🔁',k:'fNumAllSame',v:'+'+(d.length>=7?80:60),cls:'plus'}); }
   else {
     const asc='0123456789', desc='9876543210';
-    if(asc.includes(d)||desc.includes(d)){ s+=45; F.push({i:'trendup',k:'fNumSeq',v:'+45',cls:'plus'}); }
-    else if(isRepeatedBlock(d)){ s+=25; F.push({i:'repeat',k:'fRepeat',v:'+25',cls:'plus'}); }
-    else if(isPalindrome(d)){ s+=30; F.push({i:'mirror',k:'fPalindrome',v:'+30',cls:'plus'}); }
-    else if(maxRun<4 && /^(\d)\1(\d)\2/.test(d)){ s+=20; F.push({i:'pair',k:'fNumPair',v:'+20',cls:'plus'}); }
+    if(asc.includes(d)||desc.includes(d)){ s+=45; F.push({i:'📈',k:'fNumSeq',v:'+45',cls:'plus'}); }
+    else if(isRepeatedBlock(d)){ s+=25; F.push({i:'🔂',k:'fRepeat',v:'+25',cls:'plus'}); }
+    else if(isPalindrome(d)){ s+=30; F.push({i:'🪞',k:'fPalindrome',v:'+30',cls:'plus'}); }
+    else if(maxRun<4 && /^(\d)\1(\d)\2/.test(d)){ s+=20; F.push({i:'👯',k:'fNumPair',v:'+20',cls:'plus'}); }
   }
-  if(lead>0){ const b=Math.min(28,lead*5); s+=b; F.push({i:'down',k:'fNumSmall',v:'+'+b,cls:'plus'}); }
-  if(trail>0 && lead===0){ const b=Math.min(24,trail*4); s+=b; F.push({i:'round',k:'fNumRound',v:'+'+b,cls:'plus'}); }
+  if(lead>0){ const b=Math.min(28,lead*5); s+=b; F.push({i:'🔻',k:'fNumSmall',v:'+'+b,cls:'plus'}); }
+  if(trail>0 && lead===0){ const b=Math.min(24,trail*4); s+=b; F.push({i:'⭕',k:'fNumRound',v:'+'+b,cls:'plus'}); }
   // Серия одинаковых цифр в ЛЮБОЙ позиции (рынок ценит 88888, 99999 и т.п.). Хвостовая серия — премиальнее.
   if(maxRun>=3 && !isAllSame(d)){ let b=Math.min(55,(maxRun-2)*12); if(runAtTail) b=Math.min(62,b+16);
-    s+=b; F.push({i:'target',k:'fNumRun',v:'+'+b,cls:'plus'}); }
+    s+=b; F.push({i:'🎯',k:'fNumRun',v:'+'+b,cls:'plus'}); }
   const ub=(8-Math.min(8,uniq))*3; if(ub>0){ s+=ub; }
-  if(d.replace(/^0+/,'').length<=2){ s+=10; F.push({i:'spark',k:'fNumShort',v:'+10',cls:'plus'}); }
+  if(d.replace(/^0+/,'').length<=2){ s+=10; F.push({i:'✨',k:'fNumShort',v:'+10',cls:'plus'}); }
 
   const score=Math.max(0,Math.min(100,s));
   const floor=(typeof NUMBERS_FLOOR!=='undefined'&&NUMBERS_FLOOR>0)?NUMBERS_FLOOR:160;
@@ -2425,20 +2428,20 @@ const COLLECTIONS = {
     {id:'hypnolollipop', n:'Hypno Lollipop', floor:0, ic:'🍭', slug:'hypnolollipop'},
     {id:'bdaycandle', n:'B-Day Candle', floor:0, ic:'🕯️', slug:'bdaycandle'},
     {id:'bunnymuffin', n:'Bunny Muffin', floor:0, ic:'🧁', slug:'bunnymuffin'},
-    {id:'astralshard', n:'Astral Shard', floor:70, ic:'rare', slug:'astralshard'},
+    {id:'astralshard', n:'Astral Shard', floor:70, ic:'💠', slug:'astralshard'},
     {id:'flyingbroom', n:'Flying Broom', floor:0, ic:'🧹', slug:'flyingbroom'},
     {id:'crystalball', n:'Crystal Ball', floor:0, ic:'🔮', slug:'crystalball'},
     {id:'eternalcandle', n:'Eternal Candle', floor:0, ic:'🕯️', slug:'eternalcandle'},
     {id:'swisswatch', n:'Swiss Watch', floor:0, ic:'⌚', slug:'swisswatch'},
     {id:'gingercookie', n:'Ginger Cookie', floor:0, ic:'🍪', slug:'gingercookie'},
-    {id:'minioscar', n:'Mini Oscar', floor:0, ic:'brand', slug:'minioscar'},
+    {id:'minioscar', n:'Mini Oscar', floor:0, ic:'🏆', slug:'minioscar'},
     {id:'lolpop', n:'Lol Pop', floor:16, ic:'🍭', slug:'lolpop'},
     {id:'iongem', n:'Ion Gem', floor:590, ic:'🔷', slug:'iongem'},
     {id:'starnotepad', n:'Star Notepad', floor:0, ic:'📒', slug:'starnotepad'},
     {id:'lootbag', n:'Loot Bag', floor:0, ic:'💰', slug:'lootbag'},
     {id:'lovepotion', n:'Love Potion', floor:0, ic:'❤️', slug:'lovepotion'},
     {id:'toybear', n:'Toy Bear', floor:150, ic:'🧸', slug:'toybear'},
-    {id:'diamondring', n:'Diamond Ring', floor:98, ic:'gem', slug:'diamondring'},
+    {id:'diamondring', n:'Diamond Ring', floor:98, ic:'💎', slug:'diamondring'},
     {id:'sakuraflower', n:'Sakura Flower', floor:0, ic:'🌸', slug:'sakuraflower'},
     {id:'sleighbell', n:'Sleigh Bell', floor:0, ic:'🛷', slug:'sleighbell'},
     {id:'tophat', n:'Top Hat', floor:0, ic:'🎩', slug:'tophat'},
@@ -2490,7 +2493,7 @@ const COLLECTIONS = {
     {id:'instantramen', n:'Instant Ramen', floor:0, ic:'🍜', slug:'instantramen'},
     {id:'faithamulet', n:'Faith Amulet', floor:0, ic:'🧿', slug:'faithamulet'},
     {id:'moussecake', n:'Mousse Cake', floor:0, ic:'🍰', slug:'moussecake'},
-    {id:'blingbinky', n:'Bling Binky', floor:0, ic:'gem', slug:'blingbinky'},
+    {id:'blingbinky', n:'Bling Binky', floor:0, ic:'💎', slug:'blingbinky'},
     {id:'moneypot', n:'Money Pot', floor:0, ic:'💰', slug:'moneypot'},
     {id:'prettyposy', n:'Pretty Posy', floor:0, ic:'💐', slug:'prettyposy'},
     {id:'khabibspapakha', n:"Khabib's Papakha", floor:0, ic:'🧢', slug:'khabibspapakha'},
@@ -2526,40 +2529,6 @@ function refLink(url){
 function pfQuickAdd(i){ const g=(window._pfPicks||[])[i]; if(g&&window.PF){ PF.addAsset({cat:'gifts',display:g.name,priceTON:Math.round(g.price),qty:1}); } }
 let FLOORS_LIVE={}, FLOORS_COUNT={}, FLOORS_CH24={}, FLOORS_CH7={}, FLOORS_CH24_SRC='', FLOORS_SALE={}, FLOORS_SRC='demo', FLOORS_TS=0, NUMBERS_FLOOR=0;
 const STATIC_GIFT_FLOOR={}; COLLECTIONS.gifts.forEach(c=>{ STATIC_GIFT_FLOOR[c.id]=c.floor; });
-/* ===== unified Monet icon set: minimal line icons, inherit currentColor (green/gold from CSS) ===== */
-const ICO={
- warn:'<svg class="mi" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
- ruler:'<svg class="mi" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="2"/><path d="M7 8v3M12 8v4M17 8v3"/></svg>',
- spark:'<svg class="mi" viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/></svg>',
- repeat:'<svg class="mi" viewBox="0 0 24 24"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>',
- mirror:'<svg class="mi" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M8 7L4 12l4 5"/><path d="M16 7l4 5-4 5"/></svg>',
- rare:'<svg class="mi" viewBox="0 0 24 24"><path d="M12 2l4 4-4 4-4-4z"/><path d="M12 14l4 4-4 4-4-4z"/></svg>',
- brand:'<svg class="mi" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 5H4v2a3 3 0 0 0 3 3M17 5h3v2a3 3 0 0 1-3 3"/><path d="M10 20h4M12 14v6"/></svg>',
- letters:'<svg class="mi" viewBox="0 0 24 24"><path d="M3 19l5-14 5 14M4.5 14h7"/><path d="M21 19V9M21 12a3 3 0 1 0-3 3"/></svg>',
- gem:'<svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3l-1.5 6L12 21l4.5-12L15 3"/></svg>',
- digits:'<svg class="mi" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>',
- trendup:'<svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
- pair:'<svg class="mi" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20a6 6 0 0 1 12 0M10 20a6 6 0 0 1 12 0"/></svg>',
- down:'<svg class="mi" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M6 13l6 6 6-6"/></svg>',
- round:'<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>',
- target:'<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" class="mi-f"/></svg>',
- model:'<svg class="mi" viewBox="0 0 24 24"><path d="M5 3c0 6 14 6 14 12a5 5 0 0 1-10 0"/><path d="M19 21c0-6-14-6-14-12"/><path d="M7 7h10M7 17h10"/></svg>',
- palette:'<svg class="mi" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.3 0 2-.9 2-2 0-1.6 1.2-2 2.5-2H18a3 3 0 0 0 3-3c0-5-4-8-9-8"/><circle cx="8" cy="10" r="1.2" class="mi-f"/><circle cx="12" cy="7.5" r="1.2" class="mi-f"/><circle cx="16" cy="10" r="1.2" class="mi-f"/></svg>',
- pattern:'<svg class="mi" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 1-3.5 5.9"/><path d="M12 12a8 8 0 1 0 7 4"/></svg>',
- tag:'<svg class="mi" viewBox="0 0 24 24"><path d="M20.6 13.4 12 22l-9-9V3h10z"/><circle cx="7.5" cy="7.5" r="1.4" class="mi-f"/></svg>',
- combo:'<svg class="mi" viewBox="0 0 24 24"><path d="M10 3h4v4h4v4h-4v4h-4v-4H6V7h4z"/></svg>',
- chart:'<svg class="mi" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
- cal:'<svg class="mi" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="3"/><path d="M12 3v4"/><circle cx="9" cy="13" r="1.2" class="mi-f"/><circle cx="15" cy="13" r="1.2" class="mi-f"/></svg>',
- cap:'<svg class="mi" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h3M8 15h3M15 11v6M13.5 14h3"/></svg>',
- bulb:'<svg class="mi" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 1 3.6 10.8c-.6.5-.9 1.1-.9 1.7H9.3c0-.6-.3-1.2-.9-1.7A6 6 0 0 1 12 3"/></svg>',
- gift:'<svg class="mi" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12"/><path d="M12 9S10.5 3 8 3a2.5 2.5 0 0 0 0 6M12 9s1.5-6 4-6a2.5 2.5 0 0 1 0 6"/></svg>',
- at:'<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></svg>',
- hash:'<svg class="mi" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>',
- star:'<svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.4-5.8-3-5.8 3 1.1-6.4L2.6 9.4l6.5-.9z"/></svg>',
- shield:'<svg class="mi" viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9-8 11-4.6-2-8-6-8-11V5z"/></svg>',
- dot:'<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" class="mi-f"/></svg>'
-};
-function IC(k){ return (k&&ICO[k])?ICO[k]:(k||''); }
 function parseFloors(j, env){
   const floors={}, counts={}, meta={}, sales={}, ch24={}, ch7={};
   const E=(env&&typeof env==='object')?env:j;   // дельты лежат в конверте ответа, а не внутри floors
@@ -2598,7 +2567,7 @@ function mergeNewGiftCollections(map){
     if(!/^[a-z0-9]{3,}$/.test(k)) continue;            // slug-style keys only (skip mirrored "two word" names)
     if(have.has(k)) continue;
     const f=+map[k]; if(!(f>0)) continue;
-    arr.splice(otherIdx,0,{ id:k, n:(k.charAt(0).toUpperCase()+k.slice(1)), floor:Math.round(f*100)/100, ic:IC('gift'), slug:k, dyn:true });
+    arr.splice(otherIdx,0,{ id:k, n:(k.charAt(0).toUpperCase()+k.slice(1)), floor:Math.round(f*100)/100, ic:'🎁', slug:k, dyn:true });
     otherIdx++; have.add(k); added++;
   }
   if(added>0) _giftCatDirty=true;
@@ -2686,7 +2655,7 @@ function openLegal(tab){ const box=document.getElementById('legal-sheet'); if(!b
   const cur=tab||'terms';
   const sec=(arr)=>arr.map(o=>'<div class="lg-b"><b>'+escapeHTML(o[0])+'</b><p>'+escapeHTML(o[1])+'</p></div>').join('');
   const body = cur==='privacy'?sec(T.privacy) : cur==='contacts'?sec(T.contacts) : sec(T.terms);
-  box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></div><div class="nm"><b>'+T.title+'</b><span>'+T.sub+'</span></div><button class="x" onclick="closeLegal()">✕</button></div>'+
+  box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></div><div class="nm"><b>'+T.title+'</b><span>'+T.sub+'</span></div><button class="x" aria-label="Закрыть" onclick="closeLegal()">✕</button></div>'+
     '<div class="dtabs" style="padding:0;margin-bottom:12px">'+
       ['terms','privacy','contacts'].map((k,i)=>'<button class="'+(cur===k?'on':'')+'" onclick="openLegal(\''+k+'\')">'+T.tabs[i]+'</button>').join('')+
     '</div><div class="lg-body">'+body+'</div>';
@@ -2778,7 +2747,7 @@ function openNotifyCfg(){
   if(!hasProxy) warn='<div class="hint dim" style="color:var(--down);margin:10px 2px 0">'+t('ntfNoProxy')+'</div>';
   else if(!hasTg) warn='<div class="hint dim" style="color:var(--down);margin:10px 2px 0">'+t('ntfNoTg')+'</div>';
   document.getElementById('ntf-sheet').innerHTML=
-    '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('ntfTitle')+'</b><span>'+t('ntfSub')+'</span></div><button class="x" onclick="closeNotifyCfg()">✕</button></div>'+
+    '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('ntfTitle')+'</b><span>'+t('ntfSub')+'</span></div><button class="x" aria-label="Закрыть" onclick="closeNotifyCfg()">✕</button></div>'+
     '<div class="hint dim" style="margin:14px 2px 10px;line-height:1.5">'+t('ntfDesc')+'</div>'+
     '<div class="ntf-toggle" onclick="toggleNotify()"><div class="nt-l"><b>'+t('ntfToggle')+'</b><span>'+t('ntfToggleSub')+'</span></div><div class="nt-sw'+(on?' on':'')+'"><span></span></div></div>'+
     warn+
@@ -2909,15 +2878,15 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
   };
   const backItem=(function(){
     if(fBackEff>0){ const sup=parseFloat(sBack)||0; const v=Math.max(base*bdMult,fBackEff);
-      return {v:Math.max(base,v),n:sup,listed:true,floor:fBackEff,share:0,ic:'palette',k:'fBackFl',disp:Math.round(fBackEff)+' GRAM'}; }
-    if(bdMult>1) return {v:base*bdMult,n:0,listed:false,floor:0,share:0,ic:'palette',k:'fBackRare',disp:'\u00d7'+bdMult.toFixed(1)+(ru?' (фон)':' (backdrop)')};
+      return {v:Math.max(base,v),n:sup,listed:true,floor:fBackEff,share:0,ic:'🎨',k:'fBackFl',disp:Math.round(fBackEff)+' GRAM'}; }
+    if(bdMult>1) return {v:base*bdMult,n:0,listed:false,floor:0,share:0,ic:'🎨',k:'fBackRare',disp:'\u00d7'+bdMult.toFixed(1)+(ru?' (фон)':' (backdrop)')};
     return null; })();
-  const items=[ trait(rModel,fModel,sModel,'model','fModelFl','fModelRare'),
+  const items=[ trait(rModel,fModel,sModel,'🧬','fModelFl','fModelRare'),
                 backItem,
-                trait(rPat  ,fPat  ,sPat  ,'pattern','fPatFl'  ,'fPatRare',true) ].filter(Boolean);
+                trait(rPat  ,fPat  ,sPat  ,'🌀','fPatFl'  ,'fPatRare',true) ].filter(Boolean);
   let price, fsd;
   if(items.length){
-    F.push({i:'tag',k:'fGiftFloor',v:Math.round(base)+' GRAM',cls:'neutral'});
+    F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' GRAM',cls:'neutral'});
     items.forEach(o=>F.push({i:o.ic,k:o.k,v:o.disp,cls:'plus'}));
     const sorted=items.slice().sort((a,b)=>b.v-a.v);
     const anchor=sorted[0].v;
@@ -2935,24 +2904,24 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     const disagree=mean>0?sd/mean:0;                                 // estimators disagree -> less certain
     const wF0=0.30+0.40*liqF, wS0=0.40-0.30*liqF, wA0=0.30-0.10*liqF; // lean on floor; scarcity is a gentle add, not a multiplier
     let point=wF0*E_floor+wS0*E_scar+wA0*E_add;
-    if(comboEff>1.02){ F.push({i:'combo',k:'fCombo',v:'+'+Math.round(anchor*(comboEff-1))+' GRAM',cls:'plus'}); }
-    const calEff=1+(CAL-1)*(1-liqF); price=point*calEff; if(calEff>1.005) F.push({i:'trendup',k:'fMktCal',v:'+'+Math.round((calEff-1)*100)+'%',cls:'plus'});
+    if(comboEff>1.02){ F.push({i:'🧩',k:'fCombo',v:'+'+Math.round(anchor*(comboEff-1))+' GRAM',cls:'plus'}); }
+    const calEff=1+(CAL-1)*(1-liqF); price=point*calEff; if(calEff>1.005) F.push({i:'📈',k:'fMktCal',v:'+'+Math.round((calEff-1)*100)+'%',cls:'plus'});
     // C: live demand / listing-pressure tilt
     let tilt=1; try{ const mm=Object.values(MK.data()).flat().find(x=>x.name===col.n);
       if(mm){ const mom=Math.max(-0.06, Math.min(0.06,(mm.ch7||0)/100*0.4));
         let lp=0; if(mm.supply>0&&mm.listed>0){ const fr=mm.listed/mm.supply; lp=fr>0.15?-Math.min(0.05,(fr-0.15)*0.5):(fr<0.05?0.03:0); }
         tilt=Math.max(0.88, Math.min(1.12, 1+mom+lp)); } }catch(e){}
-    if(Math.abs(tilt-1)>0.02){ price*=tilt; F.push({i:'chart',k:'fTilt',v:(tilt>=1?'+':'')+Math.round((tilt-1)*100)+'%',cls:tilt>=1?'plus':'minus'}); }
+    if(Math.abs(tilt-1)>0.02){ price*=tilt; F.push({i:'📊',k:'fTilt',v:(tilt>=1?'+':'')+Math.round((tilt-1)*100)+'%',cls:tilt>=1?'plus':'minus'}); }
     // serial
     if(!isNaN(serial)&&serial>0){ const m=serialMult(serial,false);
       if(m>1.01){ price*=m; F.push({i:'#️⃣',k:'fLowSerial',v:'×'+m.toFixed(2),cls:'plus'}); } }
     // D: per-collection self-tuning calibration + measured track record (backtest)
     const cr=calRec(col.slug);
-    if(Math.abs(cr.m-1)>0.02){ price*=cr.m; F.push({i:'cal',k:'fCal',v:'×'+cr.m.toFixed(2),cls:'neutral'}); }
+    if(Math.abs(cr.m-1)>0.02){ price*=cr.m; F.push({i:'🤖',k:'fCal',v:'×'+cr.m.toFixed(2),cls:'neutral'}); }
     // 5: sanity clamp + lower bound
     let ath=0; try{ const mm=Object.values(MK.data()).flat().find(x=>x.name===col.n); if(mm&&mm.ath) ath=mm.ath; }catch(e){}
     const hardCap=Math.max(base*GLOBAL_CAP, ath>0?ath*1.2:0);
-    price=Math.round(price); if(hardCap>0&&price>hardCap){ price=Math.round(hardCap); F.push({i:'cap',k:'fAttrCap',v:'cap',cls:'neutral'}); }
+    price=Math.round(price); if(hardCap>0&&price>hardCap){ price=Math.round(hardCap); F.push({i:'🧮',k:'fAttrCap',v:'cap',cls:'neutral'}); }
     // Нижняя граница = реальный аск, НО тонкий флор из 1-2 листингов в разы выше коллекции
     // не считаем твёрдой границей (это единичный аск, а не рынок — реально продаётся ниже).
     const lf=items.filter(o=>o.listed && !(o.n>0 && o.n<=3 && o.floor>base*2)).map(o=>o.floor);
@@ -2961,9 +2930,9 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     const sumN=items.reduce((a,o)=>a+(o.n||0),0); const listedFrac=items.filter(o=>o.listed).length/items.length;
     fsd=Math.max(0.05, Math.min(0.36, 0.05+0.20*(1-listedFrac)+0.15/Math.sqrt(1+sumN)+0.25*disagree));
     if(cr.n>=3){ const meas=Math.max(0.04, Math.min(0.4, cr.e)); const w=Math.min(0.75, cr.n/8); fsd=(1-w)*fsd + w*meas;   // confidence becomes MEASURED as track record grows
-      accOut={n:cr.n, e:cr.e}; F.push({i:'target',k:'fMeasured',v:'±'+Math.round(cr.e*100)+'% · '+cr.n,cls:'neutral'}); }
+      accOut={n:cr.n, e:cr.e}; F.push({i:'🎯',k:'fMeasured',v:'±'+Math.round(cr.e*100)+'% · '+cr.n,cls:'neutral'}); }
   } else {
-    price=base; F.push({i:'tag',k:'fGiftFloor',v:Math.round(base)+' GRAM',cls:'neutral'});
+    price=base; F.push({i:'🏷️',k:'fGiftFloor',v:Math.round(base)+' GRAM',cls:'neutral'});
     if(!isNaN(serial)&&serial>0){ const m=serialMult(serial,true);
       const kk = serial<=10 ? 'fSerialTop' : 'fSerialGood';
       if(m>1.01){ price*=m; F.push({i:'#️⃣',k:kk,v:'×'+m.toFixed(2),cls:'plus'}); } }
@@ -2974,9 +2943,9 @@ function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, 
     // Type strengths follow real gift-market value order: MODEL drives price, then backdrop, then symbol.
     // база знаний: редкость фона рынком не оплачивается (премия только у Black/Onyx/нейтральных),
     // редкость узора без листингов — тоже («на узор в 90% случаев можно забить»)
-    const parts=[{m:rarityMult(rModel,1.0),i:'model',k:'fModel'},
-                 {m:bdMult,i:'palette',k:'fBackdrop'},
-                 {m:1,i:'pattern',k:'fPattern'}].sort((a,b)=>b.m-a.m);
+    const parts=[{m:rarityMult(rModel,1.0),i:'🧬',k:'fModel'},
+                 {m:bdMult,i:'🎨',k:'fBackdrop'},
+                 {m:1,i:'🌀',k:'fPattern'}].sort((a,b)=>b.m-a.m);
     let mult=parts[0].m; const addC=[0,0.45,0.28];
     for(let i=1;i<parts.length;i++) mult += Math.max(0, parts[i].m-1)*addC[i];
     mult=Math.min(mult, 6);   // hard cap on total trait premium for a single item
@@ -3139,7 +3108,8 @@ async function parseGiftLink(){
   const el=document.getElementById('e_link'), msg=document.getElementById('e_linkMsg'), btn=document.getElementById('e_linkBtn');
   if(!el) return; const v=(el.value||'').trim(); if(!v) return;
   const mm=v.match(/(?:t\.me\/nft\/)?([A-Za-z0-9_]+)-(\d+)/);
-  if(!mm){ if(msg){ msg.style.color='var(--down)'; msg.textContent=t('linkBad'); } return; }
+  try{ track('link_submitted'); }catch(e){}
+  if(!mm){ if(msg){ msg.style.color='var(--down)'; msg.textContent=t('linkBad'); } try{ track('evaluation_failed','badlink'); }catch(e){} return; }
   const base=proxyURL();
   if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=t('linkParsing'); }
   if(btn) btn.disabled=true;
@@ -3149,7 +3119,9 @@ async function parseGiftLink(){
   const slug=(d&&d.ok?d.slug:mm[1].toLowerCase().replace(/[^a-z0-9]/g,''));
   const num=(d&&d.ok?d.num:mm[2]);
   const col=(COLLECTIONS.gifts||[]).find(c=>(c.slug||String(c.n).toLowerCase().replace(/[^a-z0-9]/g,''))===slug);
-  if(!col){ if(msg){ msg.style.color='var(--down)'; msg.textContent=t('linkNoCol'); } return; }
+  if(!col){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=t('linkNoCol'); }
+    try{ const q=document.getElementById('e_q')||document.querySelector('#inputField input[placeholder]'); if(q){ q.scrollIntoView({behavior:'smooth',block:'center'}); } }catch(e){}
+    return; }
   if(curCat!=='gifts'){ try{ pickCat('gifts'); }catch(e){} }
   pickGift('e_', col.id);
   const ser=document.getElementById('e_serial'); if(ser&&num) ser.value=num;
@@ -3160,7 +3132,8 @@ async function parseGiftLink(){
                  if(d.backdrop&&setSelByName('e_rback',d.backdrop)) got.push(d.backdrop);
                  if(d.symbol&&setSelByName('e_rpat',d.symbol)) got.push(d.symbol); }
     if(msg){ if(got.length){ msg.style.color='var(--up)'; msg.textContent=t('linkOk')+': '+col.n+' #'+num+' · '+got.join(' · '); }
-             else { msg.style.color='var(--warn)'; msg.textContent=(d&&d.ok)?(t('linkOk')+': '+col.n+' #'+num):t('linkFail'); } }
+             else if(d&&d.ok){ msg.style.color='var(--up)'; msg.textContent=t('linkOk')+': '+col.n+(num?(' #'+num):''); }
+             else { msg.style.color='var(--warn)'; msg.textContent=t('linkFloorOnly')+' — '+col.n+(num?(' #'+num):''); } }
     try{ doEvaluate(); }catch(e){}
   };
   // трейты подгружаются асинхронно — ждём селекты, максимум 2.5с
@@ -3175,6 +3148,7 @@ function pickGift(prefix, id){
   if(grid) grid.querySelectorAll('.gift-tile').forEach(b=>b.classList.toggle('on', b.dataset.id===id));
   const f=document.getElementById(prefix+'floor'); if(f){ f.style.display = id==='other' ? '' : 'none'; if(id==='other') setTimeout(()=>f.focus(),50); }
   loadGiftTraits(prefix, giftColById(id));   // load real models/backdrops/symbols for this collection
+  try{ if(prefix==='e_'){ const c=giftColById(id); track('collection_selected', c?c.n:id); } }catch(e){}
   if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}}
   // no auto re-evaluate — user presses «Оценить» to value the picked combination
 }
@@ -3207,7 +3181,7 @@ function openTraitPick(prefix,key){
   traitPickCtx={prefix,key,list:[]}; const ru=S.lang==='ru';
   const titles={rmodel:t('attrModel'),rback:t('attrBackdrop'),rpat:t('attrPattern')};
   document.getElementById('trait-sheet').innerHTML=
-    '<div class="trait-sheet-h"><b>'+titles[key]+'</b><button class="x" onclick="closeTraitPick()">✕</button></div>'+
+    '<div class="trait-sheet-h"><b>'+titles[key]+'</b><button class="x" aria-label="Закрыть" onclick="closeTraitPick()">✕</button></div>'+
     '<div class="mk-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg><input id="trait-q" placeholder="'+(ru?'Поиск…':'Search…')+'" autocomplete="off" spellcheck="false" oninput="renderTraitList()"></div>'+
     '<div class="trait-list" id="trait-list"></div>';
   renderTraitList();
@@ -3372,20 +3346,20 @@ function fmtStars(ton){ const n=Math.round(ton*STARS_PER_TON); return n.toLocale
 let lastResult=null;
 function doEvaluate(){
   if(curCat==='gifts'||curCat==='stickers'){ /* always allowed */ }
-  try{ track('start_appraisal'); track('appraise_start', curCat); }catch(e){}
+  try{ track('start_appraisal'); track('appraise_start', curCat); track('evaluation_started', curCat); }catch(e){}
   if(!checkDaily()) return;
   const r=valueFor(curCat,'e_'); r.cat=curCat; r.ts=Date.now();
-  if(r && r.invalid){ try{ track('appraise_invalid', curCat); }catch(e){}
+  if(r && r.invalid){ try{ track('appraise_invalid', curCat); track('evaluation_failed', 'invalid'); }catch(e){}
     const el=document.getElementById('result');
-    if(el) el.innerHTML='<div class="eval-invalid">'+IC('warn')+' '+escapeHTML((r.factors&&r.factors[0]&&r.factors[0].v)||'invalid')+'</div>';
+    if(el) el.innerHTML='<div class="eval-invalid">⚠️ '+escapeHTML((r.factors&&r.factors[0]&&r.factors[0].v)||'invalid')+'</div>';
     return; }
-  if(!r||!(r.priceTON>0)){ try{ track('appraise_error', curCat); }catch(e){} }
+  if(!r||!(r.priceTON>0)){ try{ track('appraise_error', curCat); track('evaluation_failed', curCat); }catch(e){} }
   lastResult=r;
   bumpDaily();
   addHistory(r);
   renderResult(r);
   try{ skinBCountUp(); }catch(e){}
-  try{ track('asset_evaluated', r.display); track('appraise_done', r.display); track('buy_sell_seen'); }catch(e){}
+  try{ track('asset_evaluated', r.display); track('appraise_done', r.display); track('evaluation_completed', r.display); track('buy_sell_seen'); }catch(e){}
   countUp('ptonNum', r.priceTON);
   syncFavButton();
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.impactOccurred('medium');}catch(e){} }
@@ -3431,7 +3405,7 @@ async function loadGiftCross(r){
     ]);
   }catch(e){}
   try{ stats=await statsP; }catch(e){}
-  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length; const mch=its.filter(x=>x&&x.match&&x.price>0); const pool=(mch.length?mch:its).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); crossAsk=Math.round(pool[0].price); } }catch(e){}
+  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length; const mch=its.filter(x=>x&&x.match&&x.price>0); r._comps=mch.length; const pool=(mch.length?mch:its).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); crossAsk=Math.round(pool[0].price); } }catch(e){}
   if(lastResult!==r || r.ts!==stamp) return;   // user moved on
   const preEst=r.priceTON;
   if(exact) applyGiftCross(r, exact, hasTrait);
@@ -3688,6 +3662,28 @@ function confChipHTML(r){ const c=confOf(r);
   return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
 function liqOf(r){ let lvl; if(r&&r.fragExact) lvl=2; else { const p=r?r.priceTON:0; lvl=p<150?2:(p<3000?1:0); } if(r&&r.rarity&&r.rarity.oneIn>500&&lvl>0) lvl--; return [{k:'liqLow',c:'var(--bad)'},{k:'liqMid',c:'var(--warn)'},{k:'liqHigh',c:'var(--good)'}][lvl]; }
 function liqChipHTML(r){ const c=liqOf(r); return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('liqLabel')+': '+t(c.k)+'</span>'; }
+function explainMetric(which){
+  const r=(typeof lastResult!=='undefined')?lastResult:null; if(!r) return; const ru=S.lang==='ru';
+  let txt='';
+  if(which==='conf'){
+    const s=estSpread(r); const lvl=(r&&r.fragExact)?'exact':(s<=0.16?'high':s<=0.40?'mid':'low');
+    txt = (t('confLabel')+': '+t(confOf(r).k)+' — ')+(ru
+      ? (lvl==='exact'?'есть точное совпадение в активной продаже — это факт, а не прогноз.'
+        :lvl==='high'?'оценка опирается на плотные данные рынка, диапазон узкий.'
+        :lvl==='mid'?'данных достаточно, но разброс заметный — диапазон шире.'
+        :'данных мало или они расходятся — оценка приблизительная.')
+      : (lvl==='exact'?'an exact live listing matched — a fact, not a guess.'
+        :lvl==='high'?'backed by dense market data, tight range.'
+        :lvl==='mid'?'enough data but noticeable spread — wider range.'
+        :'thin or conflicting data — rough estimate.'));
+  } else {
+    const p=r?r.priceTON:0; const rare=r&&r.rarity&&r.rarity.oneIn>500;
+    txt = (t('liqLabel')+': '+t(liqOf(r).k)+' — ')+(ru
+      ? ('насколько легко продать. '+(p<150?'дешёвые частые активы уходят быстро':(p<3000?'средний спрос':'дорогие активы продаются медленнее'))+(rare?' · редкий тираж сужает круг покупателей':'')+'.')
+      : ('how easily it sells. '+(p<150?'cheap common assets move fast':(p<3000?'moderate demand':'pricey assets sell slower'))+(rare?' · rare supply narrows buyers':'')+'.'));
+  }
+  try{ toast(txt); }catch(e){}
+}
 function whyText(r){ const plus=r.factors.filter(f=>f.cls==='plus').map(f=>t(f.k).toLowerCase()); if(plus.length) return plus.slice(0,3).join(', '); const neu=r.factors.slice(0,2).map(f=>t(f.k).toLowerCase()); return neu.join(', ')||(S.lang==='ru'?'базовая рыночная оценка':'baseline market estimate'); }
 /* honest estimate spread — wider for pricier / rarer / less-liquid assets */
 function estSpread(r){
@@ -3706,7 +3702,12 @@ function estSpread(r){
   }
   return Math.min(0.55, s);
 }
-function factorsHTML(r){ return (r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join(''); }
+function factorsHTML(r){
+  const rows=(r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join('');
+  // Явный итог: чтобы цепочка «флор коллекции → поправки → итог Monet» читалась однозначно
+  const total='<div class="factor total"><div class="fi">🟰</div><div class="ft">'+(S.lang==='ru'?'Итог Monet':'Monet total')+'</div><div class="fv">'+fmtTON(r.priceTON)+' GRAM</div></div>';
+  return rows+total;
+}
 /* ---- Monet Guidance: a buy/fair/sell/fast decision map around fair value ---- */
 function guidance(r){
   const w=r&&r.priceTON; if(!(w>0)) return null;
@@ -3771,7 +3772,6 @@ function guidanceInner(r){
     const parts=[];
     if(r._floor>0) parts.push((ru?'флор ':'floor ')+fmtTON(r._floor)+' GRAM');
     if(r._mktAsk>0) parts.push((ru?'дешевле ':'cheapest ')+fmtTON(r._mktAsk)+' GRAM');
-    if(r._salesN>0) parts.push(r._salesN+(ru?' сделок':' deals'));
     if(parts.length) ctx='<div class="g-ctx">'+parts.join(' · ')+'</div>';
   }
   let trust='';
@@ -3782,9 +3782,9 @@ function guidanceInner(r){
     if(!hasMkt){ bits=[ru?'данных рынка нет':'market data unavailable']; }
     else {
       if(mins>=0){ const fresh = mins<1?(ru?'обновлено только что':'updated just now'):(ru?'обновлено ':'updated ')+mins+(ru?' мин назад':' min ago'); bits.push((stale?(ru?'кэш · ':'cached · '):'')+fresh); }
-      if(r._scanned>0){ const n=r._scanned;
-        const ruLot=(n%10===1&&n%100!==11)?' лот':(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?' лота':' лотов';
-        bits.push(ru?(n+ruLot+' просканировано'):(n+' listing'+(n===1?'':'s')+' scanned')); }
+      if(r._scanned>0) bits.push((ru?'активных листингов: ':'active listings: ')+r._scanned);
+      if(r._comps>0) bits.push((ru?'сопоставимых: ':'comparables: ')+r._comps);
+      if(r._salesN>0) bits.push((ru?'учтённых продаж: ':'sales counted: ')+r._salesN);
     }
     if(bits.length) trust='<div class="g-trust"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg> '+bits.join(' · ')+'</div>';
   }
@@ -3832,7 +3832,7 @@ function resultCardHTML(r){
     '</div>'+
     '<div class="rbody">'+
       '<button class="btn eval-add" id="evalAddBtn" onclick="evalAddInline()">'+t('pfAddBtn')+'</button>'+
-      '<div class="cert-specs">'+'<div class="cs-row"><span class="cs-l">'+t('confLabel')+'</span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+t(cc.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('liqLabel')+'</span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+t(lq.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('tierLabel')+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+
+      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+t(cc.k)+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+t(lq.k)+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('tierLabel')+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+
       tradeBandHTML(r)+
       '<div class="res-cta">'+
         '<button class="btn" style="margin:0" onclick="shareResultText()"><svg class="mi" viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg> '+(S.lang==='ru'?'Отправить в чат':'Send to chat')+'</button>'+
@@ -3914,7 +3914,7 @@ function pickCurrency(c){ setCurrencyUI(c); closeCurPick(); }
 function renderCurPick(){ const ru=S.lang==='ru';
   const list=CURRENCIES.filter(x=>x.c!=='ton' && (x.c==='usd'||x.c==='eur'||USD_CROSS[x.c]>0));
   const rows=list.map(x=>'<button class="cur-row'+(x.c===S.currency?' on':'')+'" onclick="pickCurrency(\''+x.c+'\')"><span class="fl">'+x.fl+'</span><span class="sy">'+x.s+'</span><span class="nm">'+(ru?x.nru:x.nen)+'</span>'+(x.c===S.currency?'<span class="ck">\u2713</span>':'')+'</button>').join('');
-  document.getElementById('cur-sheet').innerHTML='<div class="mk-sheet-h"><div class="ic">\uD83D\uDCB1</div><div class="nm"><b>'+t('stCurrency')+'</b></div><button class="x" onclick="closeCurPick()">\u2715</button></div><div class="cur-list">'+rows+'</div>'; }
+  document.getElementById('cur-sheet').innerHTML='<div class="mk-sheet-h"><div class="ic">\uD83D\uDCB1</div><div class="nm"><b>'+t('stCurrency')+'</b></div><button class="x" aria-label="Закрыть" onclick="closeCurPick()">\u2715</button></div><div class="cur-list">'+rows+'</div>'; }
 function setStars(b){ S.showStars=!!b; save(); syncSettings(); try{ if(lastResult){ renderResult(lastResult); if(typeof syncFavButton==='function')syncFavButton(); } }catch(e){} }
 function dvLabel(){ const m={home:'navHome',evaluate:'navEval',market:'navMarket',portfolio:'navPortfolio'}; return t(m[S.defaultView||'home']||'navHome'); }
 function cycleDefaultView(){ const order=['home','evaluate','market','portfolio']; let i=order.indexOf(S.defaultView||'home'); i=(i+1)%order.length; S.defaultView=order[i]; save(); syncSettings(); }
@@ -4267,7 +4267,7 @@ async function exportCard(){
   x.textAlign='left'; let fy=858;
   r.factors.filter(f=>f.cls==='plus').slice(0,3).forEach(f=>{
     x.fillStyle='#E2EAD7'; roundRect(x,120,fy-34,660,56,16); x.fill();
-    x.fillStyle='#1F4D3D'; x.font='32px "Hanken Grotesk"'; x.fillText('\u2022',150,fy-4);
+    x.fillStyle='#1F4D3D'; x.font='32px "Hanken Grotesk"'; x.fillText(f.i,150,fy-4);
     x.fillStyle='#19211A'; x.font='600 30px "Hanken Grotesk"'; x.fillText(t(f.k),210,fy-4);
     x.fillStyle='#A98D5A'; x.font='700 26px "Hanken Grotesk"'; x.textAlign='right'; x.fillText(f.v,760,fy-4); x.textAlign='left';
     fy+=70;
@@ -4322,9 +4322,10 @@ function setDTab(tab){ curDTab=tab; document.querySelectorAll('.dtabs button').f
 function catIcon(c){ const m={username:'@',numbers:'#',gifts:'<svg class="mi" viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="4"/><path d="M5 12v9h14v-9M12 8v13"/><path d="M12 8C11 5 9 4 7.5 4.5 6 5 6.5 8 12 8zm0 0c1-3 3-4 4.5-3.5C18 5 17.5 8 12 8z"/></svg>',stickers:'<svg class="mi" viewBox="0 0 24 24"><path d="M4 4h16v10l-6 6H4z"/><path d="M14 20v-6h6"/></svg>'}; return m[c]||'•'; }
 // Pro status pill — shows owned/subscription premium, or the launch-promo access.
 function proPill(){
-  if(subActive()) return '<span class="pro-pill"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> Prima · '+t('subUntil').toLowerCase()+' '+fmtUntil(S.premiumUntil)+'</span>';
+  // компактно: только корона + Prima (полная дата действия — в разделе Prima), иначе бейдж вылезал за карточку
+  if(subActive()) return '<span class="pro-pill"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> Prima</span>';
   if(S.premium) return '<span class="pro-pill"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> Prima</span>';
-  if(launchFree()) return '<span class="pro-pill promo"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> Prima · '+t('freeNow')+'</span>';
+  if(launchFree()) return '<span class="pro-pill promo"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> Prima</span>';
   return '';
 }
 function renderDrawer(){
@@ -4332,7 +4333,7 @@ function renderDrawer(){
   if(pe){ const u=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{};
     const handle = S.cardName || (u.username?'@'+u.username : (u.first_name?(u.first_name+(u.last_name?' '+u.last_name:'')):'Monet'));
     const av=(u.first_name||u.username||'M').slice(0,1).toUpperCase();
-    const tier=(window.PF&&window.PF.tier)?window.PF.tier():{ic:IC('shield'),idx:0,name:'Standard'};
+    const tier=(window.PF&&window.PF.tier)?window.PF.tier():{ic:'⚪',idx:0,name:'Standard'};
     const cap=(window.PF&&PF.totalTON)?PF.totalTON():0; const hb=!!S.hideBalance; const next=tier.next;
     const pct = next ? Math.max(7, Math.min(100, (cap+next.need)>0? cap/(cap+next.need)*100 : 100)) : 100;
     pe.innerHTML=
@@ -4436,15 +4437,15 @@ function renderPlanCards(){
   const card=(p,price,sub,badge)=>'<button class="plan-opt'+(currentPlan===p?' on':'')+'" onclick="selectPlan(\''+p+'\')">'
     +(badge?'<span class="plan-badge">'+badge+'</span>':'')
     +'<span class="plan-name">'+t(p==='year'?'planYear':'planMonth')+'</span>'
-    +'<span class="plan-price">'+price+' '+IC('star')+'</span>'
+    +'<span class="plan-price">'+price+' ⭐</span>'
     +(sub?'<span class="plan-sub">'+sub+'</span>':'')
     +'</button>';
   const price=(p)=> promoDisc>0
     ? '<s style="opacity:.55;font-weight:600">'+PLANS[p].stars+'</s> '+effStars(p)
     : PLANS[p].stars;
   wrap.innerHTML=card('month', price('month'), t('perMo'), promoDisc>0?'−'+Math.round(promoDisc*100)+'%':'')
-    + card('year', price('year'), (promoDisc>0?Math.max(1,Math.round(effStars('year')/12)):planPerMo())+' '+IC('star')+' '+t('perMo'), promoDisc>0?'−'+Math.round(promoDisc*100)+'%':(save>0? t('save')+' '+save+'%' : ''));
-  const bb=document.getElementById('pmBuyBtn'); if(bb) bb.innerHTML=t('pmGet')+' · '+effStars(currentPlan)+' '+IC('star');
+    + card('year', price('year'), (promoDisc>0?Math.max(1,Math.round(effStars('year')/12)):planPerMo())+' ⭐ '+t('perMo'), promoDisc>0?'−'+Math.round(promoDisc*100)+'%':(save>0? t('save')+' '+save+'%' : ''));
+  const bb=document.getElementById('pmBuyBtn'); if(bb) bb.innerHTML=t('pmGet')+' · '+effStars(currentPlan)+' ⭐';
 }
 function renderPlan(){
   document.getElementById('planList').innerHTML=
@@ -4493,7 +4494,7 @@ function openBulk(){
   box.innerHTML=
     '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v5M9.5 13.5 12 11l2.5 2.5"/></svg></div>'+
       '<div class="nm"><b>'+(ru?'Импорт портфеля':'Import portfolio')+'</b><span>'+(ru?'вставь ссылки на свои подарки':'paste links to your gifts')+'</span></div>'+
-      '<button class="x" onclick="closeBulk()">✕</button></div>'+
+      '<button class="x" aria-label="Закрыть" onclick="closeBulk()">✕</button></div>'+
     '<textarea id="bulk-in" class="bulk-ta" placeholder="'+(ru?'t.me/nft/PlushPepe-834\nt.me/nft/SignetRing-16098\nt.me/nft/ScaredCat-14774':'t.me/nft/PlushPepe-834\nt.me/nft/SignetRing-16098')+'" oninput="bulkCount()"></textarea>'+
     '<div class="bulk-hint" id="bulk-hint">'+(ru?'По одной ссылке в строке. Можно скопировать прямо из профиля или чата.':'One link per line. Copy them from your profile or a chat.')+'</div>'+
     '<button class="btn" id="bulk-btn" onclick="bulkRun()" disabled>'+(ru?'Распознать':'Recognise')+'</button>'+
@@ -4839,14 +4840,14 @@ window.MK = (function(){
       ['Party Sparkler','🎉',13,98000,0,0],['Desk Calendar','📅',12,100000,0,0]
     ],
     usernames:[
-      ['@news',IC('at'),994000,1,0.0,0.0],['@auto',IC('at'),900000,1,1.2,3.4],['@bank',IC('at'),850000,1,-0.6,2.0],
-      ['@avia',IC('at'),800000,1,0.4,1.1],['@chat',IC('at'),700000,1,0.0,-0.8],['@crypto',IC('at'),200000,1,2.8,6.0],
-      ['@king',IC('at'),60000,1,-1.4,4.0],['@pavel',IC('at'),15000,1,0.0,0.0]
+      ['@news','📰',994000,1,0.0,0.0],['@auto','🚗',900000,1,1.2,3.4],['@bank','🏦',850000,1,-0.6,2.0],
+      ['@avia','✈️',800000,1,0.4,1.1],['@chat','💬',700000,1,0.0,-0.8],['@crypto','🪙',200000,1,2.8,6.0],
+      ['@king','👑',60000,1,-1.4,4.0],['@pavel','🧑',15000,1,0.0,0.0]
     ],
     numbers:[
-      ['+888 8888',IC('hash'),300000,1,0.0,0.0],['+888 8000',IC('hash'),130000,1,1.0,2.0],
-      ['+888 0001',IC('hash'),75000,1,0.8,3.0],['+888 7777 7777',IC('hash'),45000,1,-0.5,1.5],
-      ['+888 1234 5678',IC('hash'),30000,1,2.0,5.5],['+888 0123 4567',IC('hash'),30211,1,0.0,0.5]
+      ['+888 8888','🔢',300000,1,0.0,0.0],['+888 8000','🔢',130000,1,1.0,2.0],
+      ['+888 0001','🔢',75000,1,0.8,3.0],['+888 7777 7777','🔢',45000,1,-0.5,1.5],
+      ['+888 1234 5678','🔢',30000,1,2.0,5.5],['+888 0123 4567','🔢',30211,1,0.0,0.5]
     ]
   };
   const MKTLINK = {
@@ -4927,7 +4928,23 @@ window.MK = (function(){
           (a.ch7!=null?'<span class="d7 '+(up7?'up':'down')+'">7'+(S.lang==='ru'?'д':'d')+' '+fmtD(a.ch7)+'</span>':'')+
         '</div></div>'+
     '</div>'; }
-  function render(){ if(!MARKET[cat]) return; renderMovers();
+  // Клиент сам наблюдает цены раз в сутки — для коллекций без серверной дельты показываем
+  // реально наблюдённое изменение (для статичных сид-коллекций это честный 0%, а не «—»).
+  function applyLocalDeltas(){
+    try{
+      const KEY='monet_mktsnap', now=Date.now(), DAY=24*3600e3;
+      const cur={}; (MARKET.gifts||[]).forEach(a=>{ if(a&&a.price>0) cur[slugify(a.name)]=a.price; });
+      let raw=null; try{ raw=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+      if(raw&&raw.ts&&raw.map){
+        if(now-raw.ts>=20*3600e3){   // снимку почти сутки — можно считать дельту и наблюдать заново
+          (MARKET.gifts||[]).forEach(a=>{ if(a.ch24!=null) return;   // серверная дельта в приоритете
+            const o=raw.map[slugify(a.name)]; if(o>0 && a.price>0){ a.ch24=+(((a.price-o)/o)*100).toFixed(1); a._chLocal=true; } });
+          if(now-raw.ts>=DAY) localStorage.setItem(KEY,JSON.stringify({ts:now,map:cur}));
+        }
+      } else localStorage.setItem(KEY,JSON.stringify({ts:now,map:cur}));
+    }catch(e){}
+  }
+  function render(){ if(!MARKET[cat]) return; if(cat==='gifts') applyLocalDeltas(); renderMovers();
     const eb=document.getElementById('mkt-eyebrow'); if(eb) eb.textContent=(cat==='gifts'?t('mktEbGifts'):cat==='usernames'?t('mktEbU'):t('mktEbN'));
     const mi=document.getElementById('mk-index'); if(mi) mi.innerHTML=(cat==='gifts')?indexHTML():'';
     const L=list();
@@ -4936,8 +4953,8 @@ window.MK = (function(){
     const demo=(typeof FLOORS_SRC!=='undefined' && FLOORS_SRC==='demo');
     const mb=document.getElementById('mk-demobanner');
     if(mb){ if(demo && cat==='gifts'){ mb.style.display='block'; mb.innerHTML=(S.lang==='ru'
-        ?IC('warn')+' Демо-цены — не рыночные. Нет связи с сервером, показаны примерные значения.'
-        :IC('warn')+' Demo prices — not live. No server connection; approximate values shown.'); }
+        ?'⚠️ Демо-цены — не рыночные. Нет связи с сервером, показаны примерные значения.'
+        :'⚠️ Demo prices — not live. No server connection; approximate values shown.'); }
       else mb.style.display='none'; }
     const box=document.getElementById('mk-list'); if(box) box.innerHTML=L.map((a,i)=>itemHTML(a,i)).join('')||'<div class="mc-empty">'+t('mkEmpty')+'</div>'; }
 
@@ -5009,7 +5026,7 @@ window.MK = (function(){
     const pnl=bq>0?(a.price-avg)*bq:null, pnlPct=(avg>0)?((a.price-avg)/avg*100):null;
     const d24=val*(a.ch24||0)/100;
     let share=0; try{ const t0=PF.totalTON(); if(t0>0) share=val/t0*100; }catch(e){}
-    const row=(k,v,cls)=>'<div class="row"><span class="k">'+k+'</span><span class="v"'+(cls?' style="color:'+cls+'"':'')+'>'+v+'</span></div>';
+    const row=(k,v,cls)=>'<div class="row"><div class="k">'+k+'</div><div class="v"'+(cls?' style="color:'+cls+'"':'')+'>'+v+'</div></div>';
     return '<div class="mk-kv" style="margin-top:4px"><div class="row" style="border-bottom:0;padding-bottom:2px"><span class="k" style="color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;font-size:10px;font-weight:800">'+(ru?'Моя позиция':'My position')+'</span></div>'+
       row(ru?'В портфеле':'Holding', qty+' '+t('mkPcs'))+
       row(ru?'Стоимость':'Value', grp(Math.round(val))+' GRAM')+
@@ -5037,7 +5054,7 @@ window.MK = (function(){
       : kv(t('kvValue'),fmtPrice(a.price))+kv(t('brLastSold'),soldVal(a))+kv(t('kvType'),a.cat==='usernames'?'Username':'+888 Number')+kv(t('kvMint'),'1 of 1')+(a.ath>0?kv(t('kvAth'),fmtPrice(a.ath)):'');
     const liveTag=a.live?' <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#1F7A52;vertical-align:middle"><span style="width:6px;height:6px;border-radius:50%;background:#1F7A52;display:inline-block"></span>live</span>':'';
     document.getElementById('mk-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic">'+iconHTML(a)+'</div><div class="nm"><b>'+esc(a.name)+'</b><span>'+(a.supply>1?t('sheetSubColl')+' · '+grp(a.supply)+' '+t('mkPcs'):(a.cat==='usernames'?'Telegram username':'Anonymous number'))+'</span></div><button class="x" onclick="MK.closeSheet()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic">'+iconHTML(a)+'</div><div class="nm"><b>'+esc(a.name)+'</b><span>'+(a.supply>1?t('sheetSubColl')+' · '+grp(a.supply)+' '+t('mkPcs'):(a.cat==='usernames'?'Telegram username':'Anonymous number'))+'</span></div><button class="x" aria-label="Закрыть" onclick="MK.closeSheet()">✕</button></div>'+
       '<div class="mk-sp"><span class="p">'+fmtPrice(a.price)+'</span><span class="d" style="color:'+(up24?'var(--up)':'var(--down)')+'">'+fmtD(a.ch24)+' ('+(S.lang==='ru'?'24ч':'24h')+')</span>'+liveTag+'</div>'+
       '<div class="mk-ssub">'+(S.lang==='ru'?'7д':'7d')+': <b style="color:'+(a.ch7>=0?'var(--up)':'var(--down)')+'">'+fmtD(a.ch7)+'</b></div>'+
       '<div class="mk-chart">'+bigChart(ser,a.ch7>=0)+'</div>'+
@@ -5085,7 +5102,7 @@ window.MK = (function(){
       } else {
         // NEW collection straight from live proxy floors — auto-added so the market shows EVERY gift
         const supply=10000;   // тираж неизвестен — оценка; помечаем ниже supplyKnown:false
-        a={ id:'gx_'+slug, cat:'gifts', name:prettyGift(slug), icon:IC('gift'), price:f, supply, supplyKnown:false,
+        a={ id:'gx_'+slug, cat:'gifts', name:prettyGift(slug), icon:'🎁', price:f, supply, supplyKnown:false,
             ch24:(D24[slug]!=null)?D24[slug]:null, ch7:(D7[slug]!=null)?D7[slug]:null,
             cap:null, vol:null, holders:null, ath:null,
             listed:(counts&&counts[key])||0, lastSale:(sales&&sales[key])||0,
@@ -5105,7 +5122,7 @@ window.MK = (function(){
     return {id:it.id,name:it.name,rank,total:g.length,floor:it.price,ch24:it.ch24,ch7:it.ch7,cap:it.cap,median,live:!!it.live,lastSale:it.lastSale||0}; }
   function patchNumbersFloor(f){ if(!(f>0)) return; const arr=MARKET.numbers; if(!arr) return;
     let it=arr.find(a=>a.id==='numfloor');
-    if(!it){ it={id:'numfloor',cat:'numbers',name:t('numFloorName'),icon:IC('hash'),supply:1,ch24:0,ch7:0,vol:0,holders:1,ser:series('numfloor',0,30)}; arr.unshift(it); }
+    if(!it){ it={id:'numfloor',cat:'numbers',name:t('numFloorName'),icon:'🔢',supply:1,ch24:0,ch7:0,vol:0,holders:1,ser:series('numfloor',0,30)}; arr.unshift(it); }
     it.price=f; it.cap=f; it.ath=Math.round(f*1.2); it.live=true;
     if(document.getElementById('mk-q')) render(); }
   function init(){ if(started) return; started=true; }   // без тикера: цены двигает только рынок, не Math.random()
@@ -5232,7 +5249,7 @@ window.PF = (function(){
       '<div class="pf-hero">'+
         '<div class="topline"><div><div class="lbl">'+t('pfTotal')+'</div>'+(hidden?'':'<div class="pf-tier">'+tierBadge(tier.idx)+' '+tier.name+'</div>')+'</div>'+
           '<div class="pf-acts">'+
-            '<button class="pf-eye" onclick="BANK.openCard()" aria-label="card"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 9.5h19"/></svg></button>'+
+            '<button class="pf-eye" onclick="BANK.openCard()" aria-label="Моя статус-карта"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 9.5h19"/></svg></button>'+
             '<button class="pf-eye" onclick="PF.toggleHide()" aria-label="hide">'+eyeIcon+'</button>'+
           '</div></div>'+
         '<div class="tot">'+(hidden
@@ -5254,13 +5271,13 @@ window.PF = (function(){
       posSignals()+
       (list.length>2?'<div class="pf-crange" style="margin:0 0 10px">'+[['value',(S.lang==='ru'?'По стоимости':'By value')],['ch','24ч'],['pnl','P&L']].map(o=>'<button class="'+(sortKey===o[0]?'on':'')+'" onclick="PF.setSort(\''+o[0]+'\')">'+o[1]+'</button>').join('')+'</div>':'')+
       (function(){ const nb=list.filter(h=>h.buy==null||!(h.buy>0)).length; if(!nb||hidden) return '';
-        return '<div style="font-size:11.5px;color:var(--txt-3);font-weight:600;margin:0 2px 10px;line-height:1.4">'+IC('bulb')+' '+(S.lang==='ru'?('У '+nb+' актив(ов) не указана цена покупки — добавь её (✎), чтобы видеть P&L'):(nb+' asset(s) have no buy price — add it (✎) to see P&L'))+'</div>'; })()+
+        return '<div style="font-size:11px;color:var(--txt-3);font-weight:600;margin:0 2px 8px">💡 '+(S.lang==='ru'?('Укажи цену покупки (✎) — увидишь P&L'):('Add buy price (✎) to see P&L'))+'</div>'; })()+
       '<div class="pf-list">'+rows+'</div>';
     if(!hidden) animateTotal(tot);
   }
   const TIERS=[
-    {ic:IC('shield'),name:'tierStandard',min:0},{ic:IC('shield'),name:'tierBronze',min:100},{ic:IC('shield'),name:'tierSilver',min:1000},
-    {ic:IC('shield'),name:'tierGold',min:10000},{ic:IC('rare'),name:'tierPlatinum',min:50000},{ic:IC('gem'),name:'tierBlack',min:250000}
+    {ic:'⚪',name:'tierStandard',min:0},{ic:'🥉',name:'tierBronze',min:100},{ic:'🥈',name:'tierSilver',min:1000},
+    {ic:'🥇',name:'tierGold',min:10000},{ic:'💠',name:'tierPlatinum',min:50000},{ic:'🖤',name:'tierBlack',min:250000}
   ];
   function tierOfNW(v){ let idx=0; for(let i=0;i<TIERS.length;i++){ if(v>=TIERS[i].min) idx=i; }
     const cur=TIERS[idx]; const nx=TIERS[idx+1];
@@ -5282,7 +5299,7 @@ window.PF = (function(){
   function toggleHide(){ const apply=function(){ S.hideBalance=!S.hideBalance; save(); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} render(); }; if(window.LOCK&&LOCK.has()){ LOCK.verify(apply); } else { apply(); } }
   function openGoal(){ const cur=parseFloat(S.goal)||'';
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/></svg></div><div class="nm"><b>'+t('pfGoalTitle')+'</b><span>'+t('pfNetWorth')+'</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/></svg></div><div class="nm"><b>'+t('pfGoalTitle')+'</b><span>'+t('pfNetWorth')+'</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">✕</button></div>'+
       '<div class="pf-addrow"><input id="pf-goal-in" class="big" inputmode="numeric" placeholder="'+t('pfGoalPh')+'" value="'+cur+'">'+
       '<button class="btn" onclick="PF.saveGoal()">'+t('pfGoalSave')+'</button>'+
       (cur?'<button class="btn ghost" onclick="PF.removeGoal()">'+t('pfGoalRemove')+'</button>':'')+'</div>';
@@ -5359,11 +5376,11 @@ window.PF = (function(){
       if(ch7<0){ const ref=m.price/(1+ch7/100);
         if(ref>m.price){ const p=m.price, sp=p<80?0.14:(p<1500?0.18:0.30);
           const buyUnder=ref*(1-sp)*(1-0.10-0.20*sp);
-          if(p<=buyUnder) out.push({pr:0,i,ic:IC('gem'),txt:(ru?'В Buy Zone — можно докупить дешевле на ':'In Buy Zone — dip of ')+Math.round((1-p/ref)*100)+'%',name:base}); } }
+          if(p<=buyUnder) out.push({pr:0,i,ic:'💎',txt:(ru?'В Buy Zone — можно докупить дешевле на ':'In Buy Zone — dip of ')+Math.round((1-p/ref)*100)+'%',name:base}); } }
       // 2) сильный недельный рост — подумать о фиксации
-      if(ch7>=15) out.push({pr:1,i,ic:IC('target'),txt:(ru?'+':'+')+ch7.toFixed(0)+'% '+(ru?'за 7д — подумай о фиксации части':'in 7d — consider taking profit'),name:base});
+      if(ch7>=15) out.push({pr:1,i,ic:'🎯',txt:(ru?'+':'+')+ch7.toFixed(0)+'% '+(ru?'за 7д — подумай о фиксации части':'in 7d — consider taking profit'),name:base});
       // 3) концентрация
-      if(list.length>1 && val/tot>=0.5) out.push({pr:2,i,ic:IC('warn'),txt:Math.round(val/tot*100)+'% '+(ru?'портфеля в одном активе':'of portfolio in one asset'),name:base});
+      if(list.length>1 && val/tot>=0.5) out.push({pr:2,i,ic:'⚠️',txt:Math.round(val/tot*100)+'% '+(ru?'портфеля в одном активе':'of portfolio in one asset'),name:base});
     });
     if(!out.length) return '';
     out.sort((a,b)=>a.pr-b.pr);
@@ -5397,7 +5414,7 @@ window.PF = (function(){
   function sell(i){ const h=(S.portfolio||[])[i]; if(!h) return; sellIdx=i; const ru=S.lang==='ru';
     const unit=Math.round(curPrice(h)); const q=h.qty||1; sellQty=q;
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div class="nm"><b>'+t('pfSellTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(unit)+' GRAM</span></div><button class="x" onclick="PF.closeAdd()">\u2715</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div class="nm"><b>'+t('pfSellTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(unit)+' GRAM</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">\u2715</button></div>'+
       (q>1?('<div class="pf-lbl">'+(ru?'Сколько продал':'Quantity sold')+'</div>'+
         '<div class="pf-step"><button onclick="PF.sQty(-1)">−</button><span class="q" id="pf-sq">'+q+'</span><button onclick="PF.sQty(1)">+</button></div>'+
         '<div class="pf-chips">'+[[25,'25%'],[50,'50%'],[75,'75%'],[100,'MAX']].map(o=>'<button onclick="PF.sPct('+o[0]+')">'+o[1]+'</button>').join('')+'</div>'):'')+
@@ -5442,7 +5459,7 @@ window.PF = (function(){
     if(S.notify && typeof syncNotify==='function') syncNotify(false); }
   function withdraw(){ const cur=Math.round(S.cash||0); if(cur<=0) return;
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="nm"><b>'+t('pfWithdraw')+'</b><span>'+t('pfCash')+': '+grp(cur)+' GRAM</span></div><button class="x" onclick="PF.closeAdd()">\u2715</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="nm"><b>'+t('pfWithdraw')+'</b><span>'+t('pfCash')+': '+grp(cur)+' GRAM</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">\u2715</button></div>'+
       '<div class="pf-selln">'+t('pfWithdrawHint')+'</div>'+
       '<div class="pf-addrow"><input id="pf-wd-in" class="big" inputmode="decimal" value="'+cur+'">'+
       '<button class="btn" onclick="PF.doWithdraw()">'+t('pfWithdrawBtn')+'</button></div>';
@@ -5463,7 +5480,7 @@ window.PF = (function(){
     const est=Math.round(curPrice(h)); const buy=(h.buy!=null?h.buy:'');
     const unique=/#\s*\d+/.test(String(h.display))||h.cat==='username'||h.cat==='numbers';
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z"/><path d="M14.5 6.5l3 3"/></svg></div><div class="nm"><b>'+t('pfEditTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(est)+' GRAM</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z"/><path d="M14.5 6.5l3 3"/></svg></div><div class="nm"><b>'+t('pfEditTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(est)+' GRAM</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">✕</button></div>'+
       (unique?'':('<div class="pf-lbl">'+(ru?'Количество':'Quantity')+'</div>'+
       '<div class="pf-step"><button onclick="PF.eQty(-1)">−</button><span class="q" id="pf-eqty-v">'+(h.qty||1)+'</span><button onclick="PF.eQty(1)">+</button></div>'))+
       '<div class="pf-lbl">'+(ru?'Цена покупки за штуку':'Buy price per item')+'</div>'+
@@ -5492,7 +5509,7 @@ window.PF = (function(){
     const q=qEl?Math.max(1,parseInt(qEl.textContent,10)||1):(h.qty||1); h.qty=unique?1:q;
     snapshot(); save(); pfTouch(); closeAdd(); render(); }
   function openJournal(){ const box=document.getElementById('jr-sheet'); if(!box) return; const ru=S.lang==='ru';
-    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h13a1 1 0 0 1 1 1v15H7a2 2 0 0 1-2-2z"/><path d="M9 8h7M9 12h7"/></svg></div><div class="nm"><b>'+t('jrTitle')+'</b><span>'+t('pfFromSales')+'</span></div><button class="x" onclick="PF.closeJournal()">✕</button></div>';
+    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h13a1 1 0 0 1 1 1v15H7a2 2 0 0 1-2-2z"/><path d="M9 8h7M9 12h7"/></svg></div><div class="nm"><b>'+t('jrTitle')+'</b><span>'+t('pfFromSales')+'</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeJournal()">✕</button></div>';
     const tr=(S.realized||[]).map(r=>{ const b=(r.basis!=null?r.basis:r.est||0); return {d:r.display,c:r.cat,sold:r.sold||0,basis:b,ts:r.ts,pl:(r.sold||0)-b,ret:b>0?((r.sold||0)-b)/b*100:0}; });
     if(!tr.length){ box.innerHTML=head+'<div class="al-empty">'+t('jrEmpty')+'</div>'; document.getElementById('jr-scrim').classList.add('open'); return; }
     const n=tr.length; const wins=tr.filter(x=>x.pl>0).length; const winrate=wins/n*100;
@@ -5516,11 +5533,11 @@ window.PF = (function(){
   function closeAdd(){ document.getElementById('pf-scrim').classList.remove('open'); }
   function setAddCat(c){ addCat=c; renderAdd(); }
   function renderAdd(){
-    const cats=[['gift',IC('gift')+' '+t('catGifts')],['username','@ '+t('catUsername')],['numbers','# '+t('catNumbers')]];
+    const cats=[['gift','🎁 '+t('catGifts')],['username','@ '+t('catUsername')],['numbers','# '+t('catNumbers')]];
     const chips=cats.map(c=>'<button class="cat'+(addCat===c[0]?' on':'')+'" onclick="PF.setAddCat(\''+c[0]+'\')">'+c[1]+'</button>').join('');
     const ph = addCat==='username'?'durov' : addCat==='numbers'?'888 8888' : t('collection');
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="nm"><b>'+t('pfAddTitle')+'</b><span>'+t('pfPick')+'</span></div><button class="x" onclick="PF.closeAdd()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="nm"><b>'+t('pfAddTitle')+'</b><span>'+t('pfPick')+'</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">✕</button></div>'+
       '<div class="cats" style="margin:16px 0 12px">'+chips+'</div>'+
       '<div class="pf-addrow">'+
         '<input id="pf-in" class="big" placeholder="'+ph+'">'+
@@ -5547,7 +5564,7 @@ window.PF = (function(){
   function init(){ if(Array.isArray(S.portfolio)&&S.portfolio.length) snapshot(); }
   function info(kind){ const ru=S.lang==='ru'; const tot=total();
     const HI='<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg>';
-    const head=(ti)=>'<div class="mk-sheet-h"><div class="ic">'+HI+'</div><div class="nm"><b>'+ti+'</b></div><button class="x" onclick="PF.closeAdd()">✕</button></div>';
+    const head=(ti)=>'<div class="mk-sheet-h"><div class="ic">'+HI+'</div><div class="nm"><b>'+ti+'</b></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">✕</button></div>';
     const sc=(k,v,c,s)=>'<div class="pf-bcard"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div>'+(s?'<div class="s" style="color:'+(c||'var(--txt-3)')+'">'+s+'</div>':'')+'</div>';
     const dim=(x)=>'<div style="font-size:12.5px;line-height:1.65;color:var(--txt-3);margin:12px 2px 8px;text-align:left">'+x+'</div>';
     let html='';
@@ -5591,7 +5608,7 @@ window.PF = (function(){
 
 window.BANK = (function(){
   const TN=['tierStandard','tierBronze','tierSilver','tierGold','tierPlatinum','tierBlack'];
-  const TIC=[IC('shield'),IC('shield'),IC('shield'),IC('shield'),IC('rare'),IC('gem')]; const TMIN=[0,100,1000,10000,50000,250000];
+  const TIC=['⚪','🥉','🥈','🥇','💠','🖤']; const TMIN=[0,100,1000,10000,50000,250000];
   const CARD_THEME=[
     {f:'linear-gradient(140deg,#3A7D63 0%,#1F4D3D 55%,#143527 100%)', c2:'#143527'},   /* Standard — green */
     {f:'linear-gradient(140deg,#8A5E3A 0%,#54381F 52%,#2A1A0E 100%)', c2:'#2A1A0E'},   /* Bronze — cognac */
@@ -5622,7 +5639,7 @@ window.BANK = (function(){
   function checkin(){ const d=today(); if(S.lastSeen===d) return;
     const bonus=10;
     S.points=(S.points||0)+bonus; S.lastSeen=d; save();
-    setTimeout(()=>toast(IC('star')+' +'+bonus+' · '+t('rwDaily')),700); }
+    setTimeout(()=>toast('⭐ +'+bonus+' · '+t('rwDaily')),700); }
   function award(n){ S.points=(S.points||0)+n; save(); if(curView==='portfolio'&&window.PF) window.PF.render(); }
   function redeem(){ if(S.premium||(S.points||0)<REDEEM) return; S.points-=REDEEM; S.premium=true; save();
     try{updatePremiumUI();}catch(e){} if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
@@ -5633,12 +5650,12 @@ window.BANK = (function(){
     else if(p>=REDEEM) foot='<button class="redeem" onclick="BANK.redeem()">'+t('rwRedeem')+'</button>';
     else foot='<div class="rm"><span>'+grp(p)+' / '+REDEEM+'</span><span>'+(ru?'осталось':'left')+' '+grp(REDEEM-p)+'</span></div>';
     return '<div class="pf-rw">'+
-      '<div class="rh"><span class="pill"><span class="e">'+IC('star')+'</span>'+grp(p)+'</span>'+
+      '<div class="rh"><span class="pill"><span class="e">⭐</span>'+grp(p)+'</span>'+
         '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px">'+t('rwPoints')+'</div>'+
         (S.premium?'':'<div style="font-size:11px;color:var(--txt-3);font-weight:600;margin-top:1px">'+(ru?'Набери '+REDEEM+' — получишь Prima бесплатно':'Collect '+REDEEM+' — get Prima free')+'</div>')+'</div>'+
       (S.premium?'<span class="pill pts"><span class="e"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg></span></span>':'')+'</div>'+
       '<div class="bar"><i style="width:'+pct.toFixed(1)+'%"></i></div>'+foot+
-      (S.premium?'':'<div style="font-size:10.5px;color:var(--txt-3);font-weight:600;margin-top:8px">'+(ru?IC('star')+' +10 — заход раз в день · +5 — новый актив в портфеле':IC('star')+' +10 — daily visit · +5 — each new asset')+'</div>')+'</div>'; }
+      (S.premium?'':'<div style="font-size:10.5px;color:var(--txt-3);font-weight:600;margin-top:8px">'+(ru?'⭐ +10 — заход раз в день · +5 — новый актив в портфеле':'⭐ +10 — daily visit · +5 — each new asset')+'</div>')+'</div>'; }
 
   /* ---------- monet card ---------- */
   function tierObj(){ const i=tIdx(nw()); return {ic:TIC[i],name:t(TN[i]),idx:i}; }
@@ -5815,7 +5832,7 @@ window.VF = (function(){
     const lo=Math.round(fv.val*(1-sp)), hi=Math.round(fv.val*(1+sp));
     const sub=(RU()?'Собери комбинацию — оценка и где дешевле по площадкам':'Pick the combo — estimate & where it is cheapest');
     document.getElementById('vf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div><div class="nm"><b>'+esc(cur)+'</b><span>'+sub+'</span></div><button class="x" onclick="VF.close()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div><div class="nm"><b>'+esc(cur)+'</b><span>'+sub+'</span></div><button class="x" aria-label="Закрыть" onclick="VF.close()">✕</button></div>'+
       chip('m',T.m)+chip('b',T.b)+chip('s',T.s)+
       '<div class="rarity-line" style="margin-top:13px">'+(r?
         '<span class="rrank" style="background:'+r.color+'1f;color:'+r.color+'"><span class="rd" style="background:'+r.color+'"></span>'+r.key+'</span><span class="rone">'+(RU()?'≈ 1 из ':'≈ 1 in ')+grp(r.oneIn)+'</span>'
@@ -5982,20 +5999,33 @@ window.HOME=(function(){
     return out.sort((p,q)=>q.ts-p.ts).slice(0,n||6); }
   function aGlyph(k){ return k==='sell'?'<svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>':k==='buy'?'<svg class="mi" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>':k==='alert'?'<svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>':'<svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'; }
   function aLabel(k){ return k==='sell'?t('actSell'):k==='buy'?t('actBuy'):k==='alert'?t('actAlert'):t('actAppr'); }
+  function aIcon(e){
+    const isGift=(e.cat==='gifts'||e.cat==='gift'||e.cat==='stickers');
+    if(isGift){
+      const base=String(e.display||'').split('#')[0].trim();
+      let col=null; try{ col=(COLLECTIONS.gifts||[]).find(c=>c.n===base); }catch(_){}
+      const slug=col?col.slug:base.toLowerCase().replace(/[^a-z0-9]/g,'');
+      const emo=col?col.ic:'🎁';
+      return '<span class="mk-gemo">'+emo+'</span><img class="mk-gimg" data-slug="'+slug+'" src="https://api.changes.tg/original/'+slug+'.png?size=128" referrerpolicy="no-referrer" loading="lazy" decoding="async" onerror="giftImgErr(this)" alt="">';
+    }
+    if(e.cat==='username') return '@';
+    if(e.cat==='numbers') return '#';
+    return aGlyph(e.k);
+  }
   function actRow(e){ const hb=!!S.hideBalance; let sub=aLabel(e.k);
     if(e.k==='sell'&&e.basis!=null&&!hb){ const pl=(e.price||0)-e.basis; sub+=' · <span style="color:'+(pl>=0?'var(--up)':'var(--down)')+'">'+(pl>=0?'+':'')+fmtTON(pl)+' GRAM</span>'; }
-    return '<div class="mc-item" style="cursor:default"><div class="mc-rank" style="font-style:normal;font-size:10.5px">'+rel(e.ts)+'</div><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:14px">'+aGlyph(e.k)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(e.display)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right"><div class="mc-price">'+(hb?'••••':fmtTON(e.price||0)+' GRAM')+'</div></div></div>'; }
+    return '<div class="mc-item" style="cursor:default"><div class="mc-rank" style="font-style:normal;font-size:10.5px">'+rel(e.ts)+'</div><div class="mc-ic" style="position:relative;overflow:hidden;background:var(--bg2);display:grid;place-items:center;font-size:14px">'+aIcon(e)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(e.display)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right"><div class="mc-price">'+(hb?'••••':fmtTON(e.price||0)+' GRAM')+'</div></div></div>'; }
   function go(v){ setView(v); }
   function addToPf(){ go('portfolio'); if(window.PF&&PF.openAdd) PF.openAdd(); }
   function shareCap(){ if(window.PF&&PF.share) PF.share(); }
   function openHistory(){ openDrawer(); setTimeout(function(){ try{ setDTab('history'); }catch(e){} },60); }
   function openActivity(){ const fd=feed(200); const box=document.getElementById('act-sheet'); if(!box) return;
-    box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></div><div class="nm"><b>'+t('hActivity')+'</b><span>'+t('hAll')+'</span></div><button class="x" onclick="HOME.closeActivity()">✕</button></div>'+
+    box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></div><div class="nm"><b>'+t('hActivity')+'</b><span>'+t('hAll')+'</span></div><button class="x" aria-label="Закрыть" onclick="HOME.closeActivity()">✕</button></div>'+
       (fd.length?'<div class="mc-ledger">'+fd.map(actRow).join('')+'</div>':'<div class="al-empty">'+t('hEmptyS')+'</div>');
     document.getElementById('act-scrim').classList.add('open'); }
   function closeActivity(){ document.getElementById('act-scrim').classList.remove('open'); }
   function openBuyIdeas(){ const box=document.getElementById('act-sheet'); if(!box) return; const ru=S.lang==='ru';
-    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><div class="nm"><b>'+(ru?'Что купить':'What to buy')+'</b><span>'+(ru?'идеи по живому рынку':'live market ideas')+'</span></div><button class="x" onclick="HOME.closeActivity()">✕</button></div>';
+    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><div class="nm"><b>'+(ru?'Что купить':'What to buy')+'</b><span>'+(ru?'идеи по живому рынку':'live market ideas')+'</span></div><button class="x" aria-label="Закрыть" onclick="HOME.closeActivity()">✕</button></div>';
     if(!proActive()){
       box.innerHTML=head+'<div class="guide-card g-free" style="margin-top:6px">'+
         '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="HOME.closeActivity();openPremium()">'+t('gGetPrime')+'</button></div>';
@@ -6217,7 +6247,7 @@ window.ALERTS=(function(){
       return '<div class="al-item"><div class="al-main"><b>'+escapeHTML(a.display)+'</b><span>'+(a.dir==='above'?t('alAbove'):t('alBelow'))+' '+grp(a.target)+' GRAM'+(cur>0?' · '+t('alNow')+' '+grp(cur)+' GRAM':'')+'</span></div><button class="del" onclick="ALERTS.remove('+a.id+')">✕</button></div>'; }).join('')
       : '<div class="al-empty">'+t('alEmpty')+'</div>';
     document.getElementById('al-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('alTitle')+'</b><span>'+t('alSub')+'</span></div><button class="x" onclick="ALERTS.close()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('alTitle')+'</b><span>'+t('alSub')+'</span></div><button class="x" aria-label="Закрыть" onclick="ALERTS.close()">✕</button></div>'+
       '<div class="ntf-toggle" style="margin-top:14px" onclick="ALERTS.toggleNotify()"><div class="nt-l"><b>'+t('ntfToggle')+'</b><span>'+t('ntfToggleSub')+'</span></div><div class="nt-sw'+(on?' on':'')+'"><span></span></div></div>'+warn+
       '<div class="al-add" style="margin-top:14px"><input id="al-name" class="big" placeholder="'+t('alName')+'" value="'+((pre.name||'').replace(/"/g,'&quot;'))+'">'+
         '<div class="al-row2"><input id="al-target" class="big" inputmode="decimal" placeholder="'+t('alTarget')+'" value="'+(pre.target!=null?pre.target:'')+'"><button class="btn" onclick="ALERTS.addFromInput()">'+t('alAdd')+'</button></div>'+
@@ -6247,7 +6277,7 @@ window.LOCK=(function(){
     const dots=Array.from({length:LEN},(_,i)=>'<span class="pin-dot'+(i<buf.length?' on':'')+(err?' err':'')+'"></span>').join('');
     const pad=[1,2,3,4,5,6,7,8,9,'',0,'<'].map(k=> k===''?'<div></div>':(k==='<'?'<button class="pin-key" onclick="LOCK.del()">⌫</button>':'<button class="pin-key" onclick="LOCK.tap('+k+')">'+k+'</button>')).join('');
     document.getElementById('pin-sheet').innerHTML=
-      '<div class="pin-h"><b>'+ttl+'</b><button class="x" onclick="LOCK.cancel()">✕</button></div>'+
+      '<div class="pin-h"><b>'+ttl+'</b><button class="x" aria-label="Закрыть" onclick="LOCK.cancel()">✕</button></div>'+
       '<div class="pin-dots'+(err?' shake':'')+'">'+dots+'</div>'+
       '<div class="pin-pad">'+pad+'</div>';
   }
@@ -6269,7 +6299,7 @@ window.LOCK=(function(){
   function verify(onOk){ if(!has()){ if(onOk)onOk(); return; } cb=onOk; begin('verify', t('lkEnter')); }
   function menu(){ if(!has()){ setFlow(); return; }
     document.getElementById('pin-sheet').innerHTML=
-      '<div class="pin-h"><b>'+t('lkTitle')+'</b><button class="x" onclick="LOCK.cancel()">✕</button></div>'+
+      '<div class="pin-h"><b>'+t('lkTitle')+'</b><button class="x" aria-label="Закрыть" onclick="LOCK.cancel()">✕</button></div>'+
       '<div class="pin-opts"><button class="btn" onclick="LOCK.setFlow()">'+t('lkChange')+'</button><button class="btn ghost" onclick="LOCK.removeFlow()">'+t('lkRemove')+'</button></div>';
     document.getElementById('pin-scrim').classList.add('open'); }
   return { menu, setFlow, removeFlow, verify, has, tap, del, cancel };
@@ -6302,6 +6332,14 @@ function init(){
   try{ fetchEntitlement(); }catch(e){}
   try{ pfPull(); }catch(e){}   // портфель с сервера: одинаковый на любом устройстве
   try{ const sp=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||''; track('app_open', sp?('link:'+String(sp).slice(0,24)):'direct'); }catch(e){}
+  // Когорты возврата: сравниваем с меткой прошлого визита. Событие шлём один раз за визит.
+  try{ const now=Date.now(), prev=+localStorage.getItem('monet_lastVisit')||0, DAY=86400000;
+    if(prev){ const days=Math.floor((now-prev)/DAY);
+      if(days>=30) track('user_returned_30d', days+'d');
+      else if(days>=7) track('user_returned_7d', days+'d');
+      else if(days>=1) track('user_returned_1d', days+'d'); }
+    localStorage.setItem('monet_lastVisit', String(now));
+  }catch(e){}
   refreshRate();
   updateFloorBadge();
   // deep link открываем ПОСЛЕ загрузки живых флоров — иначе оценка возьмёт устаревший каталог
