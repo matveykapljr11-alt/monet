@@ -2054,6 +2054,15 @@ function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; }
 function loadAll(){
   const out = JSON.parse(JSON.stringify(DEFAULTS));
   try{ const raw = lsGet('monet') || lsGet('frago'); if(raw) Object.assign(out, JSON.parse(raw)); }catch(e){}
+  // Миграция: схлопнуть старые дубликаты истории (записи без key, напр. #100 = 1661 и 2060).
+  // Оставляем самую свежую запись на каждый уникальный актив (порядок: новые сверху).
+  try{ if(Array.isArray(out.history) && out.history.length){
+    const best={};
+    for(const h of out.history){ const k=[h.cat||'',String(h.display||''),h._m||h.model||'',h._b||h.backdrop||'',h._p||h.symbol||''].join('|').toLowerCase();
+      h.key=h.key||k; const cur=best[k];
+      if(!cur || (h.ts||0)>(cur.ts||0)) best[k]=h; }   // на каждый актив — самая свежая запись
+    out.history=Object.values(best).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,20);
+  } }catch(e){}
   return out;
 }
 function save(){ lsSet('monet', JSON.stringify(S)); }
