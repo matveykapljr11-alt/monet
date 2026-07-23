@@ -1687,7 +1687,7 @@ header{border-bottom:0;background:none}
         <p data-i18n="tagline"></p>
       </div>
     </div>
-    <button class="hbell" id="hbell" onclick="ALERTS.open()" aria-label="Уведомления и алерты"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="hbell-badge" id="hbell-badge"></span></button>
+    <button class="hbell" id="hbell" onclick="ALERTS.open()" aria-label="Уведомления и алерты" data-aria="ariaBell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="hbell-badge" id="hbell-badge"></span></button>
   </header>
 
   <!-- ============ EVALUATE (+ compare toggle) ============ -->
@@ -1871,7 +1871,7 @@ header{border-bottom:0;background:none}
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
     <h2 id="drawerTitle"></h2>
-    <button class="hbtn" aria-label="Закрыть" onclick="closeDrawer()">✕</button>
+    <button class="hbtn" aria-label="'+t('ariaClose')+'" onclick="closeDrawer()">✕</button>
   </div>
   <div class="dr-top">
     <nav class="dr-nav">
@@ -1937,7 +1937,7 @@ header{border-bottom:0;background:none}
 </div>
 <div class="modal-scrim" id="premiumModal" onclick="if(event.target===this)closePremium()">
   <div class="modal">
-    <span class="close" role="button" tabindex="0" aria-label="Закрыть" onclick="closePremium()">✕</span>
+    <span class="close" role="button" tabindex="0" aria-label="'+t('ariaClose')+'" onclick="closePremium()">✕</span>
     <div class="crown"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg></div>
     <h2 data-i18n="pmTitle"></h2>
     <p class="msub" data-i18n="pmSub"></p>
@@ -2077,7 +2077,7 @@ ru:{
   pfAdd:'Добавить актив', pfAddBtn:'В портфель', pfInPf:'В портфеле', pfRemove:'Убрать', pfQty:'Кол-во',
   pfAddTitle:'Добавить в портфель', pfPick:'Что добавить', pfHistNote:'7д — оценка по динамике рынка',
   pfImport:'Мои подарки', pfImportSub:'отметь свои — добавим с оценкой', pfImportSearch:'Поиск коллекции…', pfImportAdd:'Добавить в портфель', pfImportEmpty:'Ничего не найдено', pfImportOr:'или',
-  estRange:'диапазон', apprValue:'Оценочная стоимость', apprHouse:'оценочный дом', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, GRAM', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'P&L по активам', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, GRAM', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать в Stars', stDefault:'Экран по умолчанию', stExp:'Эксперим. активы', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
+  estRange:'диапазон', ariaClose:'Закрыть', ariaBell:'Уведомления и алерты', ariaAmtGram:'Сумма в GRAM', ariaAmtConv:'Пересчитанная сумма', apprValue:'Оценочная стоимость', apprHouse:'оценка · рынок · портфель', pfChange24:'за 24ч', pfHoldings:'Активы', pfSell:'Продать', pfSellTitle:'Записать продажу', pfSellEst:'Оценка', pfSellPh:'За сколько продал, GRAM', pfSellBtn:'Записать продажу', pfSold:'Продано', pfCash:'Свободные средства', pfRealized:'Реализованный P&L', pfWithdraw:'Вывести', pfWithdrawHint:'Сколько вывести с баланса', pfWithdrawBtn:'Вывести', pfWithdrawn:'Выведено', pfBuyPh:'Цена покупки (необяз.)', pfUnreal:'P&L по активам', pfFromSales:'с продаж', pfEditTitle:'Изменить актив', pfEditSave:'Сохранить', jrTitle:'Журнал сделок', jrTrades:'Сделок', jrWin:'Винрейт', jrAvg:'Ср. доходность', jrBest:'Лучший флип', jrEmpty:'Пока нет продаж', actAppr:'Оценка', actBuy:'Покупка', actSell:'Продажа', actAlert:'Алерт', alTitle:'Алерты по цене', alSub:'Уведомим при пересечении цели', alName:'Коллекция / актив', alTarget:'Цель, GRAM', alAdd:'Добавить', alHint:'Уведомим, когда цена пересечёт цель.', alEmpty:'Пока нет алертов', alAbove:'выше', alBelow:'ниже', alNow:'сейчас', alSetShort:'Следить за ценой', alTriggered:'цель достигнута', alAdded:'Алерт добавлен', hWatch:'Отслеживаемое', hAllCash:'Всё в свободных средствах', wlAdd:'В отслеживание', wlOn:'В отслеживании', wlAdded:'Добавлено в отслеживание', wlRemoved:'Убрано из отслеживания', lkTitle:'Пароль', lkSetNew:'Новый пароль', lkRepeat:'Повторите пароль', lkEnter:'Введите пароль', lkEnterCur:'Текущий пароль', lkChange:'Изменить пароль', lkRemove:'Убрать пароль', lkSaved:'Пароль установлен', lkRemoved:'Пароль убран', stCurrency:'Валюта', stStars:'Показывать в Stars', stDefault:'Экран по умолчанию', stExp:'Эксперим. активы', stOn:'Вкл', stOff:'Выкл', stOnboard:'Онбординг', stReset:'Сбросить данные', stAbout:'О приложении', stResetConfirm:'Удалить все локальные данные (портфель, история, алерты)? Действие необратимо.',
   pfAlloc:'Распределение', pfBest:'Лидер 24ч', pfWorst:'Аутсайдер 24ч', pfShare:'Поделиться',
   pfNetWorth:'Мой Telegram-капитал', pfOther:'прочее', pfAssets:'актив(а/ов)', pfEmptyCta:'Оцени актив и добавь в портфель',
   pfForecast:'Прогноз 30д', pfTier:'Статус', menuAssets:'Стоимость активов', pfToNext:'до', pfGoal:'Цель', pfSetGoal:'Поставить цель', pfGoalTitle:'Цель по капиталу',
@@ -2184,7 +2184,7 @@ en:{
   pfAdd:'Add asset', pfAddBtn:'To portfolio', pfInPf:'In portfolio', pfRemove:'Remove', pfQty:'Qty',
   pfAddTitle:'Add to portfolio', pfPick:'What to add', pfHistNote:'7d — estimated from market trend',
   pfImport:'My gifts', pfImportSub:'tap yours — added with a value', pfImportSearch:'Search collection…', pfImportAdd:'Add to portfolio', pfImportEmpty:'Nothing found', pfImportOr:'or',
-  estRange:'range', apprValue:'Estimated value', apprHouse:'appraisal house', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, GRAM', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, GRAM', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', hAllCash:'All in free cash', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist', lkTitle:'Password', lkSetNew:'New password', lkRepeat:'Repeat password', lkEnter:'Enter password', lkEnterCur:'Current password', lkChange:'Change password', lkRemove:'Remove password', lkSaved:'Password set', lkRemoved:'Password removed', stCurrency:'Currency', stStars:'Show in Stars', stDefault:'Default screen', stExp:'Experimental assets', stOn:'On', stOff:'Off', stOnboard:'Onboarding', stReset:'Reset data', stAbout:'About', stResetConfirm:'Delete all local data (portfolio, history, alerts)? This cannot be undone.',
+  estRange:'range', ariaClose:'Close', ariaBell:'Notifications and alerts', ariaAmtGram:'Amount in GRAM', ariaAmtConv:'Converted amount', apprValue:'Estimated value', apprHouse:'appraise · market · portfolio', pfChange24:'24h', pfHoldings:'Holdings', pfSell:'Sell', pfSellTitle:'Record a sale', pfSellEst:'Estimate', pfSellPh:'Sold for, GRAM', pfSellBtn:'Record sale', pfSold:'Sold', pfCash:'Cash balance', pfRealized:'Realized P&L', pfWithdraw:'Withdraw', pfWithdrawHint:'Amount to withdraw from balance', pfWithdrawBtn:'Withdraw', pfWithdrawn:'Withdrawn', pfBuyPh:'Buy price (optional)', pfUnreal:'Unrealized P&L', pfFromSales:'from sales', pfEditTitle:'Edit asset', pfEditSave:'Save', jrTitle:'Trade journal', jrTrades:'Trades', jrWin:'Win rate', jrAvg:'Avg return', jrBest:'Best flip', jrEmpty:'No sales yet', actAppr:'Appraisal', actBuy:'Buy', actSell:'Sell', actAlert:'Alert', alTitle:'Price alerts', alSub:'We ping you when price crosses', alName:'Collection / asset', alTarget:'Target, GRAM', alAdd:'Add', alHint:'You will be notified when price crosses the target.', alEmpty:'No alerts yet', alAbove:'above', alBelow:'below', alNow:'now', alSetShort:'Track price', alTriggered:'target hit', alAdded:'Alert added', hWatch:'Watchlist', hAllCash:'All in free cash', wlAdd:'Watch', wlOn:'Watching', wlAdded:'Added to watchlist', wlRemoved:'Removed from watchlist', lkTitle:'Password', lkSetNew:'New password', lkRepeat:'Repeat password', lkEnter:'Enter password', lkEnterCur:'Current password', lkChange:'Change password', lkRemove:'Remove password', lkSaved:'Password set', lkRemoved:'Password removed', stCurrency:'Currency', stStars:'Show in Stars', stDefault:'Default screen', stExp:'Experimental assets', stOn:'On', stOff:'Off', stOnboard:'Onboarding', stReset:'Reset data', stAbout:'About', stResetConfirm:'Delete all local data (portfolio, history, alerts)? This cannot be undone.',
   pfAlloc:'Allocation', pfBest:'Top 24h', pfWorst:'Worst 24h', pfShare:'Share',
   pfNetWorth:'My Telegram net worth', pfOther:'other', pfAssets:'assets', pfEmptyCta:'Evaluate an asset and add it to your portfolio',
   pfForecast:'30d forecast', pfTier:'Status', menuAssets:'Asset value', pfToNext:'to', pfGoal:'Goal', pfSetGoal:'Set a goal', pfGoalTitle:'Capital goal',
@@ -2667,7 +2667,7 @@ function openLegal(tab){ const box=document.getElementById('legal-sheet'); if(!b
   const cur=tab||'terms';
   const sec=(arr)=>arr.map(o=>'<div class="lg-b"><b>'+escapeHTML(o[0])+'</b><p>'+escapeHTML(o[1])+'</p></div>').join('');
   const body = cur==='privacy'?sec(T.privacy) : cur==='contacts'?sec(T.contacts) : sec(T.terms);
-  box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></div><div class="nm"><b>'+T.title+'</b><span>'+T.sub+'</span></div><button class="x" aria-label="Закрыть" onclick="closeLegal()">✕</button></div>'+
+  box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h4"/></svg></div><div class="nm"><b>'+T.title+'</b><span>'+T.sub+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="closeLegal()">✕</button></div>'+
     '<div class="dtabs" style="padding:0;margin-bottom:12px">'+
       ['terms','privacy','contacts'].map((k,i)=>'<button class="'+(cur===k?'on':'')+'" onclick="openLegal(\''+k+'\')">'+T.tabs[i]+'</button>').join('')+
     '</div><div class="lg-body">'+body+'</div>';
@@ -2760,7 +2760,7 @@ function openNotifyCfg(){
   if(!hasProxy) warn='<div class="hint dim" style="color:var(--down);margin:10px 2px 0">'+t('ntfNoProxy')+'</div>';
   else if(!hasTg) warn='<div class="hint dim" style="color:var(--down);margin:10px 2px 0">'+t('ntfNoTg')+'</div>';
   document.getElementById('ntf-sheet').innerHTML=
-    '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('ntfTitle')+'</b><span>'+t('ntfSub')+'</span></div><button class="x" aria-label="Закрыть" onclick="closeNotifyCfg()">✕</button></div>'+
+    '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('ntfTitle')+'</b><span>'+t('ntfSub')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="closeNotifyCfg()">✕</button></div>'+
     '<div class="hint dim" style="margin:14px 2px 10px;line-height:1.5">'+t('ntfDesc')+'</div>'+
     '<div class="ntf-toggle" onclick="toggleNotify()"><div class="nt-l"><b>'+t('ntfToggle')+'</b><span>'+t('ntfToggleSub')+'</span></div><div class="nt-sw'+(on?' on':'')+'"><span></span></div></div>'+
     warn+
@@ -3194,7 +3194,7 @@ function openTraitPick(prefix,key){
   traitPickCtx={prefix,key,list:[]}; const ru=S.lang==='ru';
   const titles={rmodel:t('attrModel'),rback:t('attrBackdrop'),rpat:t('attrPattern')};
   document.getElementById('trait-sheet').innerHTML=
-    '<div class="trait-sheet-h"><b>'+titles[key]+'</b><button class="x" aria-label="Закрыть" onclick="closeTraitPick()">✕</button></div>'+
+    '<div class="trait-sheet-h"><b>'+titles[key]+'</b><button class="x" aria-label="'+t('ariaClose')+'" onclick="closeTraitPick()">✕</button></div>'+
     '<div class="mk-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg><input id="trait-q" placeholder="'+(ru?'Поиск…':'Search…')+'" autocomplete="off" spellcheck="false" oninput="renderTraitList()"></div>'+
     '<div class="trait-list" id="trait-list"></div>';
   renderTraitList();
@@ -3368,6 +3368,7 @@ function doEvaluate(){
     if(el) el.innerHTML='<div class="eval-invalid">⚠️ '+escapeHTML((r.factors&&r.factors[0]&&r.factors[0].v)||'invalid')+'</div>';
     return; }
   if(!r||!(r.priceTON>0)){ try{ track('appraise_error', curCat); track('evaluation_failed', curCat); }catch(e){} }
+  try{ if(curCat==='gifts'||curCat==='stickers'){ r._m=selName('e_rmodel'); r._b=selName('e_rback'); r._p=selName('e_rpat'); } }catch(e){}
   lastResult=r;
   bumpDaily();
   addHistory(r);
@@ -3484,21 +3485,17 @@ async function loadGiftCross(r){
   if(marketAsk>0 && r.priceTON>marketAsk*1.15) r.priceTON=Math.round(marketAsk*1.15);   // и не выше +15% к живому аску точного матча
   const lbFloor=Math.round(Math.max((c&&c.floor)||0, crossAsk>0?0:(domBest||0)));   // collection floor is the hard lower bound; trust real cross-market over Portals-derived domBest
   if(lbFloor>0 && r.priceTON<lbFloor) r.priceTON=lbFloor;
-  // refresh the headline once from the final reconciled worth
-  if(lastResult===r && r.ts===stamp){
-    countUp('ptonNum', r.priceTON);
-    const fv=document.getElementById('fiatVal'); if(fv) fv.textContent=fmtFiat(r.priceTON);
-    const sp=estSpread(r); const pr=document.getElementById('prange'); if(pr) pr.textContent=t('estLabel')+': '+fmtTON(Math.round(r.priceTON*(1-sp)))+'–'+fmtTON(Math.round(r.priceTON*(1+sp)))+' GRAM';
-    const cv=document.getElementById('confVal'); if(cv){ const cc=confOf(r); cv.textContent=t(cc.k); cv.style.color=cc.c; }
-    const lv=document.getElementById('liqVal'); if(lv){ const lq=liqOf(r); lv.textContent=t(lq.k); lv.style.color=lq.c; }
-    const svN=document.getElementById('starsVal'); if(svN) svN.textContent='\u2248 '+fmtStars(r.priceTON)+' \u2b50';
-    const fb2=document.getElementById('giftFactors'); if(fb2) fb2.innerHTML=factorsHTML(r);
-    try{ addHistory(r); }catch(e){}   // синхронизируем историю с ФИНАЛЬНОЙ ценой (после уточнения по рынку)
+  // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
+  // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
+  r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0;
+  comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;
+  if(lastResult===r && r.ts===stamp){          // устаревший асинхронный прогон НЕ трогает DOM
+    try{ renderResult(r); }catch(e){}           // вся карточка (цена, диапазон, факторы+итог, фиат, stars, trade-band) из ФИНАЛЬНОГО r
+    try{ countUp('ptonNum', r.priceTON); }catch(e){}
+    try{ addHistory(r); }catch(e){}             // история = финальная цена
+    try{ renderGiftVerdict({exactAsk:marketAsk, sold, salesN, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0}); }catch(e){}
+    try{ renderGiftComps(r, comps); }catch(e){}
   }
-  r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0; renderTradeBand(r);   // refine guidance with real market + sales
-  renderGiftVerdict({exactAsk:marketAsk, sold, salesN, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0});
-  comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;   // real recent-sales tape for the transparency block
-  renderGiftComps(r, comps);
 }
 function renderGiftVerdict(v){
   const box=document.getElementById('giftVerdict'); if(!box) return; const ru=S.lang==='ru';
@@ -3665,7 +3662,7 @@ function sealSVG(){ const c='#E7CE92'; return '<svg class="seal-svg" viewBox="0 
   '<defs><path id="sealc" d="M50,50 m-33,0 a33,33 0 1,1 66,0 a33,33 0 1,1 -66,0"/></defs>'+
   '<circle cx="50" cy="50" r="46" fill="none" stroke="'+c+'" stroke-width="1.3"/>'+
   '<circle cx="50" cy="50" r="40.5" fill="none" stroke="'+c+'" stroke-width="0.7" stroke-dasharray="1 2.6"/>'+
-  '<text font-family="Fraunces,serif" font-size="7.4" letter-spacing="1.7" fill="'+c+'"><textPath href="#sealc" startOffset="2%">·  MONET  ·  ОЦЕНОЧНЫЙ ДОМ  ·  EST. 2026  </textPath></text>'+
+  '<text font-family="Fraunces,serif" font-size="7.4" letter-spacing="1.7" fill="'+c+'"><textPath href="#sealc" startOffset="2%">·  MONET  ·  ASSET INTELLIGENCE  ·  EST. 2026  </textPath></text>'+
   '<path d="M39 61V43c0-1.7 2.1-2.5 3.1-1.1L50 52l7.9-10.1c1-1.4 3.1-.6 3.1 1.1v18" fill="none" stroke="'+c+'" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'+
   '<path d="M50 55.6l2.3 2.3-2.3 2.3-2.3-2.3z" fill="'+c+'"/></svg>'; }
 /* confidence from how tight the estimate is */
@@ -3929,7 +3926,7 @@ function pickCurrency(c){ setCurrencyUI(c); closeCurPick(); }
 function renderCurPick(){ const ru=S.lang==='ru';
   const list=CURRENCIES.filter(x=>x.c!=='ton' && (x.c==='usd'||x.c==='eur'||USD_CROSS[x.c]>0));
   const rows=list.map(x=>'<button class="cur-row'+(x.c===S.currency?' on':'')+'" onclick="pickCurrency(\''+x.c+'\')"><span class="fl">'+x.fl+'</span><span class="sy">'+x.s+'</span><span class="nm">'+(ru?x.nru:x.nen)+'</span>'+(x.c===S.currency?'<span class="ck">\u2713</span>':'')+'</button>').join('');
-  document.getElementById('cur-sheet').innerHTML='<div class="mk-sheet-h"><div class="ic">\uD83D\uDCB1</div><div class="nm"><b>'+t('stCurrency')+'</b></div><button class="x" aria-label="Закрыть" onclick="closeCurPick()">\u2715</button></div><div class="cur-list">'+rows+'</div>'; }
+  document.getElementById('cur-sheet').innerHTML='<div class="mk-sheet-h"><div class="ic">\uD83D\uDCB1</div><div class="nm"><b>'+t('stCurrency')+'</b></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="closeCurPick()">\u2715</button></div><div class="cur-list">'+rows+'</div>'; }
 function setStars(b){ S.showStars=!!b; save(); syncSettings(); try{ if(lastResult){ renderResult(lastResult); if(typeof syncFavButton==='function')syncFavButton(); } }catch(e){} }
 function dvLabel(){ const m={home:'navHome',evaluate:'navEval',market:'navMarket',portfolio:'navPortfolio'}; return t(m[S.defaultView||'home']||'navHome'); }
 function cycleDefaultView(){ const order=['home','evaluate','market','portfolio']; let i=order.indexOf(S.defaultView||'home'); i=(i+1)%order.length; S.defaultView=order[i]; save(); syncSettings(); }
@@ -4040,15 +4037,16 @@ function syncFavButton(){
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 
 /* history */
+function histKey(r){ return [r.cat||'', String(r.display||''), r._m||'', r._b||'', r._p||''].join('|').toLowerCase(); }
 function addHistory(r){
   if(!Array.isArray(S.history)) S.history=[];
-  const key=String(r.display||''); const now=Date.now();
-  const i=S.history.findIndex(h=>String(h.display||'')===key && h.cat===r.cat);
-  const rec={cat:r.cat,display:r.display,priceTON:r.priceTON,ts:now};
+  const key=histKey(r); const now=Date.now();
+  const i=S.history.findIndex(h=>(h.key||([h.cat||'',String(h.display||''),'','',''].join('|').toLowerCase()))===key);
+  const rec={cat:r.cat,display:r.display,priceTON:r.priceTON,ts:now,updatedAt:now,key:key};
   if(i>=0){ const old=S.history[i];
-    if(old.firstTs) rec.firstTs=old.firstTs; else rec.firstTs=old.ts||now;   // когда впервые оценили
+    rec.firstTs=old.firstTs||old.ts||now;                                     // когда впервые оценили
     if(old.priceTON!=null && old.priceTON!==r.priceTON) rec.prev=old.priceTON; // след изменения цены
-    S.history.splice(i,1);   // убираем старую запись — обновляем, а не плодим дубликат
+    S.history.splice(i,1);   // обновляем ту же запись, а не плодим дубликат
   } else rec.firstTs=now;
   S.history.unshift(rec);
   S.history=S.history.slice(0,20); save();
@@ -4244,7 +4242,7 @@ function beep(type){
 function drawSeal(x,cx,cy,R){ const c='#B89A4E'; x.save(); x.strokeStyle=c; x.fillStyle=c;
   x.lineWidth=3; x.beginPath(); x.arc(cx,cy,R,0,Math.PI*2); x.stroke();
   x.lineWidth=1.4; x.setLineDash([2,6]); x.beginPath(); x.arc(cx,cy,R-11,0,Math.PI*2); x.stroke(); x.setLineDash([]);
-  const txt='·   MONET   ·   ОЦЕНОЧНЫЙ ДОМ   ·   EST. 2026   '; x.font='600 18px "Fraunces", serif'; x.textAlign='center'; x.textBaseline='middle';
+  const txt='·   MONET   ·   ASSET INTELLIGENCE   ·   EST. 2026   '; x.font='600 18px "Fraunces", serif'; x.textAlign='center'; x.textBaseline='middle';
   const rt=R-26, n=txt.length; for(let i=0;i<n;i++){ const ang=(i/n)*Math.PI*2 - Math.PI/2; x.save();
     x.translate(cx+Math.cos(ang)*rt, cy+Math.sin(ang)*rt); x.rotate(ang+Math.PI/2); x.fillText(txt[i],0,0); x.restore(); }
   const W=R*0.6, H=R*0.62; x.lineWidth=7; x.lineCap='round'; x.lineJoin='round'; x.beginPath();
@@ -4520,7 +4518,7 @@ function openBulk(){
   box.innerHTML=
     '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v5M9.5 13.5 12 11l2.5 2.5"/></svg></div>'+
       '<div class="nm"><b>'+(ru?'Импорт портфеля':'Import portfolio')+'</b><span>'+(ru?'вставь ссылки на свои подарки':'paste links to your gifts')+'</span></div>'+
-      '<button class="x" aria-label="Закрыть" onclick="closeBulk()">✕</button></div>'+
+      '<button class="x" aria-label="'+t('ariaClose')+'" onclick="closeBulk()">✕</button></div>'+
     '<textarea id="bulk-in" class="bulk-ta" placeholder="'+(ru?'t.me/nft/PlushPepe-834\nt.me/nft/SignetRing-16098\nt.me/nft/ScaredCat-14774':'t.me/nft/PlushPepe-834\nt.me/nft/SignetRing-16098')+'" oninput="bulkCount()"></textarea>'+
     '<div class="bulk-hint" id="bulk-hint">'+(ru?'По одной ссылке в строке. Можно скопировать прямо из профиля или чата.':'One link per line. Copy them from your profile or a chat.')+'</div>'+
     '<button class="btn" id="bulk-btn" onclick="bulkRun()" disabled>'+(ru?'Распознать':'Recognise')+'</button>'+
@@ -4749,6 +4747,7 @@ function applyI18N(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=t(el.dataset.i18nPh); });
   document.getElementById('drawerTitle').textContent=t('drawerTitle');
+  document.querySelectorAll('[data-aria]').forEach(el=>{ el.setAttribute('aria-label', t(el.getAttribute('data-aria'))); });
 }
 function rebuildAll(){
   renderCatTabs('catTabs',curCat,pickCat);
@@ -4760,6 +4759,8 @@ function rebuildAll(){
   renderDrawer();
   if(window.PF && curView==='portfolio') window.PF.render();
   if(window.MK && curView==='market') window.MK.render();
+  if(window.HOME && curView==='home') try{ HOME.render(); }catch(e){}
+  if(window.BANK && curView==='converter') try{ window.BANK.renderConv(); }catch(e){}
   updatePremiumUI();
   updateHeroRate();
 }
@@ -5080,7 +5081,7 @@ window.MK = (function(){
       : kv(t('kvValue'),fmtPrice(a.price))+kv(t('brLastSold'),soldVal(a))+kv(t('kvType'),a.cat==='usernames'?'Username':'+888 Number')+kv(t('kvMint'),'1 of 1')+(a.ath>0?kv(t('kvAth'),fmtPrice(a.ath)):'');
     const liveTag=a.live?' <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#1F7A52;vertical-align:middle"><span style="width:6px;height:6px;border-radius:50%;background:#1F7A52;display:inline-block"></span>live</span>':'';
     document.getElementById('mk-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic">'+iconHTML(a)+'</div><div class="nm"><b>'+esc(a.name)+'</b><span>'+(a.supply>1?t('sheetSubColl')+' · '+grp(a.supply)+' '+t('mkPcs'):(a.cat==='usernames'?'Telegram username':'Anonymous number'))+'</span></div><button class="x" aria-label="Закрыть" onclick="MK.closeSheet()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic">'+iconHTML(a)+'</div><div class="nm"><b>'+esc(a.name)+'</b><span>'+(a.supply>1?t('sheetSubColl')+' · '+grp(a.supply)+' '+t('mkPcs'):(a.cat==='usernames'?'Telegram username':'Anonymous number'))+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="MK.closeSheet()">✕</button></div>'+
       '<div class="mk-sp"><span class="p">'+fmtPrice(a.price)+'</span><span class="d" style="color:'+(up24?'var(--up)':'var(--down)')+'">'+fmtD(a.ch24)+' ('+(S.lang==='ru'?'24ч':'24h')+')</span>'+liveTag+'</div>'+
       '<div class="mk-ssub">'+(S.lang==='ru'?'7д':'7d')+': <b style="color:'+(a.ch7>=0?'var(--up)':'var(--down)')+'">'+fmtD(a.ch7)+'</b></div>'+
       '<div class="mk-chart">'+bigChart(ser,a.ch7>=0)+'</div>'+
@@ -5101,7 +5102,12 @@ window.MK = (function(){
 
   function onRate(){ render(); }
   function slugify(s){ return String(s).toLowerCase().replace(/[^a-z0-9]/g,''); }
-  function prettyGift(slug){ return slug.charAt(0).toUpperCase()+slug.slice(1); }
+  const GIFT_PRETTY={poolfloat:'Pool Float',libertyfigure:'Liberty Figure',timelessbook:'Timeless Book',victorymedal:'Victory Medal',rarebird:'Rare Bird',surgeboard:'Surge Board',khabibspapakha:"Khabib's Papakha",kissedfrog:'Kissed Frog',instantramen:'Instant Ramen',whipcupcake:'Whip Cupcake'};
+  function prettyGift(slug){ const k=String(slug||'').toLowerCase().replace(/[^a-z0-9]/g,''); if(GIFT_PRETTY[k]) return GIFT_PRETTY[k];
+    // разбить очевидные составные (…cake, …book, …medal, …bird, …board, …figure, …float, …frog, …ramen) для читаемости
+    const tails=['float','figure','book','medal','bird','board','frog','ramen','cupcake','cake','ring','box','hat','cap','pot','doll','star','heart','helmet'];
+    for(const tl of tails){ if(k.length>tl.length+2 && k.endsWith(tl)){ const head=k.slice(0,k.length-tl.length); return head.charAt(0).toUpperCase()+head.slice(1)+' '+tl.charAt(0).toUpperCase()+tl.slice(1); } }
+    return slug.charAt(0).toUpperCase()+slug.slice(1); }
   function patchFloors(map, counts, ch24, sales, ch7){ if(!map) return; const g=MARKET.gifts; if(!g) return;
     const bySlug={}; g.forEach(a=>{ bySlug[slugify(a.name)]=a; });
     // Карта флоров содержит и слаг ('plushpepe'), и зеркало полного имени ('plush pepe').
@@ -5325,7 +5331,7 @@ window.PF = (function(){
   function toggleHide(){ const apply=function(){ S.hideBalance=!S.hideBalance; save(); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} render(); }; if(window.LOCK&&LOCK.has()){ LOCK.verify(apply); } else { apply(); } }
   function openGoal(){ const cur=parseFloat(S.goal)||'';
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/></svg></div><div class="nm"><b>'+t('pfGoalTitle')+'</b><span>'+t('pfNetWorth')+'</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/></svg></div><div class="nm"><b>'+t('pfGoalTitle')+'</b><span>'+t('pfNetWorth')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="PF.closeAdd()">✕</button></div>'+
       '<div class="pf-addrow"><input id="pf-goal-in" class="big" inputmode="numeric" placeholder="'+t('pfGoalPh')+'" value="'+cur+'">'+
       '<button class="btn" onclick="PF.saveGoal()">'+t('pfGoalSave')+'</button>'+
       (cur?'<button class="btn ghost" onclick="PF.removeGoal()">'+t('pfGoalRemove')+'</button>':'')+'</div>';
@@ -5440,7 +5446,7 @@ window.PF = (function(){
   function sell(i){ const h=(S.portfolio||[])[i]; if(!h) return; sellIdx=i; const ru=S.lang==='ru';
     const unit=Math.round(curPrice(h)); const q=h.qty||1; sellQty=q;
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div class="nm"><b>'+t('pfSellTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(unit)+' GRAM</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">\u2715</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div class="nm"><b>'+t('pfSellTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(unit)+' GRAM</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="PF.closeAdd()">\u2715</button></div>'+
       (q>1?('<div class="pf-lbl">'+(ru?'Сколько продал':'Quantity sold')+'</div>'+
         '<div class="pf-step"><button onclick="PF.sQty(-1)">−</button><span class="q" id="pf-sq">'+q+'</span><button onclick="PF.sQty(1)">+</button></div>'+
         '<div class="pf-chips">'+[[25,'25%'],[50,'50%'],[75,'75%'],[100,'MAX']].map(o=>'<button onclick="PF.sPct('+o[0]+')">'+o[1]+'</button>').join('')+'</div>'):'')+
@@ -5485,7 +5491,7 @@ window.PF = (function(){
     if(S.notify && typeof syncNotify==='function') syncNotify(false); }
   function withdraw(){ const cur=Math.round(S.cash||0); if(cur<=0) return;
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="nm"><b>'+t('pfWithdraw')+'</b><span>'+t('pfCash')+': '+grp(cur)+' GRAM</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">\u2715</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="nm"><b>'+t('pfWithdraw')+'</b><span>'+t('pfCash')+': '+grp(cur)+' GRAM</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="PF.closeAdd()">\u2715</button></div>'+
       '<div class="pf-selln">'+t('pfWithdrawHint')+'</div>'+
       '<div class="pf-addrow"><input id="pf-wd-in" class="big" inputmode="decimal" value="'+cur+'">'+
       '<button class="btn" onclick="PF.doWithdraw()">'+t('pfWithdrawBtn')+'</button></div>';
@@ -5506,7 +5512,7 @@ window.PF = (function(){
     const est=Math.round(curPrice(h)); const buy=(h.buy!=null?h.buy:'');
     const unique=/#\s*\d+/.test(String(h.display))||h.cat==='username'||h.cat==='numbers';
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z"/><path d="M14.5 6.5l3 3"/></svg></div><div class="nm"><b>'+t('pfEditTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(est)+' GRAM</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5a2 2 0 0 0-2.8-2.8L5 17.2z"/><path d="M14.5 6.5l3 3"/></svg></div><div class="nm"><b>'+t('pfEditTitle')+'</b><span>'+escapeHTML(h.display)+' · '+(ru?'рынок':'market')+' '+grp(est)+' GRAM</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="PF.closeAdd()">✕</button></div>'+
       (unique?'':('<div class="pf-lbl">'+(ru?'Количество':'Quantity')+'</div>'+
       '<div class="pf-step"><button onclick="PF.eQty(-1)">−</button><span class="q" id="pf-eqty-v">'+(h.qty||1)+'</span><button onclick="PF.eQty(1)">+</button></div>'))+
       '<div class="pf-lbl">'+(ru?'Цена покупки за штуку':'Buy price per item')+'</div>'+
@@ -5535,7 +5541,7 @@ window.PF = (function(){
     const q=qEl?Math.max(1,parseInt(qEl.textContent,10)||1):(h.qty||1); h.qty=unique?1:q;
     snapshot(); save(); pfTouch(); closeAdd(); render(); }
   function openJournal(){ const box=document.getElementById('jr-sheet'); if(!box) return; const ru=S.lang==='ru';
-    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h13a1 1 0 0 1 1 1v15H7a2 2 0 0 1-2-2z"/><path d="M9 8h7M9 12h7"/></svg></div><div class="nm"><b>'+t('jrTitle')+'</b><span>'+t('pfFromSales')+'</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeJournal()">✕</button></div>';
+    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h13a1 1 0 0 1 1 1v15H7a2 2 0 0 1-2-2z"/><path d="M9 8h7M9 12h7"/></svg></div><div class="nm"><b>'+t('jrTitle')+'</b><span>'+t('pfFromSales')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="PF.closeJournal()">✕</button></div>';
     const tr=(S.realized||[]).map(r=>{ const b=(r.basis!=null?r.basis:r.est||0); return {d:r.display,c:r.cat,sold:r.sold||0,basis:b,ts:r.ts,pl:(r.sold||0)-b,ret:b>0?((r.sold||0)-b)/b*100:0}; });
     if(!tr.length){ box.innerHTML=head+'<div class="al-empty">'+t('jrEmpty')+'</div>'; document.getElementById('jr-scrim').classList.add('open'); return; }
     const n=tr.length; const wins=tr.filter(x=>x.pl>0).length; const winrate=wins/n*100;
@@ -5563,7 +5569,7 @@ window.PF = (function(){
     const chips=cats.map(c=>'<button class="cat'+(addCat===c[0]?' on':'')+'" onclick="PF.setAddCat(\''+c[0]+'\')">'+c[1]+'</button>').join('');
     const ph = addCat==='username'?'durov' : addCat==='numbers'?'888 8888' : t('collection');
     document.getElementById('pf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="nm"><b>'+t('pfAddTitle')+'</b><span>'+t('pfPick')+'</span></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="nm"><b>'+t('pfAddTitle')+'</b><span>'+t('pfPick')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="PF.closeAdd()">✕</button></div>'+
       '<div class="cats" style="margin:16px 0 12px">'+chips+'</div>'+
       '<div class="pf-addrow">'+
         '<input id="pf-in" class="big" placeholder="'+ph+'">'+
@@ -5590,7 +5596,7 @@ window.PF = (function(){
   function init(){ if(Array.isArray(S.portfolio)&&S.portfolio.length) snapshot(); }
   function info(kind){ const ru=S.lang==='ru'; const tot=total();
     const HI='<svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg>';
-    const head=(ti)=>'<div class="mk-sheet-h"><div class="ic">'+HI+'</div><div class="nm"><b>'+ti+'</b></div><button class="x" aria-label="Закрыть" onclick="PF.closeAdd()">✕</button></div>';
+    const head=(ti)=>'<div class="mk-sheet-h"><div class="ic">'+HI+'</div><div class="nm"><b>'+ti+'</b></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="PF.closeAdd()">✕</button></div>';
     const sc=(k,v,c,s)=>'<div class="pf-bcard"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div>'+(s?'<div class="s" style="color:'+(c||'var(--txt-3)')+'">'+s+'</div>':'')+'</div>';
     const dim=(x)=>'<div style="font-size:12.5px;line-height:1.65;color:var(--txt-3);margin:12px 2px 8px;text-align:left">'+x+'</div>';
     let html='';
@@ -5751,11 +5757,11 @@ window.BANK = (function(){
       '<div class="wz">'+
         '<div class="wz-rate-card"><div class="sheen"></div><div class="ml">'+t('cvMid')+'</div><div class="rt" id="cv-rate"></div></div>'+
         '<div class="wz-lbl">'+t('cvAmount')+'</div>'+
-        '<div class="wz-row primary"><input class="wz-amt" id="cv-a" inputmode="decimal" value="'+(cvAmt||'')+'" oninput="BANK.calc(\'from\')">'+
+        '<div class="wz-row primary"><input class="wz-amt" id="cv-a" inputmode="decimal" aria-label="'+t('ariaAmtGram')+'" value="'+(cvAmt||'')+'" oninput="BANK.calc(\'from\')">'+
           (cvMode==='ton'?'<div class="wz-cur locked"><span class="fl">'+curIcon('ton','💎')+'</span><b>GRAM</b></div>':curBtn('from',f,cvFrom))+'</div>'+
         '<div class="wz-swapwrap"><button class="wz-swap" onclick="BANK.cvSwap()" title="'+t('cvSwap')+'"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4 4 7.5M7 4l3 3.5M17 20V4M17 20l3-3.5M17 20l-3-3.5"/></svg></button></div>'+
         '<div class="wz-lbl">'+t('cvConverted')+'</div>'+
-        '<div class="wz-row soft"><input class="wz-amt" id="cv-b" inputmode="decimal" value="'+fmtNum(out)+'" oninput="BANK.calc(\'to\')">'+curBtn('to',tc,cvTo)+'</div>'+
+        '<div class="wz-row soft"><input class="wz-amt" id="cv-b" inputmode="decimal" aria-label="'+t('ariaAmtConv')+'" value="'+fmtNum(out)+'" oninput="BANK.calc(\'to\')">'+curBtn('to',tc,cvTo)+'</div>'+
       '</div>'+
       '<div class="wz-pick" id="cv-pick"><div class="wz-pick-h"><input id="cv-search" placeholder="'+t('cvSearch')+'" oninput="BANK.filterCur(this.value)"><button class="wz-pick-x" onclick="BANK.closePick()">✕</button></div><div class="wz-plist" id="cv-plist"></div></div>'+
       '</div>'; }
@@ -5860,7 +5866,7 @@ window.VF = (function(){
     const lo=Math.round(fv.val*(1-sp)), hi=Math.round(fv.val*(1+sp));
     const sub=(RU()?'Собери комбинацию — оценка и где дешевле по площадкам':'Pick the combo — estimate & where it is cheapest');
     document.getElementById('vf-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div><div class="nm"><b>'+esc(cur)+'</b><span>'+sub+'</span></div><button class="x" aria-label="Закрыть" onclick="VF.close()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div><div class="nm"><b>'+esc(cur)+'</b><span>'+sub+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="VF.close()">✕</button></div>'+
       chip('m',T.m)+chip('b',T.b)+chip('s',T.s)+
       '<div class="rarity-line" style="margin-top:13px">'+(r?
         '<span class="rrank" style="background:'+r.color+'1f;color:'+r.color+'"><span class="rd" style="background:'+r.color+'"></span>'+r.key+'</span><span class="rone">'+(RU()?'≈ 1 из ':'≈ 1 in ')+grp(r.oneIn)+'</span>'
@@ -5920,7 +5926,7 @@ window.ONB = (function(){
     '<div class="onb-nw"><div class="l">'+(ru?'Твой капитал':'Net worth')+'</div><div class="v">12 480 <span style="font-size:.5em;opacity:.8">GRAM</span></div><div class="t"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M12 3l2.6 5.7 6.4.6-4.8 4.2 1.4 6.2L12 16.8 6.4 19.9l1.4-6.2L3 9.5l6.4-.6z"/></svg> Elite</div></div>'
   ]; }
   function slides(){ const ru=S.lang==='ru'; const H=heroes(ru); return [
-    {bg:'s0', kr:(ru?'01 · ОЦЕНОЧНЫЙ ДОМ':'01 · APPRAISAL HOUSE'), dc:['#43A87C','#2E7D5E','#7FE0B4'], hero:H[0],
+    {bg:'s0', kr:(ru?'01 · TELEGRAM ASSET INTELLIGENCE':'01 · TELEGRAM ASSET INTELLIGENCE'), dc:['#43A87C','#2E7D5E','#7FE0B4'], hero:H[0],
       fl:[G('🧸','#E86FA6'),U('@durov'),G('💎','#6B8BE8'),Nm('0142'),G('🌹','#E05670'),G('👑','#D9A441'),U('@nft'),G('🔮','#A06BE8'),G('🦋','#3FA9C2'),Nm('8888'),G('🪅','#E07FB0'),U('@gift')],
       t:ru?'Твой Telegram-капитал начинается здесь':'Your Telegram capital starts here', s:ru?'Оцени gifts, usernames и +888-номера по рыночным данным.':'Value gifts, usernames and +888 numbers on real market data.'},
     {bg:'s1', kr:(ru?'02 · ОЦЕНКА':'02 · APPRAISAL'), dc:['#D9A441','#C8A24B','#F0D27A'], hero:H[1],
@@ -6048,18 +6054,14 @@ window.HOME=(function(){
   function shareCap(){ if(window.PF&&PF.share) PF.share(); }
   function openHistory(){ openDrawer(); setTimeout(function(){ try{ setDTab('history'); }catch(e){} },60); }
   function openActivity(){ const fd=feed(200); const box=document.getElementById('act-sheet'); if(!box) return;
-    box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></div><div class="nm"><b>'+t('hActivity')+'</b><span>'+t('hAll')+'</span></div><button class="x" aria-label="Закрыть" onclick="HOME.closeActivity()">✕</button></div>'+
+    box.innerHTML='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg></div><div class="nm"><b>'+t('hActivity')+'</b><span>'+t('hAll')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="HOME.closeActivity()">✕</button></div>'+
       (fd.length?'<div class="mc-ledger">'+fd.map(actRow).join('')+'</div>':'<div class="al-empty">'+t('hEmptyS')+'</div>');
     document.getElementById('act-scrim').classList.add('open'); }
   function closeActivity(){ document.getElementById('act-scrim').classList.remove('open'); }
   function openBuyIdeas(){ const box=document.getElementById('act-sheet'); if(!box) return; const ru=S.lang==='ru';
-    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><div class="nm"><b>'+(ru?'Что купить':'What to buy')+'</b><span>'+(ru?'идеи по живому рынку':'live market ideas')+'</span></div><button class="x" aria-label="Закрыть" onclick="HOME.closeActivity()">✕</button></div>';
-    if(!proActive()){
-      box.innerHTML=head+'<div class="guide-card g-free" style="margin-top:6px">'+
-        '<div class="g-pitch">'+t('gProPitch')+'</div><button class="g-unlock" onclick="HOME.closeActivity();openPremium()">'+t('gGetPrime')+'</button></div>';
-      document.getElementById('act-scrim').classList.add('open'); return; }
+    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><div class="nm"><b>'+(ru?'Что купить':'What to buy')+'</b><span>'+(ru?'идеи по живому рынку':'live market ideas')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="HOME.closeActivity()">✕</button></div>';
     const g=mkAll().filter(x=>x.cat==='gifts'&&x.price>0);
-    // 1. недооценены (вход): флор упал к Buy Zone от недавнего уровня
+    // 1. недооценены (вход): флор упал к Buy Zone от недавнего уровня (живые данные ch7)
     const uv=[]; g.forEach(x=>{ const ch7=typeof x.ch7==='number'?x.ch7:0; if(ch7>=0) return;
       const ref=x.price/(1+ch7/100); if(!(ref>x.price)) return;
       const p=x.price, sp=p<80?0.14:(p<1500?0.18:0.30);
@@ -6070,15 +6072,35 @@ window.HOME=(function(){
     const dipNames=new Set(uv.slice(0,8).map(o=>o.x.name));
     // 2. импульс: растут неделю
     const mom=g.filter(x=>(x.ch7||0)>1&&!dipNames.has(x.name)).sort((a,b)=>(b.ch7||0)-(a.ch7||0)).slice(0,8);
-    // 3. тяжеловесы: топ по капитализации, не падающие
+    // 3. тяжеловесы
     const used=new Set([...dipNames,...mom.map(x=>x.name)]);
     const heavy=g.slice().sort((a,b)=>(b.cap||0)-(a.cap||0)).filter(x=>(x.ch7||0)>-2&&!used.has(x.name)).slice(0,5);
     const row=(x,right,sub)=>'<div class="mc-item" style="cursor:pointer;padding:9px 10px" onclick="HOME.closeActivity();if(window.MK)MK.openSheet(\''+x.id+'\')">'+giftPic(x)+
       '<div class="mc-main"><div class="mc-name" style="font-size:13.5px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right">'+right+'</div></div>';
+    const uvRowHTML=(o)=>row(o.x,'<div class="mc-price" style="color:'+(o.inZone?'var(--up)':'var(--warn)')+'">\u2212'+o.disc+'%</div>',(ru?'флор ':'floor ')+fmtTON(o.x.price)+' GRAM'+(o.inZone?' · '+t('hInZone'):''));
+
+    if(!proActive()){
+      // БЕСПЛАТНОЕ ДЕМО: один настоящий пример из живых данных, чтобы было видно ценность до оплаты
+      let demoPick=uv[0]?{kind:'uv',o:uv[0]}:(mom[0]?{kind:'mom',x:mom[0]}:(heavy[0]?{kind:'heavy',x:heavy[0]}:null));
+      let demo='';
+      if(demoPick){
+        demo='<div class="g-mini-h" style="margin-top:10px">'+(ru?'Пример идеи · бесплатно':'Sample idea · free')+'</div>';
+        if(demoPick.kind==='uv') demo+=uvRowHTML(demoPick.o);
+        else if(demoPick.kind==='mom') demo+=row(demoPick.x,'<div class="mc-price" style="color:var(--up)">+'+(demoPick.x.ch7||0).toFixed(1)+'%</div>',(ru?'флор ':'floor ')+fmtTON(demoPick.x.price)+' GRAM · '+(ru?'растёт 7д':'up 7d'));
+        else demo+=row(demoPick.x,'<div class="mc-price">'+compact(demoPick.x.cap)+'</div>',(ru?'флор ':'floor ')+fmtTON(demoPick.x.price)+' GRAM · '+(ru?'капа':'cap'));
+      }
+      const moreN=Math.max(0, uv.length+mom.length+heavy.length-1);
+      const pitch = ru
+        ? (moreN>0?('Ещё '+moreN+' идей: зоны Buy/Sell, весь список недооценённых, импульс и тяжеловесы.'):t('gProPitch'))
+        : (moreN>0?(moreN+' more ideas: Buy/Sell zones, the full undervalued list, momentum and blue chips.'):t('gProPitch'));
+      box.innerHTML=head+demo+'<div class="guide-card g-free" style="margin-top:10px">'+
+        '<div class="g-pitch">'+pitch+'</div><button class="g-unlock" onclick="HOME.closeActivity();openPremium()">'+t('gGetPrime')+'</button></div>';
+      document.getElementById('act-scrim').classList.add('open');
+      try{ track('buy_ideas_open','free'); }catch(e){} return;
+    }
+
     let body='';
-    if(uv.length){ body+='<div class="g-mini-h" style="margin-top:10px">'+(ru?'Вход · недооценены':'Entry · undervalued')+'</div>'+uv.slice(0,8).map(o=>row(o.x,
-      '<div class="mc-price" style="color:'+(o.inZone?'var(--up)':'var(--warn)')+'">−'+o.disc+'%</div>',
-      (ru?'флор ':'floor ')+fmtTON(o.x.price)+' GRAM'+(o.inZone?' · '+t('hInZone'):''))).join(''); }
+    if(uv.length){ body+='<div class="g-mini-h" style="margin-top:10px">'+(ru?'Вход · недооценены':'Entry · undervalued')+'</div>'+uv.slice(0,8).map(uvRowHTML).join(''); }
     if(mom.length){ body+='<div class="g-mini-h" style="margin-top:12px">'+(ru?'Импульс · растут 7д':'Momentum · up 7d')+'</div>'+mom.map(x=>row(x,
       '<div class="mc-price" style="color:var(--up)">+'+(x.ch7||0).toFixed(1)+'%</div>',
       (ru?'флор ':'floor ')+fmtTON(x.price)+' GRAM · 24ч '+pct(x.ch24))).join(''); }
@@ -6275,7 +6297,7 @@ window.ALERTS=(function(){
       return '<div class="al-item"><div class="al-main"><b>'+escapeHTML(a.display)+'</b><span>'+(a.dir==='above'?t('alAbove'):t('alBelow'))+' '+grp(a.target)+' GRAM'+(cur>0?' · '+t('alNow')+' '+grp(cur)+' GRAM':'')+'</span></div><button class="del" onclick="ALERTS.remove('+a.id+')">✕</button></div>'; }).join('')
       : '<div class="al-empty">'+t('alEmpty')+'</div>';
     document.getElementById('al-sheet').innerHTML=
-      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('alTitle')+'</b><span>'+t('alSub')+'</span></div><button class="x" aria-label="Закрыть" onclick="ALERTS.close()">✕</button></div>'+
+      '<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><div class="nm"><b>'+t('alTitle')+'</b><span>'+t('alSub')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="ALERTS.close()">✕</button></div>'+
       '<div class="ntf-toggle" style="margin-top:14px" onclick="ALERTS.toggleNotify()"><div class="nt-l"><b>'+t('ntfToggle')+'</b><span>'+t('ntfToggleSub')+'</span></div><div class="nt-sw'+(on?' on':'')+'"><span></span></div></div>'+warn+
       '<div class="al-add" style="margin-top:14px"><input id="al-name" class="big" placeholder="'+t('alName')+'" value="'+((pre.name||'').replace(/"/g,'&quot;'))+'">'+
         '<div class="al-row2"><input id="al-target" class="big" inputmode="decimal" placeholder="'+t('alTarget')+'" value="'+(pre.target!=null?pre.target:'')+'"><button class="btn" onclick="ALERTS.addFromInput()">'+t('alAdd')+'</button></div>'+
@@ -6305,7 +6327,7 @@ window.LOCK=(function(){
     const dots=Array.from({length:LEN},(_,i)=>'<span class="pin-dot'+(i<buf.length?' on':'')+(err?' err':'')+'"></span>').join('');
     const pad=[1,2,3,4,5,6,7,8,9,'',0,'<'].map(k=> k===''?'<div></div>':(k==='<'?'<button class="pin-key" onclick="LOCK.del()">⌫</button>':'<button class="pin-key" onclick="LOCK.tap('+k+')">'+k+'</button>')).join('');
     document.getElementById('pin-sheet').innerHTML=
-      '<div class="pin-h"><b>'+ttl+'</b><button class="x" aria-label="Закрыть" onclick="LOCK.cancel()">✕</button></div>'+
+      '<div class="pin-h"><b>'+ttl+'</b><button class="x" aria-label="'+t('ariaClose')+'" onclick="LOCK.cancel()">✕</button></div>'+
       '<div class="pin-dots'+(err?' shake':'')+'">'+dots+'</div>'+
       '<div class="pin-pad">'+pad+'</div>';
   }
@@ -6327,7 +6349,7 @@ window.LOCK=(function(){
   function verify(onOk){ if(!has()){ if(onOk)onOk(); return; } cb=onOk; begin('verify', t('lkEnter')); }
   function menu(){ if(!has()){ setFlow(); return; }
     document.getElementById('pin-sheet').innerHTML=
-      '<div class="pin-h"><b>'+t('lkTitle')+'</b><button class="x" aria-label="Закрыть" onclick="LOCK.cancel()">✕</button></div>'+
+      '<div class="pin-h"><b>'+t('lkTitle')+'</b><button class="x" aria-label="'+t('ariaClose')+'" onclick="LOCK.cancel()">✕</button></div>'+
       '<div class="pin-opts"><button class="btn" onclick="LOCK.setFlow()">'+t('lkChange')+'</button><button class="btn ghost" onclick="LOCK.removeFlow()">'+t('lkRemove')+'</button></div>';
     document.getElementById('pin-scrim').classList.add('open'); }
   return { menu, setFlow, removeFlow, verify, has, tap, del, cancel };
