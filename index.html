@@ -197,7 +197,7 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .gift-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px;max-height:330px;overflow-y:auto;padding:2px 2px 4px;-webkit-overflow-scrolling:touch}
 .gift-tile{border:1.5px solid var(--line);background:var(--surface-2);border-radius:16px;padding:8px 7px 9px;cursor:pointer;font-family:var(--font-b);text-align:center;transition:transform .12s,border-color .15s,box-shadow .2s;display:flex;flex-direction:column;align-items:center;gap:5px}
 .gift-tile:active{transform:scale(.95)}
-.gift-tile.on{border-color:var(--ton);box-shadow:0 0 0 3px rgba(31,77,61,.16),0 10px 22px -12px rgba(31,77,61,.4)}
+.gift-tile.on{border-color:var(--ton);background:rgba(31,122,82,.10);box-shadow:0 0 0 3px rgba(31,77,61,.22),0 10px 22px -12px rgba(31,77,61,.4)}
 .gift-tile .gt-art{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;display:grid;place-items:center;font-size:30px;line-height:1;overflow:hidden}
 .gift-tile .gt-emo{position:relative;z-index:0}
 .gift-tile .gt-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:7%;z-index:1;background:inherit}
@@ -3167,7 +3167,7 @@ async function parseGiftLink(){
 function pickGift(prefix, id){
   const hid=document.getElementById(prefix+'col'); if(hid) hid.value=id;
   const grid=document.getElementById(prefix+'grid');
-  if(grid) grid.querySelectorAll('.gift-tile').forEach(b=>b.classList.toggle('on', b.dataset.id===id));
+  if(grid) grid.querySelectorAll('.gift-tile').forEach(b=>{ const on=b.dataset.id===id; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on?'true':'false'); });
   const f=document.getElementById(prefix+'floor'); if(f){ f.style.display = id==='other' ? '' : 'none'; if(id==='other') setTimeout(()=>f.focus(),50); }
   loadGiftTraits(prefix, giftColById(id));   // load real models/backdrops/symbols for this collection
   try{ if(prefix==='e_'){ const c=giftColById(id); track('collection_selected', c?c.n:id); } }catch(e){}
@@ -3370,7 +3370,7 @@ let lastResult=null;
 function doEvaluate(){
   if(curCat==='gifts'||curCat==='stickers'){ /* always allowed */ }
   try{ track('start_appraisal'); track('appraise_start', curCat); track('evaluation_started', curCat); }catch(e){}
-  if(!checkDaily()) return;
+  if(!checkDaily()){ try{ track('limit_hit'); }catch(e){} renderLimitCard(); return; }
   const r=valueFor(curCat,'e_'); r.cat=curCat; r.ts=Date.now();
   if(r && r.invalid){ try{ track('appraise_invalid', curCat); track('evaluation_failed', 'invalid'); }catch(e){}
     const el=document.getElementById('result');
@@ -4707,8 +4707,15 @@ function track(ev, d){ try{ const base=proxyURL(); if(!base) return; const u=(tg
 function checkDaily(){
   if(proActive()) return true;
   if(S.dail.date!==todayStr()){ S.dail={date:todayStr(),count:0}; save(); }
-  if(S.dail.count>=5){ toast(t('limitReached')); openPremium(); return false; }
+  if(S.dail.count>=5){ return false; }
   return true;
+}
+function renderLimitCard(){
+  const el=document.getElementById('result'); if(!el) return; const ru=S.lang==='ru';
+  el.innerHTML='<div class="eval-invalid" style="text-align:left;padding:18px 18px">'+
+    '<div style="font-size:15px;font-weight:800;margin-bottom:6px">'+(ru?'🔒 Дневной лимит исчерпан':'🔒 Daily limit reached')+'</div>'+
+    '<div style="font-size:13px;color:var(--txt-2);line-height:1.5;margin-bottom:14px">'+(ru?'Бесплатно доступно 5 оценок в день. Открой Monet Prima — безлимитная оценка, зоны Buy/Sell и алерты.':'5 free appraisals per day. Unlock Monet Prima for unlimited appraisals, Buy/Sell zones and alerts.')+'</div>'+
+    '<button class="g-unlock" style="width:100%" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button></div>';
 }
 function bumpDaily(){ if(proActive())return; if(S.dail.date!==todayStr())S.dail={date:todayStr(),count:0}; S.dail.count++; save(); }
 
@@ -5111,7 +5118,7 @@ window.MK = (function(){
 
   function onRate(){ render(); }
   function slugify(s){ return String(s).toLowerCase().replace(/[^a-z0-9]/g,''); }
-  const GIFT_PRETTY={poolfloat:'Pool Float',libertyfigure:'Liberty Figure',timelessbook:'Timeless Book',victorymedal:'Victory Medal',rarebird:'Rare Bird',surgeboard:'Surge Board',khabibspapakha:"Khabib's Papakha",kissedfrog:'Kissed Frog',instantramen:'Instant Ramen',whipcupcake:'Whip Cupcake'};
+  const GIFT_PRETTY={poolfloat:'Pool Float',libertyfigure:'Liberty Figure',timelessbook:'Timeless Book',victorymedal:'Victory Medal',rarebird:'Rare Bird',surgeboard:'Surge Board',khabibspapakha:"Khabib's Papakha",kissedfrog:'Kissed Frog',instantramen:'Instant Ramen',whipcupcake:'Whip Cupcake',skystilettos:'Sky Stilettos',chillflame:'Chill Flame',stellarrocket:'Stellar Rocket',westsidesign:'Westside Sign',lowrider:'Low Rider'};
   function prettyGift(slug){ const k=String(slug||'').toLowerCase().replace(/[^a-z0-9]/g,''); if(GIFT_PRETTY[k]) return GIFT_PRETTY[k];
     // разбить очевидные составные (…cake, …book, …medal, …bird, …board, …figure, …float, …frog, …ramen) для читаемости
     const tails=['float','figure','book','medal','bird','board','frog','ramen','cupcake','cake','ring','box','hat','cap','pot','doll','star','heart','helmet'];
