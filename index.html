@@ -606,10 +606,13 @@ select.big{cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns
 .pm-code button{border:1px solid var(--line-2);background:var(--surface-2);color:var(--txt);border-radius:12px;padding:0 18px;font-weight:800;cursor:pointer}
 .pm-code-msg{font-size:11.5px;font-weight:700;min-height:16px;margin-bottom:4px}
 .link-id{margin-bottom:12px}
-.link-row{display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--line-2);border-radius:16px;padding:6px 6px 6px 13px}
-.link-row .mi{width:18px;height:18px;color:var(--txt-3);flex:none}
-.link-row input{flex:1;min-width:0;border:0;background:transparent;outline:none;color:var(--txt);font-family:var(--font-b);font-weight:600;font-size:14px;padding:8px 0}
-.link-row button{border:0;background:var(--ton);color:#04130C;border-radius:11px;padding:9px 16px;font-family:var(--font-b);font-weight:800;font-size:13px;cursor:pointer;flex:none;transition:.15s}
+.link-hero{background:linear-gradient(180deg,rgba(31,122,82,.12),rgba(31,122,82,.04));border:1px solid rgba(47,219,151,.28);border-radius:20px;padding:16px 14px 14px;margin-bottom:6px}
+.link-hero-t{font-family:var(--font-b);font-weight:800;font-size:17px;color:var(--txt);letter-spacing:-.3px}
+.link-hero-s{font-size:12.5px;font-weight:600;color:var(--txt-2);line-height:1.4;margin:3px 0 12px}
+.link-row{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line-2);border-radius:16px;padding:8px 8px 8px 15px}
+.link-row .mi{width:20px;height:20px;color:var(--txt-3);flex:none}
+.link-row input{flex:1;min-width:0;border:0;background:transparent;outline:none;color:var(--txt);font-family:var(--font-b);font-weight:600;font-size:16px;padding:11px 0}
+.link-row button{border:0;background:var(--ton);color:#04130C;border-radius:12px;padding:12px 20px;font-family:var(--font-b);font-weight:800;font-size:15px;cursor:pointer;flex:none;transition:.15s}
 .link-row button:disabled{background:var(--bg2);color:var(--txt-3);cursor:default}
 .link-msg{font-size:11.5px;font-weight:700;margin:6px 2px 0;min-height:15px;color:var(--txt-3)}
 .res-cta{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 12px}
@@ -3042,7 +3045,9 @@ function inputHTML(cat, idp){
     '</button>';
   }).join('');
   const photo = idp==='e_' ?
-    '<div class="link-id">'+
+    '<div class="link-id link-hero">'+
+      '<div class="link-hero-t">'+(S.lang==='ru'?'Оценка за пару секунд':'Value it in seconds')+'</div>'+
+      '<div class="link-hero-s">'+(S.lang==='ru'?'Вставь ссылку на подарок — цена, диапазон и уверенность по реальным сделкам':'Paste a gift link — price, range and confidence from real deals')+'</div>'+
       '<div class="link-row"><svg class="mi" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'+
         '<input id="e_link" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="'+t('linkPh')+'" oninput="onLinkInput()" onkeydown="if(event.key===\'Enter\')parseGiftLink()">'+
         '<button type="button" id="e_linkBtn" onclick="parseGiftLink()">'+t('linkGo')+'</button></div>'+
@@ -4975,16 +4980,21 @@ window.MK = (function(){
   // реально наблюдённое изменение (для статичных сид-коллекций это честный 0%, а не «—»).
   function applyLocalDeltas(){
     try{
-      const KEY='monet_mktsnap', now=Date.now(), DAY=24*3600e3;
+      const KEY='monet_mktsnap', now=Date.now(), H=3600e3, D=24*H;
       const cur={}; (MARKET.gifts||[]).forEach(a=>{ if(a&&a.price>0) cur[slugify(a.name)]=a.price; });
-      let raw=null; try{ raw=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
-      if(raw&&raw.ts&&raw.map){
-        if(now-raw.ts>=20*3600e3){   // снимку почти сутки — можно считать дельту и наблюдать заново
-          (MARKET.gifts||[]).forEach(a=>{ if(a.ch24!=null) return;   // серверная дельта в приоритете
-            const o=raw.map[slugify(a.name)]; if(o>0 && a.price>0){ a.ch24=+(((a.price-o)/o)*100).toFixed(1); a._chLocal=true; } });
-          if(now-raw.ts>=DAY) localStorage.setItem(KEY,JSON.stringify({ts:now,map:cur}));
-        }
-      } else localStorage.setItem(KEY,JSON.stringify({ts:now,map:cur}));
+      let hist=null; try{ hist=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+      // миграция старого формата {ts,map} -> кольцо снимков
+      if(hist && hist.ts && hist.map && !Array.isArray(hist.snaps)) hist={snaps:[{ts:hist.ts,map:hist.map}]};
+      if(!hist || !Array.isArray(hist.snaps)) hist={snaps:[]};
+      // суточный снимок не чаще раза в ~23ч; храним ~9 дней
+      const last=hist.snaps[hist.snaps.length-1];
+      if(!last || (now-last.ts)>=23*H){ hist.snaps.push({ts:now,map:cur}); hist.snaps=hist.snaps.slice(-9); try{ localStorage.setItem(KEY,JSON.stringify(hist)); }catch(e){} }
+      // снимок, РЕАЛЬНО отстоящий на ~24ч / ~7д (стабильная точка отсчёта, а не «сброс раз в сутки»)
+      const pick=(ageMs,tol)=>{ let best=null,be=Infinity; for(const sn of hist.snaps){ const e=Math.abs((now-sn.ts)-ageMs); if(e<be){be=e;best=sn;} } return (best&&be<=tol)?best:null; };
+      const s24=pick(D,6*H), s7=pick(7*D,40*H);
+      (MARKET.gifts||[]).forEach(a=>{ const k=slugify(a.name), p=a.price;
+        if(a.ch24==null && s24 && s24.map[k]>0 && p>0){ a.ch24=+(((p-s24.map[k])/s24.map[k])*100).toFixed(1); a._chLocal=true; }
+        if(a.ch7==null  && s7  && s7.map[k]>0  && p>0){ a.ch7 =+(((p-s7.map[k])/s7.map[k])*100).toFixed(1);  a._chLocal=true; } });
     }catch(e){}
   }
   function render(){ if(!MARKET[cat]) return; if(cat==='gifts') applyLocalDeltas(); renderMovers();
@@ -5007,7 +5017,7 @@ window.MK = (function(){
   function onSort(k){ sortKey=k; sortAsc=false; render(); }
 
   let sheetA=null, sheetRange=30;
-  function openSheet(id){ sheetA=Object.values(MARKET).flat().find(x=>x.id===id); if(!sheetA)return; sheetRange=30; renderSheet(); document.getElementById('mk-scrim').classList.add('open'); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} }
+  function openSheet(id){ try{ applyLocalDeltas(); }catch(e){} sheetA=Object.values(MARKET).flat().find(x=>x.id===id); if(!sheetA)return; sheetRange=30; renderSheet(); document.getElementById('mk-scrim').classList.add('open'); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} }
   function closeSheet(){ document.getElementById('mk-scrim').classList.remove('open'); }
   function setRange(r){ sheetRange=r; renderSheet(); }
   function setIdxRange(r){ idxRange=r; render(); }
@@ -6038,7 +6048,15 @@ window.HOME=(function(){
   function mkBy(n){ return mkAll().find(x=>x.name===n)||null; }
   function compact(v){ v=Math.round(v||0); if(v>=1e9)return (v/1e9).toFixed(2)+'B'; if(v>=1e6)return (v/1e6).toFixed(2)+'M'; if(v>=1e3)return (v/1e3).toFixed(1)+'K'; return ''+v; }
   function pct(n){ n=n||0; return Math.abs(n)<0.05?'—':((n>=0?'+':'')+n.toFixed(1)+'%'); }
-  function capCh(){ const hs=S.portfolio||[]; let val=0,a=0,b=0,w24=0,w7=0; hs.forEach(h=>{ const v=(h.priceTON||0)*(h.qty||1); val+=v; const m=mkBy(h.display); if(m){ if(m.ch24!=null){ a+=v*m.ch24; w24+=v; } if(m.ch7!=null){ b+=v*m.ch7; w7+=v; } } }); return {c24:w24>0?a/w24:0, c7:w7>0?b/w7:0}; }
+  function capCh(){ const hs=S.portfolio||[]; let val=0,a=0,b=0,w24=0,w7=0; hs.forEach(h=>{ const v=(h.priceTON||0)*(h.qty||1); val+=v; const m=mkBy(h.display); if(m){ if(m.ch24!=null){ a+=v*m.ch24; w24+=v; } if(m.ch7!=null){ b+=v*m.ch7; w7+=v; } } });
+    let c7 = w7>0 ? b/w7 : null;
+    // Фолбэк: реальное изменение стоимости портфеля за ~7д из СВОЕЙ истории (pfHistory),
+    // если серверных 7-дневных дельт по активам ещё нет.
+    if(c7==null){ try{ const H=S.pfHistory||[]; const tgt=Date.now()-7*86400000; let ref=null;
+      for(const p of H){ const t=Date.parse(p.d); if(!isNaN(t) && t<=tgt+2*86400000) ref=p; }   // ближайший снимок ~7д назад
+      if(ref && ref.v>0 && (Date.now()-Date.parse(ref.d))>=5*86400000){ c7=(val-ref.v)/ref.v*100; }
+    }catch(e){} }
+    return {c24:w24>0?a/w24:0, c7:(c7==null?null:c7)}; }
   function gidx(){ const g=mkAll().filter(x=>x.cat==='gifts'); let cap=0,c=0,w=0; g.forEach(x=>{ const cp=x.cap||0; cap+=cp; if(x.ch24!=null){ c+=x.ch24*cp; w+=cp; } }); return {cap,ch24:w>0?c/w:null}; }
   function movers(){ const g=mkAll().filter(x=>x.cat==='gifts'&&x.ch24); if(g.length<2)return null; const u=g.slice().sort((p,q)=>q.ch24-p.ch24)[0],d=g.slice().sort((p,q)=>p.ch24-q.ch24)[0]; return {u,d}; }
   function rel(ts){ if(!ts)return''; const ru=S.lang==='ru'; const k=Math.floor((Date.now()-ts)/86400000); if(k<=0)return ru?'сег':'now'; if(k===1)return ru?'вчера':'1d'; return k+(ru?'д':'d'); }
