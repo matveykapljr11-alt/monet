@@ -3903,7 +3903,7 @@ function resultCardHTML(r){
       '<div class="price-fiat"><span class="v" id="fiatVal">'+fmtFiat(r.priceTON)+'</span>'+
         '<span class="cur-toggle"><button class="'+(S.currency==='usd'?'on':'')+'" onclick="setCurrency(\'usd\')">USD</button><button class="'+(S.currency==='eur'?'on':'')+'" onclick="setCurrency(\'eur\')">EUR</button></span></div>'+
       (((r.cat==='gifts'||r.cat==='stickers')&&S.showStars!==false)?'<div class="price-stars" id="starsVal">\u2248 '+fmtStars(r.priceTON)+' \u2b50</div>':'')+
-      '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+'</div>'+
+      '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+' · v'+APP_VERSION+'</div>'+
       dataFreshHTML()+
     '</div>'+
     '<div class="rbody">'+
@@ -3982,7 +3982,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='2.1';
+const APP_VERSION='2.2';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
