@@ -3552,6 +3552,7 @@ async function loadGiftCross(r){
   if(r._blind && baseFloorSeed>0 && r.priceTON>baseFloorSeed) r.priceTON=Math.round(baseFloorSeed);
   // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
+  try{ window._AUTODBG='X m='+(m||'-')+'|exF='+(exact?exact.floor:'null')+'|exL='+(exact?exact.matchLevel:'-')+'|cross='+crossAsk+'|sold='+sold+'|dom='+domBest+'|fin='+r.priceTON+'|blind='+(r._blind?1:0); }catch(e){}
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0;
   comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;
   if(lastResult===r && r.ts===stamp){          // устаревший асинхронный прогон НЕ трогает DOM
@@ -3992,7 +3993,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='2.4';
+const APP_VERSION='2.5';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
