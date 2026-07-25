@@ -2417,7 +2417,7 @@ const COLLECTIONS = {
   gifts:[
     {id:'santahat', n:'Santa Hat', floor:42, ic:'🎅', slug:'santahat'},
     {id:'signetring', n:'Signet Ring', floor:530, ic:'💍', slug:'signetring'},
-    {id:'preciouspeach', n:'Precious Peach', floor:920, ic:'🍑', slug:'preciouspeach'},
+    {id:'preciouspeach', n:'Precious Peach', floor:246, ic:'🍑', slug:'preciouspeach'},
     {id:'plushpepe', n:'Plush Pepe', floor:11000, ic:'🐸', slug:'plushpepe'},
     {id:'spicedwine', n:'Spiced Wine', floor:120, ic:'🍷', slug:'spicedwine'},
     {id:'jellybunny', n:'Jelly Bunny', floor:95, ic:'🐰', slug:'jellybunny'},
@@ -3507,6 +3507,12 @@ async function loadGiftCross(r){
   if(realFloor>baseFloor*1.4 && r.priceTON<realFloor){ r.priceTON=Math.round(realFloor); }
   const lbFloor=Math.round(Math.max(realFloor, crossAsk>0?0:(domBest||0)));   // нижняя граница = реальный флор (макс из булк-флора и живого листинга)
   if(lbFloor>0 && r.priceTON<lbFloor) r.priceTON=lbFloor;
+  // ПРЕДОХРАНИТЕЛЬ ЧЕСТНОСТИ: все рыночные источники слепые (нет листингов, точного аска, продаж, трейтов).
+  // Премию над флором подтвердить нечем — не показываем уверенное число: жмём к флору коллекции и метим r._blind
+  // (confOf -> низкая уверенность, estSpread -> шире диапазон).
+  const baseFloorSeed=(c&&c.floor)||0;
+  r._blind = (!comps.exact && crossAsk<=0 && !hasTrait && (r._scanned||0)===0 && (domBest||0)<=0);   // нет ЛИСТИНГ-стороны и трейтов -> смешанной медиане продаж доверять нельзя
+  if(r._blind && baseFloorSeed>0 && r.priceTON>baseFloorSeed) r.priceTON=Math.round(baseFloorSeed);
   // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0;
@@ -3689,13 +3695,15 @@ function sealSVG(){ const c='#E7CE92'; return '<svg class="seal-svg" viewBox="0 
   '<path d="M50 55.6l2.3 2.3-2.3 2.3-2.3-2.3z" fill="'+c+'"/></svg>'; }
 /* confidence from how tight the estimate is */
 function confOf(r){ const s=estSpread(r); let liqLow=false; try{ liqLow=(liqOf(r).k==='liqLow'); }catch(e){}
+  if(r&&r._blind) return {k:'confLow',c:'var(--bad)'};   // рынок слепой — уверенности быть не может
   // нельзя быть уверенным в цене неликвидного актива (тонкий рынок, мало/нет сделок)
   if(s<=0.16 && !liqLow) return {k:'confHigh',c:'var(--good)'};
   if(s<=0.40) return {k:'confMid',c:'var(--warn)'};
   return {k:'confLow',c:'var(--bad)'}; }
 function confChipHTML(r){ const c=confOf(r);
   return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
-function liqOf(r){ let lvl; if(r&&r.fragExact) lvl=2; else { const p=r?r.priceTON:0; lvl=p<150?2:(p<3000?1:0); } if(r&&r.rarity&&r.rarity.oneIn>500&&lvl>0) lvl--; return [{k:'liqLow',c:'var(--bad)'},{k:'liqMid',c:'var(--warn)'},{k:'liqHigh',c:'var(--good)'}][lvl]; }
+function liqOf(r){ if(r&&r._blind) return {k:'liqLow',c:'var(--bad)'};   // нет ни одного живого листинга
+  let lvl; if(r&&r.fragExact) lvl=2; else { const p=r?r.priceTON:0; lvl=p<150?2:(p<3000?1:0); } if(r&&r.rarity&&r.rarity.oneIn>500&&lvl>0) lvl--; return [{k:'liqLow',c:'var(--bad)'},{k:'liqMid',c:'var(--warn)'},{k:'liqHigh',c:'var(--good)'}][lvl]; }
 function liqChipHTML(r){ const c=liqOf(r); return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('liqLabel')+': '+t(c.k)+'</span>'; }
 function explainMetric(which){
   const r=(typeof lastResult!=='undefined')?lastResult:null; if(!r) return; const ru=S.lang==='ru';
@@ -3737,6 +3745,7 @@ function estSpread(r){
   }
   // тонкий/неликвидный рынок -> шире диапазон: нельзя узко оценивать то, что почти не торгуется
   try{ if(liqOf(r).k==='liqLow') s=Math.max(s,0.30); }catch(e){}
+  if(r&&r._blind) s=Math.max(s,0.45);   // рынок слепой — максимально честный (широкий) диапазон
   return Math.min(0.60, s);
 }
 function factorsHTML(r){
