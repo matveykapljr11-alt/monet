@@ -1,4 +1,4 @@
-=<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -3434,7 +3434,10 @@ async function loadGiftCross(r){
     ]);
   }catch(e){}
   try{ stats=await statsP; }catch(e){}
-  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length; const mch=its.filter(x=>x&&x.match&&x.price>0); r._comps=mch.length; const pool=(mch.length?mch:its).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); crossAsk=Math.round(pool[0].price); } }catch(e){}
+  // crossAsk (потолок «дешевле не бывает») — ТОЛЬКО из листингов, совпавших по трейтам.
+  // Иначе несовпавший самый дешёвый лот (другая модель) занижает оценку премиального экземпляра
+  // (напр. Blue Bezel за 107, а адаптер отдаёт флор коллекции 44 без фильтра модели).
+  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length; const mch=its.filter(x=>x&&x.match&&x.price>0); r._comps=mch.length; const pool=(mch.length?mch:(hasTrait?[]:its)).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); crossAsk=Math.round(pool[0].price); } }catch(e){}
   if(lastResult!==r || r.ts!==stamp) return;   // user moved on
   const preEst=r.priceTON;
   if(exact) applyGiftCross(r, exact, hasTrait);
