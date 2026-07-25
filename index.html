@@ -3688,8 +3688,9 @@ function sealSVG(){ const c='#E7CE92'; return '<svg class="seal-svg" viewBox="0 
   '<path d="M39 61V43c0-1.7 2.1-2.5 3.1-1.1L50 52l7.9-10.1c1-1.4 3.1-.6 3.1 1.1v18" fill="none" stroke="'+c+'" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'+
   '<path d="M50 55.6l2.3 2.3-2.3 2.3-2.3-2.3z" fill="'+c+'"/></svg>'; }
 /* confidence from how tight the estimate is */
-function confOf(r){ const s=estSpread(r);
-  if(s<=0.16) return {k:'confHigh',c:'var(--good)'};
+function confOf(r){ const s=estSpread(r); let liqLow=false; try{ liqLow=(liqOf(r).k==='liqLow'); }catch(e){}
+  // нельзя быть уверенным в цене неликвидного актива (тонкий рынок, мало/нет сделок)
+  if(s<=0.16 && !liqLow) return {k:'confHigh',c:'var(--good)'};
   if(s<=0.40) return {k:'confMid',c:'var(--warn)'};
   return {k:'confLow',c:'var(--bad)'}; }
 function confChipHTML(r){ const c=confOf(r);
@@ -3734,7 +3735,9 @@ function estSpread(r){
   if(r && r.cat==='gifts' && !r.live && !r.fragExact && typeof FLOORS_SRC!=='undefined' && FLOORS_SRC!=='live'){
     s = Math.max(s, 0.34);
   }
-  return Math.min(0.55, s);
+  // тонкий/неликвидный рынок -> шире диапазон: нельзя узко оценивать то, что почти не торгуется
+  try{ if(liqOf(r).k==='liqLow') s=Math.max(s,0.30); }catch(e){}
+  return Math.min(0.60, s);
 }
 function factorsHTML(r){
   const rows=(r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join('');
