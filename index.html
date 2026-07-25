@@ -3372,6 +3372,29 @@ function fmtFiat(ton){ const v=Math.round(ton*fxOf(S.currency)); return symOf(S.
 function fmtStars(ton){ const n=Math.round(ton*STARS_PER_TON); return n.toLocaleString('en-US').replace(/,/g,' '); }
 
 let lastResult=null;
+let _autoTraitKey='';
+/* Авто-детект трейтов по серийнику: если пользователь ввёл номер, но не указал модель/фон/символ,
+   тянем трейты предмета со страницы NFT (тот же ?gift=, что и вставка ссылки) и пересчитываем.
+   Иначе премиум-варианты оцениваются по голому флору коллекции с ложной «высокой» уверенностью. */
+async function maybeAutoTraits(){
+  try{
+    const col=giftColById((document.getElementById('e_col')||{}).value); if(!col||col.id==='other') return;
+    const ser=(document.getElementById('e_serial')||{}).value||''; const num=parseInt(ser,10);
+    if(!(num>0)) return;
+    const hasTrait=!!(selName('e_rmodel')||selName('e_rback')||selName('e_rpat'));
+    if(hasTrait) return;                                   // трейты уже заданы — не трогаем
+    const key=(col.slug||col.id)+'-'+num; if(_autoTraitKey===key) return; _autoTraitKey=key;   // один раз на предмет
+    const base=proxyURL(); if(!base) return;
+    const nm=String(col.n).replace(/[^A-Za-z0-9]/g,'');
+    let d=null; try{ const rr=await fetch(base.replace(/\/+$/,'')+'/?gift='+encodeURIComponent(nm+'-'+num),{cache:'no-store'}); if(rr.ok) d=await rr.json(); }catch(e){}
+    if(!d||!d.ok) return;
+    let got=false;
+    if(d.model && setSelByName('e_rmodel', d.model)) got=true;
+    if(d.backdrop && setSelByName('e_rback', d.backdrop)) got=true;
+    if(d.symbol && setSelByName('e_rpat', d.symbol)) got=true;
+    if(got){ try{ track('auto_traits', col.n); }catch(e){} try{ doEvaluate(); }catch(e){} }   // пересчёт с реальными трейтами
+  }catch(e){}
+}
 function doEvaluate(){
   if(curCat==='gifts'||curCat==='stickers'){ /* always allowed */ }
   try{ track('start_appraisal'); track('appraise_start', curCat); track('evaluation_started', curCat); }catch(e){}
@@ -3394,6 +3417,7 @@ function doEvaluate(){
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.impactOccurred('medium');}catch(e){} }
   if(curCat==='username' && proxyURL()) loadUserComps(r.display);
   if(curCat==='gifts' && proxyURL()) loadGiftCross(r);
+  if((curCat==='gifts') && proxyURL()) maybeAutoTraits();
   setTimeout(()=>{ const el=document.getElementById('result'); if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'}); },60);
 }
 /* cross-market: fetch the live Fragment floor for the picked collection+traits and,
