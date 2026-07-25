@@ -3373,6 +3373,7 @@ function fmtStars(ton){ const n=Math.round(ton*STARS_PER_TON); return n.toLocale
 
 let lastResult=null;
 let _autoTraitKey='';
+let _autoDetected=null;   // {ser,model,backdrop,symbol} — распознанные трейты текущего серийника
 /* Авто-детект трейтов по серийнику: если пользователь ввёл номер, но не указал модель/фон/символ,
    тянем трейты предмета со страницы NFT (тот же ?gift=, что и вставка ссылки) и пересчитываем.
    Иначе премиум-варианты оцениваются по голому флору коллекции с ложной «высокой» уверенностью. */
@@ -3388,7 +3389,9 @@ async function maybeAutoTraits(){
     const nm=String(col.n).replace(/[^A-Za-z0-9]/g,'');
     let d=null,ferr=''; try{ const rr=await fetch(base.replace(/\/+$/,'')+'/?gift='+encodeURIComponent(nm+'-'+num),{cache:'no-store'}); if(rr.ok) d=await rr.json(); else ferr='http'+rr.status; }catch(e){ ferr='fetchex'; }
     if(!d||!d.ok||!(d.model||d.backdrop||d.symbol)){ _adbg('nogift:'+ferr+':'+(d?JSON.stringify({m:d.model,b:d.backdrop,s:d.symbol}):'null')); return; }
-    const ready=()=>{ const sm=document.getElementById('e_rmodel'); return sm&&sm.options&&sm.options.length>1; };
+    const optsReady=(id)=>{ const el=document.getElementById(id); return !el||(el.options&&el.options.length>1); };
+    const ready=()=>optsReady('e_rmodel')&&optsReady('e_rback')&&optsReady('e_rpat');
+    _autoDetected={ser:ser, model:d.model||'', backdrop:d.backdrop||'', symbol:d.symbol||''};   // независимо от дропдауна — прямая привязка для loadGiftCross
     let tries=0; await new Promise(res=>{ (function w(){ if(ready()||tries++>30) return res(); setTimeout(w,100); })(); });
     const opts=(document.getElementById('e_rmodel')||{}).options; const optN=opts?opts.length:-1;
     if(selName('e_rmodel')||selName('e_rback')||selName('e_rpat')){ _adbg('has-trait2'); return; }
@@ -3397,8 +3400,10 @@ async function maybeAutoTraits(){
     const okM=d.model?setSelByName('e_rmodel', d.model):false; if(okM){ updateTraitBtn('e_','rmodel'); got.push(d.model); }
     const okB=d.backdrop?setSelByName('e_rback', d.backdrop):false; if(okB){ updateTraitBtn('e_','rback'); got.push(d.backdrop); }
     const okP=d.symbol?setSelByName('e_rpat', d.symbol):false; if(okP){ updateTraitBtn('e_','rpat'); got.push(d.symbol); }
-    if(got.length){ _adbg('OK:'+got.join('/')); try{ track('auto_traits', col.n); }catch(e){} try{ toast((S.lang==='ru'?'Распознан вариант: ':'Detected: ')+got.join(' \u00b7 ')); }catch(e){} try{ doEvaluate(); }catch(e){} }
-    else { _autoTraitKey=''; _adbg('nomatch opts='+optN+' want='+JSON.stringify({m:d.model,b:d.backdrop,s:d.symbol})); }
+    // цену тянет _autoDetected напрямую в loadGiftCross — пересчитываем в любом случае, даже если дропдаун не совпал
+    _adbg((got.length?'OK:'+got.join('/'):'direct opts='+optN)+' det='+JSON.stringify({m:d.model,b:d.backdrop,s:d.symbol}));
+    if(got.length){ try{ track('auto_traits', col.n); }catch(e){} try{ toast((S.lang==='ru'?'Распознан вариант: ':'Detected: ')+got.join(' \u00b7 ')); }catch(e){} }
+    try{ doEvaluate(); }catch(e){}
   }catch(e){ _autoTraitKey=''; _adbg('ex:'+(e&&e.message||e)); }
 }
 function doEvaluate(){
@@ -3447,7 +3452,9 @@ async function loadGiftCross(r){
   const proxy=proxyURL(); if(!proxy) return;
   const colEl=document.getElementById('e_col'); if(!colEl) return;
   const c=giftColById(colEl.value); if(!c||c.id==='other'||!c.slug) return;
-  const m=selName('e_rmodel'), b=selName('e_rback'), p=selName('e_rpat');
+  let m=selName('e_rmodel'), b=selName('e_rback'), p=selName('e_rpat');
+  try{ const curSer=(document.getElementById('e_serial')||{}).value||'';
+    if(_autoDetected && _autoDetected.ser===curSer){ m=m||_autoDetected.model; b=b||_autoDetected.backdrop; p=p||_autoDetected.symbol; } }catch(e){}
   const hasTrait=!!(m||b||p);
   const base=proxy.replace(/\/+$/,''), gname=encodeURIComponent(c.n), stamp=r.ts;
   const fragQ=async(suffix)=>{ try{ const res=await fetch(base+'/?fragment='+gname+suffix,{cache:'no-store'}); if(!res.ok) return null; const d=await res.json(); return (d&&d.ok&&d.floor>0)?d:null; }catch(e){ return null; } };
@@ -3883,8 +3890,11 @@ function tradeBandHTML(r){ return '<div id="tradeBand">'+guidanceInner(r)+'</div
 function renderTradeBand(r){ const el=document.getElementById('tradeBand'); if(el) el.innerHTML=guidanceInner(r); }
 function resultCardHTML(r){
   const tier=tierOf(r.priceTON);
+  const _traitBits=[r._m,r._b,r._p].filter(Boolean);
   const subline = r.cat==='username' ? 'fragment.com/username/'+r.display.slice(1)
-                : r.cat==='numbers' ? 'anonymous number' : t('collection');
+                : r.cat==='numbers' ? 'anonymous number'
+                : ((r.cat==='gifts'||r.cat==='stickers') && _traitBits.length) ? _traitBits.join(' · ')
+                : t('collection');
   const facts=factorsHTML(r);
   // honest uncertainty: liquid/cheap = tight, expensive/rare/illiquid = wide
   const spread=estSpread(r);
@@ -3982,7 +3992,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='2.3';
+const APP_VERSION='2.4';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
