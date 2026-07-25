@@ -3536,7 +3536,7 @@ async function loadGiftCross(r){
   }
   if(stats && stats.n>=8 && stats.cv>0){ r.fsd=Math.max(0.05, Math.min(0.4, 0.6*(r.fsd||0.2)+0.4*Math.min(0.5,stats.cv))); }   // #4 range/confidence from REAL collection volatility
   if(crossAsk>0 && r.priceTON>crossAsk) r.priceTON=crossAsk;   // never value above the cheapest REAL buyable price across ALL markets (Tonnel included)
-  if(marketAsk>0 && r.priceTON>marketAsk*1.15) r.priceTON=Math.round(marketAsk*1.15);   // и не выше +15% к живому аску точного матча
+  if(!comps.exact && !r.fragExact && marketAsk>0 && r.priceTON>marketAsk*1.15) r.priceTON=Math.round(marketAsk*1.15);   // потолок +15% к аску — НО не для точного матча: floor одиночного трейта (domBest) не должен занижать цену точной комбинации
   // Самокоррекция флора: если реальный самый дешёвый листинг (crossAsk) сильно ВЫШЕ базового флора,
   // значит источник флора занижен (бид/битые данные Portals) — реальная цена покупки и есть настоящий floor.
   const baseFloor=(c&&c.floor)||0;
@@ -3993,7 +3993,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='2.5';
+const APP_VERSION='2.6';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
