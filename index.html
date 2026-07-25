@@ -3894,7 +3894,9 @@ function countUp(id, target){
 function addEvalToPortfolio(){ if(lastResult && window.PF){
   const g=function(id){ try{ const s=document.getElementById(id); if(!s||s.selectedIndex<1) return ''; return s.options[s.selectedIndex].getAttribute('data-name')||''; }catch(e){ return ''; } };
   const num=(function(){ try{ const m=String(lastResult.display).match(/#\s*(\d+)/); if(m) return m[1]; const el=document.getElementById('e_serial'); return el?(el.value||''):''; }catch(e){ return ''; } })();
+  let fref=0; try{ fref=lastResult._floor||0; if(!fref && window.MK && MK.data){ const base=String(lastResult.display).split(' #')[0]; const m=Object.values(MK.data()).flat().find(x=>x.name===base); if(m&&m.price>0) fref=m.price; } }catch(e){}
   window.PF.addAsset({cat:lastResult.cat, display:lastResult.display, priceTON:lastResult.priceTON, qty:1,
+    floorRef:(fref>0?fref:undefined),
     model:g('e_rmodel')||undefined, backdrop:g('e_rback')||undefined, num:num||undefined});
 } }
 /* result renders inline in the eval panel; the primary add-to-portfolio CTA sits right under the price */
@@ -5204,7 +5206,16 @@ window.PF = (function(){
   function giftByName(name){ const m=mkByName(name); return (m&&m.cat==='gifts')?m:null; }
   function pfJit(seed){ const s=String(seed); let h=2166136261; for(let i=0;i<s.length;i++){ h=Math.imul(h^s.charCodeAt(i),16777619); } h>>>=0;
     const mag=0.2+(h%1000)/1000*1.0; return +(((h>>5)&1?-1:1)*mag).toFixed(1); }
-  function curPrice(h){ if((h.cat==='gift'||h.cat==='gifts')){ const g=giftByName(h.display); if(g) return g.price; } return h.priceTON; }
+  function curPrice(h){
+    if(h.cat==='gift'||h.cat==='gifts'){
+      const g=giftByName(h.display); const floor=g?g.price:0; const appr=h.priceTON||0;
+      // премия за серийник/трейты сохраняется и движется вместе с флором коллекции
+      if(appr>0 && h.floorRef>0 && floor>0) return Math.round(appr*(floor/h.floorRef));
+      if(appr>0 && floor>0 && appr>floor*1.15) return appr;   // старые записи с премией — не ронять к голому флору
+      if(floor>0) return floor;
+      return appr;
+    }
+    return h.priceTON; }
   function ch24(h){ const m=mkByName(h.display); return (m&&m.ch24!=null)?m.ch24:0; }   // нет данных = 0, а не случайное число
   function ch7(h){ const m=mkByName(h.display); return (m&&m.ch7!=null)?m.ch7:0; }
 
@@ -5410,7 +5421,7 @@ window.PF = (function(){
       if(unique){ toast(S.lang==='ru'?'Уже в портфеле — он уникален (1 из 1)':'Already in portfolio — it is 1-of-1'); return; }
       ex.qty=(ex.qty||1)+(a.qty||1);
     } else {
-      S.portfolio.push({id:a.id, cat, display:a.display, priceTON:Math.round(a.priceTON||0), buy:(a.buy!=null?Math.round(a.buy):null), qty:unique?1:(a.qty||1), ts:Date.now(), addedAt:a.addedAt||Date.now(), model:a.model||undefined, backdrop:a.backdrop||undefined, num:a.num||undefined});
+      S.portfolio.push({id:a.id, cat, display:a.display, priceTON:Math.round(a.priceTON||0), buy:(a.buy!=null?Math.round(a.buy):null), qty:unique?1:(a.qty||1), ts:Date.now(), addedAt:a.addedAt||Date.now(), model:a.model||undefined, backdrop:a.backdrop||undefined, num:a.num||undefined, floorRef:(a.floorRef>0?Math.round(a.floorRef):undefined)});
     }
     try{ if(!Array.isArray(S.activity))S.activity=[]; S.activity.unshift({type:'buy', display:a.display, cat, price:Math.round((a.buy!=null?a.buy:a.priceTON)||0), ts:Date.now()}); if(S.activity.length>120)S.activity=S.activity.slice(0,120); }catch(e){}
     snapshot(); save(); pfTouch(); if(window.BANK && !a.silent) window.BANK.award(5);
