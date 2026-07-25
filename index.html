@@ -5208,11 +5208,12 @@ window.PF = (function(){
     const mag=0.2+(h%1000)/1000*1.0; return +(((h>>5)&1?-1:1)*mag).toFixed(1); }
   function curPrice(h){
     if(h.cat==='gift'||h.cat==='gifts'){
-      const g=giftByName(h.display); const floor=g?g.price:0; const appr=h.priceTON||0;
-      // премия за серийник/трейты сохраняется и движется вместе с флором коллекции
-      if(appr>0 && h.floorRef>0 && floor>0) return Math.round(appr*(floor/h.floorRef));
-      if(appr>0 && floor>0 && appr>floor*1.15) return appr;   // старые записи с премией — не ронять к голому флору
-      if(floor>0) return floor;
+      const appr=h.priceTON||0;
+      const g=giftByName(h.display); const floor=g?g.price:0;
+      if(!(appr>0)) return floor;                              // нет оценки — только тогда флор коллекции
+      // держим ОЦЕНЁННУЮ стоимость конкретного экземпляра (а не «самое дешёвое коллекции»);
+      // двигаем её с рынком, но только в разумных пределах — иначе демо/глитч флора «улетает»
+      if(h.floorRef>0 && floor>0){ const r=floor/h.floorRef; if(r>=0.25 && r<=4) return Math.round(appr*r); }
       return appr;
     }
     return h.priceTON; }
@@ -5307,7 +5308,7 @@ window.PF = (function(){
     else if(sortKey==='pnl'){ const pl=x=>{ const h=x.h; if(h.buy==null||!(h.buy>0)) return -1e15; return (curPrice(h)-h.buy)*(h.qty||1); }; __idx.sort((a,b)=>pl(b)-pl(a)); }
     const rows=__idx.map(({h,i})=>{ const p=curPrice(h)*(h.qty||1); const d=ch24(h); const u=d>=0;
       return '<div class="pf-item"><div class="ic">'+picHTML(h)+'</div>'+
-        '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+escapeHTML(h.display)+'</b><span>'+(function(){ const ru=S.lang==='ru'; const q=h.qty||1; const parts=[]; if(q>1) parts.push(q+' '+(ru?'шт':'pcs')); if(h.buy!=null&&h.buy>0){ const pnl=(curPrice(h)-h.buy)*q; const pct=(curPrice(h)-h.buy)/h.buy*100; const c=pnl>=0?'var(--up)':'var(--down)'; parts.push((ru?'вход ':'in ')+grp(h.buy)); parts.push('<span style="color:'+c+'">'+(pnl>=0?'+':'−')+grp(Math.abs(Math.round(pnl)))+' ('+(pct>=0?'+':'')+pct.toFixed(0)+'%)</span>'); } else parts.push(ru?'вход не указан':'no entry price'); return parts.join(' · '); })()+'</span></div>'+
+        '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+escapeHTML(h.display)+'</b><span>'+(function(){ const ru=S.lang==='ru'; const q=h.qty||1; const parts=[]; if(q>1) parts.push(q+' '+(ru?'шт':'pcs')); if(h.buy!=null&&h.buy>0){ const pnl=(curPrice(h)-h.buy)*q; const pct=(curPrice(h)-h.buy)/h.buy*100; const c=pnl>=0?'var(--up)':'var(--down)'; parts.push((ru?'вход ':'in ')+grp(h.buy)); parts.push('<span style="color:'+c+'">'+(pnl>=0?'+':'−')+grp(Math.abs(Math.round(pnl)))+' ('+(pct>=0?'+':'')+pct.toFixed(0)+'%)</span>'); } if(!parts.length) parts.push(ru?'коллекция':'collection'); return parts.join(' · '); })()+'</span></div>'+
         '<div class="pf-spkbox" onclick="PF.details('+i+')" style="cursor:pointer">'+rowSpark(h)+'</div>'+
         '<div class="rt" onclick="PF.details('+i+')" style="cursor:pointer"><div class="v">'+(hidden?'••••':grp(p))+' GRAM</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+'% · '+(S.lang==='ru'?'24ч':'24h')):'—')+'</div></div>'+
         '<div class="pf-rowacts"><button class="pf-sell" title="edit" onclick="PF.editOpen('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button><button class="pf-sell" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
@@ -5412,7 +5413,7 @@ window.PF = (function(){
 
   function addAsset(a){ if(!a||!a.display) return; try{ track('add_to_portfolio', a.display); track('portfolio_add', a.display); }catch(e){} if(!Array.isArray(S.portfolio))S.portfolio=[];
     try{ a.addedAt=a.addedAt||Date.now(); if(!a.id) a.id='p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }catch(e){}
-    if(a.buy==null && a.priceTON>0) a.buy=Math.round(a.priceTON);   // как в трекерах: покупка по текущему рынку, можно поправить в ✎
+    // вход НЕ подставляем автоматически: P&L появится, только если пользователь сам укажет цену покупки (✎)
     const cat=({gifts:'gift',usernames:'username'})[a.cat]||a.cat;
     const ex=S.portfolio.find(h=>h.cat===cat && h.display===a.display);
     // a specific NFT number is unique in the world -> can only be held once
