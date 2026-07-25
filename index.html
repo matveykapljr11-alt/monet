@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -3497,7 +3497,12 @@ async function loadGiftCross(r){
   if(stats && stats.n>=8 && stats.cv>0){ r.fsd=Math.max(0.05, Math.min(0.4, 0.6*(r.fsd||0.2)+0.4*Math.min(0.5,stats.cv))); }   // #4 range/confidence from REAL collection volatility
   if(crossAsk>0 && r.priceTON>crossAsk) r.priceTON=crossAsk;   // never value above the cheapest REAL buyable price across ALL markets (Tonnel included)
   if(marketAsk>0 && r.priceTON>marketAsk*1.15) r.priceTON=Math.round(marketAsk*1.15);   // и не выше +15% к живому аску точного матча
-  const lbFloor=Math.round(Math.max((c&&c.floor)||0, crossAsk>0?0:(domBest||0)));   // collection floor is the hard lower bound; trust real cross-market over Portals-derived domBest
+  // Самокоррекция флора: если реальный самый дешёвый листинг (crossAsk) сильно ВЫШЕ базового флора,
+  // значит источник флора занижен (бид/битые данные Portals) — реальная цена покупки и есть настоящий floor.
+  const baseFloor=(c&&c.floor)||0;
+  const realFloor=(crossAsk>0 && crossAsk>baseFloor*1.4) ? crossAsk : baseFloor;
+  if(realFloor>baseFloor*1.4 && r.priceTON<realFloor){ r.priceTON=Math.round(realFloor); }
+  const lbFloor=Math.round(Math.max(realFloor, crossAsk>0?0:(domBest||0)));   // нижняя граница = реальный флор (макс из булк-флора и живого листинга)
   if(lbFloor>0 && r.priceTON<lbFloor) r.priceTON=lbFloor;
   // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
