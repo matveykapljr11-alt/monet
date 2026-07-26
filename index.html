@@ -3377,34 +3377,33 @@ let _autoDetected=null;   // {ser,model,backdrop,symbol} — распознан�
 /* Авто-детект трейтов по серийнику: если пользователь ввёл номер, но не указал модель/фон/символ,
    тянем трейты предмета со страницы NFT (тот же ?gift=, что и вставка ссылки) и пересчитываем.
    Иначе премиум-варианты оцениваются по голому флору коллекции с ложной «высокой» уверенностью. */
-function _adbg(x){ try{ window._AUTODBG=x; }catch(e){} }
 async function maybeAutoTraits(){
   try{
-    const col=giftColById((document.getElementById('e_col')||{}).value); if(!col||col.id==='other'){ _adbg('no-col'); return; }
+    const col=giftColById((document.getElementById('e_col')||{}).value); if(!col||col.id==='other'){ return; }
     const ser=(document.getElementById('e_serial')||{}).value||''; const num=parseInt(ser,10);
-    if(!(num>0)){ _adbg('no-serial'); return; }
-    if(selName('e_rmodel')||selName('e_rback')||selName('e_rpat')){ _adbg('has-trait'); return; }
-    const key=(col.slug||col.id)+'-'+num; if(_autoTraitKey===key){ _adbg('dup-key'); return; } _autoTraitKey=key;
-    const base=proxyURL(); if(!base){ _autoTraitKey=''; _adbg('no-proxy'); return; }
+    if(!(num>0)){ return; }
+    if(selName('e_rmodel')||selName('e_rback')||selName('e_rpat')){ return; }
+    const key=(col.slug||col.id)+'-'+num; if(_autoTraitKey===key){ return; } _autoTraitKey=key;
+    const base=proxyURL(); if(!base){ _autoTraitKey=''; return; }
     const nm=String(col.n).replace(/[^A-Za-z0-9]/g,'');
     let d=null,ferr=''; try{ const rr=await fetch(base.replace(/\/+$/,'')+'/?gift='+encodeURIComponent(nm+'-'+num),{cache:'no-store'}); if(rr.ok) d=await rr.json(); else ferr='http'+rr.status; }catch(e){ ferr='fetchex'; }
-    if(!d||!d.ok||!(d.model||d.backdrop||d.symbol)){ _adbg('nogift:'+ferr+':'+(d?JSON.stringify({m:d.model,b:d.backdrop,s:d.symbol}):'null')); return; }
+    if(!d||!d.ok||!(d.model||d.backdrop||d.symbol)){ return; }
     const optsReady=(id)=>{ const el=document.getElementById(id); return !el||(el.options&&el.options.length>1); };
     const ready=()=>optsReady('e_rmodel')&&optsReady('e_rback')&&optsReady('e_rpat');
     _autoDetected={ser:ser, model:d.model||'', backdrop:d.backdrop||'', symbol:d.symbol||''};   // независимо от дропдауна — прямая привязка для loadGiftCross
     let tries=0; await new Promise(res=>{ (function w(){ if(ready()||tries++>30) return res(); setTimeout(w,100); })(); });
     const opts=(document.getElementById('e_rmodel')||{}).options; const optN=opts?opts.length:-1;
-    if(selName('e_rmodel')||selName('e_rback')||selName('e_rpat')){ _adbg('has-trait2'); return; }
-    if(((document.getElementById('e_serial')||{}).value||'')!==ser){ _adbg('serial-changed'); return; }
+    if(selName('e_rmodel')||selName('e_rback')||selName('e_rpat')){ return; }
+    if(((document.getElementById('e_serial')||{}).value||'')!==ser){ return; }
     let got=[];
     const okM=d.model?setSelByName('e_rmodel', d.model):false; if(okM){ updateTraitBtn('e_','rmodel'); got.push(d.model); }
     const okB=d.backdrop?setSelByName('e_rback', d.backdrop):false; if(okB){ updateTraitBtn('e_','rback'); got.push(d.backdrop); }
     const okP=d.symbol?setSelByName('e_rpat', d.symbol):false; if(okP){ updateTraitBtn('e_','rpat'); got.push(d.symbol); }
     // цену тянет _autoDetected напрямую в loadGiftCross — пересчитываем в любом случае, даже если дропдаун не совпал
-    _adbg((got.length?'OK:'+got.join('/'):'direct opts='+optN)+' det='+JSON.stringify({m:d.model,b:d.backdrop,s:d.symbol}));
+   
     if(got.length){ try{ track('auto_traits', col.n); }catch(e){} try{ toast((S.lang==='ru'?'Распознан вариант: ':'Detected: ')+got.join(' \u00b7 ')); }catch(e){} }
     try{ doEvaluate(); }catch(e){}
-  }catch(e){ _autoTraitKey=''; _adbg('ex:'+(e&&e.message||e)); }
+  }catch(e){ _autoTraitKey=''; }
 }
 function doEvaluate(){
   if(curCat==='gifts'||curCat==='stickers'){ /* always allowed */ }
@@ -3506,7 +3505,7 @@ async function loadGiftCross(r){
     }
   }
   // cross-market reconcile: one market's exact ask must not inflate worth above the cheaper cross-market comps
-  if(comps.exact && ourEst>0 && r.priceTON>ourEst){ r.priceTON=Math.round(ourEst); if(ourR){ r.factors=ourR.factors; r.fsd=ourR.fsd; } }
+  if(comps.exact && crossAsk>0 && ourEst>0 && r.priceTON>ourEst){ r.priceTON=Math.round(ourEst); if(ourR){ r.factors=ourR.factors; r.fsd=ourR.fsd; } }   // клэмп к клиентской оценке — ТОЛЬКО если есть реальные дешёвые листинги (crossAsk); иначе живой аск точного предмета (факт) не занижаем floor'ом+редкостью
   // === fair appraisal vs live market + verdict ===
   const exactAsk=(comps.exact && exact && exact.floor>0)?Math.round(exact.floor):0;
   // robust sold-based fair: prefer EXACT sales, else dominant-trait sales; median-of-cheapest-N with MAD outlier rejection
@@ -3552,7 +3551,6 @@ async function loadGiftCross(r){
   if(r._blind && baseFloorSeed>0 && r.priceTON>baseFloorSeed) r.priceTON=Math.round(baseFloorSeed);
   // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
-  try{ window._AUTODBG='X m='+(m||'-')+'|exF='+(exact?exact.floor:'null')+'|exL='+(exact?exact.matchLevel:'-')+'|cross='+crossAsk+'|sold='+sold+'|dom='+domBest+'|fin='+r.priceTON+'|blind='+(r._blind?1:0); }catch(e){}
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0;
   comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;
   if(lastResult===r && r.ts===stamp){          // устаревший асинхронный прогон НЕ трогает DOM
@@ -3914,7 +3912,7 @@ function resultCardHTML(r){
       '<div class="price-fiat"><span class="v" id="fiatVal">'+fmtFiat(r.priceTON)+'</span>'+
         '<span class="cur-toggle"><button class="'+(S.currency==='usd'?'on':'')+'" onclick="setCurrency(\'usd\')">USD</button><button class="'+(S.currency==='eur'?'on':'')+'" onclick="setCurrency(\'eur\')">EUR</button></span></div>'+
       (((r.cat==='gifts'||r.cat==='stickers')&&S.showStars!==false)?'<div class="price-stars" id="starsVal">\u2248 '+fmtStars(r.priceTON)+' \u2b50</div>':'')+
-      '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+' · v'+APP_VERSION+(window._AUTODBG?(' · AD:'+window._AUTODBG):'')+'</div>'+
+      '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+' · v'+APP_VERSION+'</div>'+
       dataFreshHTML()+
     '</div>'+
     '<div class="rbody">'+
@@ -3993,7 +3991,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='2.6';
+const APP_VERSION='2.7';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
