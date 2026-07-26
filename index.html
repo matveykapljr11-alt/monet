@@ -3525,9 +3525,10 @@ async function loadGiftCross(r){
     // живого аска, они принадлежат редким вариациям и не должны надувать оценку обычного экземпляра
     const askRef=Math.max(exactAsk||0, crossAsk||0);
     if(!hasTrait && askRef>0 && sold>askRef*2.5) w=0;
+    if(r.fragExact && !salesArr) w=0;   // точный живой листинг + продаж ИМЕННО этой комбинации нет -> коллекционная медиана (микс дешёвых моделей) не разбавляет факт-аск
     if(w>0){ const worth=Math.round(w*sold+(1-w)*r.priceTON); if(worth>0) r.priceTON=worth; } }
   // #5: server-learned hedonic — price by the most-valuable trait's premium LEARNED ON REAL SALES (not bare rarity), credibility-gated
-  if(stats && stats.n>=8){
+  if(stats && stats.n>=8 && !r.fragExact){
     const pm=stats.prem||{}; const gp=(o,nm)=>(o&&nm&&o[nm]>0)?o[nm]:0;
     const vals=[gp(pm.models,m),gp(pm.backdrops,b),gp(pm.symbols,p)].filter(x=>x>0);
     if(vals.length){ const hed=Math.max.apply(null,vals);   // worth ~ the most-valuable trait's typical SALE price (server-learned, absolute GRAM)
@@ -3991,7 +3992,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='2.7';
+const APP_VERSION='2.8';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
