@@ -2007,6 +2007,7 @@ header{border-bottom:0;background:none}
 .pi-dot{width:7px;height:7px;border-radius:50%;background:var(--good,#3fae7a);box-shadow:0 0 0 3px rgba(63,174,122,.2)}
 .pf-ro{opacity:.62}
 .pf-ro .rt .d{visibility:hidden}
+.ms-promo{margin-top:14px;padding:14px;border:1px solid var(--line,#1c3327);border-radius:14px}
 .ms-invite{margin-top:14px;padding:14px;border:1px dashed var(--line,#1c3327);border-radius:14px}
 .ms-invite-t{font-weight:800;font-size:14px;color:var(--txt,#eaf3ee)}
 .ms-invite-s{font-size:12px;color:var(--txt-2,#9fb3a8);line-height:1.45;margin-top:4px}
@@ -4135,7 +4136,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='3.5';
+const APP_VERSION='3.6';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4761,7 +4762,11 @@ function renderPricing(highlight){
     '<div class="ms-invite-s">'+(ru?'+3 оценки за каждого, кто придёт по твоей ссылке и сделает первую оценку.':'+3 appraisals for each friend who joins via your link and makes their first appraisal.')+
     (bonus?(' <b style="color:var(--ton,#2e9b6e)">'+(ru?'Бонусных сейчас: ':'Bonus now: ')+bonus+'</b>'):'')+'</div>'+
     '<button class="ms-btn go" style="margin-top:10px" onclick="shareRef()">'+(ru?'Поделиться ссылкой':'Share link')+'</button></div>') : '';
-  el.innerHTML='<div class="ms-sheet">'+head+'<div class="ms-cards">'+cards+whale+'</div>'+table+manage+invite+'</div>';
+  const promo='<div class="ms-promo"><div class="ms-invite-t">'+(ru?'Есть промокод?':'Have a promo code?')+'</div>'+
+    '<div style="display:flex;gap:8px;margin-top:8px"><input id="msPromo" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="'+(ru?'КОД':'CODE')+'" style="flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:800;letter-spacing:.06em;text-transform:uppercase">'+
+    '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="redeemPromoClient()">'+(ru?'Активировать':'Redeem')+'</button></div>'+
+    '<div id="msPromoMsg" style="font-size:12px;margin-top:8px;line-height:1.4"></div></div>';
+  el.innerHTML='<div class="ms-sheet">'+head+'<div class="ms-cards">'+cards+whale+'</div>'+table+manage+promo+invite+'</div>';
 }
 function shareRef(){ try{ const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user&&tg.initDataUnsafe.user.id)||''; if(!uid){ toast(S.lang==='ru'?'Ссылка недоступна':'Link unavailable'); return; }
   const link=APP_LINK+'?startapp=ref_'+uid; const ru=S.lang==='ru';
@@ -4769,6 +4774,21 @@ function shareRef(){ try{ const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.us
   try{ track('referral_opened','share'); }catch(e){}
   if(tg&&tg.openTelegramLink){ tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(link)+'&text='+encodeURIComponent(txt)); return; }
   try{ navigator.clipboard.writeText(link); toast(ru?'Ссылка скопирована':'Link copied'); }catch(e){ toast(link); } }catch(e){} }
+async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.getElementById('msPromo'); const msg=document.getElementById('msPromoMsg'); if(!el) return;
+  const code=String(el.value||'').trim().toUpperCase().replace(/[^A-Z0-9_]/g,''); if(!code){ if(msg){ msg.textContent=ru?'Введите код':'Enter a code'; } return; }
+  const base=proxyURL(); const initData=(tg&&tg.initData)||'';
+  if(!base||!initData){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды работают только в Telegram':'Promo codes work inside Telegram only'; } return; }
+  if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=ru?'Проверяем…':'Checking…'; }
+  try{ track('plan_selected','promo:'+code); }catch(e){}
+  let r=null; try{ const res=await fetch(base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code),{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
+  if(!r){ if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Сеть недоступна':'Network error'; } return; }
+  if(r.ok){ const tU=String(r.tier||'').toUpperCase();
+    if(msg){ msg.style.color='var(--good)'; msg.textContent=(ru?'🎉 Готово! Подписка '+tU+' на '+(r.duration_days||30)+' дней активирована.':'🎉 Done! '+tU+' for '+(r.duration_days||30)+' days is active.'); }
+    try{ track('upgrade_completed','promo:'+r.tier); }catch(e){} try{ pollEntitlement(); }catch(e){} setTimeout(function(){ try{ fetchEntitlement(); }catch(e){} try{ renderPricing(); }catch(e){} },1500); }
+  else if(r.reason==='sold_out'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=(ru?('🔥 Упс, код уже разобрали '+(r.max||10)+' самых быстрых! Тебе доступен FREE: до 3 активов и Floor-каталог.'):('🔥 Oops — the first '+(r.max||10)+' fastest already claimed it! FREE is still yours: up to 3 assets and the floor catalog.')); } }
+  else if(r.reason==='already'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Вы уже активировали этот промокод.':'You already activated this code.'; } }
+  else { if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Код не существует.':'This code does not exist.'; } }
+}
 function buyPlan(plan){ const ru=S.lang==='ru'; try{ track('plan_selected', plan); }catch(e){}
   (async function(){
     try{
@@ -6406,6 +6426,17 @@ window.ADMIN=(function(){
         '<button class="pf-addbtn" onclick="ADMIN.msLookup()">Показать</button>'+
       '</div>'+
       '<div id="msAdminOut" style="margin-top:12px;font-size:13px;color:var(--txt-2)"></div>'+
+      '<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">'+
+        '<div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:8px">Промокод (многоразовый)</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+
+          '<input id="mpCode" placeholder="CODE" style="flex:2;min-width:140px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:800;text-transform:uppercase">'+
+          '<select id="mpTier" style="padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700"><option value="plus">plus</option><option value="pro">pro</option></select>'+
+          '<input id="mpDays" type="number" value="30" style="width:70px;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700" title="дней">'+
+          '<input id="mpMax" type="number" value="10" style="width:70px;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700" title="лимит">'+
+          '<button class="pf-addbtn" onclick="ADMIN.msPromoCreate()">Создать</button>'+
+        '</div>'+
+        '<div id="mpOut" style="margin-top:8px;font-size:12px;color:var(--txt-2)"></div>'+
+      '</div>'+
     '</div>';
   }
   function fmtMs(ms){ if(!ms) return '—'; try{ return new Date(ms).toISOString().slice(0,16).replace('T',' ')+'Z'; }catch(e){ return String(ms); } }
@@ -6436,7 +6467,12 @@ window.ADMIN=(function(){
   async function msGrant(n){ const uid=msTargetVal(); if(!uid) return; await msCall({action:'grant',target:uid,n:n}); msLookup(); }
   async function msActivate(plan){ const uid=msTargetVal(); if(!uid) return; await msCall({action:'activate',target:uid,plan:plan}); msLookup(); }
   async function msClearCool(){ const uid=msTargetVal(); if(!uid) return; await msCall({action:'clearcool',target:uid}); msLookup(); }
-  return {init,render,isAdmin, msLookup, msGrant, msActivate, msClearCool};
+  async function msPromoCreate(){ const out=document.getElementById('mpOut'); const code=(document.getElementById('mpCode')||{}).value||''; const plan=(document.getElementById('mpTier')||{}).value||'plus'; const days=(document.getElementById('mpDays')||{}).value||30; const max=(document.getElementById('mpMax')||{}).value||10;
+    if(!code){ if(out) out.textContent='Укажи код'; return; } if(out) out.textContent='…';
+    const d=await msCall({action:'promo_create', code:code, plan:plan, days:Number(days), max:Number(max)});
+    if(d&&d.ok&&d.promo){ if(out){ out.style.color='var(--good)'; out.textContent='✓ '+d.promo.code+' · '+d.promo.tier.toUpperCase()+' · '+d.promo.duration_days+'д · лимит '+d.promo.max_activations; } }
+    else { if(out){ out.style.color='var(--bad)'; out.textContent='Ошибка: '+((d&&d.error)||'нет доступа'); } } }
+  return {init,render,isAdmin, msLookup, msGrant, msActivate, msClearCool, msPromoCreate};
 })();
 function initTelegram(){
   if(!tg) return;
