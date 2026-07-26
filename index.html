@@ -1874,7 +1874,7 @@ header{border-bottom:0;background:none}
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
     <h2 id="drawerTitle"></h2>
-    <button class="hbtn" aria-label="'+t('ariaClose')+'" onclick="closeDrawer()">✕</button>
+    <button class="hbtn" aria-label="Закрыть" onclick="closeDrawer()">✕</button>
   </div>
   <div class="dr-top">
     <nav class="dr-nav">
@@ -1911,7 +1911,7 @@ header{border-bottom:0;background:none}
       <button class="dr-item" onclick="openCurPick()"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.5 2.6 15 0 18M12 3c-2.6 2.5-2.6 15 0 18"/></svg></span><b data-i18n="stCurrency"></b><span class="set-cur" id="setCurLbl"></span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <div class="dr-item dr-row"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg></span><span class="set-txt"><b data-i18n="stStars"></b><small data-i18n="stStarsD"></small></span><div class="lang-toggle" id="starsToggle"><button onclick="setStars(true)" data-i18n="stOn"></button><button onclick="setStars(false)" data-i18n="stOff"></button></div></div>
       <button class="dr-item" onclick="cycleDefaultView()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18"/></svg></span><span class="set-txt"><b data-i18n="stDefault"></b><small data-i18n="stDefaultD"></small></span><span class="set-cur" id="dvLbl"></span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-      <div class="dr-item dr-row"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M9.5 12.5l2 2 3.5-4"/></svg></span><span class="set-txt"><b data-i18n="stExp"></b><small data-i18n="stExpD"></small></span><div class="lang-toggle" id="expToggle"><button onclick="setExperimental(true)" data-i18n="stOn"></button><button onclick="setExperimental(false)" data-i18n="stOff"></button></div></div>
+      <div class="dr-item dr-row" style="display:none"><span class="qic g3"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l7 4v5c0 4.4-3 8-7 9-4-1-7-4.6-7-9V7z"/><path d="M9.5 12.5l2 2 3.5-4"/></svg></span><span class="set-txt"><b data-i18n="stExp"></b><small data-i18n="stExpD"></small></span><div class="lang-toggle" id="expToggle"><button onclick="setExperimental(true)" data-i18n="stOn"></button><button onclick="setExperimental(false)" data-i18n="stOff"></button></div></div>
       <div class="dr-item dr-row"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3l2.2 5.4L20 9l-4.4 3.8L17 19l-5-3.2L7 19l1.4-6.2L4 9l5.8-.6z"/></svg></span><b data-i18n="stSkin"></b><div class="lang-toggle" id="skinToggle"><button onclick="setSkin('a')" data-i18n="skinA"></button><button onclick="setSkin('b')" data-i18n="skinB"></button></div></div>
     </div>
     <div class="dr-grid">
@@ -1940,7 +1940,7 @@ header{border-bottom:0;background:none}
 </div>
 <div class="modal-scrim" id="premiumModal" onclick="if(event.target===this)closePremium()">
   <div class="modal">
-    <span class="close" role="button" tabindex="0" aria-label="'+t('ariaClose')+'" onclick="closePremium()">✕</span>
+    <span class="close" role="button" tabindex="0" aria-label="Закрыть" onclick="closePremium()">✕</span>
     <div class="crown"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg></div>
     <h2 data-i18n="pmTitle"></h2>
     <p class="msub" data-i18n="pmSub"></p>
@@ -3476,7 +3476,7 @@ async function spendGate(){
   if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'};
 }
 async function requestEvaluate(){
-  try{ if(curCat!=='gifts'&&curCat!=='stickers'){ doEvaluate(); return; } }catch(e){ doEvaluate(); return; }
+  try{ if(curCat!=='gifts'&&curCat!=='stickers'){ openPaywall('whale','asset_'+curCat); return; } }catch(e){ return; }
   const btn=document.getElementById('evalBtn'); if(btn) btn.disabled=true;
   let g; try{ g=await spendGate(); }catch(e){ g={ok:true}; }
   if(btn) btn.disabled=false;
@@ -3663,6 +3663,7 @@ function renderGiftVerdict(v){
   const _ref=Math.max(v.worth||0, v.exactAsk||0, v.floor||0);
   const soldOk = v.sold>0 && (v.hasTrait ? true : (_ref>0 && v.sold<=_ref*3 && v.sold>=_ref*0.25));
   if(soldOk) rows+=row(ru?'Реальные сделки':'Recent sales', '≈ '+fmtTON(v.sold)+' GRAM'+(v.salesN>1?' · '+v.salesN+(ru?' сд.':''):''), 'var(--good)');
+  else if(v.sold>0) rows+=row(ru?'Все продажи коллекции':'All collection sales', '≈ '+fmtTON(v.sold)+' GRAM', 'var(--txt-3)');   // несопоставимо с этим предметом -> нейтрально, без % выгоды
   let vb='', note='';
   if(v.exactAsk>0 && soldOk){
     const d=Math.round((v.exactAsk - v.sold)/v.sold*100);
@@ -4134,7 +4135,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='3.4';
+const APP_VERSION='3.5';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4714,9 +4715,9 @@ function applyPromo(){ const el=document.getElementById('pmCode'); const msg=doc
 function fmtUntilMs(ms){ if(!ms) return '—'; try{ const d=new Date(ms); return d.toLocaleDateString(S.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return '—'; } }
 function msFeatureRows(ru){
   return [
-    [ru?'Оценок в день':'Appraisals/day', '5*', '30', '500', '∞'],
+    [ru?'Оценки':'Appraisals', ru?'15/мес*':'15/mo*', '30/'+(ru?'дн':'d'), '500/'+(ru?'дн':'d'), '∞'],
     [ru?'Портфель, активов':'Portfolio assets', '3', '30', '500', '∞'],
-    [ru?'История оценок':'Full history', '—', '✓', '✓', '✓'],
+    [ru?'История оценок':'History', ru?'3 записи':'3 entries', ru?'полная':'full', ru?'полная':'full', ru?'полная':'full'],
     [ru?'График портфеля':'Portfolio chart', '—', '✓', '✓', '✓'],
     [ru?'Алерты floor / цена':'Floor / price alerts', '—', '✓', '✓', '✓'],
     [ru?'Smart Signals':'Smart Signals', '—', '—', '✓', '✓'],
@@ -4796,6 +4797,7 @@ function paywallCopy(reason, ru){
     alerts:{p:'plus', t:ru?'Алерты доступны с Plus':'Alerts require Plus', b:ru?'Plus присылает алерты об изменении floor и при достижении вашей цены.':'Plus sends floor-change and price-target alerts.'},
     smart_signals:{p:'pro', t:ru?'Smart Signals — функция Pro':'Smart Signals is a Pro feature', b:ru?'Pro находит листинги ниже справедливой цены Monet и считает Monet Score.':'Pro finds listings below Monet fair value and computes Monet Score.'},
     pro_on_plus:{p:'pro', t:ru?'Это функция Pro':'This is a Pro feature', b:ru?'Обновитесь до Pro, чтобы разблокировать.':'Upgrade to Pro to unlock.'},
+    whale:{p:'whale', t:ru?'Скоро — тариф Whale':'Coming soon — Whale', b:ru?'Оценка юзернеймов, +888 номеров и каналов появится в тарифе Whale (Phase 2). Сейчас доступны Telegram Gifts.':'Usernames, +888 numbers and channels arrive with Whale (Phase 2). Telegram Gifts are available now.'},
     export:{p:'pro', t:ru?'Экспорт — функция Pro':'Export is a Pro feature', b:ru?'Pro позволяет выгрузить портфель в CSV/Excel.':'Pro lets you export your portfolio to CSV/Excel.'},
     rate:{p:'pro', t:ru?'Слишком часто':'Too many requests', b:ru?'Короткая пауза для защиты сервиса. Попробуйте через минуту.':'Brief cool-down to protect the service. Try again in a minute.'}
   };
@@ -4811,7 +4813,8 @@ function openPaywall(reason, source){ const ru=S.lang==='ru'; const c=paywallCop
     '<button class="ms-link" onclick="closePricing()">'+(ru?'Не сейчас':'Not now')+'</button></div>';
   el.classList.add('open');
 }
-function openPremium(){ try{ track('premium_click'); }catch(e){} if(S.premium){ toast(t('premiumGranted')); return; }
+function openPremium(){ try{ track('premium_click'); }catch(e){} try{ openPricing(null,'legacy'); }catch(e){} return; }
+function _openPremiumLegacy(){ if(S.premium){ toast(t('premiumGranted')); return; }
   if(S.promoCode&&PROMO_CODES[S.promoCode]){ promoDisc=PROMO_CODES[S.promoCode]; promoCode=S.promoCode; }
   renderPlan();
   setTimeout(function(){ try{ const el=document.getElementById('pmCode'); const msg=document.getElementById('pmCodeMsg');
@@ -4822,7 +4825,8 @@ function openPremium(){ try{ track('premium_click'); }catch(e){} if(S.premium){ 
           else { pr.style.display='none'; } }
   document.getElementById('premiumModal').classList.add('open'); try{ track('paywall_view'); }catch(e){} }
 function closePremium(){ document.getElementById('premiumModal').classList.remove('open'); }
-async function buyPremium(){
+async function buyPremium(){ try{ openPricing(null,'legacy'); }catch(e){} return; }
+async function _buyPremiumLegacy(){
   try{
     if(!(tg && tg.openInvoice)){ toast(t('pmSoon')); return; }
     const plan=currentPlan, p=PLANS[plan]||PLANS.month;
@@ -5030,7 +5034,7 @@ const MS_PLANS={
 function entPlan(){ return (S.ent&&S.ent.plan)||'free'; }
 function entCap(){ return (S.ent&&S.ent.portfolio_cap)||MS_PLANS[entPlan()].portfolio||3; }
 function entUntil(){ return (S.ent&&S.ent.plan_until)||0; }
-function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; return (typeof l.remaining==='number')?l.remaining:null; }
+function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; if(typeof l.remaining==='number') return l.remaining; try{ if(S.dail&&S.dail.date===todayStr()) return Math.max(0,5-(S.dail.count||0)); }catch(e){} return 5; }
 function planRank(p){ return {free:0,plus:1,pro:2,whale:3}[p]||0; }
 function hasPlan(min){ return planRank(entPlan())>=planRank(min); }
 // доступ к фичам по спеке
@@ -5676,7 +5680,7 @@ window.PF = (function(){
         (list.length>=2?'<div class="pf-bcard" onclick="PF.info(\'forecast\')" style="cursor:pointer"><div class="k">'+t('pfForecast')+' ›</div><div class="v">'+(hidden?'••••':grp(fc.val)+' GRAM')+'</div><div class="s" style="color:'+(fc.pct>=0?'var(--up)':'var(--down)')+'">'+(fc.pct>=0?'▲':'▼')+' '+Math.abs(fc.pct).toFixed(1)+'% · '+(S.lang==='ru'?'если тренд 7д сохранится':'if 7d trend holds')+'</div></div>':'')+
         '<div class="pf-bcard" onclick="PF.info(\'status\')" style="cursor:pointer'+(list.length>=2?'':';grid-column:1/-1')+'"><div class="k">'+t('pfTier')+' ›</div><div class="v">'+tierBadge(tier.idx)+' '+tier.name+'</div><div class="s" style="color:var(--txt-3)">'+(tier.next?(t('pfToNext')+' '+tier.next.name+': '+grp(tier.next.need)+' GRAM'):'MAX')+'</div></div>'+
       '</div>'+
-      pnlHTML()+ goalCard+ cashHTML()))+ (window.BANK?window.BANK.rewardsCardHTML():'')+
+      pnlHTML()+ goalCard+ cashHTML()))+
       insights+ alloc+
       '<div class="pf-sec-h"><b>'+t('pfHoldings')+' · '+list.length+'</b><span style="flex:1"></span>'+'<button class="pf-addbtn" style="margin-right:7px" onclick="PF.exportCSV()">\u2193 CSV</button>'+(function(){ try{ if(typeof FLOORS_TS!=='undefined'&&FLOORS_TS>0) return '<span onclick="PF.refresh()" style="font-size:10px;color:var(--txt-3);font-weight:700;margin-right:10px;cursor:pointer">'+(S.lang==='ru'?'данные: ':'data: ')+fmtAgo(FLOORS_TS)+' ⟳</span>'; }catch(e){} return ''; })()+'<button class="pf-addbtn" style="margin-right:7px" onclick="openBulk()">⇪ '+(S.lang==='ru'?'Импорт':'Import')+'</button><button class="pf-addbtn" onclick="PF.openAdd()">+ '+t('pfAdd')+'</button></div>'+
       posSignals()+
@@ -6061,10 +6065,7 @@ window.BANK = (function(){
   /* ---------- rewards ---------- */
   function today(){ return new Date().toISOString().slice(0,10); }
   function yday(){ const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
-  function checkin(){ const d=today(); if(S.lastSeen===d) return;
-    const bonus=10;
-    S.points=(S.points||0)+bonus; S.lastSeen=d; save();
-    setTimeout(()=>toast('⭐ +'+bonus+' · '+t('rwDaily')),700); }
+  function checkin(){ /* устаревшая система очков/дневного бонуса отключена — лимиты считает сервер (Free/Plus/Pro) */ return; }
   function award(n){ S.points=(S.points||0)+n; save(); if(curView==='portfolio'&&window.PF) window.PF.render(); }
   function redeem(){ if(S.premium||(S.points||0)<REDEEM) return; S.points-=REDEEM; S.premium=true; save();
     try{updatePremiumUI();}catch(e){} if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
@@ -6321,7 +6322,7 @@ window.ONB = (function(){
   function slides(){ const ru=S.lang==='ru'; const H=heroes(ru); return [
     {bg:'s0', kr:(ru?'01 · TELEGRAM ASSET INTELLIGENCE':'01 · TELEGRAM ASSET INTELLIGENCE'), dc:['#43A87C','#2E7D5E','#7FE0B4'], hero:H[0],
       fl:[G('🧸','#E86FA6'),U('@durov'),G('💎','#6B8BE8'),Nm('0142'),G('🌹','#E05670'),G('👑','#D9A441'),U('@nft'),G('🔮','#A06BE8'),G('🦋','#3FA9C2'),Nm('8888'),G('🪅','#E07FB0'),U('@gift')],
-      t:ru?'Твой Telegram-капитал начинается здесь':'Your Telegram capital starts here', s:ru?'Оцени gifts, usernames и +888-номера по рыночным данным.':'Value gifts, usernames and +888 numbers on real market data.'},
+      t:ru?'Твой Telegram-капитал начинается здесь':'Your Telegram capital starts here', s:ru?'Оцени Telegram-подарки по рыночным данным.':'Value Telegram gifts on real market data.'},
     {bg:'s1', kr:(ru?'02 · ОЦЕНКА':'02 · APPRAISAL'), dc:['#D9A441','#C8A24B','#F0D27A'], hero:H[1],
       fl:[G('💎','#6B8BE8'),G('💍','#D9A441'),U('@whale'),G('🔮','#A06BE8'),Nm('0007'),G('🧸','#E86FA6'),G('🎩','#46B27E'),U('@crypto'),G('🪙','#D9A441'),G('🌹','#E05670'),Nm('1337'),G('👑','#D9A441')],
       t:ru?'Узнай цену за секунды':'Know the price in seconds', s:ru?'Получай диапазон, уверенность и причины оценки.':'Get a range, confidence and the reasons behind it.'},
@@ -6445,8 +6446,8 @@ function initTelegram(){
     try{ if(tg.disableVerticalSwipes) tg.disableVerticalSwipes(); }catch(e){}   /* stop the app from being dragged/shifted */
     try{ if(tg.isVerticalSwipesEnabled!==undefined) tg.isVerticalSwipesEnabled=false; }catch(e){}
     try{ applyTheme(); }catch(e){}
-    if(tg.CloudStorage){
-      tg.CloudStorage.getItem('monet',(err,val)=>{ if(!err && val && !lsGet('monet')){ try{ Object.assign(S,JSON.parse(val)); if(!S.themeSet) S.theme='dark'; setLang(S.lang); applyTheme(); }catch(e){} } });
+    if(tg.CloudStorage && typeof tg.CloudStorage.getItem==='function'){
+      try{ tg.CloudStorage.getItem('monet',(err,val)=>{ if(!err && val && !lsGet('monet')){ try{ Object.assign(S,JSON.parse(val)); if(!S.themeSet) S.theme='dark'; setLang(S.lang); applyTheme(); }catch(e){} } }); }catch(e){}
     }
   }catch(e){}
 }
@@ -6726,7 +6727,7 @@ window.ALERTS=(function(){
     if(fired){ S.alerts=keep; try{save();}catch(e){} }
     badge(); if(fired){ try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){} }
     return fired; }
-  function open(){ render(null,true); document.getElementById('al-scrim').classList.add('open'); }
+  function open(){ if(typeof canFeature==='function'&&!canFeature('alerts_floor')){ try{ openPaywall('alerts','alerts_screen'); }catch(e){} return; } render(null,true); document.getElementById('al-scrim').classList.add('open'); }
   function quick(name,cat,price){ if(typeof canFeature==='function'&&!canFeature('alerts_floor')){ try{ openPaywall('alerts','alert'); }catch(e){} return; } render({name:name, target:Math.round((price||0)*1.15)}); document.getElementById('al-scrim').classList.add('open'); }
   function quickAt(name,cat,target){ if(typeof canFeature==='function'&&!canFeature('alerts_floor')){ try{ openPaywall('alerts','alert'); }catch(e){} return; } render({name:name, target:Math.round(target||0)}); document.getElementById('al-scrim').classList.add('open'); }
   function close(){ document.getElementById('al-scrim').classList.remove('open'); }
@@ -6745,7 +6746,7 @@ window.ALERTS=(function(){
         '<div class="al-hint">'+t('alHint')+'</div></div>'+
       '<div class="al-list">'+items+'</div>';
     if(!noFocus) setTimeout(()=>{const el=document.getElementById(pre.name?'al-target':'al-name');if(el)el.focus();},80); }
-  function addFromInput(){ const name=(document.getElementById('al-name').value||'').trim(); if(!name) return;
+  function addFromInput(){ if(typeof canFeature==='function'&&!canFeature('alerts_floor')){ try{ openPaywall('alerts','alerts_add'); }catch(e){} return; } const name=(document.getElementById('al-name').value||'').trim(); if(!name) return;
     const tv=parseFloat((document.getElementById('al-target').value||'').replace(/[^\d.]/g,'')); if(!tv||tv<=0) return;
     const base=priceOf(name); const dir = base>0 ? (tv>=base?'above':'below') : 'above';
     if(!Array.isArray(S.alerts))S.alerts=[];
