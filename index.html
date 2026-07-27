@@ -1890,7 +1890,7 @@ header{border-bottom:0;background:none}
     <div class="dr-profile" id="drProfile" onclick="closeDrawer();BANK.openCard()"></div>
     <div class="dr-sec" data-i18n="drActions"></div>
     <div class="dr-grid">
-      <button class="dr-tile dr-prem" id="premTile" onclick="closeDrawer();openPricing(null,'menu')"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8l4 3 4-6 4 6 4-3-1.6 11H5.6z"/></svg></span><b>Monet Prima</b></button>
+      <button class="dr-tile dr-prem" id="premTile" onclick="closeDrawer();openPricing(null,'menu')"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M4 8l4 3 4-6 4 6 4-3-1.6 11H5.6z"/></svg></span><b>Тарифы и промокод</b></button>
       <button class="dr-tile dr-deskhide" onclick="closeDrawer();BANK.openCard()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18M7 14.5h3"/></svg></span><b data-i18n="myCard"></b></button>
       <button class="dr-tile" onclick="closeDrawer();HOME.openBuyIdeas()"><span class="qic g1"><svg class="ico" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span><b data-i18n="stBuyIdeas"></b></button>
       <button class="dr-tile" onclick="closeDrawer();ALERTS.open()"><span class="qic g2"><svg class="ico" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><b data-i18n="alTitle"></b></button>
@@ -4136,7 +4136,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='4.3';
+const APP_VERSION='4.5';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4165,7 +4165,7 @@ function syncSettings(){ try{
   const exg=document.getElementById('expToggle'); if(exg&&exg.children.length>=2){ const on=S.showExperimental!==false; exg.children[0].classList.toggle('on',on); exg.children[1].classList.toggle('on',!on); }
   const skg=document.getElementById('skinToggle'); if(skg&&skg.children.length>=2){ const on=S.skin==='b'; skg.children[0].classList.toggle('on',!on); skg.children[1].classList.toggle('on',on); }
   const ver=document.getElementById('setVer'); if(ver) ver.textContent='Monet v'+APP_VERSION;
-  const pt=document.getElementById('premTile'); if(pt){ pt.style.display=S.premium?'none':''; const bx=pt.querySelector('b'); if(bx){ if(subActive()){ bx.innerHTML='Prima <i class="dr-free dr-free-sub">'+fmtUntil(S.premiumUntil)+'</i>'; } else if(launchFree()){ bx.innerHTML='Prima <i class="dr-free">'+t('freeNow')+'</i>'; } else { bx.innerHTML='Monet Prima'; } } }
+  const pt=document.getElementById('premTile'); if(pt){ pt.style.display=''; const bx=pt.querySelector('b'); if(bx){ const pl=(typeof entPlan==='function')?entPlan():'free'; const nm=(typeof MS_PLANS!=='undefined'&&MS_PLANS[pl])?MS_PLANS[pl].name:'Free'; if(pl!=='free'){ const until=(typeof entUntil==='function')?entUntil():0; bx.innerHTML=nm+(until?' <i class="dr-free dr-free-sub">'+fmtUntilMs(until)+'</i>':''); } else { bx.innerHTML=(S.lang==='ru'?'Тарифы и промокод':'Plans & promo code'); } } }
 }catch(e){} }
 
 /* ---- identify gift/sticker by photo (vision AI; online, graceful fallback) ---- */
@@ -6517,14 +6517,17 @@ window.ADMIN=(function(){
       '</div>'+
       '<div id="msAdminOut" style="margin-top:12px;font-size:13px;color:var(--txt-2)"></div>'+
       '<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">'+
-        '<div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:8px">Промокод (многоразовый)</div>'+
-        '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+
-          '<input id="mpCode" placeholder="CODE" style="flex:2;min-width:140px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:800;text-transform:uppercase">'+
-          '<select id="mpTier" style="padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700"><option value="plus">plus</option><option value="pro">pro</option></select>'+
-          '<input id="mpDays" type="number" value="30" style="width:70px;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700" title="дней">'+
-          '<input id="mpMax" type="number" value="10" style="width:70px;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700" title="лимит">'+
-          '<button class="pf-addbtn" onclick="ADMIN.msPromoCreate()">Создать</button>'+
-        '</div>'+
+        '<div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:2px">Создать промокод</div>'+
+        '<div style="font-size:11.5px;color:var(--txt-3);margin-bottom:10px">Один код может активировать несколько человек (пока не кончится лимит). Даёт подписку выбранного тарифа на N дней.</div>'+
+        (function(){ const fld=(lab,inner)=>'<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt-3)">'+lab+'</span>'+inner+'</div>';
+        const inp='padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700';
+        return '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">'+
+          fld('Код (буквы/цифры/_)', '<input id="mpCode" placeholder="MONET_VIP" style="'+inp+';font-weight:800;text-transform:uppercase;min-width:150px">')+
+          fld('Тариф', '<select id="mpTier" style="'+inp+'"><option value="plus">Plus</option><option value="pro">Pro</option><option value="whale">Whale</option></select>')+
+          fld('Дней подписки', '<input id="mpDays" type="number" value="30" style="'+inp+';width:90px">')+
+          fld('Лимит активаций', '<input id="mpMax" type="number" value="10" style="'+inp+';width:110px">')+
+          '<button class="pf-addbtn" style="padding:10px 16px" onclick="ADMIN.msPromoCreate()">Создать</button>'+
+        '</div>'; })()+
         '<div id="mpOut" style="margin-top:8px;font-size:12px;color:var(--txt-2)"></div>'+
       '</div>'+
     '</div>';
