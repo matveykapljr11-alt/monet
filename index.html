@@ -2039,7 +2039,7 @@ const PREMIUM_STARS = PLANS.month.stars;           // legacy alias
 const LAUNCH_FREE_UNTIL = Date.UTC(2026,6,12,21,0,0);   // 13 Jul 2026 00:00 MSK (UTC+3) — same instant for everyone
 function launchFree(){ return Date.now() < LAUNCH_FREE_UNTIL; }
 function subActive(){ return !!(S&&S.premiumUntil) && Date.now() < S.premiumUntil; }   // paid subscription still valid
-function proActive(){ return launchFree() || !!(S&&S.premium) || subActive(); }         // unified "has full access" check
+function proActive(){ try{ return (typeof hasPlan==='function') ? hasPlan('plus') : false; }catch(e){ return false; } }   // доступ = серверный тариф (plus/pro/whale), не клиентский S.premium
 // Сервер — источник правды: если он ответил, локальные флаги подчиняются ему (localStorage подделать нельзя безнаказанно)
 let ENT_SERVER_SAID=false;
 const FX_LABEL = { usd:'$', eur:'€' };
@@ -2920,7 +2920,7 @@ function learnCal(slug, modelEst, truth){
 }
 function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, fPat, fModel, sBack, sPat, sModel, bName){
   const list=COLLECTIONS[cat];
-  const col=list.find(c=>c.id===colId)||list[list.length-1];
+  const col=list.find(c=>c.id===colId)||list.find(c=>c.id==='other')||list[list.length-1];
   const F=[]; const ru=S.lang==='ru'; let accOut=null;
   const cf=parseFloat(customFloor);
   const base=(colId==='other'&&!isNaN(cf)&&cf>0)?cf:(col.floor>0?col.floor:100);
@@ -3477,7 +3477,7 @@ async function spendGate(){
   if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'};
 }
 async function requestEvaluate(){
-  try{ if(curCat!=='gifts'&&curCat!=='stickers'){ openPaywall('whale','asset_'+curCat); return; } }catch(e){ return; }
+  try{ if(curCat!=='gifts'&&curCat!=='stickers' && !assetUnlocked(curCat)){ openPaywall('whale','asset_'+curCat); return; } }catch(e){ return; }
   const btn=document.getElementById('evalBtn'); if(btn) btn.disabled=true;
   let g; try{ g=await spendGate(); }catch(e){ g={ok:true}; }
   if(btn) btn.disabled=false;
@@ -4038,7 +4038,7 @@ function resultCardHTML(r){
   const facts=factorsHTML(r);
   // honest uncertainty: liquid/cheap = tight, expensive/rare/illiquid = wide
   const spread=estSpread(r);
-  const P=(+r.priceTON||0);                                  // ЕДИНОЕ число: главная цена/диапазон/USD/Stars/итог — все через fmtTON(P)
+  const P=Math.max(0,+r.priceTON||0);                                  // ЕДИНОЕ число: главная цена/диапазон/USD/Stars/итог — все через fmtTON(P)
   const lo=P*(1-spread), hi=P*(1+spread);
   const cc=confOf(r), lq=liqOf(r);
   const loading=!!r._loading;
@@ -4136,7 +4136,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='3.6';
+const APP_VERSION='4.3';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4202,7 +4202,7 @@ async function identifyByPhoto(file){
     const px=proxyURL();
     const endpoint = px ? (px+(px.includes('?')?'&':'?')+'identify') : VISION_API;
     const res=await fetch(endpoint,{ method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000,
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, initData:(px?((tg&&tg.initData)||''):undefined),
         messages:[{role:'user', content:[
           {type:'image', source:{type:'base64', media_type:media, data:b64}},
           {type:'text', text:prompt}
@@ -4712,6 +4712,42 @@ function applyPromo(){ const el=document.getElementById('pmCode'); const msg=doc
     if(msg){ msg.style.color='var(--up)'; msg.textContent=(ru?'Промокод применён: скидка −':'Promo applied: −')+Math.round(promoDisc*100)+'%'; }
     renderPlanCards(); try{ track('promo_applied'); }catch(e){} if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}} }
   else { promoDisc=0; promoCode=''; if(msg){ msg.style.color='var(--down)'; msg.textContent=ru?'Такого промокода нет':'Invalid promo code'; } renderPlanCards(); } }
+/* ===== WHALE PHASE 2: панель (API-ключ, вебхук) + оценщик каналов ===== */
+function scoreChannel(subs, views){ subs=Math.max(0,+subs||0); views=Math.max(0,+views||0);
+  if(subs<=0) return {priceTON:0, er:0};
+  const er=views>0?Math.min(1,views/subs):0.08;             // вовлечённость
+  const perSub=0.012 + er*0.09;                              // 0.012..0.102 GRAM/подписчика по вовлечённости
+  return { priceTON: Math.round(subs*perSub), er:er }; }
+async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; if(!base||!initData) return {ok:false,reason:'no_tg'};
+  try{ const r=await fetch(base.replace(/\/+$/,'')+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({initData:initData},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
+function openWhalePanel(){ if(entPlan()!=='whale'){ try{ openPaywall('whale','panel'); }catch(e){} return; } renderWhalePanel(); msOverlay().classList.add('open'); }
+async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
+  el.innerHTML='<div class="ms-sheet"><div class="ms-h"><div><div class="ms-eyebrow">Whale · Phase 2</div><div class="ms-title">'+(ru?'Инструменты Whale':'Whale tools')+'</div></div><button class="ms-x" aria-label="Закрыть" onclick="closePricing()">✕</button></div>'+
+    '<div class="ms-promo"><div class="ms-invite-t">'+(ru?'Оценщик каналов':'Channel appraiser')+'</div>'+
+      '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">'+
+        '<input id="chSubs" inputmode="numeric" placeholder="'+(ru?'Подписчиков':'Subscribers')+'" style="flex:1;min-width:120px;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:700">'+
+        '<input id="chViews" inputmode="numeric" placeholder="'+(ru?'Ср. просмотры':'Avg views')+'" style="flex:1;min-width:120px;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:700">'+
+        '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleChannelEval()">'+(ru?'Оценить':'Value')+'</button></div>'+
+      '<div id="chOut" style="margin-top:8px;font-size:13px;color:var(--txt-2)"></div>'+
+      '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'Оценка по подписчикам и вовлечённости. Рынок каналов тонкий — это ориентир.':'Estimated from subscribers and engagement. Channel market is thin — a guideline.')+'</div></div>'+
+    '<div class="ms-promo"><div class="ms-invite-t">API</div><div id="apiOut" style="font-size:12px;color:var(--txt-2);margin-top:6px">…</div>'+
+      '<div style="display:flex;gap:8px;margin-top:8px"><button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleKeyCreate()">'+(ru?'Выпустить ключ':'Create key')+'</button><button class="ms-btn" style="width:auto;padding:10px 16px" onclick="whaleKeyRevoke()">'+(ru?'Отозвать':'Revoke')+'</button></div>'+
+      '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">GET '+(proxyURL()||'<worker>')+'/?api&key=…&op=floor&collection=plushpepe</div></div>'+
+    '<div class="ms-promo"><div class="ms-invite-t">Webhook</div>'+
+      '<div style="display:flex;gap:8px;margin-top:8px"><input id="whUrl" placeholder="https://…" style="flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:600">'+
+      '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleWebhookSet()">'+(ru?'Сохранить':'Save')+'</button></div>'+
+      '<div id="whOut" style="font-size:12px;color:var(--txt-2);margin-top:6px"></div>'+
+      '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'POST при срабатывании алерта: {source, ts, event}':'POST on alert trigger: {source, ts, event}')+'</div></div>'+
+    '</div>';
+  try{ const k=await whaleApi('/?apikey',{action:'view'}); const o=document.getElementById('apiOut'); if(o) o.textContent=(k&&k.key)?('key: '+k.key):(ru?'ключ не выпущен':'no key yet'); }catch(e){}
+  try{ const w=await whaleApi('/?webhook',{action:'view'}); const el2=document.getElementById('whUrl'); if(el2&&w&&w.url) el2.value=w.url; }catch(e){}
+}
+function whaleChannelEval(){ const ru=S.lang==='ru'; const subs=(document.getElementById('chSubs')||{}).value; const views=(document.getElementById('chViews')||{}).value; const r=scoreChannel(subs,views); const o=document.getElementById('chOut');
+  if(o){ if(!(r.priceTON>0)){ o.textContent=ru?'Введите число подписчиков':'Enter subscriber count'; return; } o.innerHTML='<b style="color:var(--txt)">≈ '+fmtTON(r.priceTON)+' GRAM</b> · '+fmtFiat(r.priceTON)+' · '+(ru?'вовлечённость ':'engagement ')+Math.round(r.er*100)+'%'; }
+  try{ track('asset_evaluated','channel'); }catch(e){} }
+async function whaleKeyCreate(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); if(o)o.textContent='…'; const r=await whaleApi('/?apikey',{action:'create'}); if(o) o.textContent=(r&&r.key)?('key: '+r.key):(ru?'ошибка':'error'); }
+async function whaleKeyRevoke(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); await whaleApi('/?apikey',{action:'revoke'}); if(o)o.textContent=ru?'ключ отозван':'key revoked'; }
+async function whaleWebhookSet(){ const ru=S.lang==='ru'; const url=(document.getElementById('whUrl')||{}).value||''; const o=document.getElementById('whOut'); if(o)o.textContent='…'; const r=await whaleApi('/?webhook',{action:'set',url:url}); if(o){ if(r&&r.ok){ o.style.color='var(--good)'; o.textContent=ru?'✓ сохранено':'✓ saved'; } else { o.style.color='var(--bad)'; o.textContent=(r&&r.reason==='bad_url')?(ru?'Нужен https URL':'https URL required'):(ru?'ошибка':'error'); } } }
 /* ===== ТАРИФЫ И PAYWALL (Monet Monetization P0) ===== */
 function fmtUntilMs(ms){ if(!ms) return '—'; try{ const d=new Date(ms); return d.toLocaleDateString(S.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return '—'; } }
 function msFeatureRows(ru){
@@ -4755,6 +4791,7 @@ function renderPricing(highlight){
     '<div class="ms-foot-note">'+(ru?'* 5 стартовых + до 15 в месяц, +1 в день (00:00 UTC)':'* 5 starter + up to 15/month, +1 daily (00:00 UTC)')+'</div>';
   const manage = (plan!=='free')
     ? '<button class="ms-link" onclick="cancelAutoRenew()">'+(S.ent&&S.ent.autorenew?(ru?'Отключить автопродление':'Turn off auto-renew'):(ru?'Автопродление отключено':'Auto-renew is off'))+'</button>'
+      +(plan==='whale'?'<button class="ms-btn go" style="margin-top:6px" onclick="openWhalePanel()">'+(ru?'🐋 Инструменты Whale (API, Webhook, Каналы)':'🐋 Whale tools (API, Webhook, Channels)')+'</button>':'')
     : '';
   const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user&&tg.initDataUnsafe.user.id)||'';
   const bonus=(S.ent&&S.ent.limits&&S.ent.limits.bonus)||0;
@@ -5006,9 +5043,9 @@ function grantSub(plan){
   try{ if(S.notify && typeof syncNotify==='function') syncNotify(false); }catch(e){}
 }
 function grantPremium(src,silent){
-  S.premium=true; save(); updatePremiumUI();
-  closePremium();
-  if(!silent) toast(t('premiumGranted'));
+  /* доступ выдаёт ТОЛЬКО сервер (оплата/промокод). Клиентский флаг больше не разблокирует тарифы. */
+  try{ closePremium(); }catch(e){}
+  try{ if(typeof openPricing==='function') openPricing(null,'legacy_grant'); }catch(e){}
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.notificationOccurred('success');}catch(e){} }
   try{ if(typeof syncSettings==='function') syncSettings(); }catch(e){}
   try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){}
@@ -5035,7 +5072,7 @@ async function fetchEntitlement(){
     }
     // --- Тарифная модель (Monet Monetization): сервер — источник правды о плане/лимитах/капе ---
     if(j&&j.ok&&j.plan){
-      S.ent={ plan:j.plan, limits:j.limits||{}, portfolio_cap:(j.portfolio_cap||3), plan_until:(j.plan_until||0), autorenew:!!j.autorenew, ts:Date.now() };
+      S.ent={ plan:j.plan, limits:j.limits||{}, portfolio_cap:(j.portfolio_cap||3), plan_until:(j.plan_until||0), autorenew:!!j.autorenew, assets:(j.assets||['gifts']), ts:Date.now() };
       try{save();}catch(e){}
       try{ if(curView==='pricing') renderPricing(); }catch(e){}
       try{ if(curView==='portfolio'&&window.PF&&PF.render) PF.render(); }catch(e){}
@@ -5049,7 +5086,7 @@ const MS_PLANS={
   free:{ name:'Free', stars:0, portfolio:3 },
   plus:{ name:'Plus', stars:449, days:30, portfolio:30, daily:30 },
   pro:{ name:'Pro', stars:1499, days:30, portfolio:500, daily:500 },
-  whale:{ name:'Whale', stars:3999, days:30, comingSoon:true }
+  whale:{ name:'Whale', stars:3999, days:30, portfolio:5000, daily:2000, comingSoon:true }
 };
 function entPlan(){ return (S.ent&&S.ent.plan)||'free'; }
 function entCap(){ return (S.ent&&S.ent.portfolio_cap)||MS_PLANS[entPlan()].portfolio||3; }
@@ -5058,8 +5095,12 @@ function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; if(typeof l.remainin
 function planRank(p){ return {free:0,plus:1,pro:2,whale:3}[p]||0; }
 function hasPlan(min){ return planRank(entPlan())>=planRank(min); }
 // доступ к фичам по спеке
-function featurePlan(feat){ return ({ alerts_floor:'plus', alerts_price:'plus', portfolio_chart:'plus', smart_signals:'pro', monet_score:'pro', fast_sell:'pro', export:'pro' })[feat]||'plus'; }
+function featurePlan(feat){ return ({ alerts_floor:'plus', alerts_price:'plus', portfolio_chart:'plus', smart_signals:'pro', monet_score:'pro', fast_sell:'pro', export:'pro', username:'whale', numbers:'whale', channels:'whale' })[feat]||'plus'; }
 function canFeature(feat){ return hasPlan(featurePlan(feat)); }
+// какие категории активов открыты текущим тарифом (Usernames/+888/Channels — только Whale)
+function assetUnlocked(cat){ if(cat==='gifts'||cat==='stickers') return true;
+  try{ const a=(S.ent&&S.ent.assets)||null; if(a&&a.length) return a.indexOf(cat)>=0; }catch(e){}
+  return entPlan()==='whale'; }
 function syncPlanBadges(){ try{ document.querySelectorAll('[data-planbadge]').forEach(function(el){ el.textContent=MS_PLANS[entPlan()].name; }); }catch(e){} }
 // Автопереоценка по тарифу: Plus — раз в сутки, Pro — раз в час (клиентская, при открытии; серверный крон — отдельно)
 function autoReval(){ try{ const plan=entPlan(); if(plan!=='plus'&&plan!=='pro') return;
@@ -6087,9 +6128,7 @@ window.BANK = (function(){
   function yday(){ const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
   function checkin(){ /* устаревшая система очков/дневного бонуса отключена — лимиты считает сервер (Free/Plus/Pro) */ return; }
   function award(n){ S.points=(S.points||0)+n; save(); if(curView==='portfolio'&&window.PF) window.PF.render(); }
-  function redeem(){ if(S.premium||(S.points||0)<REDEEM) return; S.points-=REDEEM; S.premium=true; save();
-    try{updatePremiumUI();}catch(e){} if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
-    toast(t('rwGotPremium')); if(window.PF) window.PF.render(); }
+  function redeem(){ /* очки Monet больше не обмениваются на доступ — тарифы только через оплату/промокод */ try{ if(typeof openPricing==='function') openPricing(null,'points'); }catch(e){} }
   function rewardsCardHTML(){ const p=S.points||0; const pct=Math.min(100,p/REDEEM*100); const ru=S.lang==='ru';
     let foot;
     if(S.premium) foot='<div class="have">✓ '+t('rwHave')+'</div>';
@@ -6414,7 +6453,58 @@ window.ADMIN=(function(){
       last.map(d=>'<tr>'+[d.d,d.open||0,d.dau||0,d.asset_evaluated||0,d.add_to_portfolio||0,d.share_card||0,d.premium_click||0,d.invoice_paid||0].map((v,i)=>'<td style="text-align:right;padding:9px 8px;border-top:1px solid var(--line);font-weight:'+(i?'700':'600')+';font-family:'+(i?'var(--font-d)':'var(--font-b)')+'">'+v+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
     const feedH='<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:14px 18px;box-shadow:var(--shadow)"><div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:6px">Последние события</div>'+
       (feed.length?feed.slice(0,100).map(f=>'<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13px"><span style="color:var(--txt-3);font-weight:700;min-width:34px">'+rel(f.ts)+'</span><span style="font-weight:700;min-width:120px">'+esc(f.n?'@'+f.n:(f.u?'id'+f.u:'аноним'))+'</span><span style="color:var(--txt-2)">'+esc(evName(f.ev))+(f.d?' · <b style=\"color:var(--txt)\">'+esc(f.d)+'</b>':'')+'</span></div>').join(''):'<div class="al-empty">Пока пусто</div>')+'</div>';
-    host.innerHTML=shell(msPanelHTML()+cards+charts+table+feedH);
+    let ms=null; try{ const rr=await fetch(base.replace(/\/+$/,'')+'/?msstats',{method:'POST',body:(tg&&tg.initData)||'',cache:'no-store'}); if(rr.ok) ms=await rr.json(); }catch(e){}
+    _lastStats=ms; _lastDays=(data.days||[]);
+    host.innerHTML=shell((ms&&ms.ok?msAnalyticsHTML(ms):'')+msPanelHTML()+cards+charts+table+feedH);
+  }
+  let _lastStats=null, _lastDays=[];
+  function exportStats(){ const ru=S.lang!=='en'; const d=_lastStats; if(!d||!d.ok){ toast(ru?'Нет данных':'No data'); return; }
+    const esc=v=>{ v=String(v==null?'':v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+    const L=[]; L.push('metric,value');
+    const a=d.subs.active||{}; const usd=Math.round((d.revenueStars||0)*(d.usd_per_star||0.013));
+    [['users',d.users],['active_today',d.activeToday],['revenue_stars',d.revenueStars],['revenue_usd_est',usd],['payments',d.txnCount],
+     ['subs_active_plus',a.plus||0],['subs_active_pro',a.pro||0],['subs_active_whale',a.whale||0],['subs_expiring_3d',d.subs.expiring3d],['subs_autorenew_off',d.subs.autorenewOff],
+     ['ref_attributed',d.referral.attributed],['ref_rewarded',d.referral.rewarded]].forEach(r=>L.push(esc(r[0])+','+esc(r[1])));
+    const F=d.funnel||{}; Object.keys(F).sort().forEach(k=>L.push('event_'+esc(k)+','+esc(F[k])));
+    (d.promos||[]).forEach(p=>L.push('promo_'+esc(p.code)+','+esc(p.used+'/'+p.max+' '+p.tier)));
+    L.push(''); L.push('day,dau,app_open,asset_evaluated,paywall_viewed,payment_success');
+    (_lastDays||[]).forEach(dd=>L.push([dd.d,dd.dau||0,dd.app_open||0,dd.asset_evaluated||0,dd.paywall_viewed||0,dd.payment_success||0].map(esc).join(',')));
+    const csv=L.join('\n');
+    try{ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}); const el=document.createElement('a'); el.href=URL.createObjectURL(blob); el.download='monet-metrics-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(()=>URL.revokeObjectURL(el.href),1500); toast(ru?'Экспорт готов':'Export ready'); }
+    catch(e){ try{ navigator.clipboard.writeText(csv); toast(ru?'CSV скопирован':'CSV copied'); }catch(e2){} } }
+  function msAnalyticsHTML(d){
+    const ru=S.lang!=='en'; const grp=(n)=>{ n=Math.round(+n||0); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); };
+    const usd=Math.round((d.revenueStars||0)*(d.usd_per_star||0.013));
+    const a=(d.subs&&d.subs.active)||{plus:0,pro:0,whale:0}; const activeSubs=(a.plus||0)+(a.pro||0)+(a.whale||0);
+    const kpi=(l,v,s2,c)=>'<div style="flex:1;min-width:120px;background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:14px 16px"><div style="font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--txt-3)">'+l+'</div><div style="font-family:var(--font-d);font-weight:700;font-size:23px;margin-top:5px'+(c?';color:'+c:'')+'">'+v+'</div>'+(s2?'<div style="font-size:11px;color:var(--txt-3);font-weight:600;margin-top:2px">'+s2+'</div>':'')+'</div>';
+    const cards='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">'+
+      kpi(ru?'Выручка':'Revenue', grp(d.revenueStars)+' ⭐', '≈ $'+grp(usd)+' · '+(d.txnCount||0)+(ru?' платежей':' payments'),'var(--up)')+
+      kpi(ru?'Активные подписки':'Active subs', ''+activeSubs, 'Plus '+(a.plus||0)+' · Pro '+(a.pro||0)+' · Whale '+(a.whale||0))+
+      kpi(ru?'Юзеров всего':'Total users', grp(d.users), (ru?'активны сегодня: ':'active today: ')+(d.activeToday||0))+
+      kpi(ru?'Истекают ≤3д':'Expiring ≤3d', ''+(d.subs.expiring3d||0), (ru?'автопродление off: ':'auto-renew off: ')+(d.subs.autorenewOff||0), (d.subs.expiring3d>0?'var(--warn)':''))+
+      '</div>';
+    // воронка конверсии
+    const F=d.funnel||{}; const steps=[['app_open',ru?'Открытий':'Opens'],['asset_evaluated',ru?'Оценок':'Appraisals'],['paywall_viewed','Paywall'],['plan_selected',ru?'Выбор тарифа':'Plan picked'],['payment_success',ru?'Оплат':'Payments']];
+    const base0=Math.max(1,F.app_open||F.asset_evaluated||1);
+    const funnel='<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px"><div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:10px">'+(ru?'Воронка конверсии · 30д':'Conversion funnel · 30d')+'</div>'+
+      steps.map(function(st,i){ const v=F[st[0]]||0; const pct=Math.round(v/base0*100); const prev=i>0?(F[steps[i-1][0]]||0):v; const drop=prev>0?Math.round(v/prev*100):100;
+        return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700"><span>'+st[1]+'</span><span>'+grp(v)+' <span style="color:var(--txt-3);font-weight:600">· '+pct+'%'+(i>0?(' (→'+drop+'%)'):'')+'</span></span></div><div style="height:7px;background:var(--bg2);border-radius:5px;margin-top:4px;overflow:hidden"><div style="height:100%;width:'+Math.max(2,pct)+'%;background:var(--ton);border-radius:5px"></div></div></div>'; }).join('')+
+      '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'Конверсия открытие→оплата: ':'Open→pay: ')+(base0?((F.payment_success||0)/base0*100).toFixed(2):'0')+'% · paywall→оплата: '+((F.paywall_viewed>0)?((F.payment_success||0)/F.paywall_viewed*100).toFixed(1):'0')+'%</div></div>';
+    // промокоды
+    const promos=(d.promos||[]); const ptable=promos.length?('<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:12px 16px;margin-bottom:12px;overflow-x:auto"><div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:6px">'+(ru?'Промокоды':'Promo codes')+'</div><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr>'+['Код','Тариф','Активаций','Статус'].map(h=>'<th style="text-align:left;padding:6px 8px;font-size:10px;text-transform:uppercase;color:var(--txt-3)">'+h+'</th>').join('')+'</tr></thead><tbody>'+
+      promos.map(function(p){ const full=p.used>=p.max; return '<tr><td style="padding:7px 8px;border-top:1px solid var(--line);font-weight:800;font-family:var(--font-m)">'+esc(p.code)+'</td><td style="padding:7px 8px;border-top:1px solid var(--line)">'+esc(String(p.tier).toUpperCase())+' · '+p.days+'д</td><td style="padding:7px 8px;border-top:1px solid var(--line);color:'+(full?'var(--down)':'var(--up)')+';font-weight:700">'+p.used+' / '+p.max+'</td><td style="padding:7px 8px;border-top:1px solid var(--line)">'+(p.active?(full?(ru?'разобран':'sold out'):(ru?'активен':'live')):(ru?'выкл':'off'))+'</td></tr>'; }).join('')+'</tbody></table></div>'):'';
+    // рефералы
+    const r=d.referral||{}; const refc='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">'+
+      kpi(ru?'Рефералов привязано':'Referrals attributed', ''+(r.attributed||0), (ru?'наградили: ':'rewarded: ')+(r.rewarded||0))+
+      kpi(ru?'Персональных':'Personal', ''+(r.personal||0), (ru?'публичных: ':'public: ')+(r.pub||0))+'</div>';
+    // ретеншн (прокси по событиям возврата)
+    const opens=F.app_open||0; const r1=F.user_returned_1d||0, r7=F.user_returned_7d||0, r30=F.user_returned_30d||0;
+    const ret='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">'+
+      kpi('Retention D1', (opens?Math.round(r1/opens*100):0)+'%', grp(r1)+(ru?' вернулись':' returned'))+
+      kpi('Retention D7', (opens?Math.round(r7/opens*100):0)+'%', grp(r7)+(ru?' вернулись':' returned'))+
+      kpi('Retention D30', (opens?Math.round(r30/opens*100):0)+'%', grp(r30)+(ru?' вернулись':' returned'))+'</div>';
+    const exp='<button class="pf-addbtn" style="margin-bottom:12px" onclick="ADMIN.exportStats()">\u2193 '+(ru?'Экспорт метрик CSV':'Export metrics CSV')+'</button>';
+    return '<div style="margin-bottom:8px"><h3 style="font-family:var(--font-d);font-weight:700;font-size:18px;margin:2px 0 12px">'+(ru?'💰 Монетизация':'💰 Monetization')+'</h3>'+exp+cards+funnel+ret+ptable+refc+'</div>';
   }
   async function msCall(body){ const base=proxyURL(); if(!base) return {ok:false}; try{ const r=await fetch(base.replace(/\/+$/,'')+'/?msadmin',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({initData:(tg&&tg.initData)||''},body)),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false,error:String(e&&e.message)}; } }
   function msTargetVal(){ const el=document.getElementById('msTarget'); return el?String(el.value).replace(/[^0-9]/g,''):''; }
@@ -6472,7 +6562,7 @@ window.ADMIN=(function(){
     const d=await msCall({action:'promo_create', code:code, plan:plan, days:Number(days), max:Number(max)});
     if(d&&d.ok&&d.promo){ if(out){ out.style.color='var(--good)'; out.textContent='✓ '+d.promo.code+' · '+d.promo.tier.toUpperCase()+' · '+d.promo.duration_days+'д · лимит '+d.promo.max_activations; } }
     else { if(out){ out.style.color='var(--bad)'; out.textContent='Ошибка: '+((d&&d.error)||'нет доступа'); } } }
-  return {init,render,isAdmin, msLookup, msGrant, msActivate, msClearCool, msPromoCreate};
+  return {init,render,isAdmin, msLookup, msGrant, msActivate, msClearCool, msPromoCreate, exportStats};
 })();
 function initTelegram(){
   if(!tg) return;
