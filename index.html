@@ -3632,8 +3632,10 @@ async function loadGiftCross(r){
   if(r._blind && baseFloorSeed>0 && r.priceTON>baseFloorSeed) r.priceTON=Math.round(baseFloorSeed);
   // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
-  r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0;
-  r._askOnly = !!(r.fragExact && (salesN||0)===0);   // цена держится на одном ask без подтверждённых продаж
+  const exactSalesN = (exact && exact.exact && Array.isArray(exact.sales)) ? (exact.salesN||exact.sales.length) : 0;   // ТОЛЬКО продажи точной комбинации (model+backdrop+symbol)
+  r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0; r._exactSalesN=exactSalesN;
+  r._collSalesN=(stats&&stats.n>0)?stats.n:(salesArr?salesN:0);   // продажи КОЛЛЕКЦИИ (для честной подписи, не для расчёта выгоды)
+  r._askOnly = !!(r.fragExact && exactSalesN===0);   // цена держится на активном листинге без ПОДТВЕРЖДЁННЫХ продаж комбинации
   comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;
   if(lastResult===r && r.ts===stamp){          // устаревший асинхронный прогон НЕ трогает DOM
     r._loading=false;                            // рынок пришёл -> снимаем loading, показываем финальное число ОДИН раз
@@ -3641,7 +3643,7 @@ async function loadGiftCross(r){
     try{ countUp('ptonNum', r.priceTON); }catch(e){}
     try{ skinBCountUp(); }catch(e){}
     try{ addHistory(r); }catch(e){}             // история = финальная цена (единственная запись)
-    try{ renderGiftVerdict({exactAsk:marketAsk, sold, salesN, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0}); }catch(e){}
+    try{ renderGiftVerdict({exactAsk:marketAsk, sold, salesN, exactSalesN:exactSalesN, collSalesN:r._collSalesN, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0, fragExact:!!r.fragExact}); }catch(e){}
     try{ renderGiftComps(r, comps); }catch(e){}
   }
 }
@@ -3653,15 +3655,17 @@ function renderGiftVerdict(v){
   const mkt = v.exactAsk>0 ? (fmtTON(v.exactAsk)+' GRAM')
             : (v.floor>0 ? ((ru?'от ':'from ')+fmtTON(v.floor)+' GRAM')
             : (ru?'нет точного листинга':'no exact listing'));
-  rows+=row(ru?'На рынке сейчас':'On market now', mkt, (v.exactAsk>0||v.floor>0)?'':'var(--txt-3)');
+  const relevant0 = (v.exactSalesN||0) > 0;
+  const askOnly0 = v.exactAsk>0 && !relevant0;
+  rows+=row(askOnly0?(ru?'Мин. предложение узора':'Min trait listing'):(ru?'На рынке сейчас':'On market now'), mkt, (v.exactAsk>0||v.floor>0)?'':'var(--txt-3)');
   // сопоставимость: сделки показываем только если они правдоподобно относятся к ЭТОМУ предмету.
   // без выбранных трейтов лента продаж мешает редкие варианты (флор 3.6, а «сделки» 101) — это не сопоставимо.
   // РЕЛЕВАНТНОСТЬ: сравниваем/показываем «сделки» только если это ПОДТВЕРЖДЁННЫЕ продажи, относящиеся к предмету (salesN>0).
   // При salesN===0 то, что лежит в v.sold — коллекционная медиана, НЕ Basketball; ею нельзя мерить выгоду.
-  const relevant = (v.salesN||0) > 0;
-  const askOnly = v.exactAsk>0 && !relevant;                 // цена держится на активном листинге без продаж
-  if(relevant) rows+=row(ru?'Подтверждённые сделки':'Verified sales', '≈ '+fmtTON(v.sold)+' GRAM'+(v.salesN>1?' · '+v.salesN+(ru?' сд.':''):''), 'var(--good)');
-  else if(v.sold>0) rows+=row(ru?'Медиана коллекции':'Collection median', '≈ '+fmtTON(v.sold)+' GRAM', 'var(--txt-3)');
+  const relevant = relevant0, askOnly = askOnly0;
+  if(relevant) rows+=row(ru?'Продажи точной комбинации':'Exact-combo sales', '≈ '+fmtTON(v.sold)+' GRAM'+(v.exactSalesN>1?' · '+v.exactSalesN+(ru?' сд.':''):''), 'var(--good)');
+  else rows+=row(ru?'Продажи точной комбинации':'Exact-combo sales', ru?'не найдены':'none found', 'var(--txt-3)');
+  if(!relevant && (v.collSalesN||0)>0) rows+=row(ru?'Продажи коллекции':'Collection sales', (v.collSalesN)+(ru?' сд. · медиана ':' · median ')+fmtTON(v.sold||0)+' GRAM', 'var(--txt-3)');
   let vb='', note='';
   const tier=(d)=>{ // d<0: аск ниже подтверждённых продаж (выгода покупателю)
     if(d<=-25){ return (v.salesN>=5)?{vb:'deal',n:(ru?'Выгодно ':'Good buy ')+d+'%'}:{vb:'deal',n:(ru?'Потенциально недооценён':'Potentially undervalued')}; }
@@ -3671,7 +3675,7 @@ function renderGiftVerdict(v){
     return {vb:'over', n:(ru?'Дорого +':'Pricey +')+d+'%'};
   };
   if(v.exactAsk>0 && relevant){
-    const t2=tier(Math.round((v.exactAsk - v.sold)/v.sold*100)); vb=t2.vb; note=t2.n+(ru?' к сделкам':' vs sales');
+    const t2=tier(Math.round((v.exactAsk - v.sold)/v.sold*100)); vb=t2.vb; note=t2.n+(ru?' к продажам комбинации':' vs combo sales');
   } else if(askOnly){
     vb='appr'; note=ru?('Рынок этого узора: '+fmtTON(v.exactAsk)+' GRAM. Подтверждённых продаж недостаточно — оценка по активному листингу. Уверенность и ликвидность: низкие.')
                      :('This trait on market: '+fmtTON(v.exactAsk)+' GRAM. Not enough verified sales — priced off an active listing. Confidence & liquidity: low.');
@@ -3830,13 +3834,13 @@ function sealSVG(){ const c='#E7CE92'; return '<svg class="seal-svg" viewBox="0 
 // Уверенность зависит ТОЛЬКО от качества данных: число подтверждённых продаж, релевантных листингов, разброс.
 function confOf(r){
   if(r&&r._blind) return {k:'confLow',c:'var(--bad)'};
-  const sales=(r&&r._salesN)||0, comps=(r&&r._comps)||0, s=estSpread(r);
-  if(sales>=10 && s<=0.20) return {k:'confHigh',c:'var(--good)'};        // много подтверждённых продаж, узкий разброс
-  if(sales>=3 || comps>=3) return {k:'confMid',c:'var(--warn)'};         // 3-9 продаж ИЛИ достаточно листингов
-  return {k:'confLow',c:'var(--bad)'};                                   // 0-2 продажи / один редкий листинг / большой разброс
+  const exSales=(r&&r._exactSalesN)||0, listings=((r&&r._comps)||0)+((r&&r.fragExact)?1:0), s=estSpread(r);
+  if(exSales>=10 && s<=0.20) return {k:'confHigh',c:'var(--good)'};      // ≥10 продаж ИМЕННО этой комбинации, узкий разброс
+  if(exSales>=3 || listings>=3) return {k:'confMid',c:'var(--warn)'};    // 3-9 продаж комбинации ИЛИ ≥3 релевантных листинга
+  return {k:'confLow',c:'var(--bad)'};                                   // 0-2 продажи комбинации / единственный листинг / большой разброс
 }
-function confExplain(r){ const ru=S.lang==='ru'; const sales=(r&&r._salesN)||0, comps=(r&&r._comps)||0;
-  return (ru?'найдено ':'found ')+comps+(ru?' релевантн. листингов и ':' relevant listings and ')+sales+(ru?' продаж точной комбинации':' exact-combo sales'); }
+function confExplain(r){ const ru=S.lang==='ru'; const exSales=(r&&r._exactSalesN)||0, listings=((r&&r._comps)||0)+((r&&r.fragExact)?1:0);
+  return (ru?'найдено ':'found ')+listings+(ru?' листингов комбинации и ':' combo listings and ')+exSales+(ru?' продаж точной комбинации':' exact-combo sales'); }
 function confChipHTML(r){ const c=confOf(r);
   return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
 function liqOf(r){ if(r&&r._blind) return {k:'liqLow',c:'var(--bad)'};   // нет ни одного живого листинга
@@ -4141,7 +4145,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='4.7';
+const APP_VERSION='4.8';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
