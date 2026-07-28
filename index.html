@@ -3636,8 +3636,8 @@ async function loadGiftCross(r){
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
   const exactSalesN = (exact && exact.exact && Array.isArray(exact.sales)) ? (exact.salesN||exact.sales.length) : 0;   // ТОЛЬКО продажи точной комбинации (model+backdrop+symbol)
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0; r._exactSalesN=exactSalesN;
-  r._collSalesN=(stats&&stats.n>0)?stats.n:(salesArr?salesN:0);   // продажи КОЛЛЕКЦИИ (для честной подписи, не для расчёта выгоды)
-  r._askOnly = !!(r.fragExact && exactSalesN===0);   // цена держится на активном листинге без ПОДТВЕРЖДЁННЫХ продаж комбинации
+  r._collSalesN=(salesArr?salesN:((stats&&stats.n>0)?stats.n:0));   // ЕДИНЫЙ счётчик продаж (та же лента, что в истории и trust-баре)
+  r._askOnly = !!(exactSalesN===0 && marketAsk>0 && r.priceTON>=marketAsk*0.8 && (r.fragExact || (r._comps||0)<=1));   // цена держится на единственном ask без ПОДТВЕРЖДЁННЫХ продаж
   comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;
   if(lastResult===r && r.ts===stamp){          // устаревший асинхронный прогон НЕ трогает DOM
     r._loading=false;                            // рынок пришёл -> снимаем loading, показываем финальное число ОДИН раз
@@ -3667,7 +3667,7 @@ function renderGiftVerdict(v){
   const relevant = relevant0, askOnly = askOnly0;
   if(relevant) rows+=row(ru?'Продажи точной комбинации':'Exact-combo sales', '≈ '+fmtTON(v.sold)+' GRAM'+(v.exactSalesN>1?' · '+v.exactSalesN+(ru?' сд.':''):''), 'var(--good)');
   else rows+=row(ru?'Продажи точной комбинации':'Exact-combo sales', ru?'не найдены':'none found', 'var(--txt-3)');
-  if(!relevant && (v.collSalesN||0)>0) rows+=row(ru?'Продажи коллекции':'Collection sales', (v.collSalesN)+(ru?' сд. · медиана ':' · median ')+fmtTON(v.sold||0)+' GRAM', 'var(--txt-3)');
+  if(!relevant && (v.collSalesN||0)>0) rows+=row(ru?'Продажи коллекции':'Collection sales', (v.collSalesN)+(ru?' сд. · ≈ ':' · ≈ ')+fmtTON(v.sold||0)+' GRAM', 'var(--txt-3)');
   let vb='', note='';
   const tier=(d)=>{ // d<0: аск ниже подтверждённых продаж (выгода покупателю)
     if(d<=-25){ return (v.salesN>=5)?{vb:'deal',n:(ru?'Выгодно ':'Good buy ')+d+'%'}:{vb:'deal',n:(ru?'Потенциально недооценён':'Potentially undervalued')}; }
@@ -3679,8 +3679,8 @@ function renderGiftVerdict(v){
   if(v.exactAsk>0 && relevant){
     const t2=tier(Math.round((v.exactAsk - v.sold)/v.sold*100)); vb=t2.vb; note=t2.n+(ru?' к продажам комбинации':' vs combo sales');
   } else if(askOnly){
-    vb='appr'; note=ru?('Рынок этого узора: '+fmtTON(v.exactAsk)+' GRAM. Подтверждённых продаж недостаточно — оценка по активному листингу. Уверенность и ликвидность: низкие.')
-                     :('This trait on market: '+fmtTON(v.exactAsk)+' GRAM. Not enough verified sales — priced off an active listing. Confidence & liquidity: low.');
+    vb='appr'; note=ru?('Мин. предложение: '+fmtTON(v.exactAsk)+' GRAM. Подтверждённых продаж нет — это цена одного продавца, а не рыночная стоимость.')
+                     :('Min listing: '+fmtTON(v.exactAsk)+' GRAM. No verified sales — this is one seller\'s asking price, not a market value.');
   } else {
     vb='appr'; note=ru?'Оценка по сопоставимым характеристикам и редкости — активного точного листинга сейчас нет.':'Appraised from comparable traits & rarity — no exact active listing right now.';
   }
@@ -4067,7 +4067,7 @@ function resultCardHTML(r){
       '<div class="sub">'+subline+'</div>'+
       (S.skin==='b'?'<div class="skb-serial">'+((r.rarity&&r.rarity.oneIn)?('EDITION \u00b7 1 / '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')):('MONET DROP \u00b7 '+apprDate()))+'</div>':'')+
       '<div class="price-ton"><span id="ptonNum">'+(loading?dash:fmtTON(P))+'</span><span class="u">GRAM</span></div>'+
-      '<div class="price-range" id="prange">'+(loading?(S.lang==='ru'?'оцениваем рынок…':'valuing market…'):(t('estLabel')+': '+fmtTON(lo)+'–'+fmtTON(hi)+' GRAM'))+'</div>'+
+      '<div class="price-range" id="prange">'+(loading?(S.lang==='ru'?'оцениваем рынок…':'valuing market…'):(r._askOnly?(S.lang==='ru'?('по текущему аску · подтверждённых продаж нет'):('current ask · no verified sales')):(t('estLabel')+': '+fmtTON(lo)+'–'+fmtTON(hi)+' GRAM')))+'</div>'+
       (r.cat==='gifts'?'<div id="xmkt">'+((!loading&&r._buySlug)?buyCtaHTML(r._buySlug):'')+'</div>':'')+
       '<div class="price-fiat"><span class="v" id="fiatVal">'+(loading?'':fmtFiat(P))+'</span>'+
         '<span class="cur-toggle"><button class="'+(S.currency==='usd'?'on':'')+'" onclick="setCurrency(\'usd\')">USD</button><button class="'+(S.currency==='eur'?'on':'')+'" onclick="setCurrency(\'eur\')">EUR</button></span></div>'+
@@ -4090,7 +4090,7 @@ function resultCardHTML(r){
         '<button class="act frag" onclick="openFragment()"><span><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>'+t('checkFrag')+'</button>'+
       '</div>'+
       '<div class="explain" id="explainBox">'+explainText(r)+'</div>'+
-      (r.rarity?(function(){ var R=r.rarity; var ru=S.lang==='ru'; var sh=R.shares||{}; var bits=[]; if(sh.m!=null)bits.push((ru?'Модель ':'Model ')+sh.m+'%'); if(sh.b!=null)bits.push((ru?'Фон ':'Backdrop ')+sh.b+'%'); if(sh.p!=null)bits.push((ru?'Узор ':'Symbol ')+sh.p+'%'); var right=bits.length?bits.join(' · '):(t('rarityOneIn')+' '+R.oneIn.toLocaleString('en-US').replace(/,/g,' ')); return '<div class="rarity-line"><span class="rrank" title="'+(ru?'Редкость трейта (перцентиль в коллекции), не оценка стоимости':'Trait rarity (percentile in collection), not a value estimate')+'" style="background:'+R.color+'1f;color:'+R.color+'"><span class="rd" style="background:'+R.color+'"></span>'+t(R.key)+(R.score?(' · '+R.score+'/100'):'')+'</span><span class="rone">'+right+'</span></div>'; })():'')+
+      (r.rarity?(function(){ var R=r.rarity; var ru=S.lang==='ru'; var sh=R.shares||{}; var bits=[]; if(sh.m!=null)bits.push((ru?'Модель ':'Model ')+sh.m+'%'); if(sh.b!=null)bits.push((ru?'Фон ':'Backdrop ')+sh.b+'%'); if(sh.p!=null)bits.push((ru?'Узор ':'Symbol ')+sh.p+'%'); var right=bits.length?bits.join(' · '):(t('rarityOneIn')+' '+R.oneIn.toLocaleString('en-US').replace(/,/g,' ')); return '<div class="rarity-line"><span class="rrank" title="'+(ru?'Редкость самого редкого трейта (перцентиль), не оценка стоимости':'Rarity of the rarest trait (percentile), not a value estimate')+'" style="background:'+R.color+'1f;color:'+R.color+'"><span class="rd" style="background:'+R.color+'"></span>'+t(R.key)+(R.score?(' · '+R.score+'/100'):'')+'</span><span class="rone">'+right+'</span></div>'+(R.score?('<div style="font-size:10.5px;color:var(--txt-3);margin:3px 2px 0;line-height:1.35">'+(ru?'редкость самого редкого трейта · не влияет на ценовую категорию':'rarity of the rarest trait · separate from the value tier')+'</div>'):''); })():'')+
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
       '<div style="font-family:var(--font-b);font-weight:700;font-size:13px;margin:20px 2px 4px;color:var(--txt-2)">'+t('factorsTitle')+'</div>'+
@@ -4153,7 +4153,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='4.9';
+const APP_VERSION='5.0';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
