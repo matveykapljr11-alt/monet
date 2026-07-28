@@ -2907,17 +2907,8 @@ function softCap(v, base, cap){
   const y=cap-(cap-K)*Math.exp(-(x-K)/(cap-K));
   return base*y;
 }
-function calRec(slug){ if(!S.cal) S.cal={}; let r=S.cal[slug]; if(typeof r==='number') r={m:r,n:0,e:0}; if(!r||typeof r!=='object') r={m:1,n:0,e:0}; return {m:r.m||1, n:r.n||0, e:r.e||0}; }
-function learnCal(slug, modelEst, truth){
-  if(!slug||!(modelEst>0)||!(truth>0)) return;                       // backtest: learn from a real exact comp (ground truth)
-  const r=calRec(slug);
-  const pctErr=Math.min(1.5, Math.abs(truth-modelEst)/truth);        // how far our pre-comp estimate was from the real price
-  const ratio=Math.max(0.4, Math.min(2.5, truth/modelEst));
-  r.m=Math.max(0.6, Math.min(1.6, r.m*Math.pow(ratio,0.12)));        // self-tuning calibration
-  r.e=r.n>0?(r.e*0.8+pctErr*0.2):pctErr;                             // EWMA measured error (track record)
-  r.n=Math.min(999, r.n+1);
-  if(!S.cal) S.cal={}; S.cal[slug]={m:Math.round(r.m*1000)/1000, n:r.n, e:Math.round(r.e*1000)/1000}; save();
-}
+function calRec(slug){ return {m:1, n:0, e:0}; }   // ДЕТЕРМИНИЗМ: самокалибровка от пользовательских оценок отключена — одинаковый вход даёт одинаковый результат. Калибровка только на реальных продажах (офлайн-датасет).
+function learnCal(slug, modelEst, truth){ /* отключено: пользовательская оценка не обучает модель. Калибровка — только на подтверждённых продажах, отдельным датасетом. */ }
 function scoreGift(cat, colId, serial, rBack, rPat, rModel, customFloor, fBack, fPat, fModel, sBack, sPat, sModel, bName){
   const list=COLLECTIONS[cat];
   const col=list.find(c=>c.id===colId)||list.find(c=>c.id==='other')||list[list.length-1];
@@ -3052,7 +3043,10 @@ function rarityRank(rBack,rPat,rModel,cap){
   oneIn=Math.min(oneIn,ceil);
   const L=[[20,'rkCommon','#9AA4B2'],[200,'rkUncommon','#22A35B'],[2000,'rkRare','#3B82F6'],[20000,'rkEpic','#8B5CF6'],[100000,'rkLegendary','#F59E0B'],[Infinity,'rkMythic','#EC4899']];
   let key='rkCommon',color='#9AA4B2'; for(const [thr,k,c] of L){ if(oneIn<thr){ key=k; color=c; break; } }
-  return { key, color, oneIn };
+  const sh=(v)=>{ const x=parseFloat(v); return (!isNaN(x)&&x>0)?x:null; };   // редкость трейта в %
+  const shares={ m:sh(rModel), b:sh(rBack), p:sh(rPat) };
+  const score=Math.max(1, Math.min(100, Math.round(Math.log10(Math.max(2,oneIn))/Math.log10(Math.max(10,ceil))*100)));
+  return { key, color, oneIn, shares, score };
 }
 function priceToScore(p){ // inverse-ish for tier consistency
   const lp=Math.log10(Math.max(8,p));
@@ -3501,7 +3495,7 @@ function doEvaluate(){
   const willRefine = (curCat==='gifts') && !!proxyURL() && (function(){ const c=giftColById((document.getElementById('e_col')||{}).value); return !!(c && c.id!=='other' && c.slug); })();
   r._loading = willRefine;
   if(willRefine){ renderResult(r); }
-  else { r._loading=false; addHistory(r); renderResult(r); try{ countUp('ptonNum', r.priceTON); }catch(e){} try{ skinBCountUp(); }catch(e){} }
+  else { r._loading=false; addHistory(r); renderResult(r); try{ skinBCountUp(); }catch(e){} }
   try{ track('asset_evaluated', r.display); track('appraise_done', r.display); track('evaluation_completed', r.display); track('buy_sell_seen'); }catch(e){}
   syncFavButton();
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.impactOccurred('medium');}catch(e){} }
@@ -3559,7 +3553,7 @@ async function loadGiftCross(r){
   // crossAsk (потолок «дешевле не бывает») — ТОЛЬКО из листингов, совпавших по трейтам.
   // Иначе несовпавший самый дешёвый лот (другая модель) занижает оценку премиального экземпляра
   // (напр. Blue Bezel за 107, а адаптер отдаёт флор коллекции 44 без фильтра модели).
-  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length; const mch=its.filter(x=>x&&x.match&&x.price>0); r._comps=mch.length; const pool=(mch.length?mch:(hasTrait?[]:its)).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); crossAsk=Math.round(pool[0].price); } }catch(e){}
+  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length; const mch=its.filter(x=>x&&x.match&&x.price>0); r._comps=mch.length; const pool=(mch.length?mch:(hasTrait?[]:its)).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); let cheap=pool.slice(0,3).map(x=>x.price); if(cheap.length>=2 && cheap[0] < cheap[1]*0.6) cheap=cheap.slice(1); crossAsk=Math.round(cheap[Math.floor((cheap.length-1)/2)] || pool[0].price); } }catch(e){}
   if(lastResult!==r || r.ts!==stamp) return;   // user moved on
   const preEst=r.priceTON;
   if(exact) applyGiftCross(r, exact, hasTrait);
@@ -3639,6 +3633,7 @@ async function loadGiftCross(r){
   // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0;
+  r._askOnly = !!(r.fragExact && (salesN||0)===0);   // цена держится на одном ask без подтверждённых продаж
   comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;
   if(lastResult===r && r.ts===stamp){          // устаревший асинхронный прогон НЕ трогает DOM
     r._loading=false;                            // рынок пришёл -> снимаем loading, показываем финальное число ОДИН раз
@@ -3668,14 +3663,15 @@ function renderGiftVerdict(v){
   let vb='', note='';
   if(v.exactAsk>0 && soldOk){
     const d=Math.round((v.exactAsk - v.sold)/v.sold*100);
-    if(d<=-5){ vb='deal'; note=(ru?'Выгодно ':'Good buy ')+d+'% '+(ru?'к сделкам':'vs sales'); }
-    else if(d>=5){ vb='over'; note=(ru?'Дорого +':'Pricey +')+d+'% '+(ru?'к сделкам':'vs sales'); }
-    else { vb='fair'; note=ru?'Справедливая цена':'Fairly priced'; }
-  } else if(v.exactAsk>0){
+    if(d<=-15){ vb='deal'; note=(ru?'Выгодно ':'Good buy ')+d+'% '+(ru?'к сделкам':'vs sales'); }
+    else if(d>=15){ vb='over'; note=(ru?'Дорого +':'Pricey +')+d+'% '+(ru?'к сделкам':'vs sales'); }
+    else { vb='fair'; note=ru?'В пределах рынка':'Within market'; }
+  } else if(v.exactAsk>0 && v.floor>0){
+    // нет релевантных ПРОДАЖ — сравниваем аск с оценкой Monet ТОЛЬКО как ориентир, полоса ±15% = «в пределах рынка»
     const d=Math.round((v.exactAsk - v.worth)/v.worth*100);
-    if(d<=-8){ vb='deal'; note=(ru?'Ниже нашей оценки ':'Below our value ')+d+'%'; }
-    else if(d>=8){ vb='over'; note=(ru?'Выше нашей оценки +':'Above our value +')+d+'%'; }
-    else { vb='fair'; note=ru?'По рынку':'At market'; }
+    if(d<=-15){ vb='deal'; note=(ru?'Ниже оценки ':'Below value ')+d+'%'; }
+    else if(d>=15){ vb='over'; note=(ru?'Выше оценки +':'Above value +')+d+'%'; }
+    else { vb='fair'; note=ru?'В пределах рынка':'Within market'; }
   } else {
     vb='appr'; note=ru?'Не продаётся сейчас — это оценка по сопоставимым сделкам и редкости, а не лукап листинга.':'Not listed now — appraised from comparable deals & rarity, not a listing lookup.';
   }
@@ -3828,12 +3824,16 @@ function sealSVG(){ const c='#E7CE92'; return '<svg class="seal-svg" viewBox="0 
   '<path d="M39 61V43c0-1.7 2.1-2.5 3.1-1.1L50 52l7.9-10.1c1-1.4 3.1-.6 3.1 1.1v18" fill="none" stroke="'+c+'" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'+
   '<path d="M50 55.6l2.3 2.3-2.3 2.3-2.3-2.3z" fill="'+c+'"/></svg>'; }
 /* confidence from how tight the estimate is */
-function confOf(r){ const s=estSpread(r); let liqLow=false; try{ liqLow=(liqOf(r).k==='liqLow'); }catch(e){}
-  if(r&&r._blind) return {k:'confLow',c:'var(--bad)'};   // рынок слепой — уверенности быть не может
-  // нельзя быть уверенным в цене неликвидного актива (тонкий рынок, мало/нет сделок)
-  if(s<=0.16 && !liqLow) return {k:'confHigh',c:'var(--good)'};
-  if(s<=0.40) return {k:'confMid',c:'var(--warn)'};
-  return {k:'confLow',c:'var(--bad)'}; }
+// Уверенность зависит ТОЛЬКО от качества данных: число подтверждённых продаж, релевантных листингов, разброс.
+function confOf(r){
+  if(r&&r._blind) return {k:'confLow',c:'var(--bad)'};
+  const sales=(r&&r._salesN)||0, comps=(r&&r._comps)||0, s=estSpread(r);
+  if(sales>=10 && s<=0.20) return {k:'confHigh',c:'var(--good)'};        // много подтверждённых продаж, узкий разброс
+  if(sales>=3 || comps>=3) return {k:'confMid',c:'var(--warn)'};         // 3-9 продаж ИЛИ достаточно листингов
+  return {k:'confLow',c:'var(--bad)'};                                   // 0-2 продажи / один редкий листинг / большой разброс
+}
+function confExplain(r){ const ru=S.lang==='ru'; const sales=(r&&r._salesN)||0, comps=(r&&r._comps)||0;
+  return (ru?'найдено ':'found ')+comps+(ru?' релевантн. листингов и ':' relevant listings and ')+sales+(ru?' продаж точной комбинации':' exact-combo sales'); }
 function confChipHTML(r){ const c=confOf(r);
   return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
 function liqOf(r){ if(r&&r._blind) return {k:'liqLow',c:'var(--bad)'};   // нет ни одного живого листинга
@@ -3864,8 +3864,8 @@ function explainMetric(which){
 function whyText(r){ const plus=r.factors.filter(f=>f.cls==='plus').map(f=>t(f.k).toLowerCase()); if(plus.length) return plus.slice(0,3).join(', '); const neu=r.factors.slice(0,2).map(f=>t(f.k).toLowerCase()); return neu.join(', ')||(S.lang==='ru'?'базовая рыночная оценка':'baseline market estimate'); }
 /* honest estimate spread — wider for pricier / rarer / less-liquid assets */
 function estSpread(r){
-  // an exact live match on the market = a hard fact, not a guess -> tight band, high confidence
-  if(r&&r.fragExact) return 0.06;
+  // точный живой матч, ПОДТВЕРЖДЁННЫЙ продажами -> узкий диапазон. Одиночный ask без продаж -> НЕ факт, оставляем широким.
+  if(r&&r.fragExact && (r._salesN||0)>0) return 0.06;
   let s;
   if(r&&typeof r.fsd==='number'){ s=r.fsd; }
   else {
@@ -3880,6 +3880,7 @@ function estSpread(r){
   // тонкий/неликвидный рынок -> шире диапазон: нельзя узко оценивать то, что почти не торгуется
   try{ if(liqOf(r).k==='liqLow') s=Math.max(s,0.30); }catch(e){}
   if(r&&r._blind) s=Math.max(s,0.45);   // рынок слепой — максимально честный (широкий) диапазон
+  if(r&&r._askOnly) s=Math.max(s,0.32);  // цена держится на одном ask без продаж — диапазон широкий
   return Math.min(0.60, s);
 }
 function factorsHTML(r){
@@ -4061,7 +4062,7 @@ function resultCardHTML(r){
     '</div>'+
     '<div class="rbody">'+
       '<button class="btn eval-add" id="evalAddBtn" onclick="evalAddInline()">'+t('pfAddBtn')+'</button>'+
-      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('tierLabel')+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+
+      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('tierLabel')+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+(loading?'':'<div class="conf-explain" style="font-size:11px;color:var(--txt-3);margin:6px 2px 0;line-height:1.4">'+t('confLabel')+' \u00b7 '+confExplain(r)+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+'</div>')+
       (loading?'':proInsightsHTML(r))+
       tradeBandHTML(r)+
       '<div class="res-cta">'+
@@ -4074,7 +4075,7 @@ function resultCardHTML(r){
         '<button class="act frag" onclick="openFragment()"><span><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>'+t('checkFrag')+'</button>'+
       '</div>'+
       '<div class="explain" id="explainBox">'+explainText(r)+'</div>'+
-      (r.rarity?'<div class="rarity-line"><span class="rrank" style="background:'+r.rarity.color+'1f;color:'+r.rarity.color+'"><span class="rd" style="background:'+r.rarity.color+'"></span>'+t(r.rarity.key)+'</span><span class="rone">'+t('rarityOneIn')+' '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')+'</span></div>':'')+
+      (r.rarity?(function(){ var R=r.rarity; var ru=S.lang==='ru'; var sh=R.shares||{}; var bits=[]; if(sh.m!=null)bits.push((ru?'Модель ':'Model ')+sh.m+'%'); if(sh.b!=null)bits.push((ru?'Фон ':'Backdrop ')+sh.b+'%'); if(sh.p!=null)bits.push((ru?'Узор ':'Symbol ')+sh.p+'%'); var right=bits.length?bits.join(' · '):(t('rarityOneIn')+' '+R.oneIn.toLocaleString('en-US').replace(/,/g,' ')); return '<div class="rarity-line"><span class="rrank" style="background:'+R.color+'1f;color:'+R.color+'"><span class="rd" style="background:'+R.color+'"></span>'+t(R.key)+(R.score?(' · '+R.score+'/100'):'')+'</span><span class="rone">'+right+'</span></div>'; })():'')+
       '<div class="scale"><div class="scale-track"><div class="scale-fill" style="width:'+Math.max(4,Math.min(100,tier.pct)).toFixed(0)+'%"></div></div>'+
         '<div class="scale-marks"><span>'+t('tierCommon')+'</span><span>'+t('tierPremium')+'</span><span>VIP</span><span>'+t('tierTop')+'</span></div></div>'+
       '<div style="font-family:var(--font-b);font-weight:700;font-size:13px;margin:20px 2px 4px;color:var(--txt-2)">'+t('factorsTitle')+'</div>'+
@@ -4087,6 +4088,7 @@ function resultCardHTML(r){
 }
 function countUp(id, target){
   const el=document.getElementById(id); if(!el) return;
+  if(id==='ptonNum'){ el.textContent=fmtTON(target); return; }   // цену показываем сразу, без анимации через промежуточные значения
   el._ct=target;            // latest target — a running loop ends here (prevents stale overwrite)
   if(el._ctRun) return;     // already animating; it will pick up the new target
   el._ctRun=true; const dur=620, t0=performance.now();
@@ -4136,7 +4138,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='4.5';
+const APP_VERSION='4.6';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
