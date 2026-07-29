@@ -3638,6 +3638,7 @@ async function loadGiftCross(r){
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0; r._exactSalesN=exactSalesN;
   r._collSalesN=(salesArr?salesN:((stats&&stats.n>0)?stats.n:0));   // ЕДИНЫЙ счётчик продаж (та же лента, что в истории и trust-баре)
   r._askOnly = !!(exactSalesN===0 && marketAsk>0 && r.priceTON>=marketAsk*0.8 && (r.fragExact || (r._comps||0)<=1));   // цена держится на единственном ask без ПОДТВЕРЖДЁННЫХ продаж
+  if(r._askOnly && marketAsk>0) r.priceTON=marketAsk;   // без продаж показываем НАСТОЯЩИЙ аск, без комбо-премии
   comps.salesArr=salesArr; comps.salesN=salesN; comps.salesDetail=salesDetail;
   if(lastResult===r && r.ts===stamp){          // устаревший асинхронный прогон НЕ трогает DOM
     r._loading=false;                            // рынок пришёл -> снимаем loading, показываем финальное число ОДИН раз
@@ -3645,10 +3646,12 @@ async function loadGiftCross(r){
     try{ countUp('ptonNum', r.priceTON); }catch(e){}
     try{ skinBCountUp(); }catch(e){}
     try{ addHistory(r); }catch(e){}             // история = финальная цена (единственная запись)
-    const _ht=!!(r._m||r._b||r._p), _e=(+r.priceTON||0);
-    const _bandArr=(salesArr||[]).map(Number).filter(x=>x>0 && (_ht||_e<=0||(x<=_e*3&&x>=_e*0.25)));
-    const collMed=Math.round(median(_bandArr));   // ОДНА медиана: та же полоса, что в истории сделок
-    try{ renderGiftVerdict({exactAsk:marketAsk, sold, salesN, exactSalesN:exactSalesN, collSalesN:r._collSalesN, collMed, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0, fragExact:!!r.fragExact}); }catch(e){}
+    const _e=(+r.priceTON||0)||((c&&c.floor)||0);
+    const _bandArr=(salesArr||[]).map(Number).filter(x=>x>0 && (_e<=0||(x<=_e*3&&x>=_e*0.25)));   // всегда режем редкие грали/выбросы: «Продажи коллекции» = сделки в полосе вокруг оценки
+    const collMed=Math.round(median(_bandArr));
+    if(exactSalesN===0){ r._collSalesN=_bandArr.length; r._salesN=_bandArr.length; }   // счётчики = число сделок в полосе (совпадает с историей)
+    comps._bandE=_e;
+    try{ renderGiftVerdict({exactAsk:marketAsk, sold, salesN:r._salesN, exactSalesN:exactSalesN, collSalesN:r._collSalesN, collMed, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0, fragExact:!!r.fragExact, askOnly:!!r._askOnly}); }catch(e){}
     try{ renderGiftComps(r, comps); }catch(e){}
   }
 }
@@ -3656,7 +3659,10 @@ function renderGiftVerdict(v){
   const box=document.getElementById('giftVerdict'); if(!box) return; const ru=S.lang==='ru';
   if(!v.hasTrait && !v.exactAsk && !v.sold && !v.floor){ box.innerHTML=''; return; }
   const row=(l,val,c)=>'<div class="vd-row"><span class="vd-l">'+l+'</span><span class="vd-v"'+(c?' style="color:'+c+'"':'')+'>'+val+'</span></div>';
-  let rows=row(ru?'Оценка Monet':'Monet appraisal', fmtTON(Math.round(v.worth))+' GRAM');
+  let rows;
+  if(v.askOnly){ rows=row(ru?'Текущий аск':'Current ask', fmtTON(Math.round(v.exactAsk||v.worth))+' GRAM')
+                    + row(ru?'Оценка Monet':'Monet appraisal', ru?'недостаточно данных':'not enough data', 'var(--txt-3)'); }
+  else rows=row(ru?'Оценка Monet':'Monet appraisal', fmtTON(Math.round(v.worth))+' GRAM');
   const mkt = v.exactAsk>0 ? (fmtTON(v.exactAsk)+' GRAM')
             : (v.floor>0 ? ((ru?'от ':'from ')+fmtTON(v.floor)+' GRAM')
             : (ru?'нет точного листинга':'no exact listing'));
@@ -3700,7 +3706,7 @@ function renderGiftComps(r, comps){
   const _hasTrait=!!(r._m||r._b||r._p);
   const _est=(+r.priceTON||0);
   // сопоставимость: без выбранных трейтов лента коллекции мешает редкие варианты -> оставляем только сделки в полосе вокруг оценки
-  const _band=(x)=> _hasTrait || _est<=0 || (x<=_est*3 && x>=_est*0.25);
+  const _band=(x)=> _est<=0 || (x<=_est*3 && x>=_est*0.25);   // всегда фильтруем выбросы (редкие вариации не выдаём за продажи коллекции)
   const tape=(comps.salesArr||[]).map(Number).filter(x=>x>0 && _band(x));
   if(tape.length){
     const detail=Array.isArray(comps.salesDetail)?comps.salesDetail:null;
@@ -3708,10 +3714,10 @@ function renderGiftComps(r, comps){
     const med=median(tape);   // медиана по всей полосе сделок (совпадает с вердиктом)
     const chips=shown.map((x,i)=>{ const num=detail&&detail[i]&&detail[i].num?('#'+detail[i].num+' · '):'';
       return '<span style="display:inline-flex;align-items:center;font-family:var(--font-m);font-weight:700;font-size:11.5px;color:'+(i===0?'#fff':'var(--txt-2)')+';background:'+(i===0?'var(--ton)':'var(--surface-2)')+';border:1px solid var(--line);border-radius:8px;padding:4px 8px">'+num+fmtTON(Math.round(x))+' GRAM</span>'; }).join('');
-    const moreN=(comps.salesN||tape.length)-shown.length;
+    const moreN=tape.length-shown.length;
     tapeHTML='<div class="comps-h" style="margin-top:'+(found?'14px':'0')+'">'+(ru?'История реальных сделок':'Real sales history')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+chips+'</div>'+
-      '<div class="comps-range">'+(ru?'Медиана ':'Median ')+fmtTON(Math.round(med))+' GRAM · '+(ru?'показано последних ':'showing last ')+shown.length+(moreN>0?(ru?(' из '+((comps.salesN||tape.length))):(' of '+((comps.salesN||tape.length)))):'')+' · '+(ru?'новейшая слева':'newest left')+'</div>';
+      '<div class="comps-range">'+(ru?'Медиана ':'Median ')+fmtTON(Math.round(med))+' GRAM · '+(ru?'показано последних ':'showing last ')+shown.length+(moreN>0?(ru?(' из '+tape.length):(' of '+tape.length)):'')+' · '+(ru?'новейшая слева':'newest left')+'</div>';
   }
   if(!found){ box.innerHTML=tapeHTML; return; }   // no per-trait comps -> show the sales tape alone (or nothing)
   let dom=null; all.forEach(o=>{ if(!dom||o.best>dom.best) dom=o; });
@@ -3904,7 +3910,7 @@ function estSpread(r){
 function factorsHTML(r){
   const rows=(r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join('');
   // Явный итог: чтобы цепочка «флор коллекции → поправки → итог Monet» читалась однозначно
-  const total='<div class="factor total"><div class="fi">🟰</div><div class="ft">'+(S.lang==='ru'?'Итог Monet':'Monet total')+'</div><div class="fv">'+fmtTON(+r.priceTON||0)+' GRAM</div></div>';
+  const total='<div class="factor total"><div class="fi">🟰</div><div class="ft">'+(r._askOnly?(S.lang==='ru'?'Текущий аск':'Current ask'):(S.lang==='ru'?'Итог Monet':'Monet total'))+'</div><div class="fv">'+fmtTON(+r.priceTON||0)+' GRAM</div></div>';
   return rows+total;
 }
 /* ---- Monet Guidance: a buy/fair/sell/fast decision map around fair value ---- */
@@ -4161,7 +4167,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.1';
+const APP_VERSION='5.2';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
