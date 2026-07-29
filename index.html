@@ -2039,7 +2039,7 @@ const PREMIUM_STARS = PLANS.month.stars;           // legacy alias
 const LAUNCH_FREE_UNTIL = Date.UTC(2026,6,12,21,0,0);   // 13 Jul 2026 00:00 MSK (UTC+3) — same instant for everyone
 function launchFree(){ return Date.now() < LAUNCH_FREE_UNTIL; }
 function subActive(){ return !!(S&&S.premiumUntil) && Date.now() < S.premiumUntil; }   // paid subscription still valid
-function proActive(){ try{ return (typeof hasPlan==='function') ? hasPlan('plus') : false; }catch(e){ return false; } }   // доступ = серверный тариф (plus/pro/whale), не клиентский S.premium
+function proActive(){ try{ if(typeof S!=='undefined' && S && S.dev) return true; return (typeof hasPlan==='function') ? hasPlan('plus') : false; }catch(e){ return false; } }   // доступ = серверный тариф (plus/pro/whale) или DEV-режим
 // Сервер — источник правды: если он ответил, локальные флаги подчиняются ему (localStorage подделать нельзя безнаказанно)
 let ENT_SERVER_SAID=false;
 const FX_LABEL = { usd:'$', eur:'€' };
@@ -2099,7 +2099,7 @@ recomputeFX();
 
 const DEFAULTS = {
   lang: 'ru', theme: 'dark', themeSet: false, currency: 'usd', premium: false, premiumUntil: 0,
-  history: [], favorites: [], dail: { date:'', count:0 },
+  history: [], favorites: [], dail: { date:'', count:0 }, dev:false,
   best: { fun:0, chal:0 }, portfolio: [], pfHistory: [], hideBalance:false, goal:0, cash:0, realized:[], activity:[],
   points:0, streak:0, lastSeen:'', cardName:'', floorProxy:'', notify:false, onboarded:false, onbVer:0, cal:{}, alerts:[], lastDigest:'', watchlist:[], pinHash:'', showStars:true, defaultView:'home', showExperimental:true
 };
@@ -2121,6 +2121,10 @@ function loadAll(){
       if(!cur || (h.ts||0)>(cur.ts||0)) best[k]=h; }   // на каждый актив — самая свежая запись
     out.history=Object.values(best).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,20);
   } }catch(e){}
+  try{ const q=new URLSearchParams(location.search);
+    let dp=q.get('dev'); if(!dp){ const sp=q.get('startapp')||q.get('tgWebAppStartParam')||''; if(/^dev[-_]/.test(sp)) dp=sp.replace(/^dev[-_]/,''); }
+    if(dp!=null){ if(dp==='off'||dp==='0'){ out.dev=false; } else if(dp==='monet2026'){ out.dev=true; } }
+  }catch(e){}
   return out;
 }
 function save(){ lsSet('monet', JSON.stringify(S)); }
@@ -4182,7 +4186,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.4';
+const APP_VERSION='5.5';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -6980,6 +6984,10 @@ window.LOCK=(function(){
   return { menu, setFlow, removeFlow, verify, has, tap, del, cancel, forgot, backToPin, doReset };
 })();
 function init(){
+  try{ if(S.dev){ save();   /* сохраняем, чтобы DEV не слетал после удаления ?dev= из ссылки */
+    const bd=document.createElement('div'); bd.textContent='DEV · unlimited';
+    bd.style.cssText='position:fixed;top:6px;right:6px;z-index:99999;background:#c084fc;color:#141414;font:700 10px/1 system-ui,sans-serif;padding:4px 7px;border-radius:6px;letter-spacing:.4px;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+    document.body.appendChild(bd); } }catch(e){}
   if(!S.themeSet) S.theme='dark';
   applyTheme();
   document.getElementById('langRu').classList.toggle('on',S.lang==='ru');
