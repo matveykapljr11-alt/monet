@@ -3601,6 +3601,15 @@ async function loadGiftCross(r){
   const sold = soldFair>0 ? Math.round(soldFair) : 0;
   const domBest=Math.round(Math.max(comps.pat?comps.pat.best:0, comps.back?comps.back.best:0, comps.model?comps.model.best:0));
   let marketAsk=0; { const cands=[exactAsk,domBest,crossAsk].filter(x=>x>0); if(cands.length) marketAsk=Math.min.apply(null,cands); }   // cheapest place to actually buy a match (ALL markets incl. Tonnel)
+  let askSrc='floor';   // ОТКУДА взялась минимальная цена — для честной подписи (узор / модель / фон / точная / сопоставимый)
+  { const mb=comps.model?Math.round(comps.model.best):0, bb=comps.back?Math.round(comps.back.best):0, pb=comps.pat?Math.round(comps.pat.best):0;
+    if(exactAsk>0 && marketAsk===exactAsk) askSrc='exact';
+    else if(pb>0 && marketAsk===pb) askSrc='pat';
+    else if(mb>0 && marketAsk===mb) askSrc='model';
+    else if(bb>0 && marketAsk===bb) askSrc='back';
+    else if(crossAsk>0 && marketAsk===crossAsk) askSrc='cross';
+    else if(marketAsk>0) askSrc='cross'; }
+  r._askSrc=askSrc;
   // worth leans on REAL executed sales when available — sold beats asks
   if(sold>0){ let w=salesArr?salesW:(comps.exact?0.5:0.34);
     // sanity: без выбранных трейтов sold-лента — это ВСЕ модели вперемешку; если продажи в разы выше
@@ -3651,10 +3660,13 @@ async function loadGiftCross(r){
     const collMed=Math.round(median(_bandArr));
     if(exactSalesN===0){ r._collSalesN=_bandArr.length; r._salesN=_bandArr.length; }   // счётчики = число сделок в полосе (совпадает с историей)
     comps._bandE=_e;
-    try{ renderGiftVerdict({exactAsk:marketAsk, sold, salesN:r._salesN, exactSalesN:exactSalesN, collSalesN:r._collSalesN, collMed, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0, fragExact:!!r.fragExact, askOnly:!!r._askOnly}); }catch(e){}
+    try{ renderGiftVerdict({exactAsk:marketAsk, sold, salesN:r._salesN, exactSalesN:exactSalesN, collSalesN:r._collSalesN, collMed, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0, fragExact:!!r.fragExact, askOnly:!!r._askOnly, askSrc:r._askSrc}); }catch(e){}
     try{ renderGiftComps(r, comps); }catch(e){}
   }
 }
+function askSrcLabel(sc,ru){ if(ru) return {exact:'Мин. предложение точной комбинации',pat:'Мин. предложение узора',model:'Мин. предложение модели',back:'Мин. предложение фона',cross:'Ближайший сопоставимый листинг',floor:'Floor коллекции'}[sc]||'Мин. предложение';
+  return {exact:'Min exact-combo listing',pat:'Min symbol listing',model:'Min model listing',back:'Min backdrop listing',cross:'Nearest comparable listing',floor:'Collection floor'}[sc]||'Min listing'; }
+function askSrcExact(sc){ return sc==='exact'; }
 function renderGiftVerdict(v){
   const box=document.getElementById('giftVerdict'); if(!box) return; const ru=S.lang==='ru';
   if(!v.hasTrait && !v.exactAsk && !v.sold && !v.floor){ box.innerHTML=''; return; }
@@ -3668,7 +3680,7 @@ function renderGiftVerdict(v){
             : (ru?'нет точного листинга':'no exact listing'));
   const relevant0 = (v.exactSalesN||0) > 0;
   const askOnly0 = v.exactAsk>0 && !relevant0;
-  rows+=row(askOnly0?(ru?'Мин. предложение узора':'Min trait listing'):(ru?'На рынке сейчас':'On market now'), mkt, (v.exactAsk>0||v.floor>0)?'':'var(--txt-3)');
+  rows+=row(askOnly0?askSrcLabel(v.askSrc,ru):(ru?'На рынке сейчас':'On market now'), mkt, (v.exactAsk>0||v.floor>0)?'':'var(--txt-3)');
   // сопоставимость: сделки показываем только если они правдоподобно относятся к ЭТОМУ предмету.
   // без выбранных трейтов лента продаж мешает редкие варианты (флор 3.6, а «сделки» 101) — это не сопоставимо.
   // РЕЛЕВАНТНОСТЬ: сравниваем/показываем «сделки» только если это ПОДТВЕРЖДЁННЫЕ продажи, относящиеся к предмету (salesN>0).
@@ -3960,8 +3972,11 @@ function guidanceInner(r){
          + row(t('gList'), '≥ '+num(g.listLo), t('gListNote'),'g-sell',lock);
   } else if(isGift && r._askOnly){
     const ask=Math.round(r._mktAsk||g.w||0);
-    head='<div class="g-banner">'+t('gAskBanner')+'</div>';
-    rows = row(t('gAsk'), num(ask), t('gAskNote'),'g-fair',false)
+    const exact=askSrcExact(r._askSrc);
+    head='<div class="g-banner">'+(exact? t('gAskBanner')
+         : (ru?'Точного листинга этой комбинации нет — ниже ближайший сопоставимый листинг. Справедливую стоимость определить нельзя.'
+              :'No exact listing for this combo — below is the nearest comparable listing. Fair value cannot be determined.'))+'</div>';
+    rows = row(askSrcLabel(r._askSrc,ru), num(ask), (exact?t('gAskNote'):(ru?'по ближайшему сопоставимому листингу':'from the nearest comparable listing')),'g-fair',false)
          + row(t('gFairNA'), '<span style="opacity:.7">'+t('gFairNAv')+'</span>', '', 'g-fair', false);
   } else if(gated){
     head='<div class="g-banner">'+(!hasMkt? t('gNoData') : (floorsStale? t('gStale') : t('gLowConf')))+'</div>';
@@ -4076,7 +4091,7 @@ function resultCardHTML(r){
   return '<div class="rcard">'+
     '<div class="asset-disp">'+
       '<div class="wax-seal">'+sealSVG()+'</div>'+
-      '<div class="appr-eyebrow">'+(r._askOnly?t('apprAsk'):t('apprValue'))+'</div>'+
+      '<div class="appr-eyebrow">'+(r._askOnly?(askSrcExact(r._askSrc)?t('apprAsk'):(S.lang==='ru'?'Ориентир по сопоставимому листингу':'Guide from a comparable listing')):t('apprValue'))+'</div>'+
       '<div class="arow"><div class="asset">'+escapeHTML(r.display)+'</div></div>'+
       '<div class="sub">'+subline+'</div>'+
       (S.skin==='b'?'<div class="skb-serial">'+((r.rarity&&r.rarity.oneIn)?('EDITION \u00b7 1 / '+r.rarity.oneIn.toLocaleString('en-US').replace(/,/g,' ')):('MONET DROP \u00b7 '+apprDate()))+'</div>':'')+
@@ -4167,7 +4182,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.2';
+const APP_VERSION='5.3';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
