@@ -2121,10 +2121,6 @@ function loadAll(){
       if(!cur || (h.ts||0)>(cur.ts||0)) best[k]=h; }   // на каждый актив — самая свежая запись
     out.history=Object.values(best).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,20);
   } }catch(e){}
-  try{ const q=new URLSearchParams(location.search);
-    let dp=q.get('dev'); if(!dp){ const sp=q.get('startapp')||q.get('tgWebAppStartParam')||''; if(/^dev[-_]/.test(sp)) dp=sp.replace(/^dev[-_]/,''); }
-    if(dp!=null){ if(dp==='off'||dp==='0'){ out.dev=false; } else if(dp==='monet2026'){ out.dev=true; } }
-  }catch(e){}
   return out;
 }
 function save(){ lsSet('monet', JSON.stringify(S)); }
@@ -3474,14 +3470,20 @@ async function spendGate(){
   }catch(e){}
   if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'};
 }
+let EVAL_BUSY=false;
+function evalSetBusy(b){ EVAL_BUSY=b; const btn=document.getElementById('evalBtn'); if(!btn) return;
+  if(b){ if(btn.dataset._lbl==null) btn.dataset._lbl=btn.textContent; btn.disabled=true; btn.classList.add('loading'); btn.textContent=(S.lang==='ru'?'Оцениваем…':'Appraising…'); }
+  else { btn.disabled=false; btn.classList.remove('loading'); if(btn.dataset._lbl!=null){ btn.textContent=btn.dataset._lbl; delete btn.dataset._lbl; } } }
 async function requestEvaluate(){
+  if(EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }   // сериализация: один расчёт за раз
   try{ if(curCat!=='gifts'&&curCat!=='stickers' && !assetUnlocked(curCat)){ openPaywall('whale','asset_'+curCat); return; } }catch(e){ return; }
   const btn=document.getElementById('evalBtn'); if(btn) btn.disabled=true;
   let g; try{ g=await spendGate(); }catch(e){ g={ok:true}; }
   if(btn) btn.disabled=false;
   if(!g.ok){ openPaywall(g.reason||'no_balance','evaluate'); return; }
   try{ if(typeof fetchEntitlement==='function') fetchEntitlement(); }catch(e){}
-  doEvaluate();
+  evalSetBusy(true);
+  try{ doEvaluate(); }catch(e){ evalSetBusy(false); }
 }
 function doEvaluate(){
   if(curCat==='gifts'||curCat==='stickers'){ /* always allowed */ }
@@ -3490,7 +3492,7 @@ function doEvaluate(){
   if(r && r.invalid){ try{ track('appraise_invalid', curCat); track('evaluation_failed', 'invalid'); }catch(e){}
     const el=document.getElementById('result');
     if(el) el.innerHTML='<div class="eval-invalid">⚠️ '+escapeHTML((r.factors&&r.factors[0]&&r.factors[0].v)||'invalid')+'</div>';
-    return; }
+    evalSetBusy(false); return; }
   if(!r||!(r.priceTON>0)){ try{ track('appraise_error', curCat); track('evaluation_failed', curCat); }catch(e){} }
   try{ if(curCat==='gifts'||curCat==='stickers'){ r._m=selName('e_rmodel'); r._b=selName('e_rback'); r._p=selName('e_rpat'); } }catch(e){}
   lastResult=r;
@@ -3500,7 +3502,7 @@ function doEvaluate(){
   const willRefine = (curCat==='gifts') && !!proxyURL() && (function(){ const c=giftColById((document.getElementById('e_col')||{}).value); return !!(c && c.id!=='other' && c.slug); })();
   r._loading = willRefine;
   if(willRefine){ renderResult(r); }
-  else { r._loading=false; addHistory(r); renderResult(r); try{ skinBCountUp(); }catch(e){} }
+  else { r._loading=false; addHistory(r); renderResult(r); try{ skinBCountUp(); }catch(e){} evalSetBusy(false); }
   try{ track('asset_evaluated', r.display); track('appraise_done', r.display); track('evaluation_completed', r.display); track('buy_sell_seen'); }catch(e){}
   syncFavButton();
   if(tg && tg.HapticFeedback){ try{tg.HapticFeedback.impactOccurred('medium');}catch(e){} }
@@ -3510,7 +3512,7 @@ function doEvaluate(){
     (async ()=>{ try{ await maybeAutoTraits(); }catch(e){}          // 1) тихо распознаём трейты
       if(lastResult===r && r.ts===stamp && r._loading){ try{ loadGiftCross(r); }catch(e){} } })();   // 2) один рыночный расчёт -> один финал
     // страховка: если уточнение не финализировалось за 7с (ранний выход/сеть) — показываем клиентский результат как финал
-    setTimeout(()=>{ if(lastResult===r && r.ts===stamp && r._loading){ r._loading=false; try{ addHistory(r); }catch(e){} try{ renderResult(r); }catch(e){} try{ countUp('ptonNum', r.priceTON); }catch(e){} } }, 7000);
+    setTimeout(()=>{ if(lastResult===r && r.ts===stamp && r._loading){ r._loading=false; try{ addHistory(r); }catch(e){} try{ renderResult(r); }catch(e){} try{ countUp('ptonNum', r.priceTON); }catch(e){} } if(EVAL_BUSY) evalSetBusy(false); }, 7000);
   }
   setTimeout(()=>{ const el=document.getElementById('result'); if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'}); },60);
 }
@@ -3666,6 +3668,7 @@ async function loadGiftCross(r){
     comps._bandE=_e;
     try{ renderGiftVerdict({exactAsk:marketAsk, sold, salesN:r._salesN, exactSalesN:exactSalesN, collSalesN:r._collSalesN, collMed, worth:r.priceTON, hasTrait, listed:marketAsk>0, floor:(c&&c.floor)||0, fragExact:!!r.fragExact, askOnly:!!r._askOnly, askSrc:r._askSrc}); }catch(e){}
     try{ renderGiftComps(r, comps); }catch(e){}
+    try{ evalSetBusy(false); }catch(e){}
   }
 }
 function askSrcLabel(sc,ru){ if(ru) return {exact:'Мин. предложение точной комбинации',pat:'Мин. предложение узора',model:'Мин. предложение модели',back:'Мин. предложение фона',cross:'Ближайший сопоставимый листинг',floor:'Floor коллекции'}[sc]||'Мин. предложение';
@@ -4186,7 +4189,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.5';
+const APP_VERSION='5.6';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -6984,8 +6987,15 @@ window.LOCK=(function(){
   return { menu, setFlow, removeFlow, verify, has, tap, del, cancel, forgot, backToPin, doReset };
 })();
 function init(){
-  try{ if(S.dev){ save();   /* сохраняем, чтобы DEV не слетал после удаления ?dev= из ссылки */
-    const bd=document.createElement('div'); bd.textContent='DEV · unlimited';
+  try{ const q=new URLSearchParams(location.search);
+    let dp=q.get('dev'); if(dp==null){ const sp=q.get('startapp')||q.get('tgWebAppStartParam')||''; if(/^dev[-_]/.test(sp)) dp=sp.replace(/^dev[-_]/,''); }
+    if(dp!=null){                                     // строгая логика: только точное совпадение меняет состояние
+      if(dp==='monet2026'){ S.dev=true; save(); }      // точный токен -> включить и сохранить
+      else if(dp==='off'||dp==='0'){ S.dev=false; save(); }   // off/0 -> выключить и сохранить
+      /* любое другое значение -> НИЧЕГО не меняем */
+    }
+  }catch(e){}
+  try{ if(S.dev){ const bd=document.createElement('div'); bd.textContent='DEV · unlimited';
     bd.style.cssText='position:fixed;top:6px;right:6px;z-index:99999;background:#c084fc;color:#141414;font:700 10px/1 system-ui,sans-serif;padding:4px 7px;border-radius:6px;letter-spacing:.4px;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.3)';
     document.body.appendChild(bd); } }catch(e){}
   if(!S.themeSet) S.theme='dark';
