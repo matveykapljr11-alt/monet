@@ -3745,7 +3745,7 @@ function renderGiftComps(r, comps){
     domLine+exactLine+
     '<div class="comps-list">'+rows+'</div>'+
     tapeHTML+
-    '<div class="comps-note">'+(ru?'Цена идёт от самого ценного трейта — дешевле его не купить. Совпадение по узору / фону / модели на официальных рынках.':'Priced from the most-valued trait — it cannot be bought cheaper. Matched by symbol / backdrop / model on official markets.')+'</div>';
+    '<div class="comps-note">'+(ru?'Цена идёт от самого ценного трейта. Это минимальное найденное предложение трейта на момент обновления. Совпадение по узору / фону / модели на официальных рынках.':'Priced from the most-valued trait. This is the lowest trait listing found at the time of refresh. Matched by symbol / backdrop / model on official markets.')+'</div>';
 }
 function buyCtaHTML(slug){ if(!slug) return ''; const ru=S.lang==='ru';
   const link=refLink('https://fragment.com/gifts/'+encodeURIComponent(String(slug))+'?filter=sale&sort=price_asc');
@@ -4106,7 +4106,7 @@ function resultCardHTML(r){
     '</div>'+
     '<div class="rbody">'+
       '<button class="btn eval-add" id="evalAddBtn" onclick="evalAddInline()">'+t('pfAddBtn')+'</button>'+
-      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+t('tierLabel')+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+(loading?'':'<div class="conf-explain" style="font-size:11px;color:var(--txt-3);margin:6px 2px 0;line-height:1.4">'+t('confLabel')+' \u00b7 '+confExplain(r)+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+'</div>')+
+      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+(r._askOnly?(S.lang==='ru'?'Категория по листингу':'Tier by listing'):t('tierLabel'))+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+(r._askOnly?(S.lang==='ru'?' · спр. стоимость не определена':' · fair value n/a'):'')+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+(loading?'':'<div class="conf-explain" style="font-size:11px;color:var(--txt-3);margin:6px 2px 0;line-height:1.4">'+t('confLabel')+' \u00b7 '+confExplain(r)+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+'</div>')+
       (loading?'':proInsightsHTML(r))+
       tradeBandHTML(r)+
       '<div class="res-cta">'+
@@ -4182,7 +4182,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.3';
+const APP_VERSION='5.4';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
