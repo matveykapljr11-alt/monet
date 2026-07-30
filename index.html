@@ -3191,18 +3191,19 @@ async function parseGiftLink(){
   const mm=v.match(/(?:t\.me\/nft\/)?([A-Za-z0-9_]+)-(\d+)/);
   try{ track('link_submitted'); }catch(e){}
   if(!mm){ if(msg){ msg.style.color='var(--down)'; msg.textContent=t('linkBad'); } try{ track('evaluation_failed','badlink'); }catch(e){} return; }
+  if(EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }
+  evalSetBusy(true);   // блокируем оба входа СРАЗУ, до async-парсинга ссылки
+  try{ const rz=document.getElementById('result'); if(rz) rz.innerHTML='<div class="eval-invalid" style="opacity:.8;text-align:center">'+(S.lang==='ru'?'Оцениваем…':'Appraising…')+'</div>'; }catch(e){}   // гасим старую карточку немедленно
   const base=proxyURL();
   if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=t('linkParsing'); }
-  if(btn) btn.disabled=true;
   let d=null;
   try{ if(base){ const r=await fetch(base.replace(/\/+$/,'')+'/?gift='+encodeURIComponent(v),{cache:'no-store'}); if(r.ok) d=await r.json(); } }catch(e){}
-  if(btn) btn.disabled=false;
   const slug=(d&&d.ok?d.slug:mm[1].toLowerCase().replace(/[^a-z0-9]/g,''));
   const num=(d&&d.ok?d.num:mm[2]);
   const col=(COLLECTIONS.gifts||[]).find(c=>(c.slug||String(c.n).toLowerCase().replace(/[^a-z0-9]/g,''))===slug);
   if(!col){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=t('linkNoCol'); }
     try{ const q=document.getElementById('e_q')||document.querySelector('#inputField input[placeholder]'); if(q){ q.scrollIntoView({behavior:'smooth',block:'center'}); } }catch(e){}
-    return; }
+    evalSetBusy(false); return; }
   if(curCat!=='gifts'){ try{ pickCat('gifts'); }catch(e){} }
   pickGift('e_', col.id);
   const ser=document.getElementById('e_serial'); if(ser&&num) ser.value=num;
@@ -3215,7 +3216,7 @@ async function parseGiftLink(){
     if(msg){ if(got.length){ msg.style.color='var(--up)'; msg.textContent=t('linkOk')+': '+col.n+' #'+num+' · '+got.join(' · '); }
              else if(d&&d.ok){ msg.style.color='var(--up)'; msg.textContent=t('linkOk')+': '+col.n+(num?(' #'+num):''); }
              else { msg.style.color='var(--warn)'; msg.textContent=t('linkFloorOnly')+' — '+col.n+(num?(' #'+num):''); } }
-    try{ (typeof requestEvaluate==='function'?requestEvaluate():doEvaluate()); }catch(e){}
+    try{ (typeof requestEvaluate==='function'?requestEvaluate(true):doEvaluate()); }catch(e){ evalSetBusy(false); }
   };
   // трейты подгружаются асинхронно — ждём селекты, максимум 2.5с
   let tries=0; (function wait(){ const sel=document.getElementById('e_rmodel');
@@ -3471,11 +3472,13 @@ async function spendGate(){
   if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'};
 }
 let EVAL_BUSY=false;
-function evalSetBusy(b){ EVAL_BUSY=b; const btn=document.getElementById('evalBtn'); if(!btn) return;
+function evalSetBusy(b){ EVAL_BUSY=b;
+  const lb=document.getElementById('e_linkBtn'); if(lb) lb.disabled=b;   // блокируем и вход по ссылке, не только #evalBtn
+  const btn=document.getElementById('evalBtn'); if(!btn) return;
   if(b){ if(btn.dataset._lbl==null) btn.dataset._lbl=btn.textContent; btn.disabled=true; btn.classList.add('loading'); btn.textContent=(S.lang==='ru'?'Оцениваем…':'Appraising…'); }
   else { btn.disabled=false; btn.classList.remove('loading'); if(btn.dataset._lbl!=null){ btn.textContent=btn.dataset._lbl; delete btn.dataset._lbl; } } }
-async function requestEvaluate(){
-  if(EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }   // сериализация: один расчёт за раз
+async function requestEvaluate(fromPipeline){
+  if(!fromPipeline && EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }   // сериализация: один расчёт за раз
   try{ if(curCat!=='gifts'&&curCat!=='stickers' && !assetUnlocked(curCat)){ openPaywall('whale','asset_'+curCat); return; } }catch(e){ return; }
   const btn=document.getElementById('evalBtn'); if(btn) btn.disabled=true;
   let g; try{ g=await spendGate(); }catch(e){ g={ok:true}; }
@@ -4189,7 +4192,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.7';
+const APP_VERSION='5.8';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
