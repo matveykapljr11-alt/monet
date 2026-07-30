@@ -1749,7 +1749,7 @@ header{border-bottom:0;background:none}
     <div class="mkt-search-row">
       <div class="mk-search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
-        <input id="mk-q" type="search" data-i18n-ph="mkSearchPh" placeholder="Поиск по каталогу…" oninput="MK.render()" onsearch="MK.render()" onchange="MK.render()">
+        <input id="mk-q" type="search" data-i18n-ph="mkSearchPh" placeholder="Поиск по каталогу…" oninput="MK.render()" onsearch="MK.render()" onchange="MK.render()" onkeyup="MK.render()">
       </div>
       <select class="mk-sortsel" id="mk-sort" onchange="MK.onSort(this.value)">
         <option value="cap" data-i18n="sortCap">По капитализации</option>
@@ -2694,7 +2694,7 @@ function openLegal(tab){ const box=document.getElementById('legal-sheet'); if(!b
       ['Что делает Monet','Monet — информационный сервис. Мы показываем ориентировочную стоимость коллекционных активов Telegram на основе публичных данных маркетплейсов (Portals, Fragment, Tonnel) и собственной модели.'],
       ['Не оферта и не совет','Оценки, диапазоны и зоны Buy/Sell — это рыночный ориентир, а не публичная оферта, не гарантия цены и не индивидуальная инвестиционная рекомендация. Итоговую цену определяет рынок. Решения о покупке и продаже вы принимаете самостоятельно и на свой риск.'],
       ['Точность данных','Данные маркетов могут запаздывать, содержать ошибки или быть недоступны. Мы показываем время последнего обновления и предупреждаем, если данные устарели. Мы не несём ответственности за убытки, связанные с использованием оценок.'],
-      ['Prima (подписка)','Prima оплачивается Telegram Stars за период (месяц или год) и открывает расширенную аналитику: зоны покупки и продажи, алерты, дневной ориентир, расширенный портфель. Подписка не продлевается автоматически — по окончании периода доступ просто заканчивается.'],
+      ['Подписка Plus / Pro','Тарифы Plus и Pro оплачиваются через Telegram Stars и действуют 30 дней: больше оценок в день, алерты по цене, зоны покупки и продажи, дневной ориентир и расширенный портфель. Тариф Whale — в разработке. Управлять подпиской и автопродлением можно в профиле; при отключении автопродления доступ сохраняется до конца оплаченного периода.'],
       ['Возврат','Оплата проходит через Telegram Stars. Вопросы возврата решаются в порядке, предусмотренном правилами Telegram; по спорным ситуациям пишите нам — разберёмся индивидуально.'],
       ['Изменения','Мы можем менять функциональность и условия. Актуальная версия документов всегда доступна в этом разделе.']
     ],
@@ -2718,7 +2718,7 @@ function openLegal(tab){ const box=document.getElementById('legal-sheet'); if(!b
       ['What Monet does','Monet is an information service. We show an indicative value of Telegram collectibles based on public marketplace data (Portals, Fragment, Tonnel) and our own model.'],
       ['Not an offer, not advice','Appraisals, ranges and Buy/Sell zones are market guidance — not a public offer, not a price guarantee, and not individual investment advice. The market sets the final price. You make buy and sell decisions yourself and at your own risk.'],
       ['Data accuracy','Market data may lag, contain errors or be unavailable. We show when data was last updated and warn when it is stale. We are not liable for losses arising from use of the appraisals.'],
-      ['Prima (subscription)','Prima is paid with Telegram Stars for a period (month or year) and unlocks extended analytics: buy/sell zones, alerts, daily guidance, extended portfolio. It does not auto-renew — access simply ends when the period is over.'],
+      ['Subscription (Plus / Pro)','Plus and Pro are paid with Telegram Stars and last 30 days: more appraisals per day, price alerts, buy/sell zones, daily guidance and an extended portfolio. Whale is in development. You can manage the subscription and auto-renewal in your profile; if you turn auto-renewal off, access stays until the end of the paid period.'],
       ['Refunds','Payments are processed by Telegram Stars. Refunds follow Telegram rules; for disputes contact us and we will sort it out.'],
       ['Changes','We may change functionality and terms. The current version is always in this section.']
     ],
@@ -4192,7 +4192,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.9';
+const APP_VERSION='6.0';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5472,7 +5472,7 @@ window.MK = (function(){
         ?'⚠️ Демо-цены — не рыночные. Нет связи с сервером, показаны примерные значения.'
         :'⚠️ Demo prices — not live. No server connection; approximate values shown.'); }
       else mb.style.display='none'; }
-    const box=document.getElementById('mk-list'); if(box) box.innerHTML=L.map((a,i)=>itemHTML(a,i)).join('')||'<div class="mc-empty">'+t('mkEmpty')+'</div>'; }
+    const box=document.getElementById('mk-list'); if(box) box.innerHTML=L.map((a,i)=>{ try{ return itemHTML(a,i); }catch(e){ return ''; } }).join('')||'<div class="mc-empty">'+t('mkEmpty')+'</div>'; }
 
   function heldQty(name){ const list=(typeof S==='object'&&S.portfolio)||[]; let q=0; list.forEach(h=>{ if(h.display===name) q+=(h.qty||1); }); return q; }
   function setCat(c){ cat=c; document.querySelectorAll('#mk-pills button').forEach(b=>b.classList.toggle('on',b.dataset.cat===c)); render(); }
