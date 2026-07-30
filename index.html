@@ -4189,7 +4189,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.6';
+const APP_VERSION='5.7';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -6486,9 +6486,11 @@ window.ADMIN=(function(){
     host.innerHTML=shell('<div class="al-empty">Загрузка…</div>');
     const base=proxyURL();
     if(!base){ host.innerHTML=shell('<div class="al-empty">Прокси не настроен</div>'); return; }
+    try{
     let data=null;
-    try{ const r=await fetch(base.replace(/\/+$/,'')+'/?admin',{method:'POST',body:(tg&&tg.initData)||'',cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); data=await r.json(); }
-    catch(e){ host.innerHTML=shell('<div class="al-empty">Не удалось получить данные ('+esc(e.message)+').<br>Проверь, что на воркере добавлен admin-endpoint.</div>'); return; }
+    { const _c=new AbortController(); const _t=setTimeout(()=>_c.abort(),15000);
+      let r; try{ r=await fetch(base.replace(/\/+$/,'')+'/?admin',{method:'POST',body:(tg&&tg.initData)||'',cache:'no-store',signal:_c.signal}); } finally{ clearTimeout(_t); }
+      if(!r.ok) throw new Error('admin HTTP '+r.status); data=await r.json(); }
     const days=(data.days||[]); const today=days.length?days[days.length-1]:{}; const feed=(data.feed||[]);
     const cards='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">'+
       card('Всего юзеров', data.users_total||0,'за всё время')+
@@ -6505,9 +6507,10 @@ window.ADMIN=(function(){
       last.map(d=>'<tr>'+[d.d,d.open||0,d.dau||0,d.asset_evaluated||0,d.add_to_portfolio||0,d.share_card||0,d.premium_click||0,d.invoice_paid||0].map((v,i)=>'<td style="text-align:right;padding:9px 8px;border-top:1px solid var(--line);font-weight:'+(i?'700':'600')+';font-family:'+(i?'var(--font-d)':'var(--font-b)')+'">'+v+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
     const feedH='<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:14px 18px;box-shadow:var(--shadow)"><div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:6px">Последние события</div>'+
       (feed.length?feed.slice(0,100).map(f=>'<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13px"><span style="color:var(--txt-3);font-weight:700;min-width:34px">'+rel(f.ts)+'</span><span style="font-weight:700;min-width:120px">'+esc(f.n?'@'+f.n:(f.u?'id'+f.u:'аноним'))+'</span><span style="color:var(--txt-2)">'+esc(evName(f.ev))+(f.d?' · <b style=\"color:var(--txt)\">'+esc(f.d)+'</b>':'')+'</span></div>').join(''):'<div class="al-empty">Пока пусто</div>')+'</div>';
-    let ms=null; try{ const rr=await fetch(base.replace(/\/+$/,'')+'/?msstats',{method:'POST',body:(tg&&tg.initData)||'',cache:'no-store'}); if(rr.ok) ms=await rr.json(); }catch(e){}
+    let ms=null; try{ const _c2=new AbortController(); const _t2=setTimeout(()=>_c2.abort(),15000); try{ const rr=await fetch(base.replace(/\/+$/,'')+'/?msstats',{method:'POST',body:(tg&&tg.initData)||'',cache:'no-store',signal:_c2.signal}); if(rr.ok) ms=await rr.json(); } finally{ clearTimeout(_t2); } }catch(e){}
     _lastStats=ms; _lastDays=(data.days||[]);
     host.innerHTML=shell((ms&&ms.ok?msAnalyticsHTML(ms):'')+msPanelHTML()+cards+charts+table+feedH);
+    }catch(e){ host.innerHTML=shell('<div class="al-empty" style="text-align:left;padding:16px;line-height:1.5">Не удалось загрузить админку:<br><b style="color:var(--bad)">'+esc(e&&e.message||e)+'</b><br><br>\u2022 HTTP 401 \u2192 на воркере не задан твой доступ (ADMIN_USERNAMES или ADMIN_ID).<br>\u2022 aborted/timeout \u2192 воркер не ответил за 15с (много KV-ключей).<br>\u2022 иная \u2192 покажи это сообщение разработчику.</div>'); }
   }
   let _lastStats=null, _lastDays=[];
   function exportStats(){ const ru=S.lang!=='en'; const d=_lastStats; if(!d||!d.ok){ toast(ru?'Нет данных':'No data'); return; }
@@ -6527,13 +6530,13 @@ window.ADMIN=(function(){
   function msAnalyticsHTML(d){
     const ru=S.lang!=='en'; const grp=(n)=>{ n=Math.round(+n||0); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); };
     const usd=Math.round((d.revenueStars||0)*(d.usd_per_star||0.013));
-    const a=(d.subs&&d.subs.active)||{plus:0,pro:0,whale:0}; const activeSubs=(a.plus||0)+(a.pro||0)+(a.whale||0);
+    const sub=d.subs||{}; const a=sub.active||{plus:0,pro:0,whale:0}; const activeSubs=(a.plus||0)+(a.pro||0)+(a.whale||0);
     const kpi=(l,v,s2,c)=>'<div style="flex:1;min-width:120px;background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:14px 16px"><div style="font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--txt-3)">'+l+'</div><div style="font-family:var(--font-d);font-weight:700;font-size:23px;margin-top:5px'+(c?';color:'+c:'')+'">'+v+'</div>'+(s2?'<div style="font-size:11px;color:var(--txt-3);font-weight:600;margin-top:2px">'+s2+'</div>':'')+'</div>';
     const cards='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">'+
       kpi(ru?'Выручка':'Revenue', grp(d.revenueStars)+' ⭐', '≈ $'+grp(usd)+' · '+(d.txnCount||0)+(ru?' платежей':' payments'),'var(--up)')+
       kpi(ru?'Активные подписки':'Active subs', ''+activeSubs, 'Plus '+(a.plus||0)+' · Pro '+(a.pro||0)+' · Whale '+(a.whale||0))+
       kpi(ru?'Юзеров всего':'Total users', grp(d.users), (ru?'активны сегодня: ':'active today: ')+(d.activeToday||0))+
-      kpi(ru?'Истекают ≤3д':'Expiring ≤3d', ''+(d.subs.expiring3d||0), (ru?'автопродление off: ':'auto-renew off: ')+(d.subs.autorenewOff||0), (d.subs.expiring3d>0?'var(--warn)':''))+
+      kpi(ru?'Истекают ≤3д':'Expiring ≤3d', ''+(sub.expiring3d||0), (ru?'автопродление off: ':'auto-renew off: ')+(sub.autorenewOff||0), (sub.expiring3d>0?'var(--warn)':''))+
       '</div>';
     // воронка конверсии
     const F=d.funnel||{}; const steps=[['app_open',ru?'Открытий':'Opens'],['asset_evaluated',ru?'Оценок':'Appraisals'],['paywall_viewed','Paywall'],['plan_selected',ru?'Выбор тарифа':'Plan picked'],['payment_success',ru?'Оплат':'Payments']];
