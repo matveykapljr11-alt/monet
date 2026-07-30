@@ -1749,7 +1749,7 @@ header{border-bottom:0;background:none}
     <div class="mkt-search-row">
       <div class="mk-search">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
-        <input id="mk-q" data-i18n-ph="mkSearchPh" placeholder="Поиск по каталогу…" oninput="MK.render()">
+        <input id="mk-q" type="search" data-i18n-ph="mkSearchPh" placeholder="Поиск по каталогу…" oninput="MK.render()" onsearch="MK.render()" onchange="MK.render()">
       </div>
       <select class="mk-sortsel" id="mk-sort" onchange="MK.onSort(this.value)">
         <option value="cap" data-i18n="sortCap">По капитализации</option>
@@ -1949,7 +1949,7 @@ header{border-bottom:0;background:none}
     <div class="plan-pick" id="planPick"></div>
     <div class="pm-code"><input id="pmCode" inputmode="numeric" placeholder="Промокод" onkeydown="if(event.key===\'Enter\')applyPromo()"><button onclick="applyPromo()">OK</button></div>
     <div id="pmCodeMsg" class="pm-code-msg"></div>
-    <button class="btn gold" id="pmBuyBtn" onclick="buyPremium()"></button>
+    <button class="btn gold" id="pmBuyBtn" aria-label="Subscribe / Оформить подписку" onclick="buyPremium()"></button>
     <p class="winhint" data-i18n="pmWin"></p>
   </div>
 </div>
@@ -2341,7 +2341,7 @@ en:{
   sheetSubColl:'Collection', numFloorName:'+888 …… (floor)', mkHeldTip:'in portfolio',
   lotsTitle:'On the market now', lotsBuy:'buy', lotCheapest:'cheapest', lotsEmpty:'No active listings', lotsLoading:'Loading listings…', lotsNoProxy:'Live listings unavailable', lotsErr:'Couldn’t load'
 }};
-I18N.ru.stBuyIdeas='Что купить'; I18N.en.stBuyIdeas='What to buy';
+I18N.ru.stBuyIdeas='Возможности рынка'; I18N.en.stBuyIdeas='Market opportunities';
 I18N.ru.stLegal='Документы'; I18N.en.stLegal='Legal';
 I18N.ru.linkPh='Вставь ссылку на подарок'; I18N.en.linkPh='Paste a gift link';
 I18N.ru.linkGo='Оценить'; I18N.en.linkGo='Value it';
@@ -4192,7 +4192,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='5.8';
+const APP_VERSION='5.9';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4844,7 +4844,7 @@ function renderPricing(highlight){
     '<button class="ms-btn" disabled>'+(ru?'Скоро':'Coming soon')+'</button></div>';
   const rows=msFeatureRows(ru).map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>'; }).join('');
   const table='<table class="ms-table"><thead><tr><th></th><th>Free</th><th>Plus</th><th>Pro</th><th>Whale</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<div class="ms-foot-note">'+(ru?'* 5 стартовых + до 15 в месяц, +1 в день (00:00 UTC)':'* 5 starter + up to 15/month, +1 daily (00:00 UTC)')+'</div>';
+    '<div class="ms-foot-note">'+(ru?'* 5 оценок при старте, далее +1 в день (00:00 UTC); всего не более 15 стандартных оценок за календарный месяц':'* 5 appraisals to start, then +1/day (00:00 UTC); max 15 standard appraisals per calendar month')+'</div>';
   const manage = (plan!=='free')
     ? '<button class="ms-link" onclick="cancelAutoRenew()">'+(S.ent&&S.ent.autorenew?(ru?'Отключить автопродление':'Turn off auto-renew'):(ru?'Автопродление отключено':'Auto-renew is off'))+'</button>'
       +(plan==='whale'?'<button class="ms-btn go" style="margin-top:6px" onclick="openWhalePanel()">'+(ru?'🐋 Инструменты Whale (API, Webhook, Каналы)':'🐋 Whale tools (API, Webhook, Channels)')+'</button>':'')
@@ -5152,7 +5152,7 @@ function planRank(p){ return {free:0,plus:1,pro:2,whale:3}[p]||0; }
 function hasPlan(min){ return planRank(entPlan())>=planRank(min); }
 // доступ к фичам по спеке
 function featurePlan(feat){ return ({ alerts_floor:'plus', alerts_price:'plus', portfolio_chart:'plus', smart_signals:'pro', monet_score:'pro', fast_sell:'pro', export:'pro', username:'whale', numbers:'whale', channels:'whale' })[feat]||'plus'; }
-function canFeature(feat){ return hasPlan(featurePlan(feat)); }
+function canFeature(feat){ if(typeof S!=='undefined' && S && S.dev) return true; return hasPlan(featurePlan(feat)); }
 // какие категории активов открыты текущим тарифом (Usernames/+888/Channels — только Whale)
 function assetUnlocked(cat){ if(cat==='gifts'||cat==='stickers') return true;
   try{ const a=(S.ent&&S.ent.assets)||null; if(a&&a.length) return a.indexOf(cat)>=0; }catch(e){}
@@ -5772,7 +5772,7 @@ window.PF = (function(){
         '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+(ro?'<span title="read-only" style="opacity:.7">🔒 </span>':'')+escapeHTML(h.display)+'</b><span>'+(function(){ const ru=S.lang==='ru'; const q=h.qty||1; const parts=[]; if(q>1) parts.push(q+' '+(ru?'шт':'pcs')); if(h.buy!=null&&h.buy>0){ const pnl=(curPrice(h)-h.buy)*q; const pct=(curPrice(h)-h.buy)/h.buy*100; const c=pnl>=0?'var(--up)':'var(--down)'; parts.push((ru?'вход ':'in ')+grp(h.buy)); parts.push('<span style="color:'+c+'">'+(pnl>=0?'+':'−')+grp(Math.abs(Math.round(pnl)))+' ('+(pct>=0?'+':'')+pct.toFixed(0)+'%)</span>'); } if(!parts.length) parts.push(ru?'коллекция':'collection'); return parts.join(' · '); })()+'</span></div>'+
         '<div class="pf-spkbox" onclick="PF.details('+i+')" style="cursor:pointer">'+rowSpark(h)+'</div>'+
         '<div class="rt" onclick="PF.details('+i+')" style="cursor:pointer"><div class="v">'+(hidden?'••••':grp(p))+' GRAM</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+'% · '+(S.lang==='ru'?'24ч':'24h')):'—')+'</div></div>'+
-        '<div class="pf-rowacts"><button class="pf-sell" title="edit" onclick="PF.editOpen('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button><button class="pf-sell" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
+        '<div class="pf-rowacts"><button class="pf-sell" aria-label="'+t('pfEditTitle')+'" title="edit" onclick="PF.editOpen('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button><button class="pf-sell" aria-label="'+t('pfSell')+'" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
     const eyeIcon = hidden
       ? '<svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.1A9 9 0 0 1 21 12a14 14 0 0 1-2.3 3M6.1 6.1A14 14 0 0 0 3 12a9 9 0 0 0 12 6.5"/></svg>'
       : '<svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -5933,7 +5933,7 @@ window.PF = (function(){
     return '<svg class="pf-spk" viewBox="0 0 '+w+' '+hh+'" preserveAspectRatio="none"><path d="'+line+'" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>';
   }catch(e){ return ''; } }
   function pnlHTML(){ const list=S.portfolio||[]; let cost=0,val=0;
-    list.forEach(h=>{ const b=(h.buy!=null?h.buy:h.priceTON)||0; const q=h.qty||1; cost+=b*q; val+=curPrice(h)*q; });
+    list.forEach(h=>{ if(!(h.buy!=null && h.buy>0)) return; const q=h.qty||1; cost+=h.buy*q; val+=curPrice(h)*q; });   // P&L только по позициям с реальной ценой входа — без фантома от переоценки
     const unreal=Math.round(val-cost);
     const real=Math.round((S.realized||[]).reduce((s,r)=>s+((r.sold||0)-(r.basis!=null?r.basis:r.est||0)),0));
     if((cost<=0 || Math.abs(unreal)<1) && real===0) return '';   // нулевые карточки — шум, не показываем
@@ -6267,7 +6267,7 @@ window.BANK = (function(){
         '<div class="wz-lbl">'+t('cvAmount')+'</div>'+
         '<div class="wz-row primary"><input class="wz-amt" id="cv-a" inputmode="decimal" aria-label="'+t('ariaAmtGram')+'" value="'+(cvAmt||'')+'" oninput="BANK.calc(\'from\')">'+
           (cvMode==='ton'?'<div class="wz-cur locked"><span class="fl">'+curIcon('ton','💎')+'</span><b>GRAM</b></div>':curBtn('from',f,cvFrom))+'</div>'+
-        '<div class="wz-swapwrap"><button class="wz-swap" onclick="BANK.cvSwap()" title="'+t('cvSwap')+'"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4 4 7.5M7 4l3 3.5M17 20V4M17 20l3-3.5M17 20l-3-3.5"/></svg></button></div>'+
+        '<div class="wz-swapwrap"><button class="wz-swap" aria-label="'+t('cvSwap')+'" onclick="BANK.cvSwap()" title="'+t('cvSwap')+'"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4 4 7.5M7 4l3 3.5M17 20V4M17 20l3-3.5M17 20l-3-3.5"/></svg></button></div>'+
         '<div class="wz-lbl">'+t('cvConverted')+'</div>'+
         '<div class="wz-row soft"><input class="wz-amt" id="cv-b" inputmode="decimal" aria-label="'+t('ariaAmtConv')+'" value="'+fmtNum(out)+'" oninput="BANK.calc(\'to\')">'+curBtn('to',tc,cvTo)+'</div>'+
       '</div>'+
@@ -6688,7 +6688,7 @@ window.HOME=(function(){
     document.getElementById('act-scrim').classList.add('open'); }
   function closeActivity(){ document.getElementById('act-scrim').classList.remove('open'); }
   function openBuyIdeas(){ const box=document.getElementById('act-sheet'); if(!box) return; const ru=S.lang==='ru';
-    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><div class="nm"><b>'+(ru?'Что купить':'What to buy')+'</b><span>'+(ru?'идеи по живому рынку':'live market ideas')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="HOME.closeActivity()">✕</button></div>';
+    const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><div class="nm"><b>'+(ru?'Возможности рынка':'Market opportunities')+'</b><span>'+(ru?'идеи по живому рынку':'live market ideas')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="HOME.closeActivity()">✕</button></div>';
     const g=mkAll().filter(x=>x.cat==='gifts'&&x.price>0);
     // 1. недооценены (вход): флор упал к Buy Zone от недавнего уровня (живые данные ch7)
     const uv=[]; g.forEach(x=>{ const ch7=typeof x.ch7==='number'?x.ch7:0; if(ch7>=0) return;
