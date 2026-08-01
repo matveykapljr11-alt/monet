@@ -3072,15 +3072,19 @@ const CATS=[
 let curCat='gifts', curView='home', _giftCatDirty=false;
 
 function renderCatTabs(containerId, current, onpick){
-  const el=document.getElementById(containerId); if(!el) return; el.innerHTML='';
+  const el=document.getElementById(containerId); if(!el) return; try{ el.setAttribute('role','tablist'); }catch(e){} el.innerHTML='';
   const exp=(S.showExperimental!==false);
   const list=exp?CATS:CATS.filter(c=>c.id==='gifts');
   list.forEach(c=>{
     const d=document.createElement('div');
     d.className='cat'+(c.id===current?' on':'');
+    d.setAttribute('role','tab'); d.setAttribute('tabindex', c.id===current?'0':'-1');
+    d.setAttribute('aria-selected', c.id===current?'true':'false');
+    d.setAttribute('aria-label', t(c.k));
     const beta=(exp && c.id!=='gifts')?'<span class="cat-beta">'+(S.lang==='ru'?'бета':'beta')+'</span>':'';
     d.innerHTML='<div class="ic">'+c.svg+'</div><div class="nm">'+t(c.k)+beta+'</div>';
     d.onclick=()=>onpick(c.id);
+    d.onkeydown=(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onpick(c.id); } };
     el.appendChild(d);
   });
 }
@@ -4192,7 +4196,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.1';
+const APP_VERSION='6.2';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4774,8 +4778,9 @@ function scoreChannel(subs, views){ subs=Math.max(0,+subs||0); views=Math.max(0,
   const er=views>0?Math.min(1,views/subs):0.08;             // вовлечённость
   const perSub=0.012 + er*0.09;                              // 0.012..0.102 GRAM/подписчика по вовлечённости
   return { priceTON: Math.round(subs*perSub), er:er }; }
-async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; if(!base||!initData) return {ok:false,reason:'no_tg'};
-  try{ const r=await fetch(base.replace(/\/+$/,'')+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({initData:initData},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
+async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=(!initData && S && S.dev)?'monet2026':'';
+  if(!base || (!initData && !dev)) return {ok:false,reason:'no_tg'};
+  try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):''); const r=await fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({initData:initData, dev:(dev||undefined)},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
 function openWhalePanel(){ if(entPlan()!=='whale'){ try{ openPaywall('whale','panel'); }catch(e){} return; } renderWhalePanel(); msOverlay().classList.add('open'); }
 async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
   el.innerHTML='<div class="ms-sheet"><div class="ms-h"><div><div class="ms-eyebrow">Whale · Phase 2</div><div class="ms-title">'+(ru?'Инструменты Whale':'Whale tools')+'</div></div><button class="ms-x" aria-label="Закрыть" onclick="closePricing()">✕</button></div>'+
@@ -4869,24 +4874,11 @@ function shareRef(){ try{ const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.us
   try{ navigator.clipboard.writeText(link); toast(ru?'Ссылка скопирована':'Link copied'); }catch(e){ toast(link); } }catch(e){} }
 async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.getElementById('msPromo'); const msg=document.getElementById('msPromoMsg'); if(!el) return;
   const code=String(el.value||'').trim().toUpperCase().replace(/[^A-Z0-9_]/g,''); if(!code){ if(msg){ msg.textContent=ru?'Введите код':'Enter a code'; } return; }
-  const base=proxyURL(); const initData=(tg&&tg.initData)||'';
-  if(!base||!initData){
-    if(S && S.dev){   // DEV-режим в вебе: локальная тест-активация промокода (без сервера — для тестировщика)
-      const tier = /WHALE/.test(code) ? 'whale' : /PRO/.test(code) ? 'pro' : 'plus';   // тир по имени кода
-      const caps={plus:30,pro:500,whale:5000};
-      try{ S.ent=Object.assign({}, S.ent, { plan:tier, plan_until:Date.now()+30*86400000, autorenew:false, portfolio_cap:caps[tier]||30, assets:(tier==='whale'?['gifts','username','numbers','channels']:['gifts']), _devPromo:true, ts:Date.now() }); save(); }catch(e){}
-      if(msg){ msg.style.color='var(--good)'; msg.textContent=(ru?('🎉 [DEV] Промокод активирован: '+tier.toUpperCase()+' на 30 дней (локально, без сервера).'):('🎉 [DEV] Promo activated: '+tier.toUpperCase()+' for 30 days (local, no server).')); }
-      try{ if(typeof syncPlanBadges==='function') syncPlanBadges(); }catch(e){}
-      try{ renderPricing(); }catch(e){}
-      try{ updatePremiumUI(); }catch(e){}
-      try{ track('upgrade_completed','devpromo:'+tier); }catch(e){}
-      return;
-    }
-    if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды работают только в Telegram':'Promo codes work inside Telegram only'; } return;
-  }
-  if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=ru?'Проверяем…':'Checking…'; }
+  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=(!initData && S && S.dev)?'monet2026':'';
+  if(!base || (!initData && !dev)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды активируются в Telegram. (В браузере — только в DEV-режиме для тестирования.)':'Promo codes activate in Telegram. (In a browser — only in DEV mode for testing.)'; } return; }
+  if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=(dev?(ru?'Проверяем (DEV)…':'Checking (DEV)…'):(ru?'Проверяем…':'Checking…')); }
   try{ track('plan_selected','promo:'+code); }catch(e){}
-  let r=null; try{ const res=await fetch(base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code),{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
+  let r=null; try{ const u=base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code)+(dev?('&dev='+dev):''); const res=await fetch(u,{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
   if(!r){ if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Сеть недоступна':'Network error'; } return; }
   if(r.ok){ const tU=String(r.tier||'').toUpperCase();
     if(msg){ msg.style.color='var(--good)'; msg.textContent=(ru?'🎉 Готово! Подписка '+tU+' на '+(r.duration_days||30)+' дней активирована.':'🎉 Done! '+tU+' for '+(r.duration_days||30)+' days is active.'); }
@@ -5125,8 +5117,9 @@ function updatePremiumUI(){ const b=document.getElementById('premiumBanner'); if
 async function fetchEntitlement(){
   try{
     const base=proxyURL(); if(!base) return;
-    const initData=(tg&&tg.initData)||''; if(!initData) return;
-    const res=await fetch(base.replace(/\/+$/,'')+'/?me&initData='+encodeURIComponent(initData),{cache:'no-store'});
+    const initData=(tg&&tg.initData)||''; const dev=(!initData && S && S.dev)?'monet2026':'';
+    if(!initData && !dev) return;
+    const res=await fetch(base.replace(/\/+$/,'')+'/?me&initData='+encodeURIComponent(initData)+(dev?('&dev='+dev):''),{cache:'no-store'});
     if(!res.ok) return; const j=await res.json();
     if(j&&j.ok&&typeof j.premium_until==='number'){
       const sv=Math.round(j.premium_until);
