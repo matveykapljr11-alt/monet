@@ -2130,7 +2130,7 @@ function save(){ lsSet('monet', JSON.stringify(S)); }
 ======================================================================== */
 const I18N = {
 ru:{
-  tagline:'оценка · рынок · портфель', heroSub:'Оценка по реальным сделкам · GRAM',
+  tagline:'оценка · рынок · портфель', heroSub:'Оценка по рыночным данным · GRAM',
   heroPitch:'Оценка · Рынок · Капитал · GRAM', confLabel:'Уверенность', confHigh:'высокая', confMid:'средняя', confLow:'низкая', estLabel:'Ориентир', liqLabel:'Ликвидность', liqLow:'низкая', liqMid:'средняя', liqHigh:'высокая', whyLabel:'Почему', tierLabel:'Категория',
   gTitle:'Monet Guidance', gBuy:'Покупать до', gFair:'Рыночная цена', gList:'Выставлять от', gFast:'Быстрая продажа',
   gBuyNote:'Хорошая цена для покупки', gFairNote:'Нормальная рыночная цена', gListNote:'Хорошая цена для продажи', gFastNote:'Если нужно продать быстро',
@@ -3105,7 +3105,7 @@ function inputHTML(cat, idp){
   const photo = idp==='e_' ?
     '<div class="link-id link-hero">'+
       '<div class="link-hero-t">'+(S.lang==='ru'?'Оценка за пару секунд':'Value it in seconds')+'</div>'+
-      '<div class="link-hero-s">'+(S.lang==='ru'?'Вставь ссылку на подарок — цена, диапазон и уверенность по реальным сделкам':'Paste a gift link — price, range and confidence from real deals')+'</div>'+
+      '<div class="link-hero-s">'+(S.lang==='ru'?'Вставь ссылку на подарок — цена, диапазон и уверенность по рыночным данным: листинги, floor и подтверждённые продажи':'Paste a gift link — price, range and confidence from market data: listings, floor and confirmed sales')+'</div>'+
       '<div class="link-row"><svg class="mi" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'+
         '<input id="e_link" aria-label="'+(S.lang==='ru'?'Ссылка на NFT':'NFT link')+'" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="'+t('linkPh')+'" oninput="onLinkInput()" onkeydown="if(event.key===\'Enter\')parseGiftLink()">'+
         '<button type="button" id="e_linkBtn" onclick="parseGiftLink()">'+t('linkGo')+'</button></div>'+
@@ -3978,14 +3978,10 @@ function guidanceInner(r){
   let rows='', head='';
   if(r.cat==='numbers'){
     head='<div class="g-banner">'+t('gNoMarket')+'</div>';
-    rows = row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false)
-         + row(t('gBuy'), '≤ '+num(g.buyUnder), t('gBuyNote'),'g-buy',lock)
-         + row(t('gList'), '≥ '+num(g.listLo), t('gListNote'),'g-sell',lock);
+    rows = row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false);   // рынка сделок нет — без Buy/Sell зон
   } else if(r.cat==='username'){
     head='<div class="g-banner soft">'+t('gOrient')+'</div>';
-    rows = row(t('gBuy'), '≤ '+num(g.buyUnder), t('gBuyNote'),'g-buy',lock)
-         + row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false)
-         + row(t('gList'), '≥ '+num(g.listLo), t('gListNote'),'g-sell',lock);
+    rows = row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false);   // тонкий рынок — только ориентир, без Buy/Sell зон
   } else if(isGift && r._askOnly){
     const ask=Math.round(r._mktAsk||g.w||0);
     const exact=askSrcExact(r._askSrc);
@@ -4075,8 +4071,13 @@ function proInsightsHTML(r){
   const locked = (typeof canFeature==='function') && !canFeature('monet_score');
   const score=monetScore(r); const opt=optimumPrice(r); const fs=fastSell(r);
   const sig=smartSignal(r);
+  const dataThin = !!r._askOnly || !(r._sold>0);   // нет подтверждённых/сопоставимых продаж или один листинг
   const sigHTML = sig ? ('<div class="pi-signal" onclick="'+(locked?'openPaywall(\'smart_signals\',\'card\')':'cycleSignalPct()')+'">'+
       '<span class="pi-dot"></span>'+(ru?'Smart Signal: аск ниже справедливой цены на ':'Smart Signal: ask below fair by ')+Math.round(sig.disc*100)+'%'+(locked?' 🔒':'')+'</div>') : '';
+  if(!locked && dataThin){
+    return '<div class="pro-ins" style="opacity:.92">'+
+      '<div style="font-size:12px;color:var(--txt-3);line-height:1.45">'+(ru?('Справедливая стоимость не определена — нет подтверждённых сделок'+(r._askOnly?' (цена по одному листингу)':'')+'. Monet Score, оптимальная и быстрая цена продажи не показываются.'):('Fair value not determined — no confirmed sales'+(r._askOnly?' (priced off a single listing)':'')+'. Monet Score, optimum and fast-sell are hidden.'))+'</div></div>';
+  }
   if(locked){
     return '<div class="pro-ins locked" onclick="openPaywall(\'smart_signals\',\'card\')">'+
       '<div class="pi-h">Monet Score · Fast Sell · Smart Signals <span class="pi-lock">🔒 Pro</span></div>'+
@@ -4199,7 +4200,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.4-dev';
+const APP_VERSION='6.5-dev';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4808,21 +4809,26 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
       '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'Оценка по подписчикам и вовлечённости. Рынок каналов тонкий — это ориентир.':'Estimated from subscribers and engagement. Channel market is thin — a guideline.')+'</div></div>'+
     '<div class="ms-promo"><div class="ms-invite-t">API</div><div id="apiOut" style="font-size:12px;color:var(--txt-2);margin-top:6px">…</div>'+
       '<div style="display:flex;gap:8px;margin-top:8px"><button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleKeyCreate()">'+(ru?'Выпустить ключ':'Create key')+'</button><button class="ms-btn" style="width:auto;padding:10px 16px" onclick="whaleKeyRevoke()">'+(ru?'Отозвать':'Revoke')+'</button></div>'+
-      '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">GET '+(proxyURL()||'<worker>')+'/?api&key=…&op=floor&collection=plushpepe</div></div>'+
+      '<div id="apiUsage" style="font-size:12px;color:var(--txt-2);margin-top:6px">'+(ru?'использование: …':'usage: …')+'</div>'+'<div style="font-size:11px;color:var(--txt-3);margin-top:6px">GET '+(proxyURL()||'<worker>')+'/?api&key=…&op=floor&collection=plushpepe</div></div>'+
     '<div class="ms-promo"><div class="ms-invite-t">Webhook</div>'+
       '<div style="display:flex;gap:8px;margin-top:8px"><input id="whUrl" placeholder="https://…" style="flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:600">'+
       '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleWebhookSet()">'+(ru?'Сохранить':'Save')+'</button></div>'+
-      '<div id="whOut" style="font-size:12px;color:var(--txt-2);margin-top:6px"></div>'+
+      '<div id="whOut" style="font-size:12px;color:var(--txt-2);margin-top:6px"></div>'+'<div id="whUsage" style="font-size:12px;color:var(--txt-2);margin-top:4px">'+(ru?'статус: …':'status: …')+'</div>'+
       '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'POST при срабатывании алерта: {source, ts, event}':'POST on alert trigger: {source, ts, event}')+'</div></div>'+
     '</div>';
   try{ const k=await whaleApi('/?apikey',{action:'view'}); const o=document.getElementById('apiOut'); if(o) o.textContent=(k&&k.key)?('key: '+k.key):(ru?'ключ не выпущен':'no key yet'); }catch(e){}
   try{ const w=await whaleApi('/?webhook',{action:'view'}); const el2=document.getElementById('whUrl'); if(el2&&w&&w.url) el2.value=w.url; }catch(e){}
+  try{ const u=await whaleApi('/?whaleusage',{}); if(u&&u.ok){
+    const rs=u.reset?new Date(u.reset).toLocaleDateString(ru?'ru-RU':'en-US',{day:'numeric',month:'short'}):'—';
+    const au=document.getElementById('apiUsage'); if(au) au.innerHTML='<b>'+(u.api_used||0).toLocaleString('en-US')+' / '+(u.api_cap||10000).toLocaleString('en-US')+'</b> '+(ru?'запросов · сброс ':'requests · resets ')+rs;
+    const wu=document.getElementById('whUsage'); if(wu){ const st=(u.webhook_status==='active')?(ru?'активен':'active'):(ru?'не задан':'not set'); wu.innerHTML='<b>'+(u.webhook_used||0)+' / '+(u.webhook_cap||500)+'</b> '+(ru?'вызовов · webhook ':'fires · webhook ')+st+(ru?' · сброс ':' · resets ')+rs; }
+  }}catch(e){}
 }
 function whaleChannelEval(){ const ru=S.lang==='ru'; const subs=(document.getElementById('chSubs')||{}).value; const views=(document.getElementById('chViews')||{}).value; const r=scoreChannel(subs,views); const o=document.getElementById('chOut');
   if(o){ if(!(r.priceTON>0)){ o.textContent=ru?'Введите число подписчиков':'Enter subscriber count'; return; }
+    if(r.outOfRange){ o.innerHTML='<b style="color:var(--warn)">'+(ru?'Недостаточно данных':'Not enough data')+'</b> · '+(ru?'оценка доступна только для 200–2 000 000 подписчиков':'estimate available only for 200–2,000,000 subscribers'); return; }
     const cf={low:(ru?'низкая':'low'),mid:(ru?'средняя':'medium')}[r.conf]||(ru?'низкая':'low');
-    o.innerHTML='<b style="color:var(--txt)">≈ '+fmtTON(r.priceTON)+' GRAM</b> · '+fmtFiat(r.priceTON)+' · '+(ru?'вовлечённость ':'engagement ')+Math.round(r.er*100)+'% · '+(ru?'уверенность ':'confidence ')+cf
-      +(r.outOfRange?('<div style="font-size:11px;color:var(--warn);margin-top:4px">'+(ru?'Вне надёжного диапазона (200–2 000 000 подписчиков) — ориентир очень грубый.':'Outside the reliable range (200–2,000,000 subs) — very rough estimate.')+'</div>'):''); }
+    o.innerHTML='<b style="color:var(--txt)">≈ '+fmtTON(r.priceTON)+' GRAM</b> · '+fmtFiat(r.priceTON)+' · '+(ru?'вовлечённость ':'engagement ')+Math.round(r.er*100)+'% · '+(ru?'уверенность ':'confidence ')+cf; }
   try{ track('asset_evaluated','channel'); }catch(e){} }
 async function whaleKeyCreate(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); if(o)o.textContent='…'; const r=await whaleApi('/?apikey',{action:'create'}); if(o) o.textContent=(r&&r.key)?('key: '+r.key):(ru?'ошибка':'error'); }
 async function whaleKeyRevoke(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); await whaleApi('/?apikey',{action:'revoke'}); if(o)o.textContent=ru?'ключ отозван':'key revoked'; }
@@ -4862,9 +4868,11 @@ function renderPricing(highlight){
       : [ru?'500 оценок/день':'500 appraisals/day', ru?'Портфель 500 активов':'500-asset portfolio', ru?'Smart Signals + Monet Score':'Smart Signals + Monet Score', ru?'Fast Sell, Optimum, экспорт':'Fast Sell, Optimum, export'];
     return '<div class="ms-card'+hl+'"><div class="ms-cn">'+p.name+'</div><div class="ms-price">'+p.stars+' <span>⭐ / 30'+(ru?'дн':'d')+'</span></div>'+
       '<ul class="ms-feats">'+feats.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'+btn+'</div>'; }).join('');
-  const whale='<div class="ms-card soon"><div class="ms-cn">Whale <span class="ms-soon">'+ (ru?'Скоро':'Coming soon') +'</span></div><div class="ms-price">'+MS_PLANS.whale.stars+' <span>⭐ / 30'+(ru?'дн':'d')+'</span></div>'+
+  const isWhale=(plan==='whale');
+  const whale='<div class="ms-card'+(isWhale?' hl':' soon')+'"><div class="ms-cn">Whale <span class="ms-soon">'+ (isWhale?'Private Beta':(ru?'Скоро':'Coming soon')) +'</span></div><div class="ms-price">'+MS_PLANS.whale.stars+' <span>⭐ / 30'+(ru?'дн':'d')+'</span></div>'+
     '<ul class="ms-feats"><li>'+(ru?'Usernames, +888, Channels':'Usernames, +888, Channels')+'</li><li>'+(ru?'API и Webhooks':'API & Webhooks')+'</li></ul>'+
-    '<button class="ms-btn" disabled>'+(ru?'Скоро':'Coming soon')+'</button></div>';
+    (isWhale? '<button class="ms-btn cur" disabled>'+(ru?'Текущий · Private Beta':'Current · Private Beta')+'</button>'
+            : '<button class="ms-btn" disabled>'+(ru?'Скоро':'Coming soon')+'</button>')+'</div>';
   const rows=msFeatureRows(ru).map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>'; }).join('');
   const table='<table class="ms-table"><thead><tr><th></th><th>Free</th><th>Plus</th><th>Pro</th><th>Whale</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="ms-foot-note">'+(ru?'* 5 оценок при старте, далее +1 в день (00:00 UTC); всего не более 15 стандартных оценок за календарный месяц':'* 5 appraisals to start, then +1/day (00:00 UTC); max 15 standard appraisals per calendar month')+'</div>';
@@ -4903,6 +4911,7 @@ async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.ge
     try{ track('upgrade_completed','promo:'+r.tier); }catch(e){} try{ pollEntitlement(); }catch(e){} setTimeout(function(){ try{ fetchEntitlement(); }catch(e){} try{ renderPricing(); }catch(e){} },1500); }
   else if(r.reason==='sold_out'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=(ru?('🔥 Упс, код уже разобрали '+(r.max||10)+' самых быстрых! Тебе доступен FREE: до 3 активов и Floor-каталог.'):('🔥 Oops — the first '+(r.max||10)+' fastest already claimed it! FREE is still yours: up to 3 assets and the floor catalog.')); } }
   else if(r.reason==='already'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Вы уже активировали этот промокод.':'You already activated this code.'; } }
+  else if(r.reason==='lower_plan_active'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?('У вас уже активен более высокий тариф — '+String(r.current||'').toUpperCase()+'. Код не потрачен.'):('You already have a higher plan active — '+String(r.current||'').toUpperCase()+'. The code was not used.'); } }
   else { if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Код не существует.':'This code does not exist.'; } }
 }
 function buyPlan(plan){ const ru=S.lang==='ru'; try{ track('plan_selected', plan); }catch(e){}
@@ -6714,6 +6723,7 @@ window.HOME=(function(){
     document.getElementById('act-scrim').classList.add('open'); }
   function closeActivity(){ document.getElementById('act-scrim').classList.remove('open'); }
   function openBuyIdeas(){ const box=document.getElementById('act-sheet'); if(!box) return; const ru=S.lang==='ru';
+    const sig=(typeof canFeature==='function')&&canFeature('smart_signals');   /*Smart Signals = Pro*/
     const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><div class="nm"><b>'+(ru?'Возможности рынка':'Market opportunities')+'</b><span>'+(ru?'идеи по живому рынку':'live market ideas')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="HOME.closeActivity()">✕</button></div>';
     const g=mkAll().filter(x=>x.cat==='gifts'&&x.price>0);
     // 1. недооценены (вход): флор упал к Buy Zone от недавнего уровня (живые данные ch7)
@@ -6734,7 +6744,7 @@ window.HOME=(function(){
       '<div class="mc-main"><div class="mc-name" style="font-size:13.5px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right">'+right+'</div></div>';
     const uvRowHTML=(o)=>row(o.x,'<div class="mc-price" style="color:'+(o.inZone?'var(--up)':'var(--warn)')+'">\u2212'+o.disc+'%</div>',(ru?'флор ':'floor ')+fmtTON(o.x.price)+' GRAM'+(o.inZone?' · '+t('hInZone'):''));
 
-    if(!proActive()){
+    if(!sig){
       // БЕСПЛАТНОЕ ДЕМО: один настоящий пример из живых данных, чтобы было видно ценность до оплаты
       let demoPick=uv[0]?{kind:'uv',o:uv[0]}:(mom[0]?{kind:'mom',x:mom[0]}:(heavy[0]?{kind:'heavy',x:heavy[0]}:null));
       let demo='';
@@ -6800,7 +6810,7 @@ window.HOME=(function(){
     const right = o.inZone ? '<div class="mc-price" style="color:var(--up)"><svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3 6 9l6 12 6-12-3-6"/></svg> -'+o.disc+'%</div>' : '<div class="mc-price" style="color:var(--warn)">-'+o.disc+'%</div>';
     const sub=(ru?'флор':'floor')+' '+fmtTON(x.price)+' GRAM'+(o.inZone?' · '+t('hInZone'):'');
     return '<div class="mc-item" style="cursor:pointer;padding:8px 10px" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')">'+giftPic(x)+'<div class="mc-main"><div class="mc-name" style="font-size:13px">'+escapeHTML(x.name)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right">'+right+'</div></div>'; }
-  function guidanceCard(){ const data=mkAll(); if(!data.length) return ''; const ru=S.lang==='ru'; const pro=proActive();
+  function guidanceCard(){ const data=mkAll(); if(!data.length) return ''; const ru=S.lang==='ru'; const pro=(typeof canFeature==='function')&&canFeature('smart_signals');
     const g=gidx(), mv=topMovers(), uv=undervalued(); if(!mv.ups.length && !mv.dips.length && !uv.length) return '';
     const dstr=new Date().toLocaleDateString(ru?'ru-RU':'en-US',{day:'2-digit',month:'short'});
     const head='<div class="home-sec"><b>'+t('hGuide')+(pro?'':' <span class="g-protag">PRIME</span>')+'</b><span style="font-size:11px;color:var(--txt-3)">'+dstr+'</span></div>';
@@ -6893,7 +6903,7 @@ window.HOME=(function(){
       let ex=null; try{ ex=(mkAll().filter(x=>x.cat==='gifts'&&x.price>0).sort((a,b)=>(b.cap||0)-(a.cap||0))[0])||null; }catch(e){}
       html+='<div class="pf-hero" style="text-align:center">'+
         '<div class="lbl" style="opacity:.92;font-size:17px;letter-spacing:0;text-transform:none;font-family:var(--font-d);font-weight:700">'+(ru?'Сколько стоит твой подарок?':'What is your gift worth?')+'</div>'+
-        '<div class="fiat" style="margin:8px auto 0;max-width:320px;font-size:13.5px;opacity:.9">'+(ru?'Вставь ссылку — покажем цену, диапазон и уверенность по реальным сделкам.':'Paste a link — get price, range and confidence from real trades.')+'</div>'+
+        '<div class="fiat" style="margin:8px auto 0;max-width:320px;font-size:13.5px;opacity:.9">'+(ru?'Вставь ссылку — покажем цену, диапазон и уверенность по рыночным данным: листинги, floor и подтверждённые продажи.':'Paste a link — get price, range and confidence from market data: listings, floor and confirmed sales.')+'</div>'+
         '<button class="btn" style="margin-top:16px;max-width:320px" onclick="HOME.go(\'evaluate\')">'+(ru?'Оценить подарок':'Value a gift')+'</button>'+
         '<button class="btn ghost" style="margin-top:9px;max-width:320px" onclick="openBulk()">'+(ru?'Импортировать портфель':'Import portfolio')+'</button>'+
       '</div>'+
