@@ -2848,7 +2848,7 @@ async function syncNotify(manual){
   if(!initData){ if(manual) toast(t('ntfNoTg')); return; }
   const portfolio=(S.portfolio||[]).map(h=>({name:h.display,qty:h.qty||1,cat:h.cat,priceTON:h.priceTON||0}));
   try{
-    const res=await fetch(url+(url.includes('?')?'&':'?')+'sync',{method:'POST',headers:{'content-type':'application/json'},
+    const res=await fetch(url+(url.includes('?')?'&':'?')+'sync',{method:'POST',
       body:JSON.stringify({initData, notify:!!S.notify, pro:(typeof canFeature==='function'?canFeature('smart_signals'):false), lang:S.lang, currency:S.currency, portfolio, alerts:(S.alerts||[])})});
     if(!res.ok) throw 0;
     if(manual) toast(S.notify? t('ntfOn') : t('ntfOff'));
@@ -4200,7 +4200,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.5-dev';
+const APP_VERSION='6.5.1-dev';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4796,7 +4796,7 @@ function scoreChannel(subs, views){ subs=Math.max(0,+subs||0); views=Math.max(0,
   return { priceTON: Math.round(eff*perSub), er:er, conf:conf, outOfRange:!inRange }; }
 async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=(!initData && S && S.dev)?'montest':'';   /*DEV-TEMP*/
   if(!base || (!initData && !dev)) return {ok:false,reason:'no_tg'};
-  try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):''); const r=await fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({initData:initData, dev:(dev||undefined)},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
+  try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):''); const r=await fetch(u,{method:'POST',body:JSON.stringify(Object.assign({initData:initData, dev:(dev||undefined)},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
 function openWhalePanel(){ if(entPlan()!=='whale'){ try{ openPaywall('whale','panel'); }catch(e){} return; } renderWhalePanel(); msOverlay().classList.add('open'); }
 async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
   el.innerHTML='<div class="ms-sheet"><div class="ms-h"><div><div class="ms-eyebrow">Whale · Phase 2</div><div class="ms-title">'+(ru?'Инструменты Whale':'Whale tools')+'</div></div><button class="ms-x" aria-label="Закрыть" onclick="closePricing()">✕</button></div>'+
@@ -5092,7 +5092,7 @@ function pfPush(now){
       const base=proxyURL(); const initData=(tg&&tg.initData)||'';
       if(!base||!initData) return;
       await fetch(base.replace(/\/+$/,'')+'/?portfolio',{method:'POST',cache:'no-store',
-        headers:{'content-type':'application/json'},
+        
         body:JSON.stringify({ initData, portfolio:(S.portfolio||[]), cash:S.cash||0,
           realized:(S.realized||[]).slice(0,100), updated:S.pfUpdated||Date.now() })});
     }catch(e){}
@@ -6599,7 +6599,7 @@ window.ADMIN=(function(){
     const exp='<button class="pf-addbtn" style="margin-bottom:12px" onclick="ADMIN.exportStats()">\u2193 '+(ru?'Экспорт метрик CSV':'Export metrics CSV')+'</button>';
     return '<div style="margin-bottom:8px"><h3 style="font-family:var(--font-d);font-weight:700;font-size:18px;margin:2px 0 12px">'+(ru?'💰 Монетизация':'💰 Monetization')+'</h3>'+exp+cards+funnel+ret+ptable+refc+'</div>';
   }
-  async function msCall(body){ const base=proxyURL(); if(!base) return {ok:false}; try{ const r=await fetch(base.replace(/\/+$/,'')+'/?msadmin',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({initData:(tg&&tg.initData)||''},body)),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false,error:String(e&&e.message)}; } }
+  async function msCall(body){ const base=proxyURL(); if(!base) return {ok:false}; try{ const r=await fetch(base.replace(/\/+$/,'')+'/?msadmin',{method:'POST',body:JSON.stringify(Object.assign({initData:(tg&&tg.initData)||''},body)),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false,error:String(e&&e.message)}; } }
   function msTargetVal(){ const el=document.getElementById('msTarget'); return el?String(el.value).replace(/[^0-9]/g,''):''; }
   function msPanelHTML(){
     return '<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:14px 18px;box-shadow:var(--shadow);margin-bottom:14px">'+
