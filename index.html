@@ -4200,7 +4200,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.5.1-dev';
+const APP_VERSION='6.5.2-dev';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -6599,7 +6599,12 @@ window.ADMIN=(function(){
     const exp='<button class="pf-addbtn" style="margin-bottom:12px" onclick="ADMIN.exportStats()">\u2193 '+(ru?'Экспорт метрик CSV':'Export metrics CSV')+'</button>';
     return '<div style="margin-bottom:8px"><h3 style="font-family:var(--font-d);font-weight:700;font-size:18px;margin:2px 0 12px">'+(ru?'💰 Монетизация':'💰 Monetization')+'</h3>'+exp+cards+funnel+ret+ptable+refc+'</div>';
   }
-  async function msCall(body){ const base=proxyURL(); if(!base) return {ok:false}; try{ const r=await fetch(base.replace(/\/+$/,'')+'/?msadmin',{method:'POST',body:JSON.stringify(Object.assign({initData:(tg&&tg.initData)||''},body)),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false,error:String(e&&e.message)}; } }
+  async function msCall(body){ const base=proxyURL(); if(!base) return {ok:false};
+    try{
+      const r=await fetch(base.replace(/\/+$/,'')+'/?msadmin&v='+Date.now(),{method:'POST',body:JSON.stringify(Object.assign({initData:(tg&&tg.initData)||''},body)),cache:'no-store'});
+      const txt=await r.text();
+      try{ return JSON.parse(txt); }catch(pe){ return {ok:false,error:'HTTP '+r.status+' · '+txt.slice(0,120)}; }   // не-JSON ответ: показать статус и кусок тела
+    }catch(e){ return {ok:false,error:String(e&&e.message)+' (сеть/CORS — проверь, что открыта свежая версия приложения: внизу оценки должно быть v'+APP_VERSION+')'}; } }
   function msTargetVal(){ const el=document.getElementById('msTarget'); return el?String(el.value).replace(/[^0-9]/g,''):''; }
   function msPanelHTML(){
     return '<div style="background:var(--surface-2);border:1px solid var(--line);border-radius:18px;padding:14px 18px;box-shadow:var(--shadow);margin-bottom:14px">'+
