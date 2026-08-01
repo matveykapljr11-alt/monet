@@ -4192,7 +4192,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.0';
+const APP_VERSION='6.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4870,7 +4870,20 @@ function shareRef(){ try{ const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.us
 async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.getElementById('msPromo'); const msg=document.getElementById('msPromoMsg'); if(!el) return;
   const code=String(el.value||'').trim().toUpperCase().replace(/[^A-Z0-9_]/g,''); if(!code){ if(msg){ msg.textContent=ru?'Введите код':'Enter a code'; } return; }
   const base=proxyURL(); const initData=(tg&&tg.initData)||'';
-  if(!base||!initData){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды работают только в Telegram':'Promo codes work inside Telegram only'; } return; }
+  if(!base||!initData){
+    if(S && S.dev){   // DEV-режим в вебе: локальная тест-активация промокода (без сервера — для тестировщика)
+      const tier = /WHALE/.test(code) ? 'whale' : /PRO/.test(code) ? 'pro' : 'plus';   // тир по имени кода
+      const caps={plus:30,pro:500,whale:5000};
+      try{ S.ent=Object.assign({}, S.ent, { plan:tier, plan_until:Date.now()+30*86400000, autorenew:false, portfolio_cap:caps[tier]||30, assets:(tier==='whale'?['gifts','username','numbers','channels']:['gifts']), _devPromo:true, ts:Date.now() }); save(); }catch(e){}
+      if(msg){ msg.style.color='var(--good)'; msg.textContent=(ru?('🎉 [DEV] Промокод активирован: '+tier.toUpperCase()+' на 30 дней (локально, без сервера).'):('🎉 [DEV] Promo activated: '+tier.toUpperCase()+' for 30 days (local, no server).')); }
+      try{ if(typeof syncPlanBadges==='function') syncPlanBadges(); }catch(e){}
+      try{ renderPricing(); }catch(e){}
+      try{ updatePremiumUI(); }catch(e){}
+      try{ track('upgrade_completed','devpromo:'+tier); }catch(e){}
+      return;
+    }
+    if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды работают только в Telegram':'Promo codes work inside Telegram only'; } return;
+  }
   if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=ru?'Проверяем…':'Checking…'; }
   try{ track('plan_selected','promo:'+code); }catch(e){}
   let r=null; try{ const res=await fetch(base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code),{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
