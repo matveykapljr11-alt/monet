@@ -3466,10 +3466,11 @@ async function maybeAutoTraits(){
 }
 /* Серверное списание оценки (правда о лимитах на сервере) + paywall с конкретной причиной */
 async function spendGate(){
-  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=(!initData && S && S.dev)?'montest':'';   /*DEV-TEMP*/
+  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
   if(!base || (!initData && !dev)){ if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'}; }
   try{
-    const res=await fetch(base.replace(/\/+$/,'')+'/?spend'+(dev?('&dev='+dev):''),{method:'POST',body:initData,cache:'no-store'});
+    const ik=Date.now().toString(36)+Math.random().toString(36).slice(2,10);   // idempotency: сервер спишет один раз
+    const res=await fetch(base.replace(/\/+$/,'')+'/?spend&ik='+ik+(dev?('&dev='+dev):''),{method:'POST',body:initData,cache:'no-store'});
     if(res.status===402||res.status===429){ const j=await res.json().catch(function(){return{};}); return {ok:false,reason:(j&&j.reason)||'no_balance', cooldown_until:(j&&j.cooldown_until)||0}; }
     if(res.ok){ const j=await res.json(); if(j&&j.server===false){ if(checkDaily()){bumpDaily();return{ok:true};} return {ok:false,reason:'no_balance'}; } if(j&&j.ok){ return {ok:true, remaining:j.remaining}; } }
   }catch(e){}
@@ -3481,13 +3482,16 @@ function evalSetBusy(b){ EVAL_BUSY=b;
   const btn=document.getElementById('evalBtn'); if(!btn) return;
   if(b){ if(btn.dataset._lbl==null) btn.dataset._lbl=btn.textContent; btn.disabled=true; btn.classList.add('loading'); btn.textContent=(S.lang==='ru'?'Оцениваем…':'Appraising…'); }
   else { btn.disabled=false; btn.classList.remove('loading'); if(btn.dataset._lbl!=null){ btn.textContent=btn.dataset._lbl; delete btn.dataset._lbl; } } }
+try{ if(S && S.dev){ S.dev=false; save(); } }catch(e){}   // P0.4: production не доверяет сохранённому dev-флагу
 async function requestEvaluate(fromPipeline){
   if(!fromPipeline && EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }   // сериализация: один расчёт за раз
-  try{ if(curCat!=='gifts'&&curCat!=='stickers' && !assetUnlocked(curCat)){ openPaywall('whale','asset_'+curCat); return; } }catch(e){ return; }
+  if(!fromPipeline) evalSetBusy(true);   // P0.2: блокируем ВСЕ входы (Enter, кнопки) ДО первого await — двойной Enter больше не проходит
+  try{ if(curCat!=='gifts'&&curCat!=='stickers' && !assetUnlocked(curCat)){ evalSetBusy(false); openPaywall('whale','asset_'+curCat); return; } }catch(e){ evalSetBusy(false); return; }
   const btn=document.getElementById('evalBtn'); if(btn) btn.disabled=true;
   let g; try{ g=await spendGate(); }catch(e){ g={ok:true}; }
   if(btn) btn.disabled=false;
   if(!g.ok){
+    evalSetBusy(false);   // любой отказ снимает busy
     if(g.reason==='rate'||g.reason==='cooldown'){ const secs=g.cooldown_until? Math.max(1,Math.round((g.cooldown_until-Date.now())/1000)) : 60; try{ toast(S.lang==='ru'?('Слишком много запросов. Повторите через ~'+secs+' сек.'):('Too many requests. Retry in ~'+secs+'s.')); }catch(e){} return; }
     openPaywall(g.reason||'no_balance','evaluate'); return; }
   try{ if(typeof fetchEntitlement==='function') fetchEntitlement(); }catch(e){}
@@ -3498,6 +3502,7 @@ function doEvaluate(){
   if(curCat==='gifts'||curCat==='stickers'){ /* always allowed */ }
   try{ track('start_appraisal'); track('appraise_start', curCat); track('evaluation_started', curCat); }catch(e){}
   const r=valueFor(curCat,'e_'); r.cat=curCat; r.ts=Date.now();
+  if(curCat==='username'||curCat==='numbers') r._heuristic=true;   // P0.1: нет рыночных данных — денежную стоимость не показываем
   if(r && r.invalid){ try{ track('appraise_invalid', curCat); track('evaluation_failed', 'invalid'); }catch(e){}
     const el=document.getElementById('result');
     if(el) el.innerHTML='<div class="eval-invalid">⚠️ '+escapeHTML((r.factors&&r.factors[0]&&r.factors[0].v)||'invalid')+'</div>';
@@ -3765,7 +3770,7 @@ function renderGiftComps(r, comps){
 }
 function buyCtaHTML(slug){ if(!slug) return ''; const ru=S.lang==='ru';
   const link=refLink('https://fragment.com/gifts/'+encodeURIComponent(String(slug))+'?filter=sale&sort=price_asc');
-  return '<a href="'+escapeHTML(link)+'" target="_blank" rel="noopener" style="position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.95);background:rgba(255,255,255,.14);padding:8px 14px;border-radius:999px;text-decoration:none"><span style="width:6px;height:6px;border-radius:50%;background:#9be9c4;display:inline-block"></span>'+(ru?'Купить на рынке ↗':'Buy on market ↗')+'</a>'; }
+  return '<a href="'+escapeHTML(link)+'" target="_blank" rel="noopener" style="position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;margin-top:11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.95);background:rgba(255,255,255,.14);padding:8px 14px;border-radius:999px;text-decoration:none"><span style="width:6px;height:6px;border-radius:50%;background:#9be9c4;display:inline-block"></span>'+(ru?'Открыть коллекцию на рынке ↗':'Open collection on market ↗')+'</a>'; }
 function applyGiftCross(r, d, hasTrait){
   // Fragment price is the real deal for THIS item only if it matched the item's
   // traits. If traits were chosen but Fragment fell back to the collection floor
@@ -3938,7 +3943,7 @@ function estSpread(r){
 function factorsHTML(r){
   const rows=(r.factors||[]).map(f=>'<div class="factor '+f.cls+'"><div class="fi">'+f.i+'</div><div class="ft">'+t(f.k)+'</div><div class="fv">'+f.v+'</div></div>').join('');
   // Явный итог: чтобы цепочка «флор коллекции → поправки → итог Monet» читалась однозначно
-  const total='<div class="factor total"><div class="fi">🟰</div><div class="ft">'+(r._askOnly?(S.lang==='ru'?'Текущий аск':'Current ask'):(S.lang==='ru'?'Итог Monet':'Monet total'))+'</div><div class="fv">'+fmtTON(+r.priceTON||0)+' GRAM</div></div>';
+  const total=r._heuristic?'':'<div class="factor total"><div class="fi">🟰</div><div class="ft">'+(r._askOnly?(S.lang==='ru'?'Текущий аск':'Current ask'):(S.lang==='ru'?'Итог Monet':'Monet total'))+'</div><div class="fv">'+fmtTON(+r.priceTON||0)+' GRAM</div></div>';   // эвристика: без денежного итога
   return rows+total;
 }
 /* ---- Monet Guidance: a buy/fair/sell/fast decision map around fair value ---- */
@@ -3976,12 +3981,8 @@ function guidanceInner(r){
   const num=v=>fmtTON(v)+' GRAM', rng=(a,b)=>fmtTON(a)+'–'+fmtTON(b)+' GRAM';
   const row=(k,val,note,cls,lk)=>'<div class="g-row '+(cls||'')+(lk?' locked':'')+'"><div class="g-l"><span class="g-k">'+k+'</span><span class="g-note">'+note+'</span></div><div class="g-v">'+(lk?'<span class="g-lockv"><svg class="mi" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> •••</span>':val)+'</div></div>';
   let rows='', head='';
-  if(r.cat==='numbers'){
-    head='<div class="g-banner">'+t('gNoMarket')+'</div>';
-    rows = row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false);   // рынка сделок нет — без Buy/Sell зон
-  } else if(r.cat==='username'){
-    head='<div class="g-banner soft">'+t('gOrient')+'</div>';
-    rows = row(t('gFair'), rng(g.fairLo,g.fairHi), t('gFairNote'),'g-fair',false);   // тонкий рынок — только ориентир, без Buy/Sell зон
+  if(r.cat==='numbers'||r.cat==='username'){
+    return '<div class="g-banner">'+(ru?'Недостаточно рыночных данных — ценовые зоны не рассчитываются. Доступна только эвристическая оценка редкости.':'Not enough market data — price zones are not calculated. Only a heuristic rarity score is available.')+'</div>';
   } else if(isGift && r._askOnly){
     const ask=Math.round(r._mktAsk||g.w||0);
     const exact=askSrcExact(r._askSrc);
@@ -4022,7 +4023,11 @@ function guidanceInner(r){
       if(mins>=0){ const fresh = mins<1?(ru?'обновлено только что':'updated just now'):(ru?'обновлено ':'updated ')+mins+(ru?' мин назад':' min ago'); bits.push((stale?(ru?'кэш · ':'cached · '):'')+fresh); }
       if(r._scanned>0) bits.push((ru?'найдено листингов: ':'listings found: ')+r._scanned);
       if(r._comps>0) bits.push((ru?'сопоставимых: ':'comparables: ')+r._comps);
-      if(r._salesN>0) bits.push((ru?'продаж в расчёте: ':'sales used: ')+r._salesN);
+      if(r._salesN>0){
+        if(r._askOnly) bits.push(r._salesN+(ru?' продаж по коллекции — не использованы как подтверждение цены':' collection-wide sales — not used as price confirmation'));
+        else if(r._exactSalesN>0) bits.push((ru?'точных продаж: ':'exact sales: ')+r._exactSalesN+(r._salesN>r._exactSalesN?(ru?' · сопоставимых: ':' · comparable: ')+(r._salesN-r._exactSalesN):''));
+        else bits.push((ru?'сопоставимых продаж: ':'comparable sales: ')+r._salesN);
+      }
     }
     if(bits.length) trust='<div class="g-trust"><svg class="mi" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6h.01"/></svg> '+bits.join(' · ')+'</div>';
   }
@@ -4099,6 +4104,27 @@ function resultCardHTML(r){
                 : ((r.cat==='gifts'||r.cat==='stickers') && _traitBits.length) ? _traitBits.join(' · ')
                 : t('collection');
   const facts=factorsHTML(r);
+  const heur=!!r._heuristic;   // P0.1: username/+888 без рыночных данных — только Rarity Score, без GRAM/USD/категории
+  if(heur){
+    const sc=Math.round(priceToScore(Math.max(1,+r.priceTON||1)));
+    return '<div class="rcard">'+
+      '<div class="asset-disp">'+
+        '<div class="wax-seal">'+sealSVG()+'</div>'+
+        '<div class="appr-eyebrow">'+(S.lang==='ru'?'Оценка редкости (эвристика)':'Heuristic rarity score')+'</div>'+
+        '<div class="arow"><div class="asset">'+escapeHTML(r.display)+'</div></div>'+
+        '<div class="sub">'+subline+'</div>'+
+        '<div class="price-ton"><span id="ptonNum">'+sc+'</span><span class="u">/100</span></div>'+
+        '<div class="price-range">'+(S.lang==='ru'?'Недостаточно рыночных данных — денежная оценка не показывается':'Not enough market data — no monetary value shown')+'</div>'+
+        '<div class="cert-foot">Monet · '+t('apprHouse')+' · '+apprDate()+' · v'+APP_VERSION+'</div>'+
+      '</div>'+
+      '<div class="rbody">'+
+        '<div class="conf-explain" style="font-size:12px;color:var(--txt-3);margin:2px 2px 8px;line-height:1.45">'+(S.lang==='ru'
+          ? 'Подтверждённых продаж и листингов не найдено (0 сопоставимых). Балл выше — эвристика редкости по характеристикам, не рыночная стоимость. Денежная оценка появится, когда накопятся реальные сопоставимые данные.'
+          : 'No confirmed sales or listings found (0 comps). The score above is a rarity heuristic from attributes, not a market value. A monetary estimate appears once real comparable data exists.')+'</div>'+
+        facts+
+        (r.cat==='username'?'<div id="usernameComps"></div>':'')+
+      '</div></div>';
+  }
   // honest uncertainty: liquid/cheap = tight, expensive/rare/illiquid = wide
   const spread=estSpread(r);
   const P=Math.max(0,+r.priceTON||0);                                  // ЕДИНОЕ число: главная цена/диапазон/USD/Stars/итог — все через fmtTON(P)
@@ -4200,7 +4226,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.5.2-dev';
+const APP_VERSION='6.6';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4794,7 +4820,7 @@ function scoreChannel(subs, views){ subs=Math.max(0,+subs||0); views=Math.max(0,
   let eff = subs; if(subs>500000){ eff = 500000 + Math.pow(subs-500000, 0.85); }   // сублинейно гасим гигантские значения
   const conf = !inRange ? 'low' : (views>0 && subs>=1000 ? 'mid' : 'low');
   return { priceTON: Math.round(eff*perSub), er:er, conf:conf, outOfRange:!inRange }; }
-async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=(!initData && S && S.dev)?'montest':'';   /*DEV-TEMP*/
+async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
   if(!base || (!initData && !dev)) return {ok:false,reason:'no_tg'};
   try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):''); const r=await fetch(u,{method:'POST',body:JSON.stringify(Object.assign({initData:initData, dev:(dev||undefined)},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
 function openWhalePanel(){ if(entPlan()!=='whale'){ try{ openPaywall('whale','panel'); }catch(e){} return; } renderWhalePanel(); msOverlay().classList.add('open'); }
@@ -4816,6 +4842,12 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
       '<div id="whOut" style="font-size:12px;color:var(--txt-2);margin-top:6px"></div>'+'<div id="whUsage" style="font-size:12px;color:var(--txt-2);margin-top:4px">'+(ru?'статус: …':'status: …')+'</div>'+
       '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'POST при срабатывании алерта: {source, ts, event}':'POST on alert trigger: {source, ts, event}')+'</div></div>'+
     '</div>';
+  if(!(tg&&tg.initData)){
+    const note=ru?'Управление API и Webhook доступно внутри Telegram Mini App':'API & Webhook management is available inside the Telegram Mini App';
+    const a=document.getElementById('apiOut'); if(a) a.textContent=note;
+    const au=document.getElementById('apiUsage'); if(au) au.textContent='';
+    const w=document.getElementById('whUsage'); if(w) w.textContent=note;
+    return; }
   try{ const k=await whaleApi('/?apikey',{action:'view'}); const o=document.getElementById('apiOut'); if(o) o.textContent=(k&&k.key)?('key: '+k.key):(ru?'ключ не выпущен':'no key yet'); }catch(e){}
   try{ const w=await whaleApi('/?webhook',{action:'view'}); const el2=document.getElementById('whUrl'); if(el2&&w&&w.url) el2.value=w.url; }catch(e){}
   try{ const u=await whaleApi('/?whaleusage',{}); if(u&&u.ok){
@@ -4900,7 +4932,7 @@ function shareRef(){ try{ const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.us
   try{ navigator.clipboard.writeText(link); toast(ru?'Ссылка скопирована':'Link copied'); }catch(e){ toast(link); } }catch(e){} }
 async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.getElementById('msPromo'); const msg=document.getElementById('msPromoMsg'); if(!el) return;
   const code=String(el.value||'').trim().toUpperCase().replace(/[^A-Z0-9_]/g,''); if(!code){ if(msg){ msg.textContent=ru?'Введите код':'Enter a code'; } return; }
-  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=(!initData && S && S.dev)?'montest':'';   /*DEV-TEMP*/
+  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
   if(!base || (!initData && !dev)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды активируются в Telegram. (В браузере — только в DEV-режиме для тестирования.)':'Promo codes activate in Telegram. (In a browser — only in DEV mode for testing.)'; } return; }
   if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=(dev?(ru?'Проверяем (DEV)…':'Checking (DEV)…'):(ru?'Проверяем…':'Checking…')); }
   try{ track('plan_selected','promo:'+code); }catch(e){}
@@ -5146,7 +5178,7 @@ function updatePremiumUI(){ const b=document.getElementById('premiumBanner'); if
 async function fetchEntitlement(){
   try{
     const base=proxyURL(); if(!base) return;
-    const initData=(tg&&tg.initData)||''; const dev=(!initData && S && S.dev)?'montest':'';   /*DEV-TEMP*/
+    const initData=(tg&&tg.initData)||''; const dev='';
     if(!initData && !dev) return;
     const res=await fetch(base.replace(/\/+$/,'')+'/?me&initData='+encodeURIComponent(initData)+(dev?('&dev='+dev):''),{cache:'no-store'});
     if(!res.ok) return; const j=await res.json();
@@ -7037,8 +7069,7 @@ function init(){
   try{ const q=new URLSearchParams(location.search);
     let dp=q.get('dev'); if(dp==null){ const sp=q.get('startapp')||q.get('tgWebAppStartParam')||''; if(/^dev[-_]/.test(sp)) dp=sp.replace(/^dev[-_]/,''); }
     if(dp!=null){                                     // dev можно только выключить/сбросить; включить через URL нельзя
-      if(dp==='montest'){ S.dev=true; save(); }   /*DEV-TEMP*/ // ВРЕМЕННО: dev-доступ, убрать перед продажами
-      else if(dp==='off'||dp==='0'){ S.dev=false; save(); }   // off/0 -> выключить и сохранить
+      if(dp==='off'||dp==='0'){ S.dev=false; save(); }   // dev можно только выключить; включить через URL нельзя
       /* любое другое значение -> НИЧЕГО не меняем */
     }
   }catch(e){}
