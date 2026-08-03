@@ -2590,6 +2590,17 @@ const COLLECTIONS = {
 const DEFAULT_PROXY = 'https://monet-proxy.matvey-kapljr11.workers.dev';
 function proxyURL(){ return (S.floorProxy||'').trim() || DEFAULT_PROXY; }
 function webSess(){ try{ return (!(tg&&tg.initData) && S.ws)||''; }catch(e){ return ''; } }
+async function ensureWebSess(){   // на вебе без Telegram: получить/иметь подписанную сессию, чтобы промокоды и лимиты шли через сервер
+  try{
+    if(tg&&tg.initData) return '';
+    if(S.ws && /^wt\./.test(S.ws)){ const p=S.ws.split('.'); if((+p[2]||0) > Date.now()+86400000) return S.ws; }   // валиден ещё хотя бы сутки
+    const base=proxyURL(); if(!base) return '';
+    const r=await fetch(base.replace(/\/+$/,'')+'/?webreg',{method:'POST',cache:'no-store'});
+    const j=await r.json().catch(function(){return null;});
+    if(j&&j.ok&&j.token){ S.ws=j.token; save(); return j.token; }
+  }catch(e){}
+  return (S.ws||'');
+}
 /* ===== AFFILIATE — твои реф-коды по площадкам. Заполни code; пусто = чистая ссылка. =====
    Каждая кнопка «купить»/площадка тегается, чтобы зарабатывать на приведённых сделках. */
 const REF = {
@@ -3468,6 +3479,7 @@ async function maybeAutoTraits(){
 /* Серверное списание оценки (правда о лимитах на сервере) + paywall с конкретной причиной */
 async function spendGate(){
   const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
+  if(!initData && !webSess()){ try{ await ensureWebSess(); }catch(e){} }
   if(!base || (!initData && !dev && !webSess())){ if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'}; }
   try{
     const ik=Date.now().toString(36)+Math.random().toString(36).slice(2,10);   // idempotency: сервер спишет один раз
@@ -4238,7 +4250,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.8';
+const APP_VERSION='6.9';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4947,8 +4959,10 @@ function shareRef(){ try{ const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.us
   try{ navigator.clipboard.writeText(link); toast(ru?'Ссылка скопирована':'Link copied'); }catch(e){ toast(link); } }catch(e){} }
 async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.getElementById('msPromo'); const msg=document.getElementById('msPromoMsg'); if(!el) return;
   const code=String(el.value||'').trim().toUpperCase().replace(/[^A-Z0-9_]/g,''); if(!code){ if(msg){ msg.textContent=ru?'Введите код':'Enter a code'; } return; }
-  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=''; const ws=webSess();
-  if(!base || (!initData && !dev && !ws)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды активируются внутри Telegram Mini App.':'Promo codes activate inside the Telegram Mini App.'; } return; }
+  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
+  let ws=webSess();
+  if(!initData && !ws){ if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=ru?'Подключаемся…':'Connecting…'; } ws=await ensureWebSess(); }
+  if(!base || (!initData && !dev && !ws)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Сеть недоступна — попробуйте ещё раз.':'Network error — please try again.'; } return; }
   if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=(dev?(ru?'Проверяем (DEV)…':'Checking (DEV)…'):(ru?'Проверяем…':'Checking…')); }
   try{ track('plan_selected','promo:'+code); }catch(e){}
   let r=null; try{ const u=base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code)+(ws?('&ws='+encodeURIComponent(ws)):'')+(dev?('&dev='+dev):''); const res=await fetch(u,{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
