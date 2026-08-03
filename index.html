@@ -3483,6 +3483,12 @@ function evalSetBusy(b){ EVAL_BUSY=b;
   if(b){ if(btn.dataset._lbl==null) btn.dataset._lbl=btn.textContent; btn.disabled=true; btn.classList.add('loading'); btn.textContent=(S.lang==='ru'?'Оцениваем…':'Appraising…'); }
   else { btn.disabled=false; btn.classList.remove('loading'); if(btn.dataset._lbl!=null){ btn.textContent=btn.dataset._lbl; delete btn.dataset._lbl; } } }
 try{ if(S && S.dev){ S.dev=false; save(); } }catch(e){}   // P0.4: production не доверяет сохранённому dev-флагу
+try{ // P0: миграция legacy-оценок Usernames/+888 — деньги -> эвристический Score
+  let mig=false;
+  (S.history||[]).forEach(h=>{ if(h && (h.cat==='username'||h.cat==='numbers') && !h.isHeuristic){
+    h.isHeuristic=true; h.heuristicScore=Math.round(priceToScore(Math.max(1,+h.priceTON||1))); h.priceTON=0; mig=true; } });
+  if(mig) save();
+}catch(e){}
 async function requestEvaluate(fromPipeline){
   if(!fromPipeline && EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }   // сериализация: один расчёт за раз
   if(!fromPipeline) evalSetBusy(true);   // P0.2: блокируем ВСЕ входы (Enter, кнопки) ДО первого await — двойной Enter больше не проходит
@@ -4226,7 +4232,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.6';
+const APP_VERSION='6.7';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4361,7 +4367,9 @@ function addHistory(r){
   if(!Array.isArray(S.history)) S.history=[];
   const key=histKey(r); const now=Date.now();
   const i=S.history.findIndex(h=>(h.key||([h.cat||'',String(h.display||''),'','',''].join('|').toLowerCase()))===key);
-  const rec={cat:r.cat,display:r.display,priceTON:r.priceTON,ts:now,updatedAt:now,key:key};
+  const rec=r._heuristic
+    ? {cat:r.cat,display:r.display,priceTON:0,isHeuristic:true,heuristicScore:Math.round(priceToScore(Math.max(1,+r.priceTON||1))),ts:now,updatedAt:now,key:key}
+    : {cat:r.cat,display:r.display,priceTON:r.priceTON,ts:now,updatedAt:now,key:key};
   if(i>=0){ const old=S.history[i];
     rec.firstTs=old.firstTs||old.ts||now;                                     // когда впервые оценили
     if(old.priceTON!=null && old.priceTON!==r.priceTON) rec.prev=old.priceTON; // след изменения цены
@@ -4711,8 +4719,8 @@ function renderDrawer(){
 function litemHTML(it,fav,idx){
   const click = fav ? ('reEvalFav('+idx+')') : (idx!=null ? ('reEvalHist('+idx+')') : '');
   return '<div class="litem"'+(click?' onclick="'+click+'" style="cursor:pointer"':'')+'><div class="lic">'+catIcon(it.cat)+'</div>'+
-    '<div class="lmid"><div class="la">'+escapeHTML(it.display)+'</div><div class="ls">'+t(tierOf(it.priceTON).k)+'</div></div>'+
-    '<div class="lp">'+(S.hideBalance?'••••':fmtTON(it.priceTON)+' GRAM')+'</div>'+
+    '<div class="lmid"><div class="la">'+escapeHTML(it.display)+'</div><div class="ls">'+(it.isHeuristic?(S.lang==='ru'?'эвристика':'heuristic'):t(tierOf(it.priceTON).k))+'</div></div>'+
+    '<div class="lp">'+(S.hideBalance?'••••':(it.isHeuristic?('Score '+(it.heuristicScore||0)+'/100'):fmtTON(it.priceTON)+' GRAM'))+'</div>'+
     (fav?'<div class="lx" onclick="event.stopPropagation();removeFav('+idx+')">✕</div>':'')+'</div>';
 }
 function removeFav(i){ S.favorites.splice(i,1); save(); renderDrawer(); syncFavButton(); }
@@ -4843,6 +4851,7 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
       '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'POST при срабатывании алерта: {source, ts, event}':'POST on alert trigger: {source, ts, event}')+'</div></div>'+
     '</div>';
   if(!(tg&&tg.initData)){
+    try{ el.querySelectorAll('.ms-btn').forEach(b=>{ if(/whaleKey|whaleWebhook/.test(b.getAttribute('onclick')||'')) b.disabled=true; }); }catch(e){}
     const note=ru?'Управление API и Webhook доступно внутри Telegram Mini App':'API & Webhook management is available inside the Telegram Mini App';
     const a=document.getElementById('apiOut'); if(a) a.textContent=note;
     const au=document.getElementById('apiUsage'); if(au) au.textContent='';
@@ -4933,7 +4942,7 @@ function shareRef(){ try{ const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.us
 async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.getElementById('msPromo'); const msg=document.getElementById('msPromoMsg'); if(!el) return;
   const code=String(el.value||'').trim().toUpperCase().replace(/[^A-Z0-9_]/g,''); if(!code){ if(msg){ msg.textContent=ru?'Введите код':'Enter a code'; } return; }
   const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
-  if(!base || (!initData && !dev)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды активируются в Telegram. (В браузере — только в DEV-режиме для тестирования.)':'Promo codes activate in Telegram. (In a browser — only in DEV mode for testing.)'; } return; }
+  if(!base || (!initData && !dev)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды активируются внутри Telegram Mini App.':'Promo codes activate inside the Telegram Mini App.'; } return; }
   if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=(dev?(ru?'Проверяем (DEV)…':'Checking (DEV)…'):(ru?'Проверяем…':'Checking…')); }
   try{ track('plan_selected','promo:'+code); }catch(e){}
   let r=null; try{ const u=base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code)+(dev?('&dev='+dev):''); const res=await fetch(u,{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
@@ -5211,7 +5220,14 @@ const MS_PLANS={
   pro:{ name:'Pro', stars:1499, days:30, portfolio:500, daily:500 },
   whale:{ name:'Whale', stars:3999, days:30, portfolio:5000, daily:2000, comingSoon:true }
 };
-function entPlan(){ return (S.ent&&S.ent.plan)||'free'; }
+function entPlan(){
+  try{
+    if(!(tg&&tg.initData)) return 'free';                                  // P0: без Telegram-авторизации тариф всегда Free (S.ent — только UI-кэш)
+    const p=(S.ent&&S.ent.plan)||'free'; if(p==='free') return 'free';
+    const until=+((S.ent&&S.ent.plan_until)||0);
+    if(until && until < Date.now()) return 'free';                          // истёкшая подписка не даёт доступ
+    return p;
+  }catch(e){ return 'free'; } }
 function entCap(){ return (S.ent&&S.ent.portfolio_cap)||MS_PLANS[entPlan()].portfolio||3; }
 function entUntil(){ return (S.ent&&S.ent.plan_until)||0; }
 function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; if(typeof l.remaining==='number') return l.remaining; try{ if(S.dail&&S.dail.date===todayStr()) return Math.max(0,5-(S.dail.count||0)); }catch(e){} return 5; }
@@ -5242,14 +5258,14 @@ function track(ev, d){ try{ const base=proxyURL(); if(!base) return; const u=(tg
 function checkDaily(){
   if(proActive()) return true;
   if(S.dail.date!==todayStr()){ S.dail={date:todayStr(),count:0}; save(); }
-  if(S.dail.count>=5){ return false; }
+  if(S.dail.count>=3){ return false; }   // локальный fallback: консервативные 3/день (правда всегда на сервере)
   return true;
 }
 function renderLimitCard(){
   const el=document.getElementById('result'); if(!el) return; const ru=S.lang==='ru';
   el.innerHTML='<div class="eval-invalid" style="text-align:left;padding:18px 18px">'+
     '<div style="font-size:15px;font-weight:800;margin-bottom:6px">'+(ru?'🔒 Дневной лимит исчерпан':'🔒 Daily limit reached')+'</div>'+
-    '<div style="font-size:13px;color:var(--txt-2);line-height:1.5;margin-bottom:14px">'+(ru?'Бесплатно доступно 5 оценок в день. Открой Monet Prima — безлимитная оценка, зоны Buy/Sell и алерты.':'5 free appraisals per day. Unlock Monet Prima for unlimited appraisals, Buy/Sell zones and alerts.')+'</div>'+
+    '<div style="font-size:13px;color:var(--txt-2);line-height:1.5;margin-bottom:14px">'+(ru?'Бесплатный лимит оценок на сегодня исчерпан. Открой Plus или Pro — больше оценок, алерты и аналитика.':'Free appraisal limit reached for today. Get Plus or Pro for more appraisals, alerts and analytics.')+'</div>'+
     '<button class="g-unlock" style="width:100%" onclick="openPremium()"><svg class="mi mi-f" viewBox="0 0 24 24"><path d="M3 8l4.6 3L12 5l4.4 6L21 8l-1.7 9.5H4.7z"/></svg> '+t('gGetPrime')+'</button></div>';
 }
 function bumpDaily(){ if(proActive())return; if(S.dail.date!==todayStr())S.dail={date:todayStr(),count:0}; S.dail.count++; save(); }
@@ -6729,7 +6745,7 @@ window.HOME=(function(){
   function rel(ts){ if(!ts)return''; const ru=S.lang==='ru'; const k=Math.floor((Date.now()-ts)/86400000); if(k<=0)return ru?'сег':'now'; if(k===1)return ru?'вчера':'1d'; return k+(ru?'д':'d'); }
   function mover(x,up){ return '<div class="mk-stat" style="cursor:pointer" onclick="if(window.MK)MK.openSheet(\''+x.id+'\')"><div class="l" style="color:'+(up?'var(--up)':'var(--down)')+'">'+t(up?'moverUp':'moverDown')+'</div><div class="v" style="font-size:13.5px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHTML(x.name)+'</div><div class="d" style="color:'+(up?'var(--up)':'var(--down)')+'">'+pct(x.ch24)+'</div></div>'; }
   function feed(n){ const out=[];
-    (S.history||[]).forEach(it=>{ if(it&&it.ts) out.push({k:'appr',display:it.display,cat:it.cat,ts:it.ts,price:it.priceTON}); });
+    (S.history||[]).forEach(it=>{ if(it&&it.ts) out.push({k:'appr',display:it.display,cat:it.cat,ts:it.ts,price:it.priceTON,hx:it.isHeuristic?(it.heuristicScore||0):null}); });
     (S.activity||[]).forEach(a=>{ if(a&&a.ts) out.push({k:a.type,display:a.display,cat:a.cat,ts:a.ts,price:a.type==='sell'?a.sold:a.price,basis:a.basis}); });
     return out.sort((p,q)=>q.ts-p.ts).slice(0,n||6); }
   function aGlyph(k){ return k==='sell'?'<svg class="mi" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>':k==='buy'?'<svg class="mi" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>':k==='alert'?'<svg class="mi" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>':'<svg class="mi" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>'; }
@@ -6749,7 +6765,7 @@ window.HOME=(function(){
   }
   function actRow(e){ const hb=!!S.hideBalance; let sub=aLabel(e.k);
     if(e.k==='sell'&&e.basis!=null&&!hb){ const pl=(e.price||0)-e.basis; sub+=' · <span style="color:'+(pl>=0?'var(--up)':'var(--down)')+'">'+(pl>=0?'+':'')+fmtTON(pl)+' GRAM</span>'; }
-    return '<div class="mc-item" style="cursor:default"><div class="mc-rank" style="font-style:normal;font-size:10.5px">'+rel(e.ts)+'</div><div class="mc-ic" style="position:relative;overflow:hidden;background:var(--bg2);display:grid;place-items:center;font-size:14px">'+aIcon(e)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(e.display)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right"><div class="mc-price">'+(hb?'••••':fmtTON(e.price||0)+' GRAM')+'</div></div></div>'; }
+    return '<div class="mc-item" style="cursor:default"><div class="mc-rank" style="font-style:normal;font-size:10.5px">'+rel(e.ts)+'</div><div class="mc-ic" style="position:relative;overflow:hidden;background:var(--bg2);display:grid;place-items:center;font-size:14px">'+aIcon(e)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(e.display)+'</div><div class="mc-sub">'+sub+'</div></div><div class="mc-right"><div class="mc-price">'+(hb?'••••':(e.hx!=null?('Score '+e.hx+'/100'):fmtTON(e.price||0)+' GRAM'))+'</div></div></div>'; }
   function go(v){ setView(v); }
   function addToPf(){ go('portfolio'); if(window.PF&&PF.openAdd) PF.openAdd(); }
   function shareCap(){ if(window.PF&&PF.share) PF.share(); }
