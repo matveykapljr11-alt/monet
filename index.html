@@ -2589,6 +2589,7 @@ const COLLECTIONS = {
    ============================================================ */
 const DEFAULT_PROXY = 'https://monet-proxy.matvey-kapljr11.workers.dev';
 function proxyURL(){ return (S.floorProxy||'').trim() || DEFAULT_PROXY; }
+function webSess(){ try{ return (!(tg&&tg.initData) && S.ws)||''; }catch(e){ return ''; } }
 /* ===== AFFILIATE — твои реф-коды по площадкам. Заполни code; пусто = чистая ссылка. =====
    Каждая кнопка «купить»/площадка тегается, чтобы зарабатывать на приведённых сделках. */
 const REF = {
@@ -3467,10 +3468,11 @@ async function maybeAutoTraits(){
 /* Серверное списание оценки (правда о лимитах на сервере) + paywall с конкретной причиной */
 async function spendGate(){
   const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
-  if(!base || (!initData && !dev)){ if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'}; }
+  if(!base || (!initData && !dev && !webSess())){ if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'}; }
   try{
     const ik=Date.now().toString(36)+Math.random().toString(36).slice(2,10);   // idempotency: сервер спишет один раз
-    const res=await fetch(base.replace(/\/+$/,'')+'/?spend&ik='+ik+(dev?('&dev='+dev):''),{method:'POST',body:initData,cache:'no-store'});
+    const ws=webSess();
+    const res=await fetch(base.replace(/\/+$/,'')+'/?spend&ik='+ik+(ws?('&ws='+encodeURIComponent(ws)):'')+(dev?('&dev='+dev):''),{method:'POST',body:initData,cache:'no-store'});
     if(res.status===402||res.status===429){ const j=await res.json().catch(function(){return{};}); return {ok:false,reason:(j&&j.reason)||'no_balance', cooldown_until:(j&&j.cooldown_until)||0}; }
     if(res.ok){ const j=await res.json(); if(j&&j.server===false){ if(checkDaily()){bumpDaily();return{ok:true};} return {ok:false,reason:'no_balance'}; } if(j&&j.ok){ return {ok:true, remaining:j.remaining}; } }
   }catch(e){}
@@ -3491,6 +3493,10 @@ try{ // P0: миграция legacy-оценок Usernames/+888 — деньги
 }catch(e){}
 async function requestEvaluate(fromPipeline){
   if(!fromPipeline && EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }   // сериализация: один расчёт за раз
+  if(!fromPipeline && curCat==='gifts'){   // P0: если поле ссылки заполнено — любая кнопка оценивает именно ссылку, а не ручной выбор
+    try{ const lv=((document.getElementById('e_link')||{}).value||'').trim();
+      if(lv && /(?:t\.me\/nft\/)?[A-Za-z0-9_]+-\d+/.test(lv)){ parseGiftLink(); return; } }catch(e){}
+  }
   if(!fromPipeline) evalSetBusy(true);   // P0.2: блокируем ВСЕ входы (Enter, кнопки) ДО первого await — двойной Enter больше не проходит
   try{ if(curCat!=='gifts'&&curCat!=='stickers' && !assetUnlocked(curCat)){ evalSetBusy(false); openPaywall('whale','asset_'+curCat); return; } }catch(e){ evalSetBusy(false); return; }
   const btn=document.getElementById('evalBtn'); if(btn) btn.disabled=true;
@@ -3766,7 +3772,7 @@ function renderGiftComps(r, comps){
   const domLbl = dom===comps.pat?(ru?'узор':'symbol'):dom===comps.back?(ru?'фон':'backdrop'):(ru?'модель':'model');
   const exactLine = comps.exact ? '<div class="comps-range" style="color:var(--good)">'+(ru?'✓ найден точный комп этой комбинации':'✓ exact comp for this combination found')+'</div>' : '';
   const domLine = dom ? '<div class="comps-range">'+(ru?'Доминирует ':'Driven by ')+domLbl+' ≈ '+fmtTON(dom.best)+' GRAM · '+(ru?'ориентир ':'estimate ')+fmtTON(r.priceTON)+' GRAM</div>' : '';
-  box.innerHTML='<div class="comps-h">'+(ru?'Сопоставимые сделки':'Comparable deals')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
+  box.innerHTML='<div class="comps-h">'+(ru?'Сопоставимые листинги':'Comparable listings')+' <span class="comps-live"><span class="flr-dot" style="background:#1F7A52"></span>live</span></div>'+
     '<div class="comps-range">'+(ru?'Найдено сопоставимых: ':'Comparables found: ')+found+'</div>'+
     ((comps.lastSale>0 && !tape.length && _band(comps.lastSale))?'<div class="comps-range" style="color:var(--good)">'+(ru?'Реальные сделки ≈ ':'Real sales ≈ ')+fmtTON(Math.round(comps.lastSale))+' GRAM</div>':'')+
     domLine+exactLine+
@@ -4232,7 +4238,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.7';
+const APP_VERSION='6.8';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4828,9 +4834,9 @@ function scoreChannel(subs, views){ subs=Math.max(0,+subs||0); views=Math.max(0,
   let eff = subs; if(subs>500000){ eff = 500000 + Math.pow(subs-500000, 0.85); }   // сублинейно гасим гигантские значения
   const conf = !inRange ? 'low' : (views>0 && subs>=1000 ? 'mid' : 'low');
   return { priceTON: Math.round(eff*perSub), er:er, conf:conf, outOfRange:!inRange }; }
-async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
-  if(!base || (!initData && !dev)) return {ok:false,reason:'no_tg'};
-  try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):''); const r=await fetch(u,{method:'POST',body:JSON.stringify(Object.assign({initData:initData, dev:(dev||undefined)},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
+async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=''; const ws=webSess();
+  if(!base || (!initData && !dev && !ws)) return {ok:false,reason:'no_tg'};
+  try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):''); const r=await fetch(u,{method:'POST',body:JSON.stringify(Object.assign({initData:initData, ws:(ws||undefined), dev:(dev||undefined)},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
 function openWhalePanel(){ if(entPlan()!=='whale'){ try{ openPaywall('whale','panel'); }catch(e){} return; } renderWhalePanel(); msOverlay().classList.add('open'); }
 async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
   el.innerHTML='<div class="ms-sheet"><div class="ms-h"><div><div class="ms-eyebrow">Whale · Phase 2</div><div class="ms-title">'+(ru?'Инструменты Whale':'Whale tools')+'</div></div><button class="ms-x" aria-label="Закрыть" onclick="closePricing()">✕</button></div>'+
@@ -4850,7 +4856,7 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
       '<div id="whOut" style="font-size:12px;color:var(--txt-2);margin-top:6px"></div>'+'<div id="whUsage" style="font-size:12px;color:var(--txt-2);margin-top:4px">'+(ru?'статус: …':'status: …')+'</div>'+
       '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'POST при срабатывании алерта: {source, ts, event}':'POST on alert trigger: {source, ts, event}')+'</div></div>'+
     '</div>';
-  if(!(tg&&tg.initData)){
+  if(!(tg&&tg.initData) && !webSess()){
     try{ el.querySelectorAll('.ms-btn').forEach(b=>{ if(/whaleKey|whaleWebhook/.test(b.getAttribute('onclick')||'')) b.disabled=true; }); }catch(e){}
     const note=ru?'Управление API и Webhook доступно внутри Telegram Mini App':'API & Webhook management is available inside the Telegram Mini App';
     const a=document.getElementById('apiOut'); if(a) a.textContent=note;
@@ -4941,11 +4947,11 @@ function shareRef(){ try{ const uid=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.us
   try{ navigator.clipboard.writeText(link); toast(ru?'Ссылка скопирована':'Link copied'); }catch(e){ toast(link); } }catch(e){} }
 async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.getElementById('msPromo'); const msg=document.getElementById('msPromoMsg'); if(!el) return;
   const code=String(el.value||'').trim().toUpperCase().replace(/[^A-Z0-9_]/g,''); if(!code){ if(msg){ msg.textContent=ru?'Введите код':'Enter a code'; } return; }
-  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev='';
-  if(!base || (!initData && !dev)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды активируются внутри Telegram Mini App.':'Promo codes activate inside the Telegram Mini App.'; } return; }
+  const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=''; const ws=webSess();
+  if(!base || (!initData && !dev && !ws)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Промокоды активируются внутри Telegram Mini App.':'Promo codes activate inside the Telegram Mini App.'; } return; }
   if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=(dev?(ru?'Проверяем (DEV)…':'Checking (DEV)…'):(ru?'Проверяем…':'Checking…')); }
   try{ track('plan_selected','promo:'+code); }catch(e){}
-  let r=null; try{ const u=base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code)+(dev?('&dev='+dev):''); const res=await fetch(u,{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
+  let r=null; try{ const u=base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code)+(ws?('&ws='+encodeURIComponent(ws)):'')+(dev?('&dev='+dev):''); const res=await fetch(u,{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
   if(!r){ if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Сеть недоступна':'Network error'; } return; }
   if(r.ok){ const tU=String(r.tier||'').toUpperCase();
     if(msg){ msg.style.color='var(--good)'; msg.textContent=(ru?'🎉 Готово! Подписка '+tU+' на '+(r.duration_days||30)+' дней активирована.':'🎉 Done! '+tU+' for '+(r.duration_days||30)+' days is active.'); }
@@ -5187,9 +5193,9 @@ function updatePremiumUI(){ const b=document.getElementById('premiumBanner'); if
 async function fetchEntitlement(){
   try{
     const base=proxyURL(); if(!base) return;
-    const initData=(tg&&tg.initData)||''; const dev='';
-    if(!initData && !dev) return;
-    const res=await fetch(base.replace(/\/+$/,'')+'/?me&initData='+encodeURIComponent(initData)+(dev?('&dev='+dev):''),{cache:'no-store'});
+    const initData=(tg&&tg.initData)||''; const dev=''; const ws=webSess();
+    if(!initData && !dev && !ws) return;
+    const res=await fetch(base.replace(/\/+$/,'')+'/?me&initData='+encodeURIComponent(initData)+(ws?('&ws='+encodeURIComponent(ws)):'')+(dev?('&dev='+dev):''),{cache:'no-store'});
     if(!res.ok) return; const j=await res.json();
     if(j&&j.ok&&typeof j.premium_until==='number'){
       const sv=Math.round(j.premium_until);
@@ -5222,15 +5228,18 @@ const MS_PLANS={
 };
 function entPlan(){
   try{
-    if(!(tg&&tg.initData)) return 'free';                                  // P0: без Telegram-авторизации тариф всегда Free (S.ent — только UI-кэш)
+    if(!(tg&&tg.initData) && !(S.ws)) return 'free';                        // P0: без Telegram/веб-сессии тариф всегда Free (S.ent — только UI-кэш)
     const p=(S.ent&&S.ent.plan)||'free'; if(p==='free') return 'free';
     const until=+((S.ent&&S.ent.plan_until)||0);
     if(until && until < Date.now()) return 'free';                          // истёкшая подписка не даёт доступ
     return p;
   }catch(e){ return 'free'; } }
-function entCap(){ return (S.ent&&S.ent.portfolio_cap)||MS_PLANS[entPlan()].portfolio||3; }
+function entCap(){ const p=entPlan(); const base=(MS_PLANS[p]&&MS_PLANS[p].portfolio)||3;
+  if(p==='free') return base;   // Free всегда 3 — кэш не может расширить бесплатный план
+  const srv=(S.ent&&S.ent.plan===p&&+S.ent.portfolio_cap)||0;   // серверный кап учитываем только если совпадает с действующим планом
+  return srv>0?srv:base; }
 function entUntil(){ return (S.ent&&S.ent.plan_until)||0; }
-function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; if(typeof l.remaining==='number') return l.remaining; try{ if(S.dail&&S.dail.date===todayStr()) return Math.max(0,5-(S.dail.count||0)); }catch(e){} return 5; }
+function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; if(typeof l.remaining==='number') return l.remaining; try{ if(S.dail&&S.dail.date===todayStr()) return Math.max(0,3-(S.dail.count||0)); }catch(e){} return 3; }   // P0: единый лимит с checkDaily (3), сервер всегда приоритетен
 function planRank(p){ return {free:0,plus:1,pro:2,whale:3}[p]||0; }
 function hasPlan(min){ return planRank(entPlan())>=planRank(min); }
 // доступ к фичам по спеке
@@ -5238,8 +5247,7 @@ function featurePlan(feat){ return ({ alerts_floor:'plus', alerts_price:'plus', 
 function canFeature(feat){ if(typeof S!=='undefined' && S && S.dev) return true; return hasPlan(featurePlan(feat)); }
 // какие категории активов открыты текущим тарифом (Usernames/+888/Channels — только Whale)
 function assetUnlocked(cat){ if(cat==='gifts'||cat==='stickers') return true;
-  try{ const a=(S.ent&&S.ent.assets)||null; if(a&&a.length) return a.indexOf(cat)>=0; }catch(e){}
-  return entPlan()==='whale'; }
+  return entPlan()==='whale'; }   // P0: только действующий план, кэш S.ent.assets не является разрешением
 function syncPlanBadges(){ try{ document.querySelectorAll('[data-planbadge]').forEach(function(el){ el.textContent=MS_PLANS[entPlan()].name; }); }catch(e){} }
 // Автопереоценка по тарифу: Plus — раз в сутки, Pro — раз в час (клиентская, при открытии; серверный крон — отдельно)
 function autoReval(){ try{ const plan=entPlan(); if(plan!=='plus'&&plan!=='pro') return;
@@ -7086,6 +7094,10 @@ function init(){
     let dp=q.get('dev'); if(dp==null){ const sp=q.get('startapp')||q.get('tgWebAppStartParam')||''; if(/^dev[-_]/.test(sp)) dp=sp.replace(/^dev[-_]/,''); }
     if(dp!=null){                                     // dev можно только выключить/сбросить; включить через URL нельзя
       if(dp==='off'||dp==='0'){ S.dev=false; save(); }   // dev можно только выключить; включить через URL нельзя
+    }
+    { const wsq=q.get('ws');   // тестовая веб-сессия: подписанный сервером токен (?ws=wt.…), проверяется на каждом запросе
+      if(wsq==='off'){ S.ws=''; save(); }
+      else if(wsq && /^wt\./.test(wsq)){ S.ws=wsq; save(); }
       /* любое другое значение -> НИЧЕГО не меняем */
     }
   }catch(e){}
