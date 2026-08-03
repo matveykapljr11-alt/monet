@@ -2108,7 +2108,7 @@ let mem = {}; // in-memory fallback when localStorage blocked
 
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return (k in mem)?mem[k]:null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } 
-  if(tg && tg.CloudStorage){ try{ tg.CloudStorage.setItem(k,v); }catch(e){} } }
+  if(tg && tg.CloudStorage && typeof tg.isVersionAtLeast==='function' && tg.isVersionAtLeast('6.9')){ try{ tg.CloudStorage.setItem(k,v); }catch(e){} } }   // в браузере/старых клиентах не трогаем CloudStorage
 function loadAll(){
   const out = JSON.parse(JSON.stringify(DEFAULTS));
   try{ const raw = lsGet('monet') || lsGet('frago'); if(raw) Object.assign(out, JSON.parse(raw)); }catch(e){}
@@ -2648,7 +2648,7 @@ function parseFloors(j, env){
 }
 // auto-extend the gift catalogue with any NEW collection the proxy floors know about
 // (newly-released gifts appear on the markets -> they must show up in Оценка too, not just on the Market screen)
-const PRETTY_GIFT_NAME={poolfloat:'Pool Float',libertyfigure:'Liberty Figure',timelessbook:'Timeless Book',victorymedal:'Victory Medal',rarebird:'Rare Bird',surgeboard:'Surge Board',khabibspapakha:"Khabib's Papakha",kissedfrog:'Kissed Frog',instantramen:'Instant Ramen',whipcupcake:'Whip Cupcake',skystilettos:'Sky Stilettos',chillflame:'Chill Flame',stellarrocket:'Stellar Rocket',westsidesign:'Westside Sign',lowrider:'Low Rider',moodpack:'Mood Pack',vicecream:'Vice Cream',hangingstar:'Hanging Star',preciouspeach:'Precious Peach',scaredcat:'Scared Cat',swisswatch:'Swiss Watch',minioscar:'Mini Oscar',snoopcigar:'Snoop Cigar',snoopdogg:'Snoop Dogg',bigyear:'Big Year',icecream:'Ice Cream',happybrownie:'Happy Brownie',freshsocks:'Fresh Socks',cupidcharm:'Cupid Charm',hangingstart:'Hanging Star',jollychimp:'Jolly Chimp',bunnymuffin:'Bunny Muffin',astralshard:'Astral Shard',berrybox:'Berry Box',iongem:'Ion Gem',inputkey:'Input Key',mightyarm:'Mighty Arm',springbasket:'Spring Basket',moussecake:'Mousse Cake',durovscap:"Durov's Cap",gemsignet:'Gem Signet',trappedheart:'Trapped Heart',poolfloat:'Pool Float',recordplayer:'Record Player',madpumpkin:'Mad Pumpkin',gingercookie:'Ginger Cookie',lovecandle:'Love Candle',eternalcandle:'Eternal Candle',moonpendant:'Moon Pendant',sakuraflower:'Sakura Flower',deskcalendar:'Desk Calendar',sharptongue:'Sharp Tongue',perfumebottle:'Perfume Bottle',spicedwine:'Spiced Wine',genielamp:'Genie Lamp',lootbag:'Loot Bag',bdaycandle:'Birthday Candle',jesterhat:'Jester Hat',ionicdryer:'Ionic Dryer',restlessjar:'Restless Jar',xmasstocking:'Xmas Stocking',jackinthebox:'Jack-in-the-box',bondedring:'Bonded Ring',artisanbrick:'Artisan Brick',snakebox:'Snake Box',diamondring:'Diamond Ring',plushpepe:'Plush Pepe',holidaydrink:'Holiday Drink',jinglebells:'Jingle Bells',voodoodoll:'Voodoo Doll',faithamulet:'Faith Amulet',snowglobe:'Snow Globe',swagbag:'Swag Bag',winterwreath:'Winter Wreath',lightsword:'Light Sword',eternalrose:'Eternal Rose',vintagecigar:'Vintage Cigar',electricskull:'Electric Skull',lovepotion:'Love Potion',tophat:'Top Hat',nekohelmet:'Neko Helmet',bowtie:'Bow Tie',petsnake:'Pet Snake',starnotepad:'Star Notepad',lushbouquet:'Lush Bouquet',ufcstrike:'UFC Strike',prettyposy:'Pretty Posy',cloverpin:'Clover Pin',flyingbroom:'Flying Broom',heartlocket:'Heart Locket',magicpotion:'Magic Potion',easteregg:'Easter Egg',toybear:'Toy Bear',moneypot:'Money Pot',homemadecake:'Homemade Cake',jellybunny:'Jelly Bunny',crystalball:'Crystal Ball',heroichelmet:'Heroic Helmet',spyagaric:'Spy Agaric',partysparkler:'Party Sparkler',hypnolollipop:'Hypno Lollipop',sleighbell:'Sleigh Bell',victorymedal:'Victory Medal',blingbinky:'Bling Binky',nailbracelet:'Nail Bracelet',skullflower:'Skull Flower',evileye:'Evil Eye',snowmittens:'Snow Mittens',signetring:'Signet Ring',joyfulbundle:'Joyful Bundle',cookieheart:'Cookie Heart',santahat:'Santa Hat',lunarsnake:'Lunar Snake',witchhat:'Witch Hat',candycane:'Candy Cane',valentinebox:'Valentine Box',hangingstar:'Hanging Star',timelessbook:'Timeless Book',hexpot:'Hex Pot',tamagadget:'Tama Gadget',lolpop:'Lol Pop',eternalcandle:'Eternal Candle',surgeboard:'Surge Board',winterwreath:'Winter Wreath'};
+const PRETTY_GIFT_NAME={poolfloat:'Pool Float',libertyfigure:'Liberty Figure',timelessbook:'Timeless Book',victorymedal:'Victory Medal',rarebird:'Rare Bird',surgeboard:'Surge Board',khabibspapakha:"Khabib's Papakha",kissedfrog:'Kissed Frog',instantramen:'Instant Ramen',whipcupcake:'Whip Cupcake',skystilettos:'Sky Stilettos',chillflame:'Chill Flame',stellarrocket:'Stellar Rocket',westsidesign:'Westside Sign',lowrider:'Low Rider',moodpack:'Mood Pack',vicecream:'Vice Cream',hangingstar:'Hanging Star',preciouspeach:'Precious Peach',scaredcat:'Scared Cat',swisswatch:'Swiss Watch',minioscar:'Mini Oscar',snoopcigar:'Snoop Cigar',snoopdogg:'Snoop Dogg',bigyear:'Big Year',icecream:'Ice Cream',happybrownie:'Happy Brownie',freshsocks:'Fresh Socks',cupidcharm:'Cupid Charm',hangingstart:'Hanging Star',jollychimp:'Jolly Chimp',bunnymuffin:'Bunny Muffin',astralshard:'Astral Shard',berrybox:'Berry Box',iongem:'Ion Gem',inputkey:'Input Key',mightyarm:'Mighty Arm',springbasket:'Spring Basket',moussecake:'Mousse Cake',durovscap:"Durov's Cap",gemsignet:'Gem Signet',trappedheart:'Trapped Heart',poolfloat:'Pool Float',recordplayer:'Record Player',madpumpkin:'Mad Pumpkin',gingercookie:'Ginger Cookie',lovecandle:'Love Candle',eternalcandle:'Eternal Candle',moonpendant:'Moon Pendant',sakuraflower:'Sakura Flower',deskcalendar:'Desk Calendar',sharptongue:'Sharp Tongue',perfumebottle:'Perfume Bottle',spicedwine:'Spiced Wine',genielamp:'Genie Lamp',lootbag:'Loot Bag',bdaycandle:'Birthday Candle',jesterhat:'Jester Hat',ionicdryer:'Ionic Dryer',restlessjar:'Restless Jar',xmasstocking:'Xmas Stocking',jackinthebox:'Jack-in-the-box',bondedring:'Bonded Ring',artisanbrick:'Artisan Brick',snakebox:'Snake Box',diamondring:'Diamond Ring',plushpepe:'Plush Pepe',holidaydrink:'Holiday Drink',jinglebells:'Jingle Bells',voodoodoll:'Voodoo Doll',faithamulet:'Faith Amulet',snowglobe:'Snow Globe',swagbag:'Swag Bag',winterwreath:'Winter Wreath',lightsword:'Light Sword',eternalrose:'Eternal Rose',vintagecigar:'Vintage Cigar',electricskull:'Electric Skull',lovepotion:'Love Potion',tophat:'Top Hat',nekohelmet:'Neko Helmet',bowtie:'Bow Tie',petsnake:'Pet Snake',starnotepad:'Star Notepad',lushbouquet:'Lush Bouquet',ufcstrike:'UFC Strike',prettyposy:'Pretty Posy',cloverpin:'Clover Pin',flyingbroom:'Flying Broom',heartlocket:'Heart Locket',magicpotion:'Magic Potion',easteregg:'Easter Egg',toybear:'Toy Bear',moneypot:'Money Pot',homemadecake:'Homemade Cake',jellybunny:'Jelly Bunny',crystalball:'Crystal Ball',heroichelmet:'Heroic Helmet',spyagaric:'Spy Agaric',partysparkler:'Party Sparkler',hypnolollipop:'Hypno Lollipop',sleighbell:'Sleigh Bell',victorymedal:'Victory Medal',blingbinky:'Bling Binky',nailbracelet:'Nail Bracelet',skullflower:'Skull Flower',evileye:'Evil Eye',snowmittens:'Snow Mittens',signetring:'Signet Ring',joyfulbundle:'Joyful Bundle',cookieheart:'Cookie Heart',santahat:'Santa Hat',lunarsnake:'Lunar Snake',witchhat:'Witch Hat',candycane:'Candy Cane',valentinebox:'Valentine Box',hangingstar:'Hanging Star',timelessbook:'Timeless Book',hexpot:'Hex Pot',durovsglasses:"Durov's Glasses",tamagadget:'Tama Gadget',lolpop:'Lol Pop',eternalcandle:'Eternal Candle',surgeboard:'Surge Board',winterwreath:'Winter Wreath'};
 function prettyGiftName(slug){ const k=String(slug||'').toLowerCase().replace(/[^a-z0-9]/g,''); if(PRETTY_GIFT_NAME[k]) return PRETTY_GIFT_NAME[k];
   const tails=['float','figure','book','medal','bird','board','frog','ramen','cupcake','cake','ring','box','hat','cap','pot','doll','star','heart','helmet','pack','cream','flame','bottle','lamp','bag','bell','wreath','sword','rose','cigar','skull','potion','bracelet','flower','mittens','bundle','pendant','candle','calendar','tongue','stocking','brick','globe','amulet','pepe','cap'];
   for(const tl of tails){ if(k.length>tl.length+2 && k.endsWith(tl)){ const head=k.slice(0,k.length-tl.length); return head.charAt(0).toUpperCase()+head.slice(1)+' '+tl.charAt(0).toUpperCase()+tl.slice(1); } }
@@ -3687,7 +3687,19 @@ async function loadGiftCross(r){
   if(r._blind && baseFloorSeed>0 && r.priceTON>baseFloorSeed) r.priceTON=Math.round(baseFloorSeed);
   // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
-  const exactSalesN = (exact && exact.exact && Array.isArray(exact.sales)) ? (exact.salesN||exact.sales.length) : 0;   // ТОЛЬКО продажи точной комбинации (model+backdrop+symbol)
+  let exactSalesN = (exact && exact.exact && Array.isArray(exact.sales)) ? (exact.salesN||exact.sales.length) : 0;   // ТОЛЬКО продажи точной комбинации (model+backdrop+symbol)
+  // P1: если в ленте продаж есть продажа НОМЕРА, который оцениваем, — это прямая подтверждённая сделка этого NFT
+  try{
+    const myNum=parseInt(String((document.getElementById('e_serial')||{}).value||'').replace(/\D/g,''),10)||0;
+    if(myNum){
+      const pools=[exact&&exact.salesDetail, fm&&fm.salesDetail, fb&&fb.salesDetail, fp&&fp.salesDetail];
+      for(const d of pools){ if(Array.isArray(d)){ const hit=d.find(x=>x&&+x.num===myNum&&x.p>0); if(hit){ r._ownSaleP=Math.round(hit.p); break; } } }
+      if(r._ownSaleP>0){
+        if(exactSalesN===0) exactSalesN=1;                                              // сделка самого предмета = точное подтверждение
+        r.priceTON=Math.round(0.55*r._ownSaleP+0.45*(r.priceTON||r._ownSaleP));         // сделка этого NFT весит больше листингов
+      }
+    }
+  }catch(e){}
   r._mktAsk=marketAsk; r._sold=sold; r._floor=(c&&c.floor)||0; r._salesN=salesN||0; r._exactSalesN=exactSalesN;
   r._collSalesN=(salesArr?salesN:((stats&&stats.n>0)?stats.n:0));   // ЕДИНЫЙ счётчик продаж (та же лента, что в истории и trust-баре)
   r._askOnly = !!(exactSalesN===0 && marketAsk>0 && r.priceTON>=marketAsk*0.8 && (r.fragExact || (r._comps||0)<=1));   // цена держится на единственном ask без ПОДТВЕРЖДЁННЫХ продаж
@@ -4250,7 +4262,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='6.9';
+const APP_VERSION='7.0';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4904,7 +4916,7 @@ function msFeatureRows(ru){
     [ru?'Smart Signals':'Smart Signals', '—', '—', '✓', '✓'],
     [ru?'Monet Score':'Monet Score', '—', '—', '✓', '✓'],
     [ru?'Fast Sell / Optimum':'Fast Sell / Optimum', '—', '—', '✓', '✓'],
-    [ru?'Экспорт CSV/Excel':'CSV/Excel export', '—', '—', '✓', '✓'],
+    [ru?'Экспорт CSV':'CSV export', '—', '—', '✓', '✓'],
   ];
 }
 function msOverlay(){ let el=document.getElementById('msOverlay'); if(!el){ el=document.createElement('div'); el.id='msOverlay'; el.className='ms-scrim'; el.onclick=function(e){ if(e.target===el) closePricing(); }; document.body.appendChild(el); } return el; }
@@ -4969,7 +4981,15 @@ async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.ge
   if(!r){ if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Сеть недоступна':'Network error'; } return; }
   if(r.ok){ const tU=String(r.tier||'').toUpperCase();
     if(msg){ msg.style.color='var(--good)'; msg.textContent=(ru?'🎉 Готово! Подписка '+tU+' на '+(r.duration_days||30)+' дней активирована.':'🎉 Done! '+tU+' for '+(r.duration_days||30)+' days is active.'); }
-    try{ track('upgrade_completed','promo:'+r.tier); }catch(e){} try{ pollEntitlement(); }catch(e){} setTimeout(function(){ try{ fetchEntitlement(); }catch(e){} try{ renderPricing(); }catch(e){} },1500); }
+    try{ track('upgrade_completed','promo:'+r.tier); }catch(e){}
+    const okText=(msg&&msg.textContent)||'';
+    try{ await fetchEntitlement(); }catch(e){}                       // дождаться свежего entitlement с сервера
+    try{ renderPricing(); }catch(e){}                                 // перерисовать тарифный экран
+    try{ const m2=document.getElementById('msPromoMsg'); if(m2){ m2.style.color='var(--good)'; m2.textContent=okText; } }catch(e){}   // вернуть успешное сообщение после перерисовки
+    try{ syncPlanBadges(); }catch(e){} try{ syncSettings(); }catch(e){}
+    try{ if(typeof renderDrawer==='function') renderDrawer(); }catch(e){}
+    try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){}
+    try{ pollEntitlement(); }catch(e){} }
   else if(r.reason==='sold_out'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=(ru?('🔥 Упс, код уже разобрали '+(r.max||10)+' самых быстрых! Тебе доступен FREE: до 3 активов и Floor-каталог.'):('🔥 Oops — the first '+(r.max||10)+' fastest already claimed it! FREE is still yours: up to 3 assets and the floor catalog.')); } }
   else if(r.reason==='already'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Вы уже активировали этот промокод.':'You already activated this code.'; } }
   else if(r.reason==='lower_plan_active'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?('У вас уже активен более высокий тариф — '+String(r.current||'').toUpperCase()+'. Код не потрачен.'):('You already have a higher plan active — '+String(r.current||'').toUpperCase()+'. The code was not used.'); } }
@@ -5006,7 +5026,7 @@ function paywallCopy(reason, ru){
     smart_signals:{p:'pro', t:ru?'Smart Signals — функция Pro':'Smart Signals is a Pro feature', b:ru?'Pro находит листинги ниже справедливой цены Monet и считает Monet Score.':'Pro finds listings below Monet fair value and computes Monet Score.'},
     pro_on_plus:{p:'pro', t:ru?'Это функция Pro':'This is a Pro feature', b:ru?'Обновитесь до Pro, чтобы разблокировать.':'Upgrade to Pro to unlock.'},
     whale:{p:'whale', t:ru?'Скоро — тариф Whale':'Coming soon — Whale', b:ru?'Оценка юзернеймов, +888 номеров и каналов появится в тарифе Whale (Phase 2). Сейчас доступны Telegram Gifts.':'Usernames, +888 numbers and channels arrive with Whale (Phase 2). Telegram Gifts are available now.'},
-    export:{p:'pro', t:ru?'Экспорт — функция Pro':'Export is a Pro feature', b:ru?'Pro позволяет выгрузить портфель в CSV/Excel.':'Pro lets you export your portfolio to CSV/Excel.'},
+    export:{p:'pro', t:ru?'Экспорт — функция Pro':'Export is a Pro feature', b:ru?'Pro позволяет выгрузить портфель в CSV.':'Pro lets you export your portfolio to CSV.'},
     rate:{p:'pro', t:ru?'Слишком часто':'Too many requests', b:ru?'Короткая пауза для защиты сервиса. Попробуйте через минуту.':'Brief cool-down to protect the service. Try again in a minute.'}
   };
   return M[reason]||M.no_balance;
@@ -5145,7 +5165,11 @@ function bulkAddAll(){
 }
 /* ---- ПОРТФЕЛЬ НА СЕРВЕРЕ: pull при старте, push при изменениях (дебаунс) ---- */
 let PF_PUSH_T=null, PF_PULLED=false;
-function pfTouch(){ S.pfUpdated=Date.now(); try{save();}catch(e){} pfPush(); }
+function pfTouch(){ S.pfUpdated=Date.now(); try{save();}catch(e){} pfPush();
+  try{ if(typeof renderDrawer==='function') renderDrawer(); }catch(e){}          // сайдбар: сумма и статус
+  try{ if(curView==='home'&&window.HOME) HOME.render(); }catch(e){}
+  try{ if(curView==='portfolio'&&window.PF&&PF.render) PF.render(); }catch(e){}
+  try{ syncSettings(); }catch(e){} }
 function pfPush(now){
   if(PF_PUSH_T){ clearTimeout(PF_PUSH_T); PF_PUSH_T=null; }
   const send=async function(){
@@ -5698,6 +5722,8 @@ window.MK = (function(){
   function slugify(s){ return String(s).toLowerCase().replace(/[^a-z0-9]/g,''); }
   const GIFT_PRETTY={poolfloat:'Pool Float',libertyfigure:'Liberty Figure',timelessbook:'Timeless Book',victorymedal:'Victory Medal',rarebird:'Rare Bird',surgeboard:'Surge Board',khabibspapakha:"Khabib's Papakha",kissedfrog:'Kissed Frog',instantramen:'Instant Ramen',whipcupcake:'Whip Cupcake',skystilettos:'Sky Stilettos',chillflame:'Chill Flame',stellarrocket:'Stellar Rocket',westsidesign:'Westside Sign',lowrider:'Low Rider'};
   function prettyGift(slug){ const k=String(slug||'').toLowerCase().replace(/[^a-z0-9]/g,''); if(GIFT_PRETTY[k]) return GIFT_PRETTY[k];
+    try{ if(typeof PRETTY_GIFT_NAME!=='undefined' && PRETTY_GIFT_NAME[k]) return PRETTY_GIFT_NAME[k]; }catch(e){}
+    try{ const cc=(COLLECTIONS.gifts||[]).find(x=>x.slug===k); if(cc) return cc.n; }catch(e){}
     // разбить очевидные составные (…cake, …book, …medal, …bird, …board, …figure, …float, …frog, …ramen) для читаемости
     const tails=['float','figure','book','medal','bird','board','frog','ramen','cupcake','cake','ring','box','hat','cap','pot','doll','star','heart','helmet'];
     for(const tl of tails){ if(k.length>tl.length+2 && k.endsWith(tl)){ const head=k.slice(0,k.length-tl.length); return head.charAt(0).toUpperCase()+head.slice(1)+' '+tl.charAt(0).toUpperCase()+tl.slice(1); } }
@@ -5877,7 +5903,7 @@ window.PF = (function(){
         '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+(ro?'<span title="read-only" style="opacity:.7">🔒 </span>':'')+escapeHTML(h.display)+'</b><span>'+(function(){ const ru=S.lang==='ru'; const q=h.qty||1; const parts=[]; if(q>1) parts.push(q+' '+(ru?'шт':'pcs')); if(h.buy!=null&&h.buy>0){ const pnl=(curPrice(h)-h.buy)*q; const pct=(curPrice(h)-h.buy)/h.buy*100; const c=pnl>=0?'var(--up)':'var(--down)'; parts.push((ru?'вход ':'in ')+grp(h.buy)); parts.push('<span style="color:'+c+'">'+(pnl>=0?'+':'−')+grp(Math.abs(Math.round(pnl)))+' ('+(pct>=0?'+':'')+pct.toFixed(0)+'%)</span>'); } if(!parts.length) parts.push(ru?'коллекция':'collection'); return parts.join(' · '); })()+'</span></div>'+
         '<div class="pf-spkbox" onclick="PF.details('+i+')" style="cursor:pointer">'+rowSpark(h)+'</div>'+
         '<div class="rt" onclick="PF.details('+i+')" style="cursor:pointer"><div class="v">'+(hidden?'••••':grp(p))+' GRAM</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+'% · '+(S.lang==='ru'?'24ч':'24h')):'—')+'</div></div>'+
-        '<div class="pf-rowacts"><button class="pf-sell" aria-label="'+t('pfEditTitle')+'" title="edit" onclick="PF.editOpen('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button><button class="pf-sell" aria-label="'+t('pfSell')+'" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
+        '<div class="pf-rowacts"><button class="pf-sell" aria-label="'+t('pfEditTitle')+'" title="edit" onclick="PF.editOpen('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button><button class="pf-sell" aria-label="'+t('pfSell')+'" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" aria-label="'+(S.lang==='ru'?'Удалить ':'Remove ')+escapeHTML(h.display)+'" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
     const eyeIcon = hidden
       ? '<svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.4 5.1A9 9 0 0 1 21 12a14 14 0 0 1-2.3 3M6.1 6.1A14 14 0 0 0 3 12a9 9 0 0 0 12 6.5"/></svg>'
       : '<svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -6743,7 +6769,7 @@ function initTelegram(){
     try{ if(tg.disableVerticalSwipes) tg.disableVerticalSwipes(); }catch(e){}   /* stop the app from being dragged/shifted */
     try{ if(tg.isVerticalSwipesEnabled!==undefined) tg.isVerticalSwipesEnabled=false; }catch(e){}
     try{ applyTheme(); }catch(e){}
-    if(tg.CloudStorage && typeof tg.CloudStorage.getItem==='function'){
+    if(tg.CloudStorage && typeof tg.CloudStorage.getItem==='function' && typeof tg.isVersionAtLeast==='function' && tg.isVersionAtLeast('6.9')){
       try{ tg.CloudStorage.getItem('monet',(err,val)=>{ if(!err && val && !lsGet('monet')){ try{ Object.assign(S,JSON.parse(val)); if(!S.themeSet) S.theme='dark'; setLang(S.lang); applyTheme(); }catch(e){} } }); }catch(e){}
     }
   }catch(e){}
