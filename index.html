@@ -3116,7 +3116,7 @@ function inputHTML(cat, idp){
   }).join('');
   const photo = idp==='e_' ?
     '<div class="link-id link-hero">'+
-      '<div class="link-hero-t">'+(S.lang==='ru'?'Оценка за пару секунд':'Value it in seconds')+'</div>'+
+      '<div class="link-hero-t">'+(S.lang==='ru'?'Точная оценка по живому рынку':'A precise live-market appraisal')+'</div>'+
       '<div class="link-hero-s">'+(S.lang==='ru'?'Вставь ссылку на подарок — цена, диапазон и уверенность по рыночным данным: листинги, floor и подтверждённые продажи':'Paste a gift link — price, range and confidence from market data: listings, floor and confirmed sales')+'</div>'+
       '<div class="link-row"><svg class="mi" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'+
         '<input id="e_link" aria-label="'+(S.lang==='ru'?'Ссылка на NFT':'NFT link')+'" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="'+t('linkPh')+'" oninput="onLinkInput()" onkeydown="if(event.key===\'Enter\')parseGiftLink()">'+
@@ -3500,6 +3500,7 @@ async function spendGate(){
 }
 let EVAL_BUSY=false;
 function evalSetBusy(b){ EVAL_BUSY=b;
+  if(!b){ try{ const rz=document.getElementById('result'); if(rz && /Оцениваем|Appraising/.test(rz.textContent||'') && !rz.querySelector('.rcard')) rz.innerHTML=''; }catch(e){} }
   const lb=document.getElementById('e_linkBtn'); if(lb) lb.disabled=b;   // блокируем и вход по ссылке, не только #evalBtn
   const btn=document.getElementById('evalBtn'); if(!btn) return;
   if(b){ if(btn.dataset._lbl==null) btn.dataset._lbl=btn.textContent; btn.disabled=true; btn.classList.add('loading'); btn.textContent=(S.lang==='ru'?'Оцениваем…':'Appraising…'); }
@@ -3524,6 +3525,7 @@ async function requestEvaluate(fromPipeline){
   if(btn) btn.disabled=false;
   if(!g.ok){
     evalSetBusy(false);   // любой отказ снимает busy
+    try{ const rz=document.getElementById('result'); if(rz && /Оцениваем|Appraising/.test(rz.textContent||'')) rz.innerHTML=''; }catch(e){}   // и убирает подвисший лоадер «Оцениваем…»
     if(g.reason==='rate'||g.reason==='cooldown'){ const secs=g.cooldown_until? Math.max(1,Math.round((g.cooldown_until-Date.now())/1000)) : 60; try{ toast(S.lang==='ru'?('Слишком много запросов. Повторите через ~'+secs+' сек.'):('Too many requests. Retry in ~'+secs+'s.')); }catch(e){} return; }
     openPaywall(g.reason||'no_balance','evaluate'); return; }
   try{ if(typeof fetchEntitlement==='function') fetchEntitlement(); }catch(e){}
@@ -4113,7 +4115,12 @@ function signalPct(){ const v=(S&&+S.signalPct)||0.15; return Math.max(0.02, Mat
 function cycleSignalPct(){ const steps=[0.10,0.15,0.20,0.25]; const cur=signalPct(); let i=steps.findIndex(x=>Math.abs(x-cur)<0.001); i=(i+1)%steps.length; S.signalPct=steps[i]; try{save();}catch(e){} try{ if(lastResult) renderResult(lastResult); }catch(e){} try{ toast((S.lang==='ru'?'Порог Smart Signal: ':'Smart Signal threshold: ')+Math.round(steps[i]*100)+'%'); }catch(e){} try{ track('smart_signal_opened', 'thr'+Math.round(steps[i]*100)); }catch(e){} }
 // Smart Signal: живой аск ниже СПРАВЕДЛИВОЙ ЦЕНЫ Monet (не Monet Score) на >= порог
 function smartSignal(r){ const fair=+r.priceTON||0, ask=+r._mktAsk||0; if(!(fair>0&&ask>0)) return null;
-  const disc=(fair-ask)/fair; if(disc>=signalPct()) return { under:true, disc:disc, ask:ask, fair:fair }; return null; }
+  if(r._askOnly) return null;                                                  // цена держится на самом аске — сигнал не имеет смысла
+  const salesN=(+r._salesN||0);
+  if(salesN<1) return null;                                                    // без сделок сигнала нет
+  const disc=(fair-ask)/fair; if(disc<signalPct()) return null;
+  const weak = salesN<3 || (typeof confOf==='function' && confOf(r).k==='confLow');   // мало сделок или низкая уверенность
+  return { under:true, disc:disc, ask:ask, fair:fair, weak:weak }; }
 function proInsightsHTML(r){
   if(r.cat!=='gifts'&&r.cat!=='stickers') return '';
   const ru=S.lang==='ru';
@@ -4122,7 +4129,9 @@ function proInsightsHTML(r){
   const sig=smartSignal(r);
   const dataThin = !!r._askOnly || !(r._sold>0);   // нет подтверждённых/сопоставимых продаж или один листинг
   const sigHTML = sig ? ('<div class="pi-signal" onclick="'+(locked?'openPaywall(\'smart_signals\',\'card\')':'cycleSignalPct()')+'">'+
-      '<span class="pi-dot"></span>'+(ru?'Smart Signal: аск ниже справедливой цены на ':'Smart Signal: ask below fair by ')+Math.round(sig.disc*100)+'%'+(locked?' 🔒':'')+'</div>') : '';
+      '<span class="pi-dot"></span>'+(sig.weak
+        ? (ru?'Возможное отклонение: аск ниже оценки на '+Math.round(sig.disc*100)+'% · низкая уверенность, сделок мало':'Possible mispricing: ask '+Math.round(sig.disc*100)+'% below estimate · low confidence, few sales')
+        : (ru?'Smart Signal: аск ниже справедливой цены на '+Math.round(sig.disc*100)+'%':'Smart Signal: ask below fair by '+Math.round(sig.disc*100)+'%'))+(locked?' 🔒':'')+'</div>') : '';
   if(!locked && dataThin){
     return '<div class="pro-ins" style="opacity:.92">'+
       '<div style="font-size:12px;color:var(--txt-3);line-height:1.45">'+(ru?('Справедливая стоимость не определена — нет подтверждённых сделок'+(r._askOnly?' (цена по одному листингу)':'')+'. Monet Score, оптимальная и быстрая цена продажи не показываются.'):('Fair value not determined — no confirmed sales'+(r._askOnly?' (priced off a single listing)':'')+'. Monet Score, optimum and fast-sell are hidden.'))+'</div></div>';
@@ -4270,7 +4279,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.0.1';
+const APP_VERSION='7.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4936,7 +4945,7 @@ function renderPricing(highlight){
   const soon=ru?'Скоро':'Soon';
   const head='<div class="ms-h"><div><div class="ms-eyebrow">'+(ru?'Тарифы Monet':'Monet plans')+'</div><div class="ms-title">'+cur.name+'</div>'+
     '<div class="ms-sub">'+(plan==='free'
-        ? (ru?'Осталось оценок: ':'Appraisals left: ')+(rem==null?'—':rem)
+        ? (ru?'Осталось оценок: ':'Appraisals left: ')+(rem==null?'…':rem)
         : (ru?'Активен до ':'Active until ')+fmtUntilMs(entUntil())+(S.ent&&S.ent.autorenew?(ru?' · автопродление вкл':' · auto-renew on'):(ru?' · автопродление выкл':' · auto-renew off')))+'</div></div>'+
     '<button class="ms-x" aria-label="'+t('ariaClose')+'" onclick="closePricing()">✕</button></div>';
   const cards=[['plus','Plus'],['pro','Pro']].map(function(pr){ const k=pr[0], p=MS_PLANS[k]; const isCur=(plan===k); const hl=(highlight===k)?' hl':'';
@@ -5290,7 +5299,9 @@ function entCap(){ const p=entPlan(); const base=(MS_PLANS[p]&&MS_PLANS[p].portf
   const srv=(S.ent&&S.ent.plan===p&&+S.ent.portfolio_cap)||0;   // серверный кап учитываем только если совпадает с действующим планом
   return srv>0?srv:base; }
 function entUntil(){ return (S.ent&&S.ent.plan_until)||0; }
-function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; if(typeof l.remaining==='number') return l.remaining; try{ if(S.dail&&S.dail.date===todayStr()) return Math.max(0,3-(S.dail.count||0)); }catch(e){} return 3; }   // P0: единый лимит с checkDaily (3), сервер всегда приоритетен
+function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; if(typeof l.remaining==='number') return l.remaining;
+  if((tg&&tg.initData)||S.ws) return null;   // серверный баланс ещё не загружен — покажем «…», а не неверный fallback
+  try{ if(S.dail&&S.dail.date===todayStr()) return Math.max(0,3-(S.dail.count||0)); }catch(e){} return 3; }
 function planRank(p){ return {free:0,plus:1,pro:2,whale:3}[p]||0; }
 function hasPlan(min){ return planRank(entPlan())>=planRank(min); }
 // доступ к фичам по спеке
