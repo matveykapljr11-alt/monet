@@ -2221,7 +2221,7 @@ ru:{
   compsTitle:'Сравнимые на рынке', compsLoading:'Ищу похожие объявления…', compsAds:'объявл.', compsMedian:'медиана',
   compsNone:'Похожих объявлений на продаже не нашлось', compsErr:'Не удалось получить данные рынка',
   compsNote:'Ориентир по похожим никам на продаже. Не точная цена — у каждого ника своя ценность.',
-  brTitle:'На рынке', brRank:'ранг по капит.', brFloor:'флор', brVsFloor:'к флору', br7d:'7 дней', brNumFloor:'флор +888', brOpen:'Открыть на рынке', brEvaluate:'Оценить экземпляр', brLastSold:'Последний солд', brEstTag:'ориентир',
+  brTitle:'На рынке', brRank:'ранг по капит.', brFloor:'флор', brVsFloor:'к флору', br7d:'7 дней', brNumFloor:'флор +888', brOpen:'Открыть на рынке', brEvaluate:'Оценить экземпляр', brLastSold:'Последняя продажа', brEstTag:'ориентир',
   vfOpen:'Найти вариацию · где дешевле',
   mgiTitle:'Monet Gift Index', mgiH:'ч', mgiCols:'коллекций', mgiListed:'на продаже',
   mkHeld:'В портфеле', mkPcs:'шт', mkAddMore:'Добавить ещё',
@@ -3486,7 +3486,15 @@ async function spendGate(){
     const ws=webSess();
     const res=await fetch(base.replace(/\/+$/,'')+'/?spend&ik='+ik+(ws?('&ws='+encodeURIComponent(ws)):'')+(dev?('&dev='+dev):''),{method:'POST',body:initData,cache:'no-store'});
     if(res.status===402||res.status===429){ const j=await res.json().catch(function(){return{};}); return {ok:false,reason:(j&&j.reason)||'no_balance', cooldown_until:(j&&j.cooldown_until)||0}; }
-    if(res.ok){ const j=await res.json(); if(j&&j.server===false){ if(checkDaily()){bumpDaily();return{ok:true};} return {ok:false,reason:'no_balance'}; } if(j&&j.ok){ return {ok:true, remaining:j.remaining}; } }
+    if(res.status===401 && webSess()){   // сессию не приняли (стухла/пересоздан сервер) — перевыпускаем один раз и повторяем
+      try{ S.ws=''; save(); const nw=await ensureWebSess();
+        if(nw){ const r2=await fetch(base.replace(/\/+$/,'')+'/?spend&ik='+ik+'&ws='+encodeURIComponent(nw),{method:'POST',body:initData,cache:'no-store'});
+          if(r2.status===402||r2.status===429){ const j2=await r2.json().catch(function(){return{};}); return {ok:false,reason:(j2&&j2.reason)||'no_balance', cooldown_until:(j2&&j2.cooldown_until)||0}; }
+          if(r2.ok){ const j2=await r2.json(); if(j2&&j2.ok){ try{ if(typeof j2.remaining==='number'){ S.ent=S.ent||{}; S.ent.limits=S.ent.limits||{}; S.ent.limits.remaining=j2.remaining; save(); } }catch(e){} return {ok:true, remaining:j2.remaining}; } } } }catch(e){}
+    }
+    if(res.ok){ const j=await res.json(); if(j&&j.server===false){ if(checkDaily()){bumpDaily();return{ok:true};} return {ok:false,reason:'no_balance'}; } if(j&&j.ok){
+      try{ if(typeof j.remaining==='number'){ S.ent=S.ent||{}; S.ent.limits=S.ent.limits||{}; S.ent.limits.remaining=j.remaining; save(); } }catch(e){}   // UI-счётчик сразу из ответа сервера
+      return {ok:true, remaining:j.remaining}; } }
   }catch(e){}
   if(checkDaily()){ bumpDaily(); return {ok:true}; } return {ok:false,reason:'no_balance'};
 }
@@ -4262,7 +4270,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.0';
+const APP_VERSION='7.0.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4977,7 +4985,11 @@ async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.ge
   if(!base || (!initData && !dev && !ws)){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Сеть недоступна — попробуйте ещё раз.':'Network error — please try again.'; } return; }
   if(msg){ msg.style.color='var(--txt-3)'; msg.textContent=(dev?(ru?'Проверяем (DEV)…':'Checking (DEV)…'):(ru?'Проверяем…':'Checking…')); }
   try{ track('plan_selected','promo:'+code); }catch(e){}
-  let r=null; try{ const u=base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code)+(ws?('&ws='+encodeURIComponent(ws)):'')+(dev?('&dev='+dev):''); const res=await fetch(u,{method:'POST',body:initData,cache:'no-store'}); r=await res.json(); }catch(e){}
+  let r=null; try{ let u=base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code)+(ws?('&ws='+encodeURIComponent(ws)):'')+(dev?('&dev='+dev):'');
+    let res=await fetch(u,{method:'POST',body:initData,cache:'no-store'});
+    if(res.status===401 && ws){ S.ws=''; save(); const nw=await ensureWebSess();   // сессия не принята — перевыпускаем и повторяем
+      if(nw){ u=base.replace(/\/+$/,'')+'/?redeem&code='+encodeURIComponent(code)+'&ws='+encodeURIComponent(nw); res=await fetch(u,{method:'POST',body:initData,cache:'no-store'}); } }
+    if(res.status===401){ r={ok:false, reason:'session'}; } else { r=await res.json(); } }catch(e){}
   if(!r){ if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Сеть недоступна':'Network error'; } return; }
   if(r.ok){ const tU=String(r.tier||'').toUpperCase();
     if(msg){ msg.style.color='var(--good)'; msg.textContent=(ru?'🎉 Готово! Подписка '+tU+' на '+(r.duration_days||30)+' дней активирована.':'🎉 Done! '+tU+' for '+(r.duration_days||30)+' days is active.'); }
@@ -4993,6 +5005,7 @@ async function redeemPromoClient(){ const ru=S.lang==='ru'; const el=document.ge
   else if(r.reason==='sold_out'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=(ru?('🔥 Упс, код уже разобрали '+(r.max||10)+' самых быстрых! Тебе доступен FREE: до 3 активов и Floor-каталог.'):('🔥 Oops — the first '+(r.max||10)+' fastest already claimed it! FREE is still yours: up to 3 assets and the floor catalog.')); } }
   else if(r.reason==='already'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?'Вы уже активировали этот промокод.':'You already activated this code.'; } }
   else if(r.reason==='lower_plan_active'){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=ru?('У вас уже активен более высокий тариф — '+String(r.current||'').toUpperCase()+'. Код не потрачен.'):('You already have a higher plan active — '+String(r.current||'').toUpperCase()+'. The code was not used.'); } }
+  else if(r.reason==='session'){ if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Сервер не принял веб-сессию — обнови страницу и попробуй снова.':'Server rejected the web session — refresh the page and try again.'; } }
   else { if(msg){ msg.style.color='var(--bad)'; msg.textContent=ru?'Код не существует.':'This code does not exist.'; } }
 }
 function buyPlan(plan){ const ru=S.lang==='ru'; try{ track('plan_selected', plan); }catch(e){}
