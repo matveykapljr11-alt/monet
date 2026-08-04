@@ -3506,6 +3506,7 @@ function evalSetBusy(b){ EVAL_BUSY=b;
   if(b){ if(btn.dataset._lbl==null) btn.dataset._lbl=btn.textContent; btn.disabled=true; btn.classList.add('loading'); btn.textContent=(S.lang==='ru'?'Оцениваем…':'Appraising…'); }
   else { btn.disabled=false; btn.classList.remove('loading'); if(btn.dataset._lbl!=null){ btn.textContent=btn.dataset._lbl; delete btn.dataset._lbl; } } }
 try{ if(S && S.dev){ S.dev=false; save(); } }catch(e){}   // P0.4: production не доверяет сохранённому dev-флагу
+try{ if(!(tg&&tg.initData)) setTimeout(function(){ ensureWebSess().then(function(w){ if(w) fetchEntitlement(); }); },400); }catch(e){}   // веб: сессия и баланс с первого экрана
 try{ // P0: миграция legacy-оценок Usernames/+888 — деньги -> эвристический Score
   let mig=false;
   (S.history||[]).forEach(h=>{ if(h && (h.cat==='username'||h.cat==='numbers') && !h.isHeuristic){
@@ -4279,7 +4280,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.1';
+const APP_VERSION='7.1.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5300,7 +5301,8 @@ function entCap(){ const p=entPlan(); const base=(MS_PLANS[p]&&MS_PLANS[p].portf
   return srv>0?srv:base; }
 function entUntil(){ return (S.ent&&S.ent.plan_until)||0; }
 function entRemaining(){ const l=(S.ent&&S.ent.limits)||{}; if(typeof l.remaining==='number') return l.remaining;
-  if((tg&&tg.initData)||S.ws) return null;   // серверный баланс ещё не загружен — покажем «…», а не неверный fallback
+  if((tg&&tg.initData)||S.ws) return null;                      // серверный баланс ещё не загружен — «…»
+  if(navigator.onLine!==false){ try{ ensureWebSess().then(function(w){ if(w){ fetchEntitlement(); } }); }catch(e){} return null; }   // онлайн без сессии = тоже загрузка: заводим сессию фоном
   try{ if(S.dail&&S.dail.date===todayStr()) return Math.max(0,3-(S.dail.count||0)); }catch(e){} return 3; }
 function planRank(p){ return {free:0,plus:1,pro:2,whale:3}[p]||0; }
 function hasPlan(min){ return planRank(entPlan())>=planRank(min); }
