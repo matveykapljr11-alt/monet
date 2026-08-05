@@ -3200,6 +3200,9 @@ function setSelByName(id, name){ const sel=document.getElementById(id); if(!sel|
   const want=String(name).toLowerCase().trim();
   for(let i=0;i<sel.options.length;i++){ const n=(sel.options[i].getAttribute('data-name')||'').toLowerCase().trim();
     if(n===want){ sel.selectedIndex=i; return true; } }
+  // трейт распознан по ссылке, но отсутствует в каталоге площадки (редкая/монохромная модель и т.п.) —
+  // добавляем его в селект динамически, чтобы распознавание не терялось
+  try{ const o=document.createElement('option'); o.value='__ext__'+want.replace(/[^a-z0-9]/g,''); o.setAttribute('data-name',String(name)); o.textContent=String(name); sel.appendChild(o); sel.selectedIndex=sel.options.length-1; return true; }catch(e){}
   return false; }
 async function parseGiftLink(){
   const el=document.getElementById('e_link'), msg=document.getElementById('e_linkMsg'), btn=document.getElementById('e_linkBtn');
@@ -3698,6 +3701,21 @@ async function loadGiftCross(r){
   if(r._blind && baseFloorSeed>0 && r.priceTON>baseFloorSeed) r.priceTON=Math.round(baseFloorSeed);
   // ЕДИНЫЙ ФИНАЛ: все рыночные поля выставлены -> перерисовываем ВСЮ карточку из одного финального r.
   // Никаких кусочных обновлений: исключает состояние, где часть блоков показывает старое число, а часть — новое.
+  // Кейс «аск перегрет»: непроданный листинг висит выше реальных сделок. При достаточной
+  // истории продаж оценка не должна превышать медиану недавних сделок больше чем на 20%.
+  try{
+    if(Array.isArray(salesArr) && (salesN>=5)){
+      const rec10=salesArr.slice(0,10).filter(x=>x>0).slice().sort((a,b)=>a-b);
+      if(rec10.length>=5){
+        const med=rec10[Math.floor(rec10.length/2)];
+        const cap=Math.round(med*1.2);
+        if(med>0 && r.priceTON>cap){
+          r._askOverheat={ask:Math.round(r.priceTON), med:Math.round(med)};
+          r.priceTON=cap;
+        }
+      }
+    }
+  }catch(e){}
   let exactSalesN = (exact && exact.exact && Array.isArray(exact.sales)) ? (exact.salesN||exact.sales.length) : 0;   // ТОЛЬКО продажи точной комбинации (model+backdrop+symbol)
   // P1: если в ленте продаж есть продажа НОМЕРА, который оцениваем, — это прямая подтверждённая сделка этого NFT
   try{
@@ -4204,7 +4222,7 @@ function resultCardHTML(r){
     '</div>'+
     '<div class="rbody">'+
       '<button class="btn eval-add" id="evalAddBtn" onclick="evalAddInline()">'+t('pfAddBtn')+'</button>'+
-      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+(r._askOnly?(S.lang==='ru'?'Категория по листингу':'Tier by listing'):t('tierLabel'))+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+(r._askOnly?(S.lang==='ru'?' · спр. стоимость не определена':' · fair value n/a'):'')+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+(loading?'':'<div class="conf-explain" style="font-size:11px;color:var(--txt-3);margin:6px 2px 0;line-height:1.4">'+t('confLabel')+' \u00b7 '+confExplain(r)+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+'</div>')+
+      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+(r._askOnly?(S.lang==='ru'?'Категория по листингу':'Tier by listing'):t('tierLabel'))+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+(r._askOnly?(S.lang==='ru'?' · спр. стоимость не определена':' · fair value n/a'):'')+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+(loading?'':'<div class="conf-explain" style="font-size:11px;color:var(--txt-3);margin:6px 2px 0;line-height:1.4">'+t('confLabel')+' \u00b7 '+confExplain(r)+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+(r._askOverheat?(' \u00b7 '+(S.lang==='ru'?('аск '+fmtTON(r._askOverheat.ask)+' выше недавних продаж (медиана '+fmtTON(r._askOverheat.med)+') — оценка приведена к сделкам'):('ask '+fmtTON(r._askOverheat.ask)+' sits above recent sales (median '+fmtTON(r._askOverheat.med)+') — value anchored to sales'))):'')+'</div>')+
       (loading?'':proInsightsHTML(r))+
       tradeBandHTML(r)+
       '<div class="res-cta">'+
@@ -4280,7 +4298,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.2.1';
+const APP_VERSION='7.3';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
