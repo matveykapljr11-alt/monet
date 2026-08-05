@@ -4280,7 +4280,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.1.2';
+const APP_VERSION='7.2.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4894,9 +4894,15 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
       '<div id="apiUsage" style="font-size:12px;color:var(--txt-2);margin-top:6px">'+(ru?'использование: …':'usage: …')+'</div>'+'<div style="font-size:11px;color:var(--txt-3);margin-top:6px">GET '+(proxyURL()||'<worker>')+'/?api&key=…&op=floor&collection=plushpepe</div></div>'+
     '<div class="ms-promo"><div class="ms-invite-t">Webhook</div>'+
       '<div style="display:flex;gap:8px;margin-top:8px"><input id="whUrl" placeholder="https://…" style="flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:600">'+
-      '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleWebhookSet()">'+(ru?'Сохранить':'Save')+'</button></div>'+
+      '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleWebhookSet()">'+(ru?'Сохранить':'Save')+'</button>'+
+      '<button class="ms-btn" style="width:auto;padding:10px 14px" onclick="whaleWebhookTest()">'+(ru?'Тест':'Test')+'</button></div>'+
       '<div id="whOut" style="font-size:12px;color:var(--txt-2);margin-top:6px"></div>'+'<div id="whUsage" style="font-size:12px;color:var(--txt-2);margin-top:4px">'+(ru?'статус: …':'status: …')+'</div>'+
       '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'POST при срабатывании алерта: {source, ts, event}':'POST on alert trigger: {source, ts, event}')+'</div></div>'+
+    '<div class="ms-promo"><div class="ms-invite-t">'+(ru?'Bulk-скан ссылок':'Bulk link scan')+' <span style="font-size:10px;opacity:.7">'+(ru?'до 10 за раз':'up to 10')+'</span></div>'+
+      '<div style="font-size:11.5px;color:var(--txt-3);margin-top:4px">'+(ru?'Вставь до 10 ссылок t.me/nft/… — быстрый скан по флорам коллекций.':'Paste up to 10 t.me/nft/… links — a quick floor-based scan.')+'</div>'+
+      '<textarea id="whBulk" rows="4" placeholder="t.me/nft/PlushPepe-1000\nt.me/nft/ToyBear-42" style="width:100%;margin-top:8px;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-size:12.5px;resize:vertical"></textarea>'+
+      '<button class="ms-btn go" style="width:auto;padding:10px 16px;margin-top:8px" onclick="whaleBulkScan()">'+(ru?'Сканировать':'Scan')+'</button>'+
+      '<div id="whBulkOut" style="font-size:12.5px;margin-top:10px;line-height:1.6"></div></div>'+
     '</div>';
   if(!(tg&&tg.initData) && !webSess()){
     try{ el.querySelectorAll('.ms-btn').forEach(b=>{ if(/whaleKey|whaleWebhook/.test(b.getAttribute('onclick')||'')) b.disabled=true; }); }catch(e){}
@@ -4921,6 +4927,28 @@ function whaleChannelEval(){ const ru=S.lang==='ru'; const subs=(document.getEle
   try{ track('asset_evaluated','channel'); }catch(e){} }
 async function whaleKeyCreate(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); if(o)o.textContent='…'; const r=await whaleApi('/?apikey',{action:'create'}); if(o) o.textContent=(r&&r.key)?('key: '+r.key):(ru?'ошибка':'error'); }
 async function whaleKeyRevoke(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); await whaleApi('/?apikey',{action:'revoke'}); if(o)o.textContent=ru?'ключ отозван':'key revoked'; }
+async function whaleWebhookTest(){ const ru=S.lang==='ru'; const o=document.getElementById('whOut'); if(o){o.style.color='var(--txt-3)';o.textContent=ru?'Шлём тестовый POST…':'Sending test POST…';}
+  const r=await whaleApi('/?webhook',{action:'test'});
+  if(o){ if(r&&r.ok){ o.style.color='var(--good)'; o.textContent=(ru?'✓ Доставлено · HTTP ':'✓ Delivered · HTTP ')+r.status+' · '+r.ms+'ms · '+r.used+'/500'; }
+    else if(r&&r.reason==='no_webhook'){ o.style.color='var(--warn)'; o.textContent=ru?'Сначала сохрани URL вебхука.':'Save a webhook URL first.'; }
+    else { o.style.color='var(--bad)'; o.textContent=(ru?'Не доставлено':'Failed')+(r&&r.status?(' · HTTP '+r.status):''); } } }
+async function whaleBulkScan(){ const ru=S.lang==='ru'; const ta=document.getElementById('whBulk'); const o=document.getElementById('whBulkOut'); if(!ta||!o) return;
+  const lines=String(ta.value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).slice(0,10);
+  if(!lines.length){ o.textContent=ru?'Вставь хотя бы одну ссылку':'Paste at least one link'; return; }
+  o.style.color='var(--txt-2)'; o.textContent=(ru?'Сканируем 0/':'Scanning 0/')+lines.length+'…';
+  const rows=[]; let done=0; let sum=0;
+  for(const ln of lines){
+    const mm=ln.match(/(?:t\.me\/nft\/)?([A-Za-z0-9_]+)-(\d+)/); done++;
+    if(!mm){ rows.push('<div style="color:var(--txt-3)">✕ '+escapeHTML(ln.slice(0,40))+' · '+(ru?'не похоже на ссылку':'not a link')+'</div>'); continue; }
+    const slug=mm[1].toLowerCase().replace(/[^a-z0-9]/g,''); const num=mm[2];
+    const col=(COLLECTIONS.gifts||[]).find(c=>(c.slug||'')===slug);
+    const fl=col?(+col.floor||0):0; const nm=col?col.n:prettyGiftName(slug);
+    if(fl>0){ sum+=fl; rows.push('<div>✓ <b>'+escapeHTML(nm)+' #'+num+'</b> · '+(ru?'флор ':'floor ')+fmtTON(fl)+' GRAM</div>'); }
+    else rows.push('<div style="color:var(--txt-3)">? '+escapeHTML(nm)+' #'+num+' · '+(ru?'флор неизвестен':'no floor data')+'</div>');
+    o.innerHTML=(ru?'Сканируем ':'Scanning ')+done+'/'+lines.length+'…<br>'+rows.join('');
+  }
+  o.innerHTML=rows.join('')+'<div style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px"><b>'+(ru?'Итого по флорам: ':'Floor total: ')+fmtTON(Math.round(sum))+' GRAM</b> · '+fmtFiat(sum)+'<div style="font-size:10.5px;color:var(--txt-3);margin-top:3px">'+(ru?'Быстрый скан по флорам коллекций — для точной оценки с трейтами открой каждый через «Оценить».':'Quick floor-level scan — for precise trait-level values appraise each individually.')+'</div></div>';
+  try{ track('whale_bulk', String(lines.length)); }catch(e){} }
 async function whaleWebhookSet(){ const ru=S.lang==='ru'; const url=(document.getElementById('whUrl')||{}).value||''; const o=document.getElementById('whOut'); if(o)o.textContent='…'; const r=await whaleApi('/?webhook',{action:'set',url:url}); if(o){ if(r&&r.ok){ o.style.color='var(--good)'; o.textContent=ru?'✓ сохранено':'✓ saved'; } else { o.style.color='var(--bad)'; o.textContent=(r&&r.reason==='bad_url')?(ru?'Нужен https URL':'https URL required'):(ru?'ошибка':'error'); } } }
 /* ===== ТАРИФЫ И PAYWALL (Monet Monetization P0) ===== */
 function fmtUntilMs(ms){ if(!ms) return '—'; try{ const d=new Date(ms); return d.toLocaleDateString(S.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return '—'; } }
@@ -4958,10 +4986,10 @@ function renderPricing(highlight){
     return '<div class="ms-card'+hl+'"><div class="ms-cn">'+p.name+'</div><div class="ms-price">'+p.stars+' <span>⭐ / 30'+(ru?'дн':'d')+'</span></div>'+
       '<ul class="ms-feats">'+feats.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'+btn+'</div>'; }).join('');
   const isWhale=(plan==='whale');
-  const whale='<div class="ms-card'+(isWhale?' hl':' soon')+'"><div class="ms-cn">Whale <span class="ms-soon">'+ (isWhale?'Private Beta':(ru?'Скоро':'Coming soon')) +'</span></div><div class="ms-price">'+MS_PLANS.whale.stars+' <span>⭐ / 30'+(ru?'дн':'d')+'</span></div>'+
-    '<ul class="ms-feats"><li>'+(ru?'Usernames, +888, Channels':'Usernames, +888, Channels')+'</li><li>'+(ru?'API и Webhooks':'API & Webhooks')+'</li></ul>'+
+  const whale='<div class="ms-card'+(isWhale?' hl':' soon')+'"><div class="ms-cn">Whale <span class="ms-soon">'+ (isWhale?'Private Beta':(ru?'Ранний доступ':'Early access')) +'</span></div><div class="ms-price">'+MS_PLANS.whale.stars+' <span>⭐ / 30'+(ru?'дн':'d')+'</span></div>'+
+    '<ul class="ms-feats"><li>'+(ru?'Usernames, +888, Channels':'Usernames, +888, Channels')+'</li><li>'+(ru?'API 10k/мес и Webhooks':'API 10k/mo & Webhooks')+'</li><li>'+(ru?'Bulk-скан ссылок':'Bulk link scan')+'</li><li>'+(ru?'2000 оценок/день, портфель 5000':'2000 appraisals/day, 5000-asset portfolio')+'</li></ul>'+
     (isWhale? '<button class="ms-btn cur" disabled>'+(ru?'Текущий · Private Beta':'Current · Private Beta')+'</button>'
-            : '<button class="ms-btn" disabled>'+(ru?'Скоро':'Coming soon')+'</button>')+'</div>';
+            : '<button class="ms-btn" onclick="try{var i=document.getElementById(\'msPromo\'); if(i){ i.scrollIntoView({behavior:\'smooth\',block:\'center\'}); setTimeout(function(){i.focus();},350);} }catch(e){}">'+(ru?'Доступ по инвайт-коду ↓':'Invite code required ↓')+'</button>')+'</div>';
   const rows=msFeatureRows(ru).map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>'; }).join('');
   const table='<table class="ms-table"><thead><tr><th></th><th>Free</th><th>Plus</th><th>Pro</th><th>Whale</th></tr></thead><tbody>'+rows+'</tbody></table>'+
     '<div class="ms-foot-note">'+(ru?'* 5 оценок при старте, далее +1 в день (00:00 UTC); всего не более 15 стандартных оценок за календарный месяц':'* 5 appraisals to start, then +1/day (00:00 UTC); max 15 standard appraisals per calendar month')+'</div>';
