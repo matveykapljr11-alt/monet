@@ -4027,6 +4027,10 @@ function guidance(r){
   if(ask>0){ buyUnder=Math.min(buyUnder, ask*0.98); fastHi=Math.min(fastHi, ask*0.97); }
   const traitLevel=!!(r._m||r._b||r._p);   // оценка конкретной модели/комбинации, а не коллекции
   if(floor>0 && !traitLevel){ fastHi=Math.min(fastHi, floor*0.99); buyUnder=Math.min(buyUnder, floor); }  // кап по флору коллекции — только для безтрейтовой оценки: флор коллекции ≠ цена модели
+  // ЛИСТИНГ смотрит в стакан: если есть живой аск — правильная цена продажи ПОДРЕЗАЕТ его, а не стоит выше
+  if(ask>0 && listLo>ask*0.97){ listLo=ask*0.97; listHi=Math.max(listLo*1.01, Math.min(listHi, ask*0.995)); }
+  // БЫСТРАЯ продажа = заметный дисконт к реальным сделкам (примерно зона, где покупатель видит сделку)
+  if(sold>0){ fastHi=Math.min(fastHi, sold*0.93); }
   fastLo=fastHi*0.90;
   const R=Math.round;
   fairLo=R(fairLo); fairHi=Math.max(fairLo+1,R(fairHi));
@@ -4299,7 +4303,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.3.2';
+const APP_VERSION='7.3.3';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
