@@ -4025,7 +4025,8 @@ function guidance(r){
   if(!__sane(ask)) ask=0; if(!__sane(sold)) sold=0; if(!__sane(floor)) floor=0;
   if(sold>0){ buyUnder=Math.min(buyUnder, sold*0.95); }
   if(ask>0){ buyUnder=Math.min(buyUnder, ask*0.98); fastHi=Math.min(fastHi, ask*0.97); }
-  if(floor>0){ fastHi=Math.min(fastHi, floor*0.99); buyUnder=Math.min(buyUnder, floor); }  // can't buy a 'deal' above floor
+  const traitLevel=!!(r._m||r._b||r._p);   // оценка конкретной модели/комбинации, а не коллекции
+  if(floor>0 && !traitLevel){ fastHi=Math.min(fastHi, floor*0.99); buyUnder=Math.min(buyUnder, floor); }  // кап по флору коллекции — только для безтрейтовой оценки: флор коллекции ≠ цена модели
   fastLo=fastHi*0.90;
   const R=Math.round;
   fairLo=R(fairLo); fairHi=Math.max(fairLo+1,R(fairHi));
@@ -4298,7 +4299,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.3';
+const APP_VERSION='7.3.2';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4791,7 +4792,22 @@ function litemHTML(it,fav,idx){
 }
 function removeFav(i){ S.favorites.splice(i,1); save(); renderDrawer(); syncFavButton(); }
 function reEvalGo(it){ if(!it) return; try{ closeDrawer(); }catch(e){}
-  if(it.cat==='gifts'){ const name=String(it.display||'').split(' #')[0].split(' (')[0].trim(); if(name && typeof evaluateGiftByName==='function'){ evaluateGiftByName(name); return; } }
+  if(it.cat==='gifts'){
+    const disp=String(it.display||'');
+    const name=disp.split(' #')[0].split(' (')[0].trim();
+    const num=(disp.match(/#\s*(\d+)/)||[])[1]||'';
+    if(num){   // есть номер -> полная переоценка по ссылке: воркер заново вытащит ВСЕ трейты (модель+фон+символ)
+      const col=(COLLECTIONS.gifts||[]).find(c=>c.n===name);
+      const slug=col?(col.slug||name.toLowerCase().replace(/[^a-z0-9]/g,'')):name.toLowerCase().replace(/[^a-z0-9]/g,'');
+      setView('evaluate'); try{ pickCat('gifts'); }catch(e){}
+      setTimeout(function(){ try{
+        const el=document.getElementById('e_link');
+        if(el){ el.value=slug+'-'+num; try{ onLinkInput(); }catch(e){} parseGiftLink(); return; }
+      }catch(e){} },150);
+      return;
+    }
+    if(name && typeof evaluateGiftByName==='function'){ evaluateGiftByName(name); return; }
+  }
   if(typeof setView==='function') setView('evaluate');
   if(typeof pickCat==='function') pickCat(it.cat==='username'?'username':it.cat==='numbers'?'numbers':'gifts');
   setTimeout(function(){ try{ const el=document.getElementById('e_main'); if(el){ if(it.cat==='username') el.value=String(it.display).replace(/^@/,''); else if(it.cat==='numbers') el.value=String(it.display).replace(/^\+?888\s?/,''); } if(typeof doEvaluate==='function') doEvaluate(); }catch(e){} },150); }
