@@ -3716,6 +3716,14 @@ async function loadGiftCross(r){
       }
     }
   }catch(e){}
+  // Кап по ликвидному аску: если сопоставимых листингов НЕСКОЛЬКО и дешевейший заметно ниже оценки —
+  // рынок позволяет купить сейчас, оценка не должна висеть выше него.
+  try{
+    if((r._comps||0)>=2 && marketAsk>0 && r.priceTON>marketAsk*1.12){
+      r._askCap={was:Math.round(r.priceTON), ask:Math.round(marketAsk)};
+      r.priceTON=Math.round(marketAsk*1.08);
+    }
+  }catch(e){}
   let exactSalesN = (exact && exact.exact && Array.isArray(exact.sales)) ? (exact.salesN||exact.sales.length) : 0;   // ТОЛЬКО продажи точной комбинации (model+backdrop+symbol)
   // P1: если в ленте продаж есть продажа НОМЕРА, который оцениваем, — это прямая подтверждённая сделка этого NFT
   try{
@@ -4227,7 +4235,7 @@ function resultCardHTML(r){
     '</div>'+
     '<div class="rbody">'+
       '<button class="btn eval-add" id="evalAddBtn" onclick="evalAddInline()">'+t('pfAddBtn')+'</button>'+
-      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+(r._askOnly?(S.lang==='ru'?'Категория по листингу':'Tier by listing'):t('tierLabel'))+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+(r._askOnly?(S.lang==='ru'?' · спр. стоимость не определена':' · fair value n/a'):'')+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+(loading?'':'<div class="conf-explain" style="font-size:11px;color:var(--txt-3);margin:6px 2px 0;line-height:1.4">'+t('confLabel')+' \u00b7 '+confExplain(r)+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+(r._askOverheat?(' \u00b7 '+(S.lang==='ru'?('аск '+fmtTON(r._askOverheat.ask)+' выше недавних продаж (медиана '+fmtTON(r._askOverheat.med)+') — оценка приведена к сделкам'):('ask '+fmtTON(r._askOverheat.ask)+' sits above recent sales (median '+fmtTON(r._askOverheat.med)+') — value anchored to sales'))):'')+'</div>')+
+      '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+(r._askOnly?(S.lang==='ru'?'Категория по листингу':'Tier by listing'):t('tierLabel'))+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+(r._askOnly?(S.lang==='ru'?' · спр. стоимость не определена':' · fair value n/a'):'')+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+(loading?'':'<div class="conf-explain" style="font-size:11px;color:var(--txt-3);margin:6px 2px 0;line-height:1.4">'+t('confLabel')+' \u00b7 '+confExplain(r)+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+(r._askOverheat?(' \u00b7 '+(S.lang==='ru'?('аск '+fmtTON(r._askOverheat.ask)+' выше недавних продаж (медиана '+fmtTON(r._askOverheat.med)+') — оценка приведена к сделкам'):('ask '+fmtTON(r._askOverheat.ask)+' sits above recent sales (median '+fmtTON(r._askOverheat.med)+') — value anchored to sales'))):'')+(r._askCap?(' \u00b7 '+(S.lang==='ru'?('на рынке есть лоты от '+fmtTON(r._askCap.ask)+' — оценка приведена к покупаемому уровню'):('live lots start at '+fmtTON(r._askCap.ask)+' — value anchored to the buyable level'))):'')+'</div>')+
       (loading?'':proInsightsHTML(r))+
       tradeBandHTML(r)+
       '<div class="res-cta">'+
@@ -4303,7 +4311,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.3.3';
+const APP_VERSION='7.3.4';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
