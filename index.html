@@ -3613,7 +3613,14 @@ async function loadGiftCross(r){
   // crossAsk (потолок «дешевле не бывает») — ТОЛЬКО из листингов, совпавших по трейтам.
   // Иначе несовпавший самый дешёвый лот (другая модель) занижает оценку премиального экземпляра
   // (напр. Blue Bezel за 107, а адаптер отдаёт флор коллекции 44 без фильтра модели).
-  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length; const mch=its.filter(x=>x&&x.match&&x.price>0); r._comps=mch.length; const pool=(mch.length?mch:(hasTrait?[]:its)).filter(x=>x&&x.price>0); if(pool.length){ pool.sort((A,B)=>A.price-B.price); let cheap=pool.slice(0,3).map(x=>x.price); if(cheap.length>=2 && cheap[0] < cheap[1]*0.6) cheap=cheap.slice(1); crossAsk=Math.round(cheap[Math.floor((cheap.length-1)/2)] || pool[0].price); } }catch(e){}
+  let crossAsk=0; try{ const lj=await listP; const its=(lj&&lj.items)||[]; r._scanned=its.length;
+    const mch=its.filter(x=>x&&x.match&&x.price>0);
+    // точной комбинации нет -> сопоставимые по МОДЕЛИ (другие фоны/символы той же модели — валидные компсы)
+    const myM=String(m||'').toLowerCase();
+    const mdl=(!mch.length&&myM)?its.filter(x=>x&&x.price>0&&String(x.model||'').toLowerCase()===myM):[];
+    r._comps=mch.length||mdl.length;
+    const pool=(mch.length?mch:(mdl.length?mdl:(hasTrait?[]:its))).filter(x=>x&&x.price>0);
+    if(pool.length){ pool.sort((A,B)=>A.price-B.price); let cheap=pool.slice(0,3).map(x=>x.price); if(cheap.length>=2 && cheap[0] < cheap[1]*0.6) cheap=cheap.slice(1); crossAsk=Math.round(cheap[Math.floor((cheap.length-1)/2)] || pool[0].price); } }catch(e){}
   if(lastResult!==r || r.ts!==stamp) return;   // user moved on
   const preEst=r.priceTON;
   if(exact) applyGiftCross(r, exact, hasTrait);
@@ -4311,7 +4318,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.3.4';
+const APP_VERSION='7.3.5';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
