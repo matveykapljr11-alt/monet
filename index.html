@@ -2617,7 +2617,9 @@ function refLink(url){
   return url;
 }
 /* quick-add from empty portfolio (index into window._pfPicks; avoids quoting issues) */
-function pfQuickAdd(i){ const g=(window._pfPicks||[])[i]; if(g&&window.PF){ PF.addAsset({cat:'gifts',display:g.name,priceTON:Math.round(g.price),qty:1}); } }
+function pfQuickAdd(i){ const g=(window._pfPicks||[])[i]; if(g&&window.PF){
+  const hh=(S.history||[]).find(function(h){ return h&&h.display===g.name&&!h.isHeuristic&&h.priceTON>0; });   // единая цена со свежей оценкой
+  PF.addAsset({cat:'gifts',display:g.name,priceTON:(hh?hh.priceTON:Math.round(g.price)),qty:1}); } }
 let FLOORS_LIVE={}, FLOORS_COUNT={}, FLOORS_CH24={}, FLOORS_CH7={}, FLOORS_CH24_SRC='', FLOORS_SALE={}, FLOORS_SRC='demo', FLOORS_TS=0, NUMBERS_FLOOR=0;
 const STATIC_GIFT_FLOOR={}; COLLECTIONS.gifts.forEach(c=>{ STATIC_GIFT_FLOOR[c.id]=c.floor; });
 function parseFloors(j, env){
@@ -2706,7 +2708,7 @@ function openLegal(tab){ const box=document.getElementById('legal-sheet'); if(!b
       ['Что делает Monet','Monet — информационный сервис. Мы показываем ориентировочную стоимость коллекционных активов Telegram на основе публичных данных маркетплейсов (Portals, Fragment, Tonnel) и собственной модели.'],
       ['Не оферта и не совет','Оценки, диапазоны и зоны Buy/Sell — это рыночный ориентир, а не публичная оферта, не гарантия цены и не индивидуальная инвестиционная рекомендация. Итоговую цену определяет рынок. Решения о покупке и продаже вы принимаете самостоятельно и на свой риск.'],
       ['Точность данных','Данные маркетов могут запаздывать, содержать ошибки или быть недоступны. Мы показываем время последнего обновления и предупреждаем, если данные устарели. Мы не несём ответственности за убытки, связанные с использованием оценок.'],
-      ['Подписка Plus / Pro','Тарифы Plus и Pro оплачиваются через Telegram Stars и действуют 30 дней: больше оценок в день, алерты по цене, зоны покупки и продажи, дневной ориентир и расширенный портфель. Тариф Whale — в разработке. Управлять подпиской и автопродлением можно в профиле; при отключении автопродления доступ сохраняется до конца оплаченного периода.'],
+      ['Подписка Plus / Pro','Тарифы Plus и Pro оплачиваются через Telegram Stars и действуют 30 дней: больше оценок в день, алерты по цене, зоны покупки и продажи, дневной ориентир и расширенный портфель. Тариф Whale — в раннем доступе по инвайт-кодам; в открытую продажу выйдет позже. Зоны покупки/продажи доступны с Plus, расширенная аналитика (Smart Signals, Monet Score, Fast Sell) — с Pro. Управлять подпиской и автопродлением можно в профиле; при отключении автопродления доступ сохраняется до конца оплаченного периода.'],
       ['Возврат','Оплата проходит через Telegram Stars. Вопросы возврата решаются в порядке, предусмотренном правилами Telegram; по спорным ситуациям пишите нам — разберёмся индивидуально.'],
       ['Изменения','Мы можем менять функциональность и условия. Актуальная версия документов всегда доступна в этом разделе.']
     ],
@@ -3137,7 +3139,7 @@ function inputHTML(cat, idp){
          '<div class="gift-grid" id="'+idp+'grid">'+tiles+'</div>'+
          '<div class="gift-none" id="'+idp+'none" style="display:none;text-align:center;color:var(--txt-3);font-size:12.5px;padding:14px 2px">—</div>'+
          '<input class="big" id="'+idp+'floor" inputmode="numeric" placeholder="'+t('phFloor')+'" style="margin:0 0 10px;display:none" oninput="giftLiveEval(\''+idp+'\')">'+
-         '<input class="big" id="'+idp+'serial" aria-label="'+(S.lang==='ru'?'Номер NFT':'NFT serial number')+'" inputmode="numeric" placeholder="'+t('phGiftSerial')+'" style="margin-bottom:12px" oninput="giftLiveEval(\''+idp+'\')">'+
+         '<input class="big" id="'+idp+'serial" aria-label="'+(S.lang==='ru'?'Номер NFT':'NFT serial number')+'" inputmode="numeric" placeholder="'+t('phGiftSerial')+'" style="margin-bottom:12px" oninput="manualBreakLink();giftLiveEval(\''+idp+'\')">'+
          '<div class="attr-selects">'+
            '<div class="attr-sel"><label>'+t('attrModel')+'</label><button type="button" class="trait-pick" id="'+idp+'rmodel_btn" onclick="openTraitPick(\''+idp+'\',\'rmodel\')"><span class="tp-v">'+(S.lang==='ru'?'— любая —':'— any —')+'</span><span class="tp-c">▾</span></button><select id="'+idp+'rmodel" class="trait-hidden" onchange="updateTraitBtn(\''+idp+'\',\'rmodel\')"><option value="">'+(S.lang==='ru'?'— любая —':'— any —')+'</option></select></div>'+
            '<div class="attr-sel"><label>'+t('attrBackdrop')+'</label><button type="button" class="trait-pick" id="'+idp+'rback_btn" onclick="openTraitPick(\''+idp+'\',\'rback\')"><span class="tp-v">'+(S.lang==='ru'?'— любой —':'— any —')+'</span><span class="tp-c">▾</span></button><select id="'+idp+'rback" class="trait-hidden" onchange="updateTraitBtn(\''+idp+'\',\'rback\')"><option value="">'+(S.lang==='ru'?'— любой —':'— any —')+'</option></select></div>'+
@@ -3193,6 +3195,11 @@ function sortGifts(prefix,mode,el){
   if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}}
 }
 /* ---- Вставка ссылки: t.me/nft/PlushPepe-123 -> коллекция+модель+фон+узор+номер -> оценка ---- */
+function manualBreakLink(){ // юзер правит форму руками -> распарсенная ссылка больше не источник
+  if(window.__linkFill) return;
+  const l=document.getElementById('e_link'); if(l&&l.value){ l.value=''; }
+  const m=document.getElementById('e_linkMsg'); if(m) m.textContent='';
+}
 function onLinkInput(){ const el=document.getElementById('e_link'), b=document.getElementById('e_linkBtn'), m=document.getElementById('e_linkMsg');
   if(!el||!b) return; const ok=/t\.me\/nft\/[A-Za-z0-9_]+-\d+|^[A-Za-z0-9_]+-\d+$/.test((el.value||'').trim());
   b.disabled=!ok; if(m&&!(el.value||'').trim()) m.textContent=''; }
@@ -3223,6 +3230,7 @@ async function parseGiftLink(){
   if(!col){ if(msg){ msg.style.color='var(--warn)'; msg.textContent=t('linkNoCol'); }
     try{ const q=document.getElementById('e_q')||document.querySelector('#inputField input[placeholder]'); if(q){ q.scrollIntoView({behavior:'smooth',block:'center'}); } }catch(e){}
     evalSetBusy(false); return; }
+  window.__linkFill=true;   // программное заполнение формы из ссылки — не считать ручным вводом
   if(curCat!=='gifts'){ try{ pickCat('gifts'); }catch(e){} }
   pickGift('e_', col.id);
   const ser=document.getElementById('e_serial'); if(ser&&num) ser.value=num;
@@ -3236,6 +3244,7 @@ async function parseGiftLink(){
              else if(d&&d.ok){ msg.style.color='var(--up)'; msg.textContent=t('linkOk')+': '+col.n+(num?(' #'+num):''); }
              else { msg.style.color='var(--warn)'; msg.textContent=t('linkFloorOnly')+' — '+col.n+(num?(' #'+num):''); } }
     try{ (typeof requestEvaluate==='function'?requestEvaluate(true):doEvaluate()); }catch(e){ evalSetBusy(false); }
+    setTimeout(function(){ window.__linkFill=false; },50);
   };
   // трейты подгружаются асинхронно — ждём селекты, максимум 2.5с
   let tries=0; (function wait(){ const sel=document.getElementById('e_rmodel');
@@ -3244,6 +3253,7 @@ async function parseGiftLink(){
     setTimeout(wait,100); })();
 }
 function pickGift(prefix, id){
+  try{ manualBreakLink(); }catch(e){}
   const hid=document.getElementById(prefix+'col'); if(hid) hid.value=id;
   const grid=document.getElementById(prefix+'grid');
   if(grid) grid.querySelectorAll('.gift-tile').forEach(b=>{ const on=b.dataset.id===id; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on?'true':'false'); });
@@ -4327,7 +4337,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.4';
+const APP_VERSION='7.5';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -4355,7 +4365,13 @@ function uiConfirm(msg, onYes){ const ru=S.lang==='ru';
   sc.onclick=function(e){ if(e.target===sc) close(); };
   document.getElementById('uiCfNo').onclick=close;
   document.getElementById('uiCfYes').onclick=function(){ close(); onYes(); }; }
-function resetData(){ const msg=t('stResetConfirm'); const go=function(){ try{ localStorage.removeItem('monet'); }catch(e){} try{ location.reload(); }catch(e){} };
+function resetData(){ const msg=t('stResetConfirm'); const go=function(){
+  try{
+    const keep={};   // лимиты и серверная личность переживают сброс — иначе «Сбросить данные» = бесплатный обход квоты
+    try{ if(S.ws) keep.ws=S.ws; if(S.dail) keep.dail=S.dail; if(S.lang) keep.lang=S.lang; }catch(e){}
+    localStorage.setItem('monet', JSON.stringify(keep));
+  }catch(e){ try{ localStorage.removeItem('monet'); }catch(_){} }
+  try{ location.reload(); }catch(e){} };
   const confirmThenGo=function(){ try{ if(tg&&tg.showConfirm){ tg.showConfirm(msg,function(ok){ if(ok) go(); }); return; } }catch(e){} uiConfirm(msg, go); };
   if(window.LOCK && LOCK.has()){ LOCK.verify(confirmThenGo); } else { confirmThenGo(); } }
 function syncSettings(){ try{
@@ -4943,7 +4959,7 @@ async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&
   try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):''); const r=await fetch(u,{method:'POST',body:JSON.stringify(Object.assign({initData:initData, ws:(ws||undefined), dev:(dev||undefined)},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
 function openWhalePanel(){ if(entPlan()!=='whale'){ try{ openPaywall('whale','panel'); }catch(e){} return; } renderWhalePanel(); msOverlay().classList.add('open'); }
 async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
-  el.innerHTML='<div class="ms-sheet"><div class="ms-h"><div><div class="ms-eyebrow">Whale · Phase 2</div><div class="ms-title">'+(ru?'Инструменты Whale':'Whale tools')+'</div></div><button class="ms-x" aria-label="Закрыть" onclick="closePricing()">✕</button></div>'+
+  el.innerHTML='<div class="ms-sheet"><div class="ms-h"><div><div class="ms-eyebrow">Whale · '+(ru?'ранний доступ':'early access')+'</div><div class="ms-title">'+(ru?'Инструменты Whale':'Whale tools')+'</div></div><button class="ms-x" aria-label="Закрыть" onclick="closePricing()">✕</button></div>'+
     '<div class="ms-promo"><div class="ms-invite-t">'+(ru?'Оценщик каналов':'Channel appraiser')+'</div>'+
       '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">'+
         '<input id="chSubs" inputmode="numeric" placeholder="'+(ru?'Подписчиков':'Subscribers')+'" style="flex:1;min-width:120px;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:700">'+
@@ -5138,7 +5154,7 @@ function paywallCopy(reason, ru){
     alerts:{p:'plus', t:ru?'Алерты доступны с Plus':'Alerts require Plus', b:ru?'Plus присылает алерты об изменении floor и при достижении вашей цены.':'Plus sends floor-change and price-target alerts.'},
     smart_signals:{p:'pro', t:ru?'Smart Signals — функция Pro':'Smart Signals is a Pro feature', b:ru?'Pro находит листинги ниже справедливой цены Monet и считает Monet Score.':'Pro finds listings below Monet fair value and computes Monet Score.'},
     pro_on_plus:{p:'pro', t:ru?'Это функция Pro':'This is a Pro feature', b:ru?'Обновитесь до Pro, чтобы разблокировать.':'Upgrade to Pro to unlock.'},
-    whale:{p:'whale', t:ru?'Скоро — тариф Whale':'Coming soon — Whale', b:ru?'Оценка юзернеймов, +888 номеров и каналов появится в тарифе Whale (Phase 2). Сейчас доступны Telegram Gifts.':'Usernames, +888 numbers and channels arrive with Whale (Phase 2). Telegram Gifts are available now.'},
+    whale:{p:'whale', t:ru?'Whale — ранний доступ':'Whale — early access', b:ru?'Юзернеймы, +888 и каналы уже работают в Whale. Доступ выдаётся по инвайт-коду — если он у тебя есть, активируй его на экране тарифов.':'Usernames, +888 and channels are live in Whale. Access is invite-only — got a code? Redeem it on the plans screen.'},
     export:{p:'pro', t:ru?'Экспорт — функция Pro':'Export is a Pro feature', b:ru?'Pro позволяет выгрузить портфель в CSV.':'Pro lets you export your portfolio to CSV.'},
     rate:{p:'pro', t:ru?'Слишком часто':'Too many requests', b:ru?'Короткая пауза для защиты сервиса. Попробуйте через минуту.':'Brief cool-down to protect the service. Try again in a minute.'}
   };
@@ -5267,7 +5283,9 @@ function bulkAddAll(){
   const ru=S.lang==='ru'; const ok=BULK_ITEMS.filter(function(x){ return x.ok; });
   let n=0;
   ok.forEach(function(x){
-    try{ if(window.PF){ PF.addAsset({cat:'gifts', display:x.display, priceTON:x.price, qty:1,
+    try{ if(window.PF){
+      const hh=(S.history||[]).find(function(h){ return h&&h.display===x.display&&!h.isHeuristic&&h.priceTON>0; });   // если предмет уже оценён — используем ту же стоимость
+      PF.addAsset({cat:'gifts', display:x.display, priceTON:(hh?hh.priceTON:x.price), qty:1,
       model:x.model||undefined, backdrop:x.backdrop||undefined, num:x.num||undefined, silent:true}); n++; } }catch(e){}
   });
   try{ track('bulk_added', String(n)); }catch(e){}
@@ -5710,7 +5728,11 @@ window.MK = (function(){
     const eb=document.getElementById('mkt-eyebrow'); if(eb) eb.textContent=(cat==='gifts'?t('mktEbGifts'):cat==='usernames'?t('mktEbU'):t('mktEbN'));
     const mi=document.getElementById('mk-index'); if(mi) mi.innerHTML=(cat==='gifts')?indexHTML():'';
     const L=list();
-    const lc=document.getElementById('mk-listcount'); if(lc) lc.textContent=L.length+' '+(cat==='gifts'?t('mkColls'):t('mkPositions'));
+    const lc=document.getElementById('mk-listcount'); if(lc){
+      const plRu=(n,f)=>{ const a=Math.abs(n)%100, b=a%10; return (a>10&&a<20)?f[2]:(b>1&&b<5)?f[1]:(b===1)?f[0]:f[2]; };
+      const word=(S.lang==='ru') ? (cat==='gifts'?plRu(L.length,['коллекция','коллекции','коллекций']):plRu(L.length,['позиция','позиции','позиций']))
+                                 : (cat==='gifts'?t('mkColls'):t('mkPositions'));
+      lc.textContent=L.length+' '+word; }
     const sl=document.getElementById('mk-sortlbl'); if(sl) sl.textContent=t(SORTLBL[sortKey]||'sortCap');
     const demo=(typeof FLOORS_SRC!=='undefined' && FLOORS_SRC==='demo');
     const mb=document.getElementById('mk-demobanner');
@@ -6038,7 +6060,7 @@ window.PF = (function(){
         '<div class="topline"><div><div class="lbl">'+t('pfTotal')+'</div>'+(hidden?'':'<div class="pf-tier">'+tierBadge(tier.idx)+' '+tier.name+'</div>')+'</div>'+
           '<div class="pf-acts">'+
             '<button class="pf-eye" onclick="BANK.openCard()" aria-label="Моя статус-карта"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 9.5h19"/></svg></button>'+
-            '<button class="pf-eye" onclick="PF.toggleHide()" aria-label="hide">'+eyeIcon+'</button>'+
+            '<button class="pf-eye" onclick="PF.toggleHide()" aria-label="'+(S.lang==='ru'?'Скрыть баланс':'Hide balance')+'">'+eyeIcon+'</button>'+
           '</div></div>'+
         '<div class="tot">'+(hidden
             ? '<span class="pf-masked">••••••</span> <span style="font-size:.5em;font-weight:700;opacity:.85">GRAM</span>'
@@ -6234,7 +6256,7 @@ window.PF = (function(){
       toast(S.lang==='ru'?'Укажите цену продажи':'Enter a sale price'); return; }   // мусор/0 не пишем в журнал
     const q=Math.max(1,Math.min(h.qty||1,sellQty||1));
     const v=Math.round(unit*q);
-    const basis=Math.round((h.buy!=null?h.buy:h.priceTON||0)*q);
+    const basis=(h.buy!=null)?Math.round(h.buy*q):null;   // себестоимость только фактическая — оценка не является ценой покупки
     S.cash=(S.cash||0)+v;
     if(!Array.isArray(S.realized))S.realized=[];
     S.realized.unshift({display:h.display,cat:h.cat,sold:v,basis:basis,qty:q,ts:Date.now()});
@@ -6299,13 +6321,18 @@ window.PF = (function(){
     snapshot(); save(); pfTouch(); closeAdd(); render(); }
   function openJournal(){ const box=document.getElementById('jr-sheet'); if(!box) return; const ru=S.lang==='ru';
     const head='<div class="mk-sheet-h"><div class="ic"><svg class="mi" viewBox="0 0 24 24"><path d="M5 4h13a1 1 0 0 1 1 1v15H7a2 2 0 0 1-2-2z"/><path d="M9 8h7M9 12h7"/></svg></div><div class="nm"><b>'+t('jrTitle')+'</b><span>'+t('pfFromSales')+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="PF.closeJournal()">✕</button></div>';
-    const tr=(S.realized||[]).map(r=>{ const b=(r.basis!=null?r.basis:r.est||0); return {d:r.display,c:r.cat,sold:r.sold||0,basis:b,ts:r.ts,pl:(r.sold||0)-b,ret:b>0?((r.sold||0)-b)/b*100:0}; });
+    const tr=(S.realized||[]).map(r=>{ const hasB=(r.basis!=null); const b=hasB?r.basis:0;
+      return {d:r.display,c:r.cat,sold:r.sold||0,basis:b,hasB:hasB,ts:r.ts,pl:hasB?((r.sold||0)-b):null,ret:(hasB&&b>0)?((r.sold||0)-b)/b*100:null}; });
     if(!tr.length){ box.innerHTML=head+'<div class="al-empty">'+t('jrEmpty')+'</div>'+'<button class="btn" style="margin:12px 2px 4px" onclick="PF.closeJournal();setView(\'portfolio\')">'+(ru?'+ Добавить продажу':'+ Add a sale')+'</button>'; document.getElementById('jr-scrim').classList.add('open'); return; }
-    const n=tr.length; const wins=tr.filter(x=>x.pl>0).length; const winrate=wins/n*100;
-    const realized=Math.round(tr.reduce((s,x)=>s+x.pl,0)); const vol=Math.round(tr.reduce((s,x)=>s+x.sold,0));
-    const avg=tr.reduce((s,x)=>s+x.ret,0)/n; const best=tr.slice().sort((a,b)=>b.pl-a.pl)[0]; const rc=realized>=0?'var(--up)':'var(--down)'; const ac=avg>=0?'var(--up)':'var(--down)';
+    const n=tr.length; const withB=tr.filter(x=>x.hasB);   // метрики только по сделкам с реальной себестоимостью
+    const wins=withB.filter(x=>x.pl>0).length; const winrate=withB.length?wins/withB.length*100:0;
+    const realized=Math.round(withB.reduce((s,x)=>s+x.pl,0)); const vol=Math.round(tr.reduce((s,x)=>s+x.sold,0));
+    const avg=withB.length?withB.reduce((s,x)=>s+x.ret,0)/withB.length:0;
+    const best=withB.slice().sort((a,b)=>b.pl-a.pl)[0]||null; const rc=realized>=0?'var(--up)':'var(--down)'; const ac=avg>=0?'var(--up)':'var(--down)';
     const stat=(k,v,c,s)=>'<div class="pf-bcard"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div>'+(s?'<div class="s" style="color:var(--txt-3)">'+s+'</div>':'')+'</div>';
-    const rows=tr.map(r=>{ const dt=new Date(r.ts).toLocaleDateString(ru?'ru-RU':'en-US',{day:'numeric',month:'short'}); const pc=r.pl>=0?'var(--up)':'var(--down)';
+    const rows=tr.map(r=>{ const dt=new Date(r.ts).toLocaleDateString(ru?'ru-RU':'en-US',{day:'numeric',month:'short'});
+      if(!r.hasB){ return '<div class="mc-item"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:15px">'+catIcon(r.c)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(r.d)+'</div><div class="mc-sub">'+dt+' · '+grp(r.sold)+' GRAM</div></div><div class="mc-right"><div class="mc-price" style="color:var(--txt-3)">—</div><div style="font-size:10px;color:var(--txt-3)">'+(ru?'нет цены покупки':'no cost basis')+'</div></div></div>'; }
+      const pc=r.pl>=0?'var(--up)':'var(--down)';
       return '<div class="mc-item"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:15px">'+catIcon(r.c)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(r.d)+'</div><div class="mc-sub">'+dt+' · '+grp(r.sold)+' GRAM</div></div><div class="mc-right"><div class="mc-price" style="color:'+pc+'">'+(r.pl>=0?'+':'')+grp(Math.round(r.pl))+'</div><div style="font-size:11px;font-weight:700;color:'+pc+'">'+(r.ret>=0?'+':'')+r.ret.toFixed(0)+'%</div></div></div>'; }).join('');
     box.innerHTML=head+
       '<div class="pf-bankrow" style="margin-top:6px">'+stat(t('pfRealized'),(realized>=0?'+':'')+grp(realized)+' GRAM',rc)+stat(t('jrWin'),winrate.toFixed(0)+'%')+'</div>'+
@@ -6515,14 +6542,14 @@ window.BANK = (function(){
     return n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:dp}).replace(/,/g,' '); }
   function convSheetHTML(){ const f=curInfo(cvFrom), tc=curInfo(cvTo); const rate=fxRate(cvFrom,cvTo);
     const out=cvAmt*rate;
-    const curBtn=(side,info,code)=>'<button class="wz-cur" onclick="BANK.pick(\''+side+'\')"><span class="fl">'+curIcon(info.c,info.fl)+'</span><b>'+code.toUpperCase()+'</b><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>';
+    const curBtn=(side,info,code)=>'<button class="wz-cur" onclick="BANK.pick(\''+side+'\')"><span class="fl">'+curIcon(info.c,info.fl)+'</span><b>'+(code==='ton'?'GRAM':code.toUpperCase())+'</b><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>';
     return '<div class="cv-page">'+
-      '<div class="cv-head"><button class="cv-back" onclick="goHome()" aria-label="back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>'+t('cvTitle')+'</h2></div>'+
+      '<div class="cv-head"><button class="cv-back" onclick="goHome()" aria-label="'+(S.lang==='ru'?'Назад':'Back')+'"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><h2>'+t('cvTitle')+'</h2></div>'+
       '<div class="cv-seg"><button class="'+(cvMode==='ton'?'on':'')+'" onclick="BANK.setConvMode(\'ton\')"><svg class="mi" viewBox="0 0 24 24"><path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3 6 9l6 12 6-12-3-6"/></svg> GRAM</button><button class="'+(cvMode==='all'?'on':'')+'" onclick="BANK.setConvMode(\'all\')">'+t('cvAll')+'</button></div>'+
       '<div class="wz">'+
         '<div class="wz-rate-card"><div class="sheen"></div><div class="ml">'+t('cvMid')+'</div><div class="rt" id="cv-rate"></div></div>'+
         '<div class="wz-lbl">'+t('cvAmount')+'</div>'+
-        '<div class="wz-row primary"><input class="wz-amt" id="cv-a" inputmode="decimal" aria-label="'+t('ariaAmtGram')+'" value="'+(cvAmt||'')+'" oninput="BANK.calc(\'from\')">'+
+        '<div class="wz-row primary"><input class="wz-amt" id="cv-a" inputmode="decimal" aria-label="'+(S.lang==='ru'?'Сумма, ':'Amount, ')+(cvFrom==='ton'?'GRAM':cvFrom.toUpperCase())+'" value="'+(cvAmt||'')+'" oninput="BANK.calc(\'from\')">'+
           (cvMode==='ton'?'<div class="wz-cur locked"><span class="fl">'+curIcon('ton','💎')+'</span><b>GRAM</b></div>':curBtn('from',f,cvFrom))+'</div>'+
         '<div class="wz-swapwrap"><button class="wz-swap" aria-label="'+t('cvSwap')+'" onclick="BANK.cvSwap()" title="'+t('cvSwap')+'"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4 4 7.5M7 4l3 3.5M17 20V4M17 20l3-3.5M17 20l-3-3.5"/></svg></button></div>'+
         '<div class="wz-lbl">'+t('cvConverted')+'</div>'+
@@ -6543,7 +6570,7 @@ window.BANK = (function(){
     else { const cl=(bEl.value||'').replace(/[^\d.]/g,''); if(bEl.value!==cl) bEl.value=cl; const b=parseFloat(cl)||0; cvAmt=r?b/r:0; aEl.value=fmtNum(cvAmt); }
     updRate(); }
   function cvSwap(){ const tmp=cvFrom; cvFrom=cvTo; cvTo=tmp;
-    const r=fxRate(tmp,cvFrom); cvAmt=cvAmt*r; // keep the "from" displayed amount as the previous result
+    const r=fxRate(tmp,cvFrom); cvAmt=Math.round(cvAmt*r*10000)/10000; // прежний результат становится суммой, без плавающих хвостов
     renderConv();
     if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.selectionChanged();}catch(e){}} }
   function pick(field){ cvField=field; renderCurList(''); const p=document.getElementById('cv-pick'); if(p)p.classList.add('on'); const s=document.getElementById('cv-search'); if(s){s.value='';s.focus&&s.focus();} }
