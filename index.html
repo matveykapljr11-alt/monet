@@ -3121,7 +3121,7 @@ function inputHTML(cat, idp){
       '<div class="link-hero-t">'+(S.lang==='ru'?'Точная оценка по живому рынку':'A precise live-market appraisal')+'</div>'+
       '<div class="link-hero-s">'+(S.lang==='ru'?'Вставь ссылку на подарок — цена, диапазон и уверенность по рыночным данным: листинги, floor и подтверждённые продажи':'Paste a gift link — price, range and confidence from market data: listings, floor and confirmed sales')+'</div>'+
       '<div class="link-row"><svg class="mi" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'+
-        '<input id="e_link" aria-label="'+(S.lang==='ru'?'Ссылка на NFT':'NFT link')+'" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="'+t('linkPh')+'" oninput="onLinkInput()" onkeydown="if(event.key===\'Enter\')parseGiftLink()">'+
+        '<input id="e_link" aria-label="'+(S.lang==='ru'?'Ссылка на NFT':'NFT link')+'" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="'+t('linkPh')+'" oninput="onLinkInput()" onchange="onLinkInput()" onsearch="onLinkInput()" onpaste="setTimeout(onLinkInput,0)" onkeyup="onLinkInput()" onkeydown="if(event.key===\'Enter\')parseGiftLink()">'+
         '<button type="button" id="e_linkBtn" onclick="parseGiftLink()">'+t('linkGo')+'</button></div>'+
       '<div class="link-msg" id="e_linkMsg"></div>'+
     '</div>' : '';
@@ -3201,10 +3201,11 @@ function manualBreakLink(){ // юзер правит форму руками -> 
   const m=document.getElementById('e_linkMsg'); if(m) m.textContent='';
 }
 function onLinkInput(){ const el=document.getElementById('e_link'), b=document.getElementById('e_linkBtn'), m=document.getElementById('e_linkMsg');
-  if(!el||!b) return; const v=(el.value||'').trim(); const ok=/t\.me\/nft\/[A-Za-z0-9_]+-\d+|^[A-Za-z0-9_]+-\d+$/.test(v);
+  if(!el||!b) return; const v=(el.value||'').trim();
+  if(v===''){ b.disabled=true; if(m) m.textContent=''; return; }   // пустое поле — никакой ошибки
+  const ok=/t\.me\/nft\/[A-Za-z0-9_]+-\d+|^[A-Za-z0-9_]+-\d+$/.test(v);
   b.disabled=!ok;
-  if(m){ if(!v) m.textContent='';
-    else if(!ok){ m.style.color='var(--warn)'; m.textContent=t('linkBad'); }
+  if(m){ if(!ok){ m.style.color='var(--warn)'; m.textContent=t('linkBad'); }
     else if(/Формат:|Format:/.test(m.textContent||'')) m.textContent=''; } }
 function setSelByName(id, name){ const sel=document.getElementById(id); if(!sel||!name) return false;
   const want=String(name).toLowerCase().trim();
@@ -4350,7 +4351,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.5.1';
+const APP_VERSION='7.5.2';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
