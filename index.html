@@ -2024,7 +2024,7 @@ const APP_LINK = 'https://t.me/monetnft_bot';   // deep link back to the bot/Min
 const RATE = { usd: 1.76, eur: 1.63 };           // GRAM -> fiat (calibrated May 2026; refreshed at runtime)
 let RATE_SRC='default';                          // default | server | live — чтобы не затирать лучший источник худшим
 const STAR_USD = 0.013;                          // legacy USD/Star (unused)
-let STARS_PER_TON = 200;                          // Telegram Fragment peg: 200 Stars = 1 GRAM (override via proxy ?floors -> starsPerTon)
+let STARS_PER_TON = 105;                          // ~курс TON/цена звезды; сервер присылает точный пег в ?floors -> starsPerTon
 // ====== PREMIUM PRICING — edit prices here (Telegram Stars). Annual is cheaper per month. ======
 const PROMO_CODES = { '777': 0.95 };   // код -> скидка
 let promoDisc=0, promoCode='';
@@ -4351,7 +4351,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.5.2';
+const APP_VERSION='7.5.3';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
