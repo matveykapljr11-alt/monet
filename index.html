@@ -2346,7 +2346,7 @@ I18N.ru.stLegal='Документы'; I18N.en.stLegal='Legal';
 I18N.ru.linkPh='Вставь ссылку на подарок'; I18N.en.linkPh='Paste a gift link';
 I18N.ru.linkGo='Оценить'; I18N.en.linkGo='Value it';
 I18N.ru.linkParsing='Читаю подарок…'; I18N.en.linkParsing='Reading the gift…';
-I18N.ru.linkBad='Не похоже на ссылку t.me/nft/…'; I18N.en.linkBad='Not a t.me/nft/… link';
+I18N.ru.linkBad='Не похоже на ссылку. Формат: t.me/nft/Название-номер'; I18N.en.linkBad='Not a valid link. Format: t.me/nft/Name-number';
 I18N.ru.linkFail='Не удалось прочитать подарок — выбери вручную'; I18N.en.linkFail='Couldn\u2019t read the gift — pick manually';
 I18N.ru.linkFloorOnly='Оценка по флору · трейты уточни вручную'; I18N.en.linkFloorOnly='Floor-based · set traits manually';
 I18N.ru.linkNoCol='Коллекции нет в каталоге — выбери вручную ниже'; I18N.en.linkNoCol='Collection not in catalogue — pick it below';
@@ -3201,8 +3201,11 @@ function manualBreakLink(){ // юзер правит форму руками -> 
   const m=document.getElementById('e_linkMsg'); if(m) m.textContent='';
 }
 function onLinkInput(){ const el=document.getElementById('e_link'), b=document.getElementById('e_linkBtn'), m=document.getElementById('e_linkMsg');
-  if(!el||!b) return; const ok=/t\.me\/nft\/[A-Za-z0-9_]+-\d+|^[A-Za-z0-9_]+-\d+$/.test((el.value||'').trim());
-  b.disabled=!ok; if(m&&!(el.value||'').trim()) m.textContent=''; }
+  if(!el||!b) return; const v=(el.value||'').trim(); const ok=/t\.me\/nft\/[A-Za-z0-9_]+-\d+|^[A-Za-z0-9_]+-\d+$/.test(v);
+  b.disabled=!ok;
+  if(m){ if(!v) m.textContent='';
+    else if(!ok){ m.style.color='var(--warn)'; m.textContent=t('linkBad'); }
+    else if(/Формат:|Format:/.test(m.textContent||'')) m.textContent=''; } }
 function setSelByName(id, name){ const sel=document.getElementById(id); if(!sel||!name) return false;
   const want=String(name).toLowerCase().trim();
   for(let i=0;i<sel.options.length;i++){ const n=(sel.options[i].getAttribute('data-name')||'').toLowerCase().trim();
@@ -3217,6 +3220,7 @@ async function parseGiftLink(){
   const mm=v.match(/(?:t\.me\/nft\/)?([A-Za-z0-9_]+)-(\d+)/);
   try{ track('link_submitted'); }catch(e){}
   if(!mm){ if(msg){ msg.style.color='var(--down)'; msg.textContent=t('linkBad'); } try{ track('evaluation_failed','badlink'); }catch(e){} return; }
+  if(freeLimitBlock()) return;
   if(EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }
   evalSetBusy(true);   // блокируем оба входа СРАЗУ, до async-парсинга ссылки
   try{ const rz=document.getElementById('result'); if(rz) rz.innerHTML='<div class="eval-invalid" style="opacity:.8;text-align:center">'+(S.lang==='ru'?'Оцениваем…':'Appraising…')+'</div>'; }catch(e){}   // гасим старую карточку немедленно
@@ -3526,7 +3530,16 @@ try{ // P0: миграция legacy-оценок Usernames/+888 — деньги
     h.isHeuristic=true; h.heuristicScore=Math.round(priceToScore(Math.max(1,+h.priceTON||1))); h.priceTON=0; mig=true; } });
   if(mig) save();
 }catch(e){}
+function freeLimitBlock(){ // явное сообщение при исчерпанном лимите — вместо тихого отказа
+  try{
+    if(entPlan()!=='free') return false;
+    const rem=entRemaining();
+    if(rem===0){ try{ openPaywall('no_balance','evaluate'); }catch(e){ toast(S.lang==='ru'?'Бесплатные оценки закончились — смотри тарифы.':'Out of free appraisals — see plans.'); } return true; }
+  }catch(e){}
+  return false;
+}
 async function requestEvaluate(fromPipeline){
+  if(!fromPipeline && freeLimitBlock()) return;
   if(!fromPipeline && EVAL_BUSY){ try{ toast(S.lang==='ru'?'Идёт оценка — подождите…':'Appraisal in progress…'); }catch(e){} return; }   // сериализация: один расчёт за раз
   if(!fromPipeline && curCat==='gifts'){   // P0: если поле ссылки заполнено — любая кнопка оценивает именно ссылку, а не ручной выбор
     try{ const lv=((document.getElementById('e_link')||{}).value||'').trim();
@@ -4337,7 +4350,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.5';
+const APP_VERSION='7.5.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5237,8 +5250,10 @@ async function bulkRun(){
       const slug=(d&&d.ok?d.slug:L.name.toLowerCase().replace(/[^a-z0-9]/g,''));
       const col=(COLLECTIONS.gifts||[]).find(function(c){ return (c.slug||String(c.n).toLowerCase().replace(/[^a-z0-9]/g,''))===slug; });
       if(!col) return { bad:true, name:L.name+' #'+L.num, why:(ru?'нет в каталоге':'not in catalogue') };
-      const price=bulkPrice(col, d);
-      return { ok:true, col:col, num:L.num, display:col.n+' #'+L.num,
+      const _disp=col.n+' #'+L.num;
+      const _hh=(S.history||[]).find(function(h){ return h&&h.display===_disp&&!h.isHeuristic&&h.priceTON>0; });
+      const price=_hh?_hh.priceTON:bulkPrice(col, d);   // уже оценивали — превью и добавление показывают ту же стоимость
+      return { ok:true, col:col, num:L.num, display:_disp,
                model:(d&&d.model)||'', backdrop:(d&&d.backdrop)||'', symbol:(d&&d.symbol)||'', price:price };
     }));
     BULK_ITEMS=BULK_ITEMS.concat(got);
@@ -6335,8 +6350,12 @@ window.PF = (function(){
       const pc=r.pl>=0?'var(--up)':'var(--down)';
       return '<div class="mc-item"><div class="mc-ic" style="background:var(--bg2);display:grid;place-items:center;font-size:15px">'+catIcon(r.c)+'</div><div class="mc-main"><div class="mc-name">'+escapeHTML(r.d)+'</div><div class="mc-sub">'+dt+' · '+grp(r.sold)+' GRAM</div></div><div class="mc-right"><div class="mc-price" style="color:'+pc+'">'+(r.pl>=0?'+':'')+grp(Math.round(r.pl))+'</div><div style="font-size:11px;font-weight:700;color:'+pc+'">'+(r.ret>=0?'+':'')+r.ret.toFixed(0)+'%</div></div></div>'; }).join('');
     box.innerHTML=head+
-      '<div class="pf-bankrow" style="margin-top:6px">'+stat(t('pfRealized'),(realized>=0?'+':'')+grp(realized)+' GRAM',rc)+stat(t('jrWin'),winrate.toFixed(0)+'%')+'</div>'+
-      '<div class="pf-bankrow">'+stat(t('jrTrades'),''+n)+stat(t('jrAvg'),(avg>=0?'+':'')+avg.toFixed(0)+'%',ac)+'</div>'+
+      (withB.length
+        ? '<div class="pf-bankrow" style="margin-top:6px">'+stat(t('pfRealized'),(realized>=0?'+':'')+grp(realized)+' GRAM',rc)+stat(t('jrWin'),winrate.toFixed(0)+'%')+'</div>'+
+          '<div class="pf-bankrow">'+stat(t('jrTrades'),''+n)+stat(t('jrAvg'),(avg>=0?'+':'')+avg.toFixed(0)+'%',ac)+'</div>'
+        : '<div class="pf-bankrow" style="margin-top:6px">'+stat(t('pfRealized'),'—')+stat(t('jrWin'),'—')+'</div>'+
+          '<div class="pf-bankrow">'+stat(t('jrTrades'),''+n)+stat(t('jrAvg'),'—')+'</div>'+
+          '<div style="font-size:11px;color:var(--txt-3);margin:4px 2px 6px">'+(ru?'Нет сделок с указанной ценой покупки':'No trades with a known cost basis')+'</div>')+
       (best&&best.pl>0?'<div class="pf-selln" style="margin:12px 2px 8px">'+t('jrBest')+': <b>'+escapeHTML(best.d)+'</b> · <span style="color:var(--up)">+'+grp(Math.round(best.pl))+' GRAM ('+best.ret.toFixed(0)+'%)</span></div>':'')+
       '<div class="mc-ledger">'+rows+'</div>';
     document.getElementById('jr-scrim').classList.add('open'); }
