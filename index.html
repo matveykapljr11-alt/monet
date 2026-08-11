@@ -4351,7 +4351,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.5.4';
+const APP_VERSION='7.5.5';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -6897,7 +6897,7 @@ window.ADMIN=(function(){
         (function(){ const fld=(lab,inner)=>'<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt-3)">'+lab+'</span>'+inner+'</div>';
         const inp='padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700';
         return '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">'+
-          fld('Код (буквы/цифры/_)', '<input id="mpCode" placeholder="MONET_VIP" style="'+inp+';font-weight:800;text-transform:uppercase;min-width:150px">')+
+          fld('Код (буквы/цифры/_)', '<div style="display:flex;gap:6px"><input id="mpCode" placeholder="MONET_VIP" style="'+inp+';font-weight:800;text-transform:uppercase;min-width:120px"><button type="button" title="Сгенерировать" style="border:1px solid var(--line);background:var(--surface-2);color:var(--txt);border-radius:10px;padding:0 12px;cursor:pointer;font-size:15px" onclick="ADMIN.msGenCode()">🎲</button></div>')+
           fld('Тариф', '<select id="mpTier" style="'+inp+'"><option value="plus">Plus</option><option value="pro">Pro</option><option value="whale">Whale</option></select>')+
           fld('Дней подписки', '<input id="mpDays" type="number" value="30" style="'+inp+';width:90px">')+
           fld('Лимит активаций', '<input id="mpMax" type="number" value="10" style="'+inp+';width:110px">')+
@@ -6935,12 +6935,16 @@ window.ADMIN=(function(){
   async function msGrant(n){ const uid=msTargetVal(); if(!uid) return; await msCall({action:'grant',target:uid,n:n}); msLookup(); }
   async function msActivate(plan){ const uid=msTargetVal(); if(!uid) return; await msCall({action:'activate',target:uid,plan:plan}); msLookup(); }
   async function msClearCool(){ const uid=msTargetVal(); if(!uid) return; await msCall({action:'clearcool',target:uid}); msLookup(); }
+  function msGenCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let c='';
+    for(let i=0;i<6;i++) c+=A[Math.floor(Math.random()*A.length)];
+    const el=document.getElementById('mpCode'); if(el) el.value='MNT'+c; }
   async function msPromoCreate(){ const out=document.getElementById('mpOut'); const code=(document.getElementById('mpCode')||{}).value||''; const plan=(document.getElementById('mpTier')||{}).value||'plus'; const days=(document.getElementById('mpDays')||{}).value||30; const max=(document.getElementById('mpMax')||{}).value||10;
     if(!code){ if(out) out.textContent='Укажи код'; return; } if(out) out.textContent='…';
     const d=await msCall({action:'promo_create', code:code, plan:plan, days:Number(days), max:Number(max)});
     if(d&&d.ok&&d.promo){ if(out){ out.style.color='var(--good)'; out.textContent='✓ '+d.promo.code+' · '+d.promo.tier.toUpperCase()+' · '+d.promo.duration_days+'д · лимит '+d.promo.max_activations; } }
+    else if(d&&d.error==='code_exists'){ if(out){ out.style.color='var(--warn)'; out.textContent='Код уже существует и активен ('+(d.used||0)+'/'+(d.max||0)+', '+String(d.tier||'').toUpperCase()+'). Пересоздать можно после исчерпания или отключения.'; } }
     else { if(out){ out.style.color='var(--bad)'; out.textContent='Ошибка: '+((d&&d.error)||'нет доступа'); } } }
-  return {init,render,isAdmin, msLookup, msGrant, msActivate, msClearCool, msPromoCreate, exportStats};
+  return {init,render,isAdmin, msLookup, msGrant, msActivate, msClearCool, msPromoCreate, msGenCode, exportStats};
 })();
 function initTelegram(){
   if(!tg) return;
