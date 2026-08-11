@@ -4351,7 +4351,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.5.3';
+const APP_VERSION='7.5.4';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -6064,7 +6064,7 @@ window.PF = (function(){
     const _cap=(typeof entCap==='function'?entCap():99999);
     const rows=__idx.map(({h,i})=>{ const ro=(i>=_cap); const p=(ro?(h.priceTON||0):curPrice(h))*(h.qty||1); const d=ro?0:ch24(h); const u=d>=0;
       return '<div class="pf-item'+(ro?' pf-ro':'')+'"><div class="ic">'+picHTML(h)+'</div>'+
-        '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+(ro?'<span title="read-only" style="opacity:.7">🔒 </span>':'')+escapeHTML(h.display)+'</b><span>'+(function(){ const ru=S.lang==='ru'; const q=h.qty||1; const parts=[]; if(q>1) parts.push(q+' '+(ru?'шт':'pcs')); if(h.buy!=null&&h.buy>0){ const pnl=(curPrice(h)-h.buy)*q; const pct=(curPrice(h)-h.buy)/h.buy*100; const c=pnl>=0?'var(--up)':'var(--down)'; parts.push((ru?'вход ':'in ')+grp(h.buy)); parts.push('<span style="color:'+c+'">'+(pnl>=0?'+':'−')+grp(Math.abs(Math.round(pnl)))+' ('+(pct>=0?'+':'')+pct.toFixed(0)+'%)</span>'); } if(!parts.length) parts.push(ru?'коллекция':'collection'); return parts.join(' · '); })()+'</span></div>'+
+        '<div class="mid" onclick="PF.details('+i+')" style="cursor:pointer"><b>'+(ro?'<span title="read-only" style="opacity:.7">🔒 </span>':'')+escapeHTML(h.display)+'</b><span>'+(function(){ const ru=S.lang==='ru'; const q=h.qty||1; const parts=[]; if(q>1) parts.push(q+' '+(ru?'шт':'pcs')+' × '+grp(ro?(h.priceTON||0):curPrice(h))); if(h.buy!=null&&h.buy>0){ const pnl=(curPrice(h)-h.buy)*q; const pct=(curPrice(h)-h.buy)/h.buy*100; const c=pnl>=0?'var(--up)':'var(--down)'; parts.push((ru?'вход ':'in ')+grp(h.buy)); parts.push('<span style="color:'+c+'">'+(pnl>=0?'+':'−')+grp(Math.abs(Math.round(pnl)))+' ('+(pct>=0?'+':'')+pct.toFixed(0)+'%)</span>'); } if(!parts.length) parts.push(ru?'коллекция':'collection'); return parts.join(' · '); })()+'</span></div>'+
         '<div class="pf-spkbox" onclick="PF.details('+i+')" style="cursor:pointer">'+rowSpark(h)+'</div>'+
         '<div class="rt" onclick="PF.details('+i+')" style="cursor:pointer"><div class="v">'+(hidden?'••••':grp(p))+' GRAM</div><div class="d '+(u?'up':'down')+'">'+(d?((d>=0?'▲ ':'▼ ')+Math.abs(d).toFixed(1)+'% · '+(S.lang==='ru'?'24ч':'24h')):'—')+'</div></div>'+
         '<div class="pf-rowacts"><button class="pf-sell" aria-label="'+t('pfEditTitle')+'" title="edit" onclick="PF.editOpen('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button><button class="pf-sell" aria-label="'+t('pfSell')+'" title="'+t('pfSell')+'" onclick="PF.sell('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/></svg></button><button class="del" aria-label="'+(S.lang==='ru'?'Удалить ':'Remove ')+escapeHTML(h.display)+'" onclick="PF.remove('+i+')">✕</button></div></div>'; }).join('');
@@ -6178,6 +6178,7 @@ window.PF = (function(){
     if(ex){
       if(unique){ toast(S.lang==='ru'?'Уже в портфеле — он уникален (1 из 1)':'Already in portfolio — it is 1-of-1'); return; }
       ex.qty=(ex.qty||1)+(a.qty||1);
+      a.__mergedQty=ex.qty; a.__mergedSum=Math.round((ex.priceTON||0)*ex.qty);
     } else {
       S.portfolio.push({id:a.id, cat, display:a.display, priceTON:Math.round(a.priceTON||0), buy:(a.buy!=null?Math.round(a.buy):null), qty:unique?1:(a.qty||1), ts:Date.now(), addedAt:a.addedAt||Date.now(), model:a.model||undefined, backdrop:a.backdrop||undefined, num:a.num||undefined, floorRef:(a.floorRef>0?Math.round(a.floorRef):undefined)});
     }
@@ -6185,7 +6186,8 @@ window.PF = (function(){
     snapshot(); save(); pfTouch(); if(window.BANK && !a.silent) window.BANK.award(5);
     if(!a.silent){
       if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.notificationOccurred('success');}catch(e){}}
-      toast(t('pfInPf')+' ✓');
+      if(a.__mergedQty){ toast(t('pfInPf')+' ✓ · '+a.__mergedQty+' '+(S.lang==='ru'?'шт, итого ':'pcs, total ')+grp(a.__mergedSum)+' GRAM'); }
+      else toast(t('pfInPf')+' ✓');
     }
     if(curView==='portfolio' && !a.silent) render();
     if(S.notify && typeof syncNotify==='function') syncNotify(false);
