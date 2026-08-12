@@ -4351,7 +4351,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.5.5';
+const APP_VERSION='7.6';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5046,8 +5046,8 @@ async function whaleWebhookSet(){ const ru=S.lang==='ru'; const url=(document.ge
 function fmtUntilMs(ms){ if(!ms) return '—'; try{ const d=new Date(ms); return d.toLocaleDateString(S.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return '—'; } }
 function msFeatureRows(ru){
   return [
-    [ru?'Оценки':'Appraisals', ru?'15/мес*':'15/mo*', '30/'+(ru?'дн':'d'), '500/'+(ru?'дн':'d'), '2000/'+(ru?'дн':'d')],
-    [ru?'Портфель, активов':'Portfolio assets', '3', '30', '500', '5000'],
+    [ru?'Оценки':'Appraisals', ru?'15/мес*':'15/mo*', '30/'+(ru?'дн':'d'), '150/'+(ru?'дн':'d'), '2000/'+(ru?'дн':'d')],
+    [ru?'Портфель, активов':'Portfolio assets', '3', '30', '300', '5000'],
     [ru?'История оценок':'History', ru?'3 записи':'3 entries', ru?'полная':'full', ru?'полная':'full', ru?'полная':'full'],
     [ru?'График портфеля':'Portfolio chart', '—', '✓', '✓', '✓'],
     [ru?'Алерты floor / цена':'Floor / price alerts', '—', '✓', '✓', '✓'],
@@ -5055,6 +5055,10 @@ function msFeatureRows(ru){
     [ru?'Monet Score':'Monet Score', '—', '—', '✓', '✓'],
     [ru?'Fast Sell / Optimum':'Fast Sell / Optimum', '—', '—', '✓', '✓'],
     [ru?'Экспорт CSV':'CSV export', '—', '—', '✓', '✓'],
+    [ru?'Юзернеймы и +888':'Usernames & +888', '—', '—', '—', '✓'],
+    [ru?'Оценка каналов':'Channel appraisal', '—', '—', '—', '✓'],
+    [ru?'Bulk-скан ссылок':'Bulk link scan', '—', '—', '—', '✓'],
+    [ru?'API 10k/мес + Webhooks':'API 10k/mo + Webhooks', '—', '—', '—', '✓'],
   ];
 }
 function msOverlay(){ let el=document.getElementById('msOverlay'); if(!el){ el=document.createElement('div'); el.id='msOverlay'; el.className='ms-scrim'; el.onclick=function(e){ if(e.target===el) closePricing(); }; document.body.appendChild(el); } return el; }
@@ -5074,7 +5078,7 @@ function renderPricing(highlight){
       : '<button class="ms-btn go'+(k==='pro'?' pro':'')+'" onclick="buyPlan(\''+k+'\')">'+(ru?'Оформить · ':'Get · ')+p.stars+' ⭐</button>';
     const feats = k==='plus'
       ? [ru?'30 оценок/день':'30 appraisals/day', ru?'Портфель 30 активов':'30-asset portfolio', ru?'Полная история + график':'Full history + chart', ru?'Алерты floor и цены':'Floor & price alerts']
-      : [ru?'500 оценок/день':'500 appraisals/day', ru?'Портфель 500 активов':'500-asset portfolio', ru?'Smart Signals + Monet Score':'Smart Signals + Monet Score', ru?'Fast Sell, Optimum, экспорт':'Fast Sell, Optimum, export'];
+      : [ru?'150 оценок/день':'150 appraisals/day', ru?'Портфель 300 активов':'300-asset portfolio', ru?'Smart Signals + Monet Score':'Smart Signals + Monet Score', ru?'Fast Sell, Optimum, экспорт':'Fast Sell, Optimum, export'];
     return '<div class="ms-card'+hl+'"><div class="ms-cn">'+p.name+'</div><div class="ms-price">'+p.stars+' <span>⭐ / 30'+(ru?'дн':'d')+'</span></div>'+
       '<ul class="ms-feats">'+feats.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'+btn+'</div>'; }).join('');
   const isWhale=(plan==='whale');
@@ -5163,7 +5167,7 @@ function paywallCopy(reason, ru){
     cooldown:{p:'', t:ru?'Небольшая пауза':'Short cooldown', b:ru?'Слишком много запросов подряд. Доступ восстановится через минуту.':'Too many requests in a row. Access returns in about a minute.'},
     limit_month:{p:'plus', t:ru?'Месячный лимит оценок исчерпан':'Monthly appraisal limit reached', b:ru?'На Free доступно 15 оценок в месяц. Plus — 30 оценок каждый день.':'Free includes 15 appraisals/month. Plus gives 30 every day.'},
     no_balance:{p:'plus', t:ru?'Оценки на сегодня закончились':'Out of appraisals for now', b:ru?'Новая оценка начислится в 00:00 UTC. Plus снимает дневной лимит до 30.':'A new appraisal accrues at 00:00 UTC. Plus raises the daily limit to 30.'},
-    limit_day:{p:'pro', t:ru?'Дневной лимит оценок исчерпан':'Daily appraisal limit reached', b:ru?'Лимит сбросится в 00:00 UTC. Pro — до 500 оценок в день.':'Resets at 00:00 UTC. Pro allows up to 500/day.'},
+    limit_day:{p:'pro', t:ru?'Дневной лимит оценок исчерпан':'Daily appraisal limit reached', b:ru?'Лимит сбросится в 00:00 UTC. Pro — до 150 оценок в день.':'Resets at 00:00 UTC. Pro allows up to 150/day.'},
     portfolio:{p:'plus', t:ru?'Портфель Free ограничен 3 активами':'Free portfolio is capped at 3', b:ru?'Plus — до 30 активов, Pro — до 500.':'Plus holds up to 30 assets, Pro up to 500.'},
     alerts:{p:'plus', t:ru?'Алерты доступны с Plus':'Alerts require Plus', b:ru?'Plus присылает алерты об изменении floor и при достижении вашей цены.':'Plus sends floor-change and price-target alerts.'},
     smart_signals:{p:'pro', t:ru?'Smart Signals — функция Pro':'Smart Signals is a Pro feature', b:ru?'Pro находит листинги ниже справедливой цены Monet и считает Monet Score.':'Pro finds listings below Monet fair value and computes Monet Score.'},
@@ -5408,7 +5412,7 @@ async function fetchEntitlement(){
 const MS_PLANS={
   free:{ name:'Free', stars:0, portfolio:3 },
   plus:{ name:'Plus', stars:449, days:30, portfolio:30, daily:30 },
-  pro:{ name:'Pro', stars:1499, days:30, portfolio:500, daily:500 },
+  pro:{ name:'Pro', stars:1499, days:30, portfolio:300, daily:150 },
   whale:{ name:'Whale', stars:3999, days:30, portfolio:5000, daily:2000, comingSoon:true }
 };
 function entPlan(){
