@@ -4351,7 +4351,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.7';
+const APP_VERSION='7.7.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5896,8 +5896,10 @@ window.MK = (function(){
       '<div class="mk-sp"><span class="p">'+fmtPrice(a.price)+'</span><span class="d" style="color:'+(up24?'var(--up)':'var(--down)')+'">'+fmtD(a.ch24)+' ('+(S.lang==='ru'?'24ч':'24h')+')</span>'+liveTag+'</div>'+
       '<div class="mk-ssub">'+(S.lang==='ru'?'7д':'7d')+': <b style="color:'+(a.ch7>=0?'var(--up)':'var(--down)')+'">'+fmtD(a.ch7)+'</b></div>'+
       '<div class="mk-chart">'+phChartHTML(PH_CACHE[slugify(a.name)+'|'+phRange], ser, a.ch7>=0)+'</div>'+
-      '<div class="mk-range">'+['24h','3d','7d','1m','3m','6m'].map(function(r){
-        return '<button class="'+(phRange===r?'on':'')+'" onclick="MK.setPHRange(\''+r+'\')">'+(S.lang==='ru'?({'24h':'24Ч','3d':'3Д','7d':'7Д','1m':'1М','3m':'3М','6m':'6М'})[r]:r.toUpperCase())+'</button>'; }).join('')+'</div>'+
+      (function(){ const j=PH_CACHE[slugify(a.name)+'|'+phRange];
+        const av=(j&&Array.isArray(j.avail)&&j.avail.length)?j.avail:['24h','3d','7d'];
+        return '<div class="mk-range">'+av.map(function(r){
+          return '<button class="'+(phRange===r?'on':'')+'" onclick="MK.setPHRange(\''+r+'\')">'+(S.lang==='ru'?({'24h':'24Ч','3d':'3Д','7d':'7Д','1m':'1М','3m':'3М','6m':'6М'})[r]:r.toUpperCase())+'</button>'; }).join('')+'</div>'; })()+
       '<div class="mk-kv">'+rows+'</div>'+
       (a.cat==='gifts'?'<div class="mk-lots" id="mk-lots"></div>':'')+
       posHTML(a)+
