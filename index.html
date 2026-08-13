@@ -4351,7 +4351,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='7.6';
+const APP_VERSION='7.7';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5777,7 +5777,8 @@ window.MK = (function(){
   function onSort(k){ sortKey=k; sortAsc=false; render(); }
 
   let sheetA=null, sheetRange=30;
-  function openSheet(id){ try{ applyLocalDeltas(); }catch(e){} sheetA=Object.values(MARKET).flat().find(x=>x.id===id); if(!sheetA)return; sheetRange=30; renderSheet(); document.getElementById('mk-scrim').classList.add('open'); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} }
+  function openSheet(id){ try{ applyLocalDeltas(); }catch(e){} sheetA=Object.values(MARKET).flat().find(x=>x.id===id); if(!sheetA)return; sheetRange=30; renderSheet();
+    try{ const sl=slugify(sheetA.name); loadPH(sl,phRange).then(function(j){ if(j&&sheetA&&slugify(sheetA.name)===sl) renderSheet(); }); }catch(e){} document.getElementById('mk-scrim').classList.add('open'); if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');}catch(e){}} }
   function closeSheet(){ document.getElementById('mk-scrim').classList.remove('open'); }
   function setRange(r){ sheetRange=r; renderSheet(); }
   function setIdxRange(r){ idxRange=r; render(); }
@@ -5854,6 +5855,30 @@ window.MK = (function(){
           '<button class="btn ghost" style="flex:1;margin:0" onclick="MK.closeSheet();PF.editOpen('+idx+')">\u270e '+(ru?'Изменить':'Edit')+'</button>'+
           '<button class="btn ghost" style="flex:1;margin:0" onclick="MK.closeSheet();PF.sell('+idx+')">'+(ru?'Продать':'Sell')+'</button>'+
         '</div>'; })(); }catch(e){ return ''; } }
+  const PH_CACHE={};   // история цен с сервера: {slug:{range:{points,change,since}}}
+  let phRange='7d';
+  async function loadPH(slug, range){
+    const key=slug+'|'+range; if(PH_CACHE[key]) return PH_CACHE[key];
+    const base=proxyURL(); if(!base) return null;
+    try{ const r=await fetch(base.replace(/\/+$/,'')+'/?pricehist='+encodeURIComponent(slug)+'&range='+range,{cache:'no-store'});
+      if(!r.ok) return null; const j=await r.json(); if(j&&j.ok){ PH_CACHE[key]=j; return j; } }catch(e){}
+    return null;
+  }
+  function phChartHTML(j, fallbackSer, up){
+    if(j && j.points && j.points.length>=2){
+      const ser=j.points.map(p=>p[1]);
+      const lbl=(S.lang==='ru'?'изм. за период: ':'change: ')+((j.change>=0?'+':'')+j.change+'%');
+      return bigChart(ser, j.change>=0)+'<div style="text-align:center;font-size:11px;color:var(--txt-3);margin-top:4px">'+lbl+' · '+j.n+(S.lang==='ru'?' точек':' points')+'</div>';
+    }
+    if(j && j.points && j.points.length<2){
+      return '<div style="padding:26px 12px;text-align:center;color:var(--txt-3);font-size:12.5px">'+(S.lang==='ru'?'История за этот период ещё копится':'History for this range is still building')+
+        (j.since?('<div style="font-size:11px;margin-top:4px">'+(S.lang==='ru'?'данные с ':'since ')+new Date(j.since).toLocaleDateString(S.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'short'})+'</div>'):'')+'</div>';
+    }
+    return bigChart(fallbackSer, up);   // пока сервер не ответил — прежняя синтетическая кривая
+  }
+  async function setPHRange(r){ phRange=r; renderSheet();
+    const a=sheetA; if(!a) return; const slug=slugify(a.name);
+    const j=await loadPH(slug,r); if(j && sheetA && slugify(sheetA.name)===slug){ renderSheet(); } }
   function renderSheet(){ const a=sheetA; if(!a)return; const up24=a.ch24>=0;
     const ser=sheetRange===7?a.ser.slice(-7):a.ser;
     const links=(MKTLINK[a.cat]||[]).map((m,i)=>'<a class="'+(i===0?'primary':'ghost')+'" href="'+refLink(m[1])+'" target="_blank" rel="noopener">'+m[0]+'</a>').join('');
@@ -5870,8 +5895,9 @@ window.MK = (function(){
       '<div class="mk-sheet-h"><div class="ic">'+iconHTML(a)+'</div><div class="nm"><b>'+esc(a.name)+'</b><span>'+(a.supply>1?t('sheetSubColl')+' · '+grp(a.supply)+' '+t('mkPcs'):(a.cat==='usernames'?'Telegram username':'Anonymous number'))+'</span></div><button class="x" aria-label="'+t('ariaClose')+'" onclick="MK.closeSheet()">✕</button></div>'+
       '<div class="mk-sp"><span class="p">'+fmtPrice(a.price)+'</span><span class="d" style="color:'+(up24?'var(--up)':'var(--down)')+'">'+fmtD(a.ch24)+' ('+(S.lang==='ru'?'24ч':'24h')+')</span>'+liveTag+'</div>'+
       '<div class="mk-ssub">'+(S.lang==='ru'?'7д':'7d')+': <b style="color:'+(a.ch7>=0?'var(--up)':'var(--down)')+'">'+fmtD(a.ch7)+'</b></div>'+
-      '<div class="mk-chart">'+bigChart(ser,a.ch7>=0)+'</div>'+
-      '<div class="mk-range"><button class="'+(sheetRange===7?'on':'')+'" onclick="MK.setRange(7)">'+(S.lang==='ru'?'7Д':'7D')+'</button><button class="'+(sheetRange===30?'on':'')+'" onclick="MK.setRange(30)">'+(S.lang==='ru'?'30Д':'30D')+'</button></div>'+
+      '<div class="mk-chart">'+phChartHTML(PH_CACHE[slugify(a.name)+'|'+phRange], ser, a.ch7>=0)+'</div>'+
+      '<div class="mk-range">'+['24h','3d','7d','1m','3m','6m'].map(function(r){
+        return '<button class="'+(phRange===r?'on':'')+'" onclick="MK.setPHRange(\''+r+'\')">'+(S.lang==='ru'?({'24h':'24Ч','3d':'3Д','7d':'7Д','1m':'1М','3m':'3М','6m':'6М'})[r]:r.toUpperCase())+'</button>'; }).join('')+'</div>'+
       '<div class="mk-kv">'+rows+'</div>'+
       (a.cat==='gifts'?'<div class="mk-lots" id="mk-lots"></div>':'')+
       posHTML(a)+
@@ -5945,7 +5971,7 @@ window.MK = (function(){
     it.price=f; it.cap=f; it.ath=Math.round(f*1.2); it.live=true;
     if(document.getElementById('mk-q')) render(); }
   function init(){ if(started) return; started=true; }   // без тикера: цены двигает только рынок, не Math.random()
-  return { render, setCat, setCur, onSort, openSheet, closeSheet, setRange, setIdxRange, onRate, init, data:()=>MARKET, patchFloors, patchNumbersFloor, refresh, bridge };
+  return { render, setCat, setCur, onSort, openSheet, setPHRange, closeSheet, setRange, setIdxRange, onRate, init, data:()=>MARKET, patchFloors, patchNumbersFloor, refresh, bridge };
 })();
 
 
