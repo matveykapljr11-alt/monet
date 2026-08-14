@@ -4625,7 +4625,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='8.4';
+const APP_VERSION='8.5';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5335,9 +5335,13 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
         '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleChannelEval()">'+(ru?'Оценить':'Value')+'</button></div>'+
       '<div id="chOut" style="margin-top:8px;font-size:13px;color:var(--txt-2)"></div>'+
       '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'Оценка по подписчикам и вовлечённости. Рынок каналов тонкий — это ориентир.':'Estimated from subscribers and engagement. Channel market is thin — a guideline.')+'</div></div>'+
-    '<div class="ms-promo"><div class="ms-invite-t">API</div><div id="apiOut" style="font-size:12px;color:var(--txt-2);margin-top:6px">…</div>'+
-      '<div style="display:flex;gap:8px;margin-top:8px"><button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleKeyCreate()">'+(ru?'Выпустить ключ':'Create key')+'</button><button class="ms-btn" style="width:auto;padding:10px 16px" onclick="whaleKeyRevoke()">'+(ru?'Отозвать':'Revoke')+'</button></div>'+
-      '<div id="apiUsage" style="font-size:12px;color:var(--txt-2);margin-top:6px">'+(ru?'использование: …':'usage: …')+'</div>'+'<div style="font-size:11px;color:var(--txt-3);margin-top:6px">GET '+(proxyURL()||'<worker>')+'/?api&key=…&op=floor&collection=plushpepe</div></div>'+
+    '<div class="ms-promo"><div class="ms-invite-t">API</div>'+
+      '<div style="font-size:11.5px;color:var(--txt-3);margin-top:4px">'+(ru?'Свой ключ к данным Monet: флор коллекции в GRAM и курс — прямо в твой скрипт, бота или таблицу.':'Your key to Monet data: collection floor in GRAM and the rate — straight into your script, bot or spreadsheet.')+'</div>'+
+      '<div id="apiOut" style="font-size:12px;color:var(--txt-2);margin-top:8px">…</div>'+
+      '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleKeyCreate()">'+(ru?'Выпустить ключ':'Create key')+'</button><button class="ms-btn" style="width:auto;padding:10px 16px" onclick="whaleKeyRevoke()">'+(ru?'Отозвать':'Revoke')+'</button><button class="ms-btn" style="width:auto;padding:10px 16px" onclick="whaleApiTry()">'+(ru?'Проверить запрос':'Test request')+'</button></div>'+
+      '<div id="apiTry" style="font-size:11.5px;color:var(--txt-2);margin-top:8px;line-height:1.5"></div>'+
+      '<div id="apiUsage" style="font-size:12px;color:var(--txt-2);margin-top:6px">'+(ru?'использование: …':'usage: …')+'</div>'+
+      '<div id="apiDocs" style="margin-top:10px"></div></div>'+
     '<div class="ms-promo"><div class="ms-invite-t">Webhook</div>'+
       '<div style="display:flex;gap:8px;margin-top:8px"><input id="whUrl" placeholder="https://…" style="flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:600">'+
       '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleWebhookSet()">'+(ru?'Сохранить':'Save')+'</button>'+
@@ -5357,7 +5361,7 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
     const au=document.getElementById('apiUsage'); if(au) au.textContent='';
     const w=document.getElementById('whUsage'); if(w) w.textContent=note;
     return; }
-  try{ const k=await whaleApi('/?apikey',{action:'view'}); const o=document.getElementById('apiOut'); if(o) o.textContent=(k&&k.key)?('key: '+k.key):(ru?'ключ не выпущен':'no key yet'); }catch(e){}
+  try{ const k=await whaleApi('/?apikey',{action:'view'}); apiRender((k&&k.key)||''); }catch(e){ try{ apiRender(''); }catch(_){} }
   try{ const w=await whaleApi('/?webhook',{action:'view'}); const el2=document.getElementById('whUrl'); if(el2&&w&&w.url) el2.value=w.url; }catch(e){}
   try{ const u=await whaleApi('/?whaleusage',{}); if(u&&u.ok){
     const rs=u.reset?new Date(u.reset).toLocaleDateString(ru?'ru-RU':'en-US',{day:'numeric',month:'short'}):'—';
@@ -5401,8 +5405,104 @@ function whaleChannelEval(){ const ru=S.lang==='ru';
     (!r.adBased?('<div style="font-size:11px;color:var(--txt-3);margin-top:4px">'+(ru?'Знаешь свою цену рекламного поста — впиши её, это точнее любого CPM по нише.':'Know your ad rate? Enter it — it beats any niche CPM.')+'</div>'):'')+
     '<div style="font-size:10.5px;color:var(--txt-3);margin-top:8px;line-height:1.5">'+(ru?(r.adBased?'Метод: доходный — твоя цена поста × 12 выходов/мес × 75% заполняемости, умножено на срок окупаемости.':'Метод: доходный — охват × 12 реклам/мес × CPM ниши, умножено на срок окупаемости.')+' Сравнительный — цена за подписчика по сделкам с готовыми каналами ($50–100 за 1000 при живой аудитории, крипто дороже). Итог — свод двух методов.':(r.adBased?'Method: income-based — your ad rate × 12 slots/mo × 75% fill rate, times the payback multiple.':'Method: income-based — reach × 12 ads/mo × niche CPM, times the payback multiple.')+' Comparable — price per subscriber from ready-made channel deals ($50–100 per 1,000 with a live audience, crypto higher). The result reconciles both.')+'</div>';
   try{ track('asset_evaluated','channel'); }catch(e){} }
-async function whaleKeyCreate(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); if(o)o.textContent='…'; const r=await whaleApi('/?apikey',{action:'create'}); if(o) o.textContent=(r&&r.key)?('key: '+r.key):(ru?'ошибка':'error'); }
-async function whaleKeyRevoke(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); await whaleApi('/?apikey',{action:'revoke'}); if(o)o.textContent=ru?'ключ отозван':'key revoked'; }
+let WHALE_KEY='';
+/* Копирование: в Telegram Mini App clipboard-API часто закрыт, поэтому есть запасной путь
+   через скрытое поле — иначе кнопка «копировать» молча не работает. */
+function copyToClip(text, okMsg){
+  const ru=S.lang==='ru';
+  const done=()=>{ try{ toast(okMsg||(ru?'Скопировано':'Copied')); }catch(e){} };
+  try{ if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done, fallback); return; } }catch(e){}
+  fallback();
+  function fallback(){
+    try{
+      const ta=document.createElement('textarea'); ta.value=text;
+      ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;top:0;left:0;opacity:0';
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+      const ok=document.execCommand('copy'); document.body.removeChild(ta);
+      if(ok) done(); else { try{ toast(ru?'Скопируй вручную: '+text.slice(0,40)+'…':'Copy manually: '+text.slice(0,40)+'…'); }catch(e){} }
+    }catch(e){ try{ toast(text); }catch(_){} }
+  }
+}
+function apiKeyBox(key){
+  const ru=S.lang==='ru';
+  if(!key) return '<span style="color:var(--txt-3)">'+(ru?'ключ ещё не выпущен':'no key yet')+'</span>';
+  const mask=key.slice(0,6)+'••••••'+key.slice(-4);
+  return '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+    '<code id="apiKeyTxt" data-full="'+escapeHTML(key)+'" data-shown="0" style="font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:6px 9px;word-break:break-all">'+escapeHTML(mask)+'</code>'+
+    '<button class="ms-btn" style="width:auto;padding:6px 12px;font-size:12px" onclick="apiKeyToggle()">'+(ru?'Показать':'Show')+'</button>'+
+    '<button class="ms-btn go" style="width:auto;padding:6px 12px;font-size:12px" onclick="apiKeyCopy()">'+(ru?'Копировать':'Copy')+'</button></div>';
+}
+function apiKeyToggle(){
+  const el=document.getElementById('apiKeyTxt'); if(!el) return;
+  const full=el.getAttribute('data-full')||'';
+  const shown=el.getAttribute('data-shown')==='1';
+  el.textContent = shown ? (full.slice(0,6)+'••••••'+full.slice(-4)) : full;
+  el.setAttribute('data-shown', shown?'0':'1');
+  try{ el.nextElementSibling.textContent = (S.lang==='ru') ? (shown?'Показать':'Скрыть') : (shown?'Show':'Hide'); }catch(e){}
+}
+function apiKeyCopy(){ const el=document.getElementById('apiKeyTxt'); if(!el) return;
+  copyToClip(el.getAttribute('data-full')||'', S.lang==='ru'?'Ключ скопирован':'Key copied'); }
+function apiDocsHTML(key){
+  const ru=S.lang==='ru';
+  const base=(proxyURL()||'https://<worker>').replace(/\/+$/,'');
+  const k=key||'<KEY>';
+  const url=base+'/?api&key='+k+'&op=floor&collection=plushpepe';
+  const curl="curl '"+url+"'";
+  const box=(label,text,id)=>'<div style="margin-top:8px"><div style="font-size:10.5px;color:var(--txt-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">'+label+'</div>'+
+    '<div style="display:flex;gap:6px;align-items:flex-start"><code id="'+id+'" style="flex:1;min-width:0;font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;word-break:break-all;line-height:1.45">'+escapeHTML(text)+'</code>'+
+    '<button class="ms-btn" style="width:auto;padding:6px 10px;font-size:11px" onclick="copyToClip(document.getElementById(\''+id+'\').textContent, \''+(ru?'Скопировано':'Copied')+'\')">'+(ru?'копи':'copy')+'</button></div></div>';
+  return '<div style="border-top:1px solid var(--line);padding-top:10px">'+
+    '<div style="font-size:11.5px;font-weight:700;color:var(--txt-2)">'+(ru?'Как пользоваться':'How to use')+'</div>'+
+    box(ru?'Запрос':'Request', url, 'apiDocUrl')+
+    box('curl', curl, 'apiDocCurl')+
+    '<div style="font-size:11px;color:var(--txt-3);margin-top:8px;line-height:1.6">'+(ru
+      ? '<b>collection</b> — слаг коллекции: plushpepe, scaredcat, signetring (как в ссылке t.me/nft/…).<br>'+
+        '<b>Ответ:</b> <code>{ok, collection, name, floor_gram, usd_rate, ts}</code>. Цена — в GRAM, курс — чтобы перевести в доллары.<br>'+
+        '<b>Лимит:</b> 60 запросов в минуту на ключ.<br>'+
+        '<b>Ошибки:</b> 401 — ключ неверный или отозван · 402 — подписка Whale неактивна · 429 — превышен лимит.<br>'+
+        'Ключ — это доступ к твоему тарифу: не выкладывай его в публичный код. Выпуск нового ключа сразу отзывает старый.'
+      : '<b>collection</b> — collection slug: plushpepe, scaredcat, signetring (as in t.me/nft/… links).<br>'+
+        '<b>Response:</b> <code>{ok, collection, name, floor_gram, usd_rate, ts}</code>. Price in GRAM, rate to convert to USD.<br>'+
+        '<b>Limit:</b> 60 requests per minute per key.<br>'+
+        '<b>Errors:</b> 401 — invalid or revoked key · 402 — Whale subscription inactive · 429 — rate limited.<br>'+
+        'The key grants your plan: keep it out of public code. Creating a new key revokes the old one instantly.')+'</div></div>';
+}
+function apiRender(key){
+  WHALE_KEY=key||'';
+  const o=document.getElementById('apiOut'); if(o) o.innerHTML=apiKeyBox(WHALE_KEY);
+  const d=document.getElementById('apiDocs'); if(d) d.innerHTML=apiDocsHTML(WHALE_KEY);
+}
+async function whaleKeyCreate(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); if(o)o.textContent='…';
+  const r=await whaleApi('/?apikey',{action:'create'});
+  if(r&&r.key){ apiRender(r.key); try{ toast(ru?'Ключ выпущен — старый отозван':'Key created — the old one is revoked'); }catch(e){} }
+  else if(o) o.textContent=ru?'не удалось выпустить ключ':'could not create a key'; }
+async function whaleKeyRevoke(){ const ru=S.lang==='ru'; await whaleApi('/?apikey',{action:'revoke'}); apiRender('');
+  const t=document.getElementById('apiTry'); if(t) t.textContent='';
+  try{ toast(ru?'Ключ отозван':'Key revoked'); }catch(e){} }
+/* Кнопка «Проверить запрос»: реальный вызов API тем же ключом — сразу видно, работает или нет. */
+async function whaleApiTry(){
+  const ru=S.lang==='ru'; const out=document.getElementById('apiTry'); if(!out) return;
+  if(!WHALE_KEY){ out.style.color='var(--warn)'; out.textContent=ru?'Сначала выпусти ключ.':'Create a key first.'; return; }
+  out.style.color='var(--txt-3)'; out.textContent=ru?'Отправляем запрос…':'Sending request…';
+  const base=(proxyURL()||'').replace(/\/+$/,'');
+  const url=base+'/?api&key='+encodeURIComponent(WHALE_KEY)+'&op=floor&collection=plushpepe';
+  const t0=Date.now();
+  try{
+    const r=await fetch(url,{cache:'no-store'}); const ms=Date.now()-t0;
+    const txt=await r.text(); let j=null; try{ j=JSON.parse(txt); }catch(e){}
+    if(r.ok && j && j.ok){
+      out.style.color='var(--good)';
+      out.innerHTML='✓ HTTP '+r.status+' · '+ms+'ms<br><code style="font-family:ui-monospace,Menlo,monospace;font-size:11px;word-break:break-all">'+escapeHTML(txt.slice(0,300))+'</code>';
+    } else {
+      const why = r.status===401 ? (ru?'ключ неверный или отозван':'invalid or revoked key')
+                : r.status===402 ? (ru?'подписка Whale неактивна':'Whale subscription inactive')
+                : r.status===429 ? (ru?'превышен лимит 60 запросов в минуту':'over the 60 req/min limit')
+                : (ru?'сервер ответил ошибкой':'server returned an error');
+      out.style.color='var(--bad)';
+      out.innerHTML='✕ HTTP '+r.status+' — '+why+'<br><code style="font-family:ui-monospace,Menlo,monospace;font-size:11px;word-break:break-all">'+escapeHTML(txt.slice(0,200))+'</code>';
+    }
+  }catch(e){ out.style.color='var(--bad)'; out.textContent=(ru?'Не удалось выполнить запрос: ':'Request failed: ')+String(e&&e.message||e); }
+}
 async function whaleWebhookTest(){ const ru=S.lang==='ru'; const o=document.getElementById('whOut'); if(o){o.style.color='var(--txt-3)';o.textContent=ru?'Шлём тестовый POST…':'Sending test POST…';}
   const r=await whaleApi('/?webhook',{action:'test'});
   if(o){ if(r&&r.ok){ o.style.color='var(--good)'; o.textContent=(ru?'✓ Доставлено · HTTP ':'✓ Delivered · HTTP ')+r.status+' · '+r.ms+'ms · '+r.used+'/500'; }
