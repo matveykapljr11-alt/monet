@@ -4625,7 +4625,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='8.3';
+const APP_VERSION='8.4';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5241,9 +5241,13 @@ function applyPromo(){ const el=document.getElementById('pmCode'); const msg=doc
      цена      = доход/мес × мультипликатор (зависит от вовлечённости)
    Ориентиры рынка 2026: крипто/NFT CPM $10–20, цена канала 4–10 месячных доходов,
    $0.1–1.0 за подписчика в зависимости от ниши и живости аудитории. */
-const CH_NICHE={ crypto:{k:1.0, cpm:15, name:{ru:'Крипто / NFT',en:'Crypto / NFT'}},
-                 general:{k:0.62, cpm:9,  name:{ru:'Общая тематика',en:'General'}},
-                 fun:{k:0.45, cpm:6,  name:{ru:'Развлечения',en:'Entertainment'}} };
+const CH_NICHE={ crypto:{k:1.0, cpm:15, sub:0.18, name:{ru:'Крипто / NFT',en:'Crypto / NFT'}},
+                 general:{k:0.62, cpm:9,  sub:0.075, name:{ru:'Общая тематика',en:'General'}},
+                 fun:{k:0.45, cpm:6,  sub:0.05, name:{ru:'Развлечения',en:'Entertainment'}} };
+/* Второй метод — сравнительный: рынок готовых каналов торгуется в диапазоне
+   $50–100 за 1000 подписчиков при живой аудитории, крипто и финансы — в 2–3 раза дороже
+   развлечений. Доходный метод в одиночку легко улетает вверх, поэтому считаем оба
+   и сводим: расхождение методов — это и есть честная мера неопределённости. */
 function scoreChannel(subs, views, niche, adUsd){
   subs=Math.max(0,+subs||0); views=Math.max(0,+views||0); adUsd=Math.max(0,+adUsd||0);
   if(subs<=0) return {priceTON:0, er:0, conf:'low', outOfRange:true};
@@ -5257,24 +5261,61 @@ function scoreChannel(subs, views, niche, adUsd){
   // охват: реальные просмотры или прогноз; аномально высокий ER (репосты) не раздуваем сверх x1.0
   const reach = measured ? Math.min(views, subs*1.0 + views*0.25) : Math.round(subs*erEst);
   // мультипликатор окупаемости по живости аудитории
-  const mult = er>=0.30?10 : er>=0.15?8 : er>=0.08?6 : er>=0.04?4.5 : 3;
+  // Крупный канал — более предсказуемый доход и легче перепродаётся, за это платят
+  // большим числом окупаемых месяцев. Мелкий с высоким ER — за счёт вовлечённости.
+  const multBase = er>=0.30?10 : er>=0.15?8 : er>=0.08?6 : er>=0.04?4.5 : 3;
+  const mult = Math.min(14, multBase + (subs>200000?3.5 : subs>50000?2 : 0));
   const adsPerMonth = 12;
   // Если владелец знает свою цену поста — это точнее любого CPM по нише.
   // Заполняемость слотов берём 75%: продать все 12 выходов подряд не удаётся почти никому.
   const FILL = 0.75;
   const adBased = adUsd>0;
-  const monthByAd = adUsd * adsPerMonth * FILL;
   const monthByCpm = reach * adsPerMonth * (N.cpm/1000) * N.k;
+  let monthByAd = adUsd * adsPerMonth * FILL;
+  // Цену поста владелец называет сам. Верим, но не безгранично: выше четырёх CPM ниши
+  // это уже не оценка, а пожелание — берём потолок и говорим об этом прямо.
+  const adCapped = adBased && monthByCpm>0 && monthByAd > monthByCpm*4;
+  if(adCapped) monthByAd = monthByCpm*4;
   const usd = (adBased ? monthByAd : monthByCpm) * mult;
   const rate = (typeof RATE!=='undefined' && RATE && +RATE.usd>0) ? +RATE.usd : 1.4;   // курс GRAM->USD из живых данных
   let priceTON = usd / rate;
-  if(subs>50000) priceTON *= 0.9;      // крупные — узкий круг покупателей
-  if(subs>200000) priceTON *= 0.88;
-  if(subs>1000000) priceTON *= 0.85;
-  const spread = adBased ? 0.22 : (measured ? 0.30 : 0.45);   // без реальных цифр вилка шире
-  const conf = !inRange ? 'low' : (adBased ? 'mid' : (measured ? (subs>=500?'mid':'low') : 'low'));
+  if(subs>50000) priceTON *= 0.95;     // крупные — узкий круг покупателей, но скидка мягкая:
+  if(subs>200000) priceTON *= 0.93;    // за стабильность уже доплатили сроком окупаемости
+  if(subs>1000000) priceTON *= 0.9;
+  // --- метод 2: сравнимые сделки, цена за подписчика ---
+  // Цена за подписчика ходит вместе с вовлечённостью, а не ступеньками: канал с 35% дочитываний
+  // и канал с 4% — это разные активы при одинаковом числе подписчиков. Опорная точка — ER 10%.
+  const erK = Math.max(0.35, Math.min(4, er/0.10));
+  let compUsd = subs * N.sub * erK;
+  if(subs>50000) compUsd*=0.85; if(subs>200000) compUsd*=0.8;      // крупные продаются с дисконтом
+  // Подозрение на накрутку: платить за подписчиков, которых не видно в просмотрах, нельзя —
+  // сравнительный метод считает именно подписчиков, поэтому его тут почти отключаем.
+  const botLike = measured && (erRaw<0.05 || erRaw>1.6);
+  if(botLike) compUsd*=0.5;
+  const compTON = compUsd / rate;
+  const incomeTON = priceTON;                                       // доходный метод до сведения
+  // сводим методы: когда владелец назвал свою цену рекламы, доходному верим сильнее
+  const wInc = botLike ? 0.9 : (adBased ? 0.85 : 0.75);
+  priceTON = wInc*incomeTON + (1-wInc)*compTON;
+  const gap = (Math.max(incomeTON,compTON)>0 && Math.min(incomeTON,compTON)>0)
+    ? Math.max(incomeTON,compTON)/Math.min(incomeTON,compTON) : 1;
+  // расхождение методов расширяет вилку и режет уверенность — это честнее, чем ровное число
+  let spread = adBased ? 0.22 : (measured ? 0.30 : 0.45);
+  if(gap>1.6) spread=Math.max(spread, Math.min(0.6, 0.18*gap));
+  spread=Math.min(spread, adBased?0.45:0.6);
+  let conf = !inRange ? 'low' : (adBased ? 'mid' : (measured ? (subs>=500?'mid':'low') : 'low'));
+  if(gap>2.2 && conf==='mid') conf='low';
+  if(botLike) conf='low';                    // просмотры не бьются с подписчиками — уверенной оценки быть не может
   const suspicious = measured && (erRaw<0.05 || erRaw>1.6);   // ER ниже 5% — почти всегда накрутка   // накрутка или вирусный выброс
-  return { priceTON: Math.round(priceTON), lo: Math.round(priceTON*(1-spread)), hi: Math.round(priceTON*(1+spread)),
+  // Вилку растягиваем до второго метода, только пока методы в пределах трёхкратной разницы.
+  // Дальше это уже не диапазон, а «где-то между», и такой ориентир бесполезен.
+  const wide = gap<=3;
+  const loBand=wide ? Math.min(Math.round(priceTON*(1-spread)), Math.round(Math.min(incomeTON,compTON)*0.9)) : Math.round(priceTON*(1-spread));
+  const hiBand=wide ? Math.max(Math.round(priceTON*(1+spread)), Math.round(Math.max(incomeTON,compTON)*0.98)) : Math.round(priceTON*(1+spread));
+  return { priceTON: Math.round(priceTON), lo: Math.max(0,loBand), hi: hiBand, adCapped:adCapped,
+           incomeTON: Math.round(incomeTON), compTON: Math.round(compTON), gap:+gap.toFixed(2),
+           perSub: subs>0 ? +(priceTON*rate/subs).toFixed(3) : 0,
+           perKView: reach>0 ? Math.round(priceTON*rate/reach*1000) : 0,
            er:er, erMeasured:measured, reach:reach, mult:mult, cpm:N.cpm, niche:(niche||'crypto'),
            monthUsd: Math.round(adBased?monthByAd:monthByCpm), adBased:adBased, adUsd:adUsd,
            cpmReal: (adUsd>0 && reach>0) ? +(adUsd/reach*1000).toFixed(1) : 0,
@@ -5343,11 +5384,22 @@ function whaleChannelEval(){ const ru=S.lang==='ru';
     row(ru?'Доход с рекламы, мес':'Ad revenue / mo', '≈ $'+grpn(r.monthUsd)+(r.adBased?(' <span style="font-weight:400;color:var(--txt-3);font-size:11px">'+(ru?'по твоей цене':'from your rate')+'</span>'):''))+
     (r.adBased&&r.cpmReal>0?row(ru?'Твой CPM':'Your CPM', '$'+r.cpmReal+(r.cpmReal>r.cpm*1.6?(' <span style="font-weight:400;color:var(--txt-3);font-size:11px">'+(ru?'выше рынка ниши':'above niche market')+'</span>'):(r.cpmReal<r.cpm*0.6?(' <span style="font-weight:400;color:var(--txt-3);font-size:11px">'+(ru?'ниже рынка — можно поднимать':'below market — room to raise')+'</span>'):''))):'')+
     row(ru?'Окупаемость':'Payback multiple', '×'+r.mult+' '+(ru?'мес':'mo'))+
+    '<div style="margin:8px 0 2px;font-size:11px;color:var(--txt-3);letter-spacing:.04em;text-transform:uppercase">'+(ru?'Два метода':'Two methods')+'</div>'+
+    row(ru?'По доходу':'By income', fmtTON(r.incomeTON)+' GRAM')+
+    row(ru?'По подписчикам':'By subscribers', fmtTON(r.compTON)+' GRAM')+
+    row(ru?'Цена за подписчика':'Price per subscriber', '$'+r.perSub)+
+    (r.perKView?row(ru?'Цена за 1000 просмотров':'Price per 1k views', '$'+grpn(r.perKView)):'')+
     row(ru?'Уверенность':'Confidence', cf)+
+    (r.adCapped?('<div style="font-size:11px;color:var(--warn);margin-top:6px">'+(ru
+      ? 'Заявленная цена поста больше чем вчетверо выше CPM ниши — для оценки взят потолок. Если цена реальная и подтверждается счетами, канал стоит дороже расчёта.'
+      : 'The stated ad rate is over 4× the niche CPM — the estimate uses the cap. If the rate is real and backed by invoices, the channel is worth more than shown.')+'</div>'):'')+
+    (r.gap>1.6?('<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru
+      ? ('Методы расходятся в '+r.gap+' раза — рынок каналов непубличный, поэтому вилка шире, а итог ближе к доходному методу.')
+      : ('The two methods differ '+r.gap+'× — the channel market is private, so the range is wider and the result leans on the income method.'))+'</div>'):'')+
     (r.suspicious?('<div style="font-size:11px;color:var(--warn);margin-top:6px">'+(ru?'Просмотры не бьются с подписчиками — возможна накрутка или вирусный пост. Оценка занижена намеренно.':'Views do not match subscribers — possible bots or a viral spike. Value is deliberately conservative.')+'</div>'):'')+
     (!r.erMeasured?('<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'Укажи средние просмотры — оценка станет точнее.':'Add average views for a sharper estimate.')+'</div>'):'')+
     (!r.adBased?('<div style="font-size:11px;color:var(--txt-3);margin-top:4px">'+(ru?'Знаешь свою цену рекламного поста — впиши её, это точнее любого CPM по нише.':'Know your ad rate? Enter it — it beats any niche CPM.')+'</div>'):'')+
-    '<div style="font-size:10.5px;color:var(--txt-3);margin-top:8px;line-height:1.5">'+(ru?(r.adBased?'Метод: доходный — твоя цена поста × 12 выходов/мес × 75% заполняемости, умножено на срок окупаемости.':'Метод: доходный — охват × 12 реклам/мес × CPM ниши, умножено на срок окупаемости.')+' Рынок каналов непубличный, это ориентир.':(r.adBased?'Method: income-based — your ad rate × 12 slots/mo × 75% fill rate, times the payback multiple.':'Method: income-based — reach × 12 ads/mo × niche CPM, times the payback multiple.')+' The channel market is private, so treat this as a guideline.')+'</div>';
+    '<div style="font-size:10.5px;color:var(--txt-3);margin-top:8px;line-height:1.5">'+(ru?(r.adBased?'Метод: доходный — твоя цена поста × 12 выходов/мес × 75% заполняемости, умножено на срок окупаемости.':'Метод: доходный — охват × 12 реклам/мес × CPM ниши, умножено на срок окупаемости.')+' Сравнительный — цена за подписчика по сделкам с готовыми каналами ($50–100 за 1000 при живой аудитории, крипто дороже). Итог — свод двух методов.':(r.adBased?'Method: income-based — your ad rate × 12 slots/mo × 75% fill rate, times the payback multiple.':'Method: income-based — reach × 12 ads/mo × niche CPM, times the payback multiple.')+' Comparable — price per subscriber from ready-made channel deals ($50–100 per 1,000 with a live audience, crypto higher). The result reconciles both.')+'</div>';
   try{ track('asset_evaluated','channel'); }catch(e){} }
 async function whaleKeyCreate(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); if(o)o.textContent='…'; const r=await whaleApi('/?apikey',{action:'create'}); if(o) o.textContent=(r&&r.key)?('key: '+r.key):(ru?'ошибка':'error'); }
 async function whaleKeyRevoke(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); await whaleApi('/?apikey',{action:'revoke'}); if(o)o.textContent=ru?'ключ отозван':'key revoked'; }
