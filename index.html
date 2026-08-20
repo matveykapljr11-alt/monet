@@ -1137,7 +1137,7 @@ header{border-bottom:0;background:none}
 .mc-ic{width:40px;height:40px;border-radius:11px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-size:21px;flex:none}
 .mc-main{min-width:0}
 .mc-spark{width:32px;height:20px;opacity:.9;display:block}
-.mc-unit{font-size:10px;opacity:.5;font-weight:600;margin-left:2px}
+.mc-unit{font-size:10px;opacity:.5;font-weight:600;margin-left:4px}
 @keyframes phsk{0%{background-position:100% 0}100%{background-position:0 0}}
 @media (max-width:340px){.mc-spark{display:none}}
 .mc-name{font-family:var(--font-d);font-weight:600;font-size:15.5px;color:var(--txt);letter-spacing:-.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2512,7 +2512,7 @@ function scoreUsername(raw){
                             q:Q.q, digitMul:Q.digitMul, underMul:Q.underMul,
                             brand:BRANDS.has(name), premium:PREMIUM_WORDS.has(name), common:COMMON.has(name)});
   const res = { priceTON: um.price, priceLo: um.lo, priceHi: um.hi, mktConf: um.conf, mktBasis: um.basis, mktN: um.n,
-           score, factors:F, display:'@'+name };
+           mktYear: um.year||0, score, factors:F, display:'@'+name };
   // что именно тянет цену вниз — и сколько ник стоил бы без этого
   if(!isWord && Q.worst && um.basis!=='sold' && um.price>0){
     res._drag={ k:Q.worst.k, m:Q.worst.m, alt:Math.round(um.price/Q.worst.m) };
@@ -2526,8 +2526,11 @@ function scoreUsername(raw){
 // словарные слова уровня bank/casino/auto — минимальные ставки от 30 000 TON.
 const UNAME_BASE={3:9000, 4:1800, 5:500, 6:180, 7:90, 8:50, 9:32, 10:22, 11:15, 12:10};
 // подтверждённые публичные продажи (TON/GRAM) — прямое доказательство сильнее любой модели
-const UNAME_SOLD={ danbao:1583948, news:994000, auto:900000, bank:850000, avia:800000,
-                   chat:700000, crypto:200000, king:60000, pavel:15000 };
+// Подтверждённые публичные продажи: цена и год сделки. Год важен — аукционы 2022-го
+// прошли при другом рынке, и подавать их как сегодняшнюю цену было бы обманом.
+const UNAME_SOLD={ danbao:{p:1583948,y:2026}, news:{p:994000,y:2022}, auto:{p:900000,y:2022},
+                   bank:{p:850000,y:2022}, avia:{p:800000,y:2022}, chat:{p:700000,y:2022},
+                   crypto:{p:200000,y:0}, king:{p:60000,y:0}, pavel:{p:15000,y:0} };
 // Стоимость словарного слова определяет само слово, а не длина: @bank и @casino —
 // минимальные ставки от 30 000 TON, при этом «bank» короче «casino» лишь на два знака.
 const WORD_FLOOR={ brand:30000, premium:22000, common:3500 };
@@ -2536,8 +2539,10 @@ let UNAME_MKT=null;   // сюда ложатся живые данные Fragmen
 function umValue(name, f){
   const len=name.length;
   // 1) подтверждённая продажа именно этого ника — самый сильный аргумент
-  if(UNAME_SOLD[name]>0){ const p=UNAME_SOLD[name];
-    return { price:p, lo:Math.round(p*0.6), hi:Math.round(p*1.4), conf:'mid', basis:'sold', n:1 }; }
+  if(UNAME_SOLD[name]){ const rec=UNAME_SOLD[name], p=rec.p;
+    const old = rec.y>0 && (new Date().getFullYear()-rec.y)>=2;      // старая сделка — вилка шире
+    const sp = old?0.5:0.4;
+    return { price:p, lo:Math.round(p*(1-sp)), hi:Math.round(p*(1+sp)), conf: old?'low':'mid', basis:'sold', n:1, year:rec.y||0 }; }
   let base = UNAME_BASE[len] || (len<3 ? 40000 : 8);
   let basis='model', n=0, conf='low';
   // живые рыночные данные по классу (длина+тип символов) — приоритетнее калибровки
@@ -2623,7 +2628,7 @@ function scoreNumber(raw){
   // ---- ЦЕНА ПО РЫНКУ FRAGMENT: класс паттерна + флор номеров ----
   const nv=numValue(d, {score, floor, uniq, maxRun, runAtTail, lead, trail, F});
   return { priceTON: nv.price, priceLo: nv.lo, priceHi: nv.hi, mktConf: nv.conf, mktBasis: nv.basis, mktN: nv.n,
-           score, factors:F, display:pretty };
+           mktYear: nv.year||0, score, factors:F, display:pretty };
 }
 /* Рыночные множители номеров +888 к флору: рынок платит за читаемость паттерна,
    а не за «балл». Классы согласованы с серверной группировкой (?entmkt=number). */
@@ -2645,8 +2650,8 @@ const NUM_MULT={ repeat:20, palindrome:6, sequence:7, zeros:4.5, fewdigits:2.4, 
 // Длина номера решает не меньше узора: +888 8888 (4 цифры) ушёл за 300 000 TON,
 // обычный восьмизначный на вторичке стоит сотни. Коэффициент — за каждую «недостающую» цифру.
 const NUM_LEN={4:35, 5:16, 6:7, 7:2.6, 8:1};
-const NUM_SOLD={ '8888':300000, '8000':130000, '0001':75000, '77777777':45000,
-                 '12345678':30000, '01234567':30211 };
+const NUM_SOLD={ '8888':{p:300000,y:2022}, '8000':{p:130000,y:0}, '0001':{p:75000,y:0},
+                 '77777777':{p:45000,y:0}, '12345678':{p:30000,y:0}, '01234567':{p:30211,y:0} };
 /* ===== КАЧЕСТВО ОБЫЧНОГО НОМЕРА =====
    Большинство +888 — это не 8888, а восьмизначный набор. Между собой они тоже разные:
    рынок платит за хвост, который легко продиктовать и запомнить. */
@@ -2678,8 +2683,10 @@ function numCore(d){ return numLocal(d)||String(d); }
 function numValue(d, x){
   const core=numCore(d);
   const key=numClassKey(core);   // узор считаем по цифрам после префикса 888 — иначе «888» сам себя делает редким
-  if(NUM_SOLD[core]>0){ const p=NUM_SOLD[core];
-    return { price:p, lo:Math.round(p*0.6), hi:Math.round(p*1.4), conf:'mid', basis:'sold', n:1 }; }
+  if(NUM_SOLD[core]){ const rec=NUM_SOLD[core], p=rec.p;
+    const old = rec.y>0 && (new Date().getFullYear()-rec.y)>=2;
+    const sp = old?0.5:0.4;
+    return { price:p, lo:Math.round(p*(1-sp)), hi:Math.round(p*(1+sp)), conf: old?'low':'mid', basis:'sold', n:1, year:rec.y||0 }; }
   let base=x.floor||160, basis='model', n=0, conf='low';
   try{
     if(NUM_MKT && NUM_MKT.groups && NUM_MKT.groups[key]){
@@ -3669,9 +3676,18 @@ function onInputChange(){
     if(clean.length<4){ hint.className='hint dim'; hint.textContent=t('hintMin'); }
     else { hint.className='hint ok'; hint.textContent=t('hintOk'); ok=true; }
   } else if(curCat==='numbers'){
-    let v=m.value.replace(/\D/g,'').slice(0,8); m.value=v;
-    if(v.length<8){ hint.className='hint dim'; hint.textContent=t('hintNum'); }
-    else { hint.className='hint ok'; hint.textContent=t('hintNumOk'); ok=true; }
+    // Поле слева уже показывает «+888», но люди вставляют номер целиком — и раньше
+    // обрезка до восьми знаков превращала +888 7777 7777 в +888 8887 7777.
+    // Сначала снимаем префикс, и только потом ограничиваем длину.
+    let raw=m.value.replace(/\D/g,'');
+    let v=(typeof numLocal==='function') ? numLocal(raw) : raw;
+    const trimmed = v!==raw;
+    v=v.slice(0,8); if(m.value!==v) m.value=v;
+    // Короткие номера (+888 8888) существуют и стоят дорого — их тоже надо давать оценивать.
+    if(v.length<4){ hint.className='hint dim'; hint.textContent=t('hintNum'); }
+    else { hint.className='hint ok'; ok=true;
+      hint.textContent = trimmed ? (S.lang==='ru'?'Код +888 убран — оцениваем этот номер':'The +888 code was stripped — valuing this number')
+        : (v.length<8 ? (S.lang==='ru'?'Короткий номер — такие встречаются редко':'A short number — these are rare') : t('hintNumOk')); }
   } else {
     // gifts / stickers — always evaluable (collection has a default)
     hint.className='hint dim'; hint.textContent=t('hintGift'); ok=true;
@@ -3702,7 +3718,9 @@ function valueFor(cat, prefix){
 }
 function fmtTON(n){ n=+n||0;
   if(n>0 && n<15){ return n.toFixed(2).replace(/\.?0+$/,''); }   // cheap assets: up to 2 decimals (1.12), trailing zeros trimmed
-  n=Math.round(n); return n>=1000?n.toLocaleString('en-US'):String(n); }
+  // Разряды разделяем неразрывным тонким пробелом, а не запятой: в остальном приложении
+  // (рынок, портфель) уже так, и «15,000 GRAM» рядом с «15 000 GRAM» читалось как разные числа.
+  n=Math.round(n); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); }
 function fmtFiat(ton){ const v=Math.round(ton*fxOf(S.currency)); return symOf(S.currency)+v.toLocaleString('en-US'); }
 function fmtStars(ton){ const n=Math.round(ton*STARS_PER_TON); return n.toLocaleString('en-US').replace(/,/g,' '); }
 
@@ -4261,7 +4279,22 @@ function confOf(r){
   if(exSales>=3 || listings>=3) return {k:'confMid',c:'var(--warn)'};    // 3-9 продаж комбинации ИЛИ ≥3 релевантных листинга
   return {k:'confLow',c:'var(--bad)'};                                   // 0-2 продажи комбинации / единственный листинг / большой разброс
 }
-function confExplain(r){ const ru=S.lang==='ru'; const exSales=(r&&r._exactSalesN)||0, listings=((r&&r._comps)||0)+((r&&r.fragExact)?1:0);
+function confExplain(r){ const ru=S.lang==='ru';
+  // У ников и номеров нет «комбинаций трейтов» — счётчик листингов оттуда неприменим и
+  // раньше выдавал «найдено 0 продаж» рядом с «оценка по подтверждённой продаже».
+  if(r && (r.cat==='username' || r.cat==='numbers')){
+    if(r.mktBasis==='sold'){
+      const yr = r.mktYear ? (ru?(' ('+r.mktYear+' год)'):(' ('+r.mktYear+')')) : '';
+      return (ru?('источник — публичная продажа именно этого актива'+yr):('source — a public sale of this exact asset'+yr));
+    }
+    if(r.mktBasis==='market'){
+      return (ru?('сопоставимых лотов того же класса: '+(r.mktN||0)+', продаж именно этого актива не было'):
+                 ('comparable lots in the same class: '+(r.mktN||0)+'; no sale of this exact asset'));
+    }
+    return (ru?'публичных сделок по этому активу не найдено — оценка по уровням класса':
+               'no public deals found for this asset — valued from class-level benchmarks');
+  }
+  const exSales=(r&&r._exactSalesN)||0, listings=((r&&r._comps)||0)+((r&&r.fragExact)?1:0);
   return (ru?'найдено ':'found ')+listings+(ru?' листингов комбинации и ':' combo listings and ')+exSales+(ru?' продаж точной комбинации':' exact-combo sales'); }
 function confChipHTML(r){ const c=confOf(r);
   return '<span class="conf-pill" style="color:'+c.c+'"><span class="cd"></span>'+t('confLabel')+': '+t(c.k)+'</span>'; }
@@ -4368,7 +4401,7 @@ function guidanceInner(r){
     const lo=r.priceLo||Math.round((r.priceTON||0)*0.6), hi=r.priceHi||Math.round((r.priceTON||0)*1.4);
     if(!(r.priceTON>0)) return '<div class="g-banner">'+(ru?'Недостаточно данных для оценки.':'Not enough data to value this.')+'</div>';
     return '<div class="g-banner soft">'+(ru?'Рынок юзернеймов и номеров непубличный: цена считается по сопоставимым лотам Fragment. Зоны покупки/продажи не рассчитываем — сделок слишком мало.':'The username/number market is private: we price from comparable Fragment lots. No buy/sell zones — too few trades.')+'</div>'+
-      row(ru?'Рыночный ориентир':'Market guideline', rng(lo,hi), (r.mktBasis==='sold'?(ru?'по подтверждённой продаже':'from a confirmed sale'):(r.mktBasis==='market'?(ru?'по сопоставимым лотам':'from comparable lots'):(ru?'по уровням класса актива':'from asset-class benchmarks'))),'g-fair',false);
+      row(ru?'Рыночный ориентир':'Market guideline', rng(lo,hi), (r.mktBasis==='sold'?(ru?('по подтверждённой продаже'+(r.mktYear?(' '+r.mktYear+' года'):'')):('from a confirmed sale'+(r.mktYear?(' in '+r.mktYear):''))):(r.mktBasis==='market'?(ru?'по сопоставимым лотам':'from comparable lots'):(ru?'по уровням класса актива':'from asset-class benchmarks'))),'g-fair',false);
   } else if(isGift && r._askOnly){
     const ask=Math.round(r._mktAsk||g.w||0);
     const exact=askSrcExact(r._askSrc);
@@ -4545,8 +4578,8 @@ function resultCardHTML(r){
     '<div class="rbody">'+
       '<button class="btn eval-add" id="evalAddBtn" onclick="evalAddInline()">'+t('pfAddBtn')+'</button>'+
       '<div class="cert-specs">'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'conf\')"><span class="cs-l">'+t('confLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="confVal" style="color:'+cc.c+'">'+(loading?'…':t(cc.k))+'</span></div>'+'<div class="cs-row" style="cursor:pointer" onclick="explainMetric(\'liq\')"><span class="cs-l">'+t('liqLabel')+' <span style="opacity:.5">ⓘ</span></span><span class="cs-v" id="liqVal" style="color:'+lq.c+'">'+(loading?'…':t(lq.k))+'</span></div>'+'<div class="cs-row"><span class="cs-l">'+(r._askOnly?(S.lang==='ru'?'Категория по листингу':'Tier by listing'):t('tierLabel'))+'</span><span class="cs-v" style="color:'+tier.c+'">'+t(tier.k)+(r._askOnly?(S.lang==='ru'?' · спр. стоимость не определена':' · fair value n/a'):'')+'</span></div>'+'</div>'+'<div class="why-line"><span class="wl">'+t('whyLabel')+':</span> '+whyText(r)+'</div>'+(loading?'':'<div class="conf-explain" style="font-size:11px;color:var(--txt-3);margin:6px 2px 0;line-height:1.4">'+t('confLabel')+' \u00b7 '+confExplain(r)+(r._entMkt?(' \u00b7 '+(S.lang==='ru'
-      ? ('оценка по рынку Fragment: '+(r.mktBasis==='sold'?'подтверждённая публичная продажа этого актива':(r.mktBasis==='market'?('сопоставимые лоты, '+(r.mktN||0)+' шт'):'уровни по классу актива'))+'. Рынок тонкий — это ориентир.')
-      : ('valued on the Fragment market: '+(r.mktBasis==='sold'?'a confirmed public sale of this asset':(r.mktBasis==='market'?('comparable lots, '+(r.mktN||0)):'class-level benchmarks'))+'. Thin market — treat as a guideline.'))):'')+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+(r._askOverheat?(' \u00b7 '+(S.lang==='ru'?('аск '+fmtTON(r._askOverheat.ask)+' выше недавних продаж (медиана '+fmtTON(r._askOverheat.med)+') — оценка приведена к сделкам'):('ask '+fmtTON(r._askOverheat.ask)+' sits above recent sales (median '+fmtTON(r._askOverheat.med)+') — value anchored to sales'))):'')+(r._askCap?(' \u00b7 '+(S.lang==='ru'?('на рынке есть лоты от '+fmtTON(r._askCap.ask)+' — оценка приведена к покупаемому уровню'):('live lots start at '+fmtTON(r._askCap.ask)+' — value anchored to the buyable level'))):'')+(r._askRaise?(' \u00b7 '+(S.lang==='ru'?('дешевле '+fmtTON(r._askRaise.ask)+' сейчас не купить — оценка поднята к рынку'):('nothing sells below '+fmtTON(r._askRaise.ask)+' right now — value raised to market'))):'')+(r._anchor==='thin'?(' \u00b7 '+(S.lang==='ru'?'в продаже 0–1 сопоставимый лот — стакан тонкий, оценка по сделкам':'0–1 comparable lots live — thin book, value from sales')):'')+(r._mktTimeout?(' \u00b7 '+(S.lang==='ru'?'рыночные данные не пришли — показан уровень коллекции, премию за вариант подтвердить нечем':'market data did not arrive — showing the collection level; the variant premium cannot be confirmed')):'')+'</div>')+
+      ? ('оценка по рынку Fragment: '+(r.mktBasis==='sold'?('подтверждённая продажа'+(r.mktYear?(' '+r.mktYear+' года'):'')+((r.mktYear && (new Date().getFullYear()-r.mktYear)>=2)?', с тех пор рынок менялся — диапазон шире':'')):(r.mktBasis==='market'?('сопоставимые лоты, '+(r.mktN||0)+' шт'):'уровни по классу актива'))+'. Рынок тонкий — это ориентир.')
+      : ('valued on the Fragment market: '+(r.mktBasis==='sold'?('a confirmed sale'+(r.mktYear?(' from '+r.mktYear):'')+((r.mktYear && (new Date().getFullYear()-r.mktYear)>=2)?', the market has moved since — wider range':'')):(r.mktBasis==='market'?('comparable lots, '+(r.mktN||0)):'class-level benchmarks'))+'. Thin market — treat as a guideline.'))):'')+(r._askOnly?(' \u00b7 '+(S.lang==='ru'?'подтверждённых продаж не найдено — оценка по листингу':'no confirmed sales — priced off a listing')):'')+(r._askOverheat?(' \u00b7 '+(S.lang==='ru'?('аск '+fmtTON(r._askOverheat.ask)+' выше недавних продаж (медиана '+fmtTON(r._askOverheat.med)+') — оценка приведена к сделкам'):('ask '+fmtTON(r._askOverheat.ask)+' sits above recent sales (median '+fmtTON(r._askOverheat.med)+') — value anchored to sales'))):'')+(r._askCap?(' \u00b7 '+(S.lang==='ru'?('на рынке есть лоты от '+fmtTON(r._askCap.ask)+' — оценка приведена к покупаемому уровню'):('live lots start at '+fmtTON(r._askCap.ask)+' — value anchored to the buyable level'))):'')+(r._askRaise?(' \u00b7 '+(S.lang==='ru'?('дешевле '+fmtTON(r._askRaise.ask)+' сейчас не купить — оценка поднята к рынку'):('nothing sells below '+fmtTON(r._askRaise.ask)+' right now — value raised to market'))):'')+(r._anchor==='thin'?(' \u00b7 '+(S.lang==='ru'?'в продаже 0–1 сопоставимый лот — стакан тонкий, оценка по сделкам':'0–1 comparable lots live — thin book, value from sales')):'')+(r._mktTimeout?(' \u00b7 '+(S.lang==='ru'?'рыночные данные не пришли — показан уровень коллекции, премию за вариант подтвердить нечем':'market data did not arrive — showing the collection level; the variant premium cannot be confirmed')):'')+'</div>')+
       (loading?'':proInsightsHTML(r))+
       tradeBandHTML(r)+
       '<div class="res-cta">'+
@@ -4625,7 +4658,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='8.6';
+const APP_VERSION='8.7';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5363,9 +5396,12 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
     return; }
   try{ const k=await whaleApi('/?apikey',{action:'view'}); apiRender((k&&k.key)||''); }catch(e){ try{ apiRender(''); }catch(_){} }
   try{ const w=await whaleApi('/?webhook',{action:'view'}); const el2=document.getElementById('whUrl'); if(el2&&w&&w.url) el2.value=w.url; }catch(e){}
+  await whaleUsageRefresh();
+}
+async function whaleUsageRefresh(){ const ru=S.lang==='ru';
   try{ const u=await whaleApi('/?whaleusage',{}); if(u&&u.ok){
     const rs=u.reset?new Date(u.reset).toLocaleDateString(ru?'ru-RU':'en-US',{day:'numeric',month:'short'}):'—';
-    const au=document.getElementById('apiUsage'); if(au) au.innerHTML='<b>'+(u.api_used||0).toLocaleString('en-US')+' / '+(u.api_cap||10000).toLocaleString('en-US')+'</b> '+(ru?'запросов · сброс ':'requests · resets ')+rs;
+    const au=document.getElementById('apiUsage'); if(au) au.innerHTML='<b>'+(u.api_used||0).toLocaleString('en-US').replace(/,/g,' ')+' / '+(u.api_cap||10000).toLocaleString('en-US').replace(/,/g,' ')+'</b> '+(ru?'запросов · сброс ':'requests · resets ')+rs;
     const wu=document.getElementById('whUsage'); if(wu){ const st=(u.webhook_status==='active')?(ru?'активен':'active'):(ru?'не задан':'not set'); wu.innerHTML='<b>'+(u.webhook_used||0)+' / '+(u.webhook_cap||500)+'</b> '+(ru?'вызовов · webhook ':'fires · webhook ')+st+(ru?' · сброс ':' · resets ')+rs; }
   }}catch(e){}
 }
@@ -5392,7 +5428,7 @@ function whaleChannelEval(){ const ru=S.lang==='ru';
     row(ru?'По доходу':'By income', fmtTON(r.incomeTON)+' GRAM')+
     row(ru?'По подписчикам':'By subscribers', fmtTON(r.compTON)+' GRAM')+
     row(ru?'Цена за подписчика':'Price per subscriber', '$'+r.perSub)+
-    (r.perKView?row(ru?'Цена за 1000 просмотров':'Price per 1k views', '$'+grpn(r.perKView)):'')+
+    (r.perKView?row(ru?'Оценка канала на 1000 просмотров':'Channel value per 1k views', '$'+grpn(r.perKView)):'')+
     row(ru?'Уверенность':'Confidence', cf)+
     (r.adCapped?('<div style="font-size:11px;color:var(--warn);margin-top:6px">'+(ru
       ? 'Заявленная цена поста больше чем вчетверо выше CPM ниши — для оценки взят потолок. Если цена реальная и подтверждается счетами, канал стоит дороже расчёта.'
@@ -5495,6 +5531,7 @@ async function whaleApiTry(){
     if(r.ok && j && j.ok){
       out.style.color='var(--good)';
       out.innerHTML='✓ HTTP '+r.status+' · '+ms+'ms<br><code style="font-family:ui-monospace,Menlo,monospace;font-size:11px;word-break:break-all">'+escapeHTML(txt.slice(0,300))+'</code>';
+      try{ whaleUsageRefresh(); }catch(e){}   // запрос уже потрачен — счётчик не должен врать до перезагрузки
     } else {
       const why = r.status===401 ? (ru?'ключ неверный или отозван':'invalid or revoked key')
                 : r.status===402 ? (ru?'подписка Whale неактивна':'Whale subscription inactive')
@@ -6585,7 +6622,14 @@ window.MK = (function(){
         g.push(a); bySlug[slug]=a;
       }
     }
-    if(document.getElementById('mk-q')) render(); }
+    if(document.getElementById('mk-q')) render();
+    // Живые флоры меняют пересчитанную стоимость активов. Если обновить только рынок,
+    // портфель и боковая панель какое-то время показывают старое число — итог и строка
+    // актива расходятся. Обновляем все поверхности разом.
+    try{ if(window.PF && PF.render) PF.render(); }catch(e){}   // именно render, не refresh: refresh снова тянет флоры
+    try{ if(typeof renderDrawer==='function') renderDrawer(); }catch(e){}
+    try{ if(typeof syncHome==='function') syncHome(); }catch(e){}
+  }
   function refresh(){ if(document.getElementById('mk-q')) render(); }
   function bridge(name){ const g=MARKET.gifts; if(!g) return null;
     const key=String(name).toLowerCase();
@@ -7099,6 +7143,42 @@ window.PF = (function(){
     document.getElementById('pf-sheet').innerHTML=html;
     document.getElementById('pf-scrim').classList.add('open'); }
   function setSort(k){ S.pfSort=k; try{save();}catch(e){} render(); }
+  /* Скачивание файла из Telegram WebView часто молча не срабатывает: атрибут download
+     там игнорируется. Раньше приложение в любом случае писало «Экспорт готов», и человек
+     шёл искать файл, которого нет. Теперь пробуем скачать, а рядом всегда даём
+     работающие запасные пути — открыть таблицу вкладкой и скопировать её целиком. */
+  function csvDeliver(csv, fname){
+    const ru=S.lang==='ru';
+    const plat=(typeof tg!=='undefined' && tg && tg.platform)?String(tg.platform):'';
+    const inTG=!!(typeof tg!=='undefined' && tg && tg.initData) && /android|ios/i.test(plat);
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+    let url=''; try{ url=URL.createObjectURL(blob); }catch(e){}
+    let tried=false;
+    if(!inTG && url){ try{ const a=document.createElement('a'); a.href=url; a.download=fname;
+      document.body.appendChild(a); a.click(); a.remove(); tried=true; }catch(e){} }
+    const scrim=document.createElement('div');
+    scrim.id='csvSheet';
+    scrim.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+    const btn='display:block;width:100%;margin-top:8px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);color:var(--txt);font-weight:700;font-size:14px;cursor:pointer';
+    scrim.innerHTML='<div style="width:100%;max-width:460px;background:var(--surface);border-radius:18px 18px 0 0;padding:18px 16px 22px;border-top:1px solid var(--line)">'+
+      '<div style="font-family:var(--font-d);font-size:18px;font-weight:700">'+(ru?'Экспорт портфеля':'Portfolio export')+'</div>'+
+      '<div style="font-size:12px;color:var(--txt-3);margin-top:4px;line-height:1.5">'+
+        (tried ? (ru?'Файл отправлен в загрузки. Если его там нет — сохранение заблокировал браузер или Telegram, возьмите вариант ниже.'
+                    :'The file was sent to downloads. If it is not there, the browser or Telegram blocked saving — use an option below.')
+               : (ru?'Telegram не даёт сохранять файлы напрямую. Откройте таблицу отдельной вкладкой и сохраните оттуда или скопируйте её целиком.'
+                    :'Telegram does not allow saving files directly. Open the table in a tab and save it there, or copy it whole.'))+'</div>'+
+      (url?('<button style="'+btn+'" id="csvOpen">'+(ru?'Открыть таблицу':'Open the table')+'</button>'):'')+
+      '<button style="'+btn+'" id="csvCopy">'+(ru?'Скопировать таблицу':'Copy the table')+'</button>'+
+      '<button style="'+btn+';background:transparent;border-color:transparent;color:var(--txt-3)" id="csvClose">'+(ru?'Закрыть':'Close')+'</button></div>';
+    document.body.appendChild(scrim);
+    const close=()=>{ try{ scrim.remove(); }catch(e){} if(url) setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 60000); };
+    scrim.addEventListener('click', e=>{ if(e.target===scrim) close(); });
+    const bo=scrim.querySelector('#csvOpen');
+    if(bo) bo.onclick=()=>{ try{ window.open(url,'_blank'); }catch(e){ try{ toast(ru?'Браузер заблокировал вкладку':'The browser blocked the tab'); }catch(_){} } };
+    scrim.querySelector('#csvCopy').onclick=()=>{ try{ copyToClip(csv, ru?'Таблица скопирована':'Table copied'); }catch(e){} close(); };
+    scrim.querySelector('#csvClose').onclick=close;
+  }
+  try{ window.csvDeliver=csvDeliver; }catch(e){}   // тем же путём отдаём и другие выгрузки
   function exportCSV(){
     if(typeof canFeature==='function' && !canFeature('export')){ try{ openPaywall('export','portfolio'); }catch(e){} return; }
     const ru=S.lang==='ru'; const list=S.portfolio||[];
@@ -7108,11 +7188,9 @@ window.PF = (function(){
     const rows=list.map(h=>{ const fair=curPrice(h); const q=h.qty||1; const val=fair*q; const pnl=(h.buy!=null&&h.buy>0)?(fair-h.buy)*q:''; const dt=h.addedAt?new Date(h.addedAt).toISOString().slice(0,10):''; return [h.display,h.cat,q,(h.buy!=null?h.buy:''),Math.round(fair),Math.round(val),(pnl===''?'':Math.round(pnl)),dt].map(esc).join(','); });
     const csv=hdr.join(',')+'\n'+rows.join('\n');
     try{ track('export_used', 'csv:'+list.length); }catch(e){}
-    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
-    try{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='monet-portfolio-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1500); toast(ru?'Экспорт готов':'Export ready'); }
-    catch(e){ try{ navigator.clipboard.writeText(csv); toast(ru?'CSV скопирован':'CSV copied'); }catch(e2){ toast(ru?'Не удалось':'Failed'); } }
+    csvDeliver(csv, 'monet-portfolio-'+new Date().toISOString().slice(0,10)+'.csv');
   }
-  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, details, setSort, refresh, eQty, eSetBuy, ePrev, sQty, sPct, sSet, sPrev, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, exportCSV, totalTON: total, tier: ()=>tierOfNW(total()) };
+  return { render, addAsset, remove, sell, doSell, withdraw, doWithdraw, editOpen, doEdit, details, setSort, refresh, priceOf: curPrice, eQty, eSetBuy, ePrev, sQty, sPct, sSet, sPrev, openJournal, closeJournal, openAdd, closeAdd, setAddCat, doAdd, info, onRate, init, setRange, share, toggleHide, openGoal, saveGoal, removeGoal, exportCSV, totalTON: total, tier: ()=>tierOfNW(total()) };
 })();
 
 
@@ -7517,8 +7595,8 @@ window.ADMIN=(function(){
     L.push(''); L.push('day,dau,app_open,asset_evaluated,paywall_viewed,payment_success');
     (_lastDays||[]).forEach(dd=>L.push([dd.d,dd.dau||0,dd.app_open||0,dd.asset_evaluated||0,dd.paywall_viewed||0,dd.payment_success||0].map(esc).join(',')));
     const csv=L.join('\n');
-    try{ const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}); const el=document.createElement('a'); el.href=URL.createObjectURL(blob); el.download='monet-metrics-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(el); el.click(); el.remove(); setTimeout(()=>URL.revokeObjectURL(el.href),1500); toast(ru?'Экспорт готов':'Export ready'); }
-    catch(e){ try{ navigator.clipboard.writeText(csv); toast(ru?'CSV скопирован':'CSV copied'); }catch(e2){} } }
+    if(window.csvDeliver){ window.csvDeliver(csv, 'monet-metrics-'+new Date().toISOString().slice(0,10)+'.csv'); }
+  }
   function msAnalyticsHTML(d){
     const ru=S.lang!=='en'; const grp=(n)=>{ n=Math.round(+n||0); return n>=1000?n.toLocaleString('en-US').replace(/,/g,' '):String(n); };
     const usd=Math.round((d.revenueStars||0)*(d.usd_per_star||0.013));
@@ -7641,7 +7719,7 @@ window.HOME=(function(){
   function mkBy(n){ return mkAll().find(x=>x.name===n)||null; }
   function compact(v){ v=Math.round(v||0); if(v>=1e9)return (v/1e9).toFixed(2)+'B'; if(v>=1e6)return (v/1e6).toFixed(2)+'M'; if(v>=1e3)return (v/1e3).toFixed(1)+'K'; return ''+v; }
   function pct(n){ n=n||0; return Math.abs(n)<0.05?'—':((n>=0?'+':'')+n.toFixed(1)+'%'); }
-  function capCh(){ const hs=S.portfolio||[]; let val=0,a=0,b=0,w24=0,w7=0; hs.forEach(h=>{ const v=(h.priceTON||0)*(h.qty||1); val+=v; const m=mkBy(h.display); if(m){ if(m.ch24!=null){ a+=v*m.ch24; w24+=v; } if(m.ch7!=null){ b+=v*m.ch7; w7+=v; } } });
+  function capCh(){ const hs=S.portfolio||[]; let val=0,a=0,b=0,w24=0,w7=0; hs.forEach(h=>{ const v=(((window.PF&&PF.priceOf)?PF.priceOf(h):(h.priceTON||0))||0)*(h.qty||1); val+=v; const m=mkBy(h.display); if(m){ if(m.ch24!=null){ a+=v*m.ch24; w24+=v; } if(m.ch7!=null){ b+=v*m.ch7; w7+=v; } } });
     let c7 = w7>0 ? b/w7 : null;
     // Фолбэк: реальное изменение стоимости портфеля за ~7д из СВОЕЙ истории (pfHistory),
     // если серверных 7-дневных дельт по активам ещё нет.
