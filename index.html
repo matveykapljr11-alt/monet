@@ -4658,7 +4658,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='8.7';
+const APP_VERSION='8.9';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5355,7 +5355,30 @@ function scoreChannel(subs, views, niche, adUsd){
            conf:conf, suspicious:suspicious, outOfRange:!inRange }; }
 async function whaleApi(path, body){ const base=proxyURL(); const initData=(tg&&tg.initData)||''; const dev=''; const ws=webSess();
   if(!base || (!initData && !dev && !ws)) return {ok:false,reason:'no_tg'};
-  try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):''); const r=await fetch(u,{method:'POST',body:JSON.stringify(Object.assign({initData:initData, ws:(ws||undefined), dev:(dev||undefined)},body||{})),cache:'no-store'}); return await r.json(); }catch(e){ return {ok:false}; } }
+  try{ const u=base.replace(/\/+$/,'')+path+(dev?((path.indexOf('?')>=0?'&':'?')+'dev='+dev):'');
+    const r=await fetch(u,{method:'POST',body:JSON.stringify(Object.assign({initData:initData, ws:(ws||undefined), dev:(dev||undefined)},body||{})),cache:'no-store'});
+    const txt=await r.text(); let j=null; try{ j=JSON.parse(txt); }catch(e){}
+    if(!j) return {ok:false, _status:r.status, _raw:txt.slice(0,120)};
+    j._status=r.status; return j;
+  }catch(e){ return {ok:false, _net:true, _raw:String(e&&e.message||e)}; } }
+/* Человеческая расшифровка отказа сервера. Раньше всё сводилось к слову «ошибка»,
+   и понять, дело в подписке, входе или адресе, было невозможно. */
+function whaleFail(r){
+  const ru=S.lang==='ru';
+  if(!r) return ru?'нет ответа от сервера':'no response from the server';
+  if(r._net) return (ru?'сервер недоступен: ':'server unreachable: ')+(r._raw||'');
+  const why=String(r.reason||r.error||'');
+  const map={
+    bad_url: ru?'нужен адрес, начинающийся с https://':'the address must start with https://',
+    whale_only: ru?'сервер не видит активный Whale у этого аккаунта':'the server does not see an active Whale plan for this account',
+    unauthorized: ru?'Telegram не подтвердил вход — открой приложение внутри Telegram':'Telegram did not confirm the session — open the app inside Telegram',
+    no_tg: ru?'нет данных Telegram — управление доступно внутри Mini App':'no Telegram data — management works inside the Mini App',
+    'not configured': ru?'на сервере не настроены BOT_TOKEN или KV':'BOT_TOKEN or KV is not configured on the server'
+  };
+  const human=map[why]||why||(ru?'сервер отказал':'the server refused');
+  const tech=[r._status?('HTTP '+r._status):'', why&&map[why]?why:''].filter(Boolean).join(' · ');
+  return human+(tech?(' ('+tech+')'):'');
+}
 function openWhalePanel(){ if(entPlan()!=='whale'){ try{ openPaywall('whale','panel'); }catch(e){} return; } renderWhalePanel(); msOverlay().classList.add('open'); }
 async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
   el.innerHTML='<div class="ms-sheet"><div class="ms-h"><div><div class="ms-eyebrow">Whale · '+(ru?'ранний доступ':'early access')+'</div><div class="ms-title">'+(ru?'Инструменты Whale':'Whale tools')+'</div></div><button class="ms-x" aria-label="Закрыть" onclick="closePricing()">✕</button></div>'+
@@ -5513,7 +5536,7 @@ function apiRender(key){
 async function whaleKeyCreate(){ const ru=S.lang==='ru'; const o=document.getElementById('apiOut'); if(o)o.textContent='…';
   const r=await whaleApi('/?apikey',{action:'create'});
   if(r&&r.key){ apiRender(r.key); try{ toast(ru?'Ключ выпущен — старый отозван':'Key created — the old one is revoked'); }catch(e){} }
-  else if(o) o.textContent=ru?'не удалось выпустить ключ':'could not create a key'; }
+  else if(o) o.textContent=(ru?'Ключ не выпущен · ':'Key not created · ')+whaleFail(r); }
 async function whaleKeyRevoke(){ const ru=S.lang==='ru'; await whaleApi('/?apikey',{action:'revoke'}); apiRender('');
   const t=document.getElementById('apiTry'); if(t) t.textContent='';
   try{ toast(ru?'Ключ отозван':'Key revoked'); }catch(e){} }
@@ -5564,7 +5587,26 @@ async function whaleBulkScan(){ const ru=S.lang==='ru'; const ta=document.getEle
   }
   o.innerHTML=rows.join('')+'<div style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px"><b>'+(ru?'Итого по флорам: ':'Floor total: ')+fmtTON(Math.round(sum))+' GRAM</b> · '+fmtFiat(sum)+'<div style="font-size:10.5px;color:var(--txt-3);margin-top:3px">'+(ru?'Быстрый скан по флорам коллекций — для точной оценки с трейтами открой каждый через «Оценить».':'Quick floor-level scan — for precise trait-level values appraise each individually.')+'</div></div>';
   try{ track('whale_bulk', String(lines.length)); }catch(e){} }
-async function whaleWebhookSet(){ const ru=S.lang==='ru'; const url=(document.getElementById('whUrl')||{}).value||''; const o=document.getElementById('whOut'); if(o)o.textContent='…'; const r=await whaleApi('/?webhook',{action:'set',url:url}); if(o){ if(r&&r.ok){ o.style.color='var(--good)'; o.textContent=ru?'✓ сохранено':'✓ saved'; } else { o.style.color='var(--bad)'; o.textContent=(r&&r.reason==='bad_url')?(ru?'Нужен https URL':'https URL required'):(ru?'ошибка':'error'); } } }
+async function whaleWebhookSet(){ const ru=S.lang==='ru';
+  // Адрес почти всегда вставляют из буфера — вместе с пробелом или переводом строки.
+  // Сервер такие отклоняет, а человек видит «ошибка» и не понимает почему.
+  let url=String((document.getElementById('whUrl')||{}).value||'').replace(/[\s\u200b-\u200d\ufeff]+/g,'').trim();
+  const oBad=document.getElementById('whOut');
+  if(url){
+    if(/^[a-z][a-z0-9+.-]*:\/\//i.test(url)){                 // схема указана
+      if(/^http:\/\//i.test(url)) url='https://'+url.slice(7); // http -> https, вебхук только по https
+      else if(!/^https:\/\//i.test(url)){                      // ftp, ws и прочее — не наш случай
+        if(oBad){ oBad.style.color='var(--bad)'; oBad.textContent=ru?'Не сохранено · нужен адрес по https://':'Not saved · an https:// address is required'; }
+        return;
+      }
+    } else url='https://'+url;                                  // схемы нет — дописываем
+    let host=''; try{ host=new URL(url).hostname; }catch(e){}
+    if(!host || host.indexOf('.')<0){
+      if(oBad){ oBad.style.color='var(--bad)'; oBad.textContent=ru?'Не сохранено · это не похоже на адрес':'Not saved · that does not look like a URL'; }
+      return;
+    }
+  }
+  try{ const f=document.getElementById('whUrl'); if(f && f.value!==url) f.value=url; }catch(e){} const o=document.getElementById('whOut'); if(o)o.textContent='…'; const r=await whaleApi('/?webhook',{action:'set',url:url}); if(o){ if(r&&r.ok){ o.style.color='var(--good)'; o.textContent=ru?'✓ сохранено':'✓ saved'; } else { o.style.color='var(--bad)'; o.textContent=(ru?'Не сохранено · ':'Not saved · ')+whaleFail(r); } } }
 /* ===== ТАРИФЫ И PAYWALL (Monet Monetization P0) ===== */
 function fmtUntilMs(ms){ if(!ms) return '—'; try{ const d=new Date(ms); return d.toLocaleDateString(S.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return '—'; } }
 function msFeatureRows(ru){
