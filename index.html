@@ -4658,7 +4658,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='8.9';
+const APP_VERSION='9.0';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5398,12 +5398,18 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
       '<div id="apiTry" style="font-size:11.5px;color:var(--txt-2);margin-top:8px;line-height:1.5"></div>'+
       '<div id="apiUsage" style="font-size:12px;color:var(--txt-2);margin-top:6px">'+(ru?'использование: …':'usage: …')+'</div>'+
       '<div id="apiDocs" style="margin-top:10px"></div></div>'+
-    '<div class="ms-promo"><div class="ms-invite-t">Webhook</div>'+
+    (WEBHOOK_OFF
+      ? ('<div class="ms-promo" style="opacity:.75"><div class="ms-invite-t">Webhook <span style="font-size:10px;font-weight:700;color:var(--warn);border:1px solid var(--warn);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle">'+(ru?'СКОРО':'SOON')+'</span></div>'+
+         '<div style="font-size:12px;color:var(--txt-3);margin-top:6px;line-height:1.5">'+(ru
+           ? 'Отправку событий на свой адрес мы временно выключили — доделываем доставку и повторные попытки. Всё остальное в Whale работает как обычно; когда включим, напишем.'
+           : 'Sending events to your endpoint is temporarily off while we finish delivery and retries. Everything else in Whale works as usual; we will let you know when it is back.')+'</div>'+
+         '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'Алерты внутри приложения работают: цена дошла до цели — придёт уведомление.':'In-app alerts still work: you get a notification when a target price is hit.')+'</div></div>')
+      : '<div class="ms-promo"><div class="ms-invite-t">Webhook</div>'+
       '<div style="display:flex;gap:8px;margin-top:8px"><input id="whUrl" placeholder="https://…" style="flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-weight:600">'+
       '<button class="ms-btn go" style="width:auto;padding:10px 16px" onclick="whaleWebhookSet()">'+(ru?'Сохранить':'Save')+'</button>'+
       '<button class="ms-btn" style="width:auto;padding:10px 14px" onclick="whaleWebhookTest()">'+(ru?'Тест':'Test')+'</button></div>'+
       '<div id="whOut" style="font-size:12px;color:var(--txt-2);margin-top:6px"></div>'+'<div id="whUsage" style="font-size:12px;color:var(--txt-2);margin-top:4px">'+(ru?'статус: …':'status: …')+'</div>'+
-      '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'POST при срабатывании алерта: {source, ts, event}':'POST on alert trigger: {source, ts, event}')+'</div></div>'+
+      '<div style="font-size:11px;color:var(--txt-3);margin-top:6px">'+(ru?'POST при срабатывании алерта: {source, ts, event}':'POST on alert trigger: {source, ts, event}')+'</div></div>')+
     '<div class="ms-promo"><div class="ms-invite-t">'+(ru?'Bulk-скан ссылок':'Bulk link scan')+' <span style="font-size:10px;opacity:.7">'+(ru?'до 10 за раз':'up to 10')+'</span></div>'+
       '<div style="font-size:11.5px;color:var(--txt-3);margin-top:4px">'+(ru?'Вставь до 10 ссылок t.me/nft/… — быстрый скан по флорам коллекций.':'Paste up to 10 t.me/nft/… links — a quick floor-based scan.')+'</div>'+
       '<textarea id="whBulk" rows="4" placeholder="t.me/nft/PlushPepe-1000\nt.me/nft/ToyBear-42" style="width:100%;margin-top:8px;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#1c3327);background:var(--surface,#0f1f17);color:var(--txt,#eaf3ee);font-size:12.5px;resize:vertical"></textarea>'+
@@ -5418,7 +5424,7 @@ async function renderWhalePanel(){ const el=msOverlay(); const ru=S.lang==='ru';
     const w=document.getElementById('whUsage'); if(w) w.textContent=note;
     return; }
   try{ const k=await whaleApi('/?apikey',{action:'view'}); apiRender((k&&k.key)||''); }catch(e){ try{ apiRender(''); }catch(_){} }
-  try{ const w=await whaleApi('/?webhook',{action:'view'}); const el2=document.getElementById('whUrl'); if(el2&&w&&w.url) el2.value=w.url; }catch(e){}
+  if(!WEBHOOK_OFF){ try{ const w=await whaleApi('/?webhook',{action:'view'}); const el2=document.getElementById('whUrl'); if(el2&&w&&w.url) el2.value=w.url; }catch(e){} }
   await whaleUsageRefresh();
 }
 async function whaleUsageRefresh(){ const ru=S.lang==='ru';
@@ -5465,6 +5471,11 @@ function whaleChannelEval(){ const ru=S.lang==='ru';
     '<div style="font-size:10.5px;color:var(--txt-3);margin-top:8px;line-height:1.5">'+(ru?(r.adBased?'Метод: доходный — твоя цена поста × 12 выходов/мес × 75% заполняемости, умножено на срок окупаемости.':'Метод: доходный — охват × 12 реклам/мес × CPM ниши, умножено на срок окупаемости.')+' Сравнительный — цена за подписчика по сделкам с готовыми каналами ($50–100 за 1000 при живой аудитории, крипто дороже). Итог — свод двух методов.':(r.adBased?'Method: income-based — your ad rate × 12 slots/mo × 75% fill rate, times the payback multiple.':'Method: income-based — reach × 12 ads/mo × niche CPM, times the payback multiple.')+' Comparable — price per subscriber from ready-made channel deals ($50–100 per 1,000 with a live audience, crypto higher). The result reconciles both.')+'</div>';
   try{ track('asset_evaluated','channel'); }catch(e){} }
 let WHALE_KEY='';
+/* Вебхуки временно отключены: каждое сохранение — запись в KV, а суточный лимит
+   бесплатного плана уже выбирается снимками цен. Приоритет у записей, от которых
+   зависят деньги: активация подписки, списание оценок, промокоды.
+   Вернуть = поставить false. */
+const WEBHOOK_OFF=true;
 /* Копирование: в Telegram Mini App clipboard-API часто закрыт, поэтому есть запасной путь
    через скрытое поле — иначе кнопка «копировать» молча не работает. */
 function copyToClip(text, okMsg){
@@ -5623,7 +5634,8 @@ function msFeatureRows(ru){
     [ru?'Юзернеймы и +888':'Usernames & +888', '—', '—', '—', '✓'],
     [ru?'Оценка каналов':'Channel appraisal', '—', '—', '—', '✓'],
     [ru?'Bulk-скан ссылок':'Bulk link scan', '—', '—', '—', '✓'],
-    [ru?'API 10k/мес + Webhooks':'API 10k/mo + Webhooks', '—', '—', '—', '✓'],
+    [ru?'API 10k/мес':'API 10k/mo', '—', '—', '—', '✓'],
+    [ru?'Webhooks':'Webhooks', '—', '—', '—', (ru?'скоро':'soon')],
   ];
 }
 function msOverlay(){ let el=document.getElementById('msOverlay'); if(!el){ el=document.createElement('div'); el.id='msOverlay'; el.className='ms-scrim'; el.onclick=function(e){ if(e.target===el) closePricing(); }; document.body.appendChild(el); } return el; }
@@ -5648,7 +5660,7 @@ function renderPricing(highlight){
       '<ul class="ms-feats">'+feats.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>'+btn+'</div>'; }).join('');
   const isWhale=(plan==='whale');
   const whale='<div class="ms-card'+(isWhale?' hl':' soon')+'"><div class="ms-cn">Whale <span class="ms-soon">'+ (isWhale?'Private Beta':(ru?'Ранний доступ':'Early access')) +'</span></div><div class="ms-price">'+MS_PLANS.whale.stars+' <span>⭐ / 30'+(ru?'дн':'d')+'</span></div>'+
-    '<ul class="ms-feats"><li>'+(ru?'Usernames, +888, Channels':'Usernames, +888, Channels')+'</li><li>'+(ru?'API 10k/мес и Webhooks':'API 10k/mo & Webhooks')+'</li><li>'+(ru?'Bulk-скан ссылок':'Bulk link scan')+'</li><li>'+(ru?'2000 оценок/день, портфель 5000':'2000 appraisals/day, 5000-asset portfolio')+'</li></ul>'+
+    '<ul class="ms-feats"><li>'+(ru?'Usernames, +888, Channels':'Usernames, +888, Channels')+'</li><li>'+(ru?('API 10k/мес'+(WEBHOOK_OFF?'':' и Webhooks')):('API 10k/mo'+(WEBHOOK_OFF?'':' & Webhooks')))+'</li><li>'+(ru?'Bulk-скан ссылок':'Bulk link scan')+'</li><li>'+(ru?'2000 оценок/день, портфель 5000':'2000 appraisals/day, 5000-asset portfolio')+'</li></ul>'+
     (isWhale? '<button class="ms-btn cur" disabled>'+(ru?'Текущий · Private Beta':'Current · Private Beta')+'</button>'
             : '<button class="ms-btn" onclick="try{var i=document.getElementById(\'msPromo\'); if(i){ i.scrollIntoView({behavior:\'smooth\',block:\'center\'}); setTimeout(function(){i.focus();},350);} }catch(e){}">'+(ru?'Доступ по инвайт-коду ↓':'Invite code required ↓')+'</button>')+'</div>';
   const rows=msFeatureRows(ru).map(function(r){ return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td></tr>'; }).join('');
