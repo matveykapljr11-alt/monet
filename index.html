@@ -4658,7 +4658,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='9.0';
+const APP_VERSION='9.1';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -7703,6 +7703,14 @@ window.ADMIN=(function(){
       '<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px">'+
         '<div style="font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--txt-3);margin-bottom:2px">Создать промокод</div>'+
         '<div style="font-size:11.5px;color:var(--txt-3);margin-bottom:10px">Один код может активировать несколько человек (пока не кончится лимит). Даёт подписку выбранного тарифа на N дней.</div>'+
+        // Действия админки сервер пускает только по числовому id. Показываем его здесь,
+        // чтобы при «forbidden» было понятно, что вписывать в ADMIN_ID на воркере.
+        (function(){ var uid=''; try{ uid=String(((tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{}).id||''); }catch(e){}
+          if(!uid) return '';
+          return '<div style="font-size:11px;color:var(--txt-3);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+
+            '<span>твой Telegram id:</span><code style="font-family:ui-monospace,Menlo,monospace;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:3px 8px">'+uid+'</code>'+
+            '<button class="ms-btn" style="width:auto;padding:4px 10px;font-size:11px" onclick="copyToClip(\''+uid+'\',\'Id скопирован\')">копи</button>'+
+            '<span style="opacity:.75">при ошибке forbidden — этот id должен стоять в ADMIN_ID на воркере</span></div>'; })()+
         (function(){ const fld=(lab,inner)=>'<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--txt-3)">'+lab+'</span>'+inner+'</div>';
         const inp='padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--txt);font-weight:700';
         return '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">'+
