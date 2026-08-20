@@ -4625,7 +4625,7 @@ function openFragment(){
   if(tg && tg.openLink){ tg.openLink(url); } else { window.open(url,'_blank'); }
 }
 function setCurrency(c){ S.currency=c; save(); const fv=document.getElementById('fiatVal'); if(fv&&lastResult)fv.textContent=fmtFiat(lastResult.priceTON); document.querySelectorAll('.cur-toggle button').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===c)); updateHeroRate(); }
-const APP_VERSION='8.5';
+const APP_VERSION='8.6';
 function fxOf(c){ const v=FXRATES[c]; if(v>0) return v; if(c==='usd')return RATE.usd; if(c==='eur')return RATE.eur; const u=USD_CROSS[c]; return u?RATE.usd*u:RATE.usd; }
 function symOf(c){ const x=CURRENCIES.find(k=>k.c===c); return x?x.s:'$'; }
 function setCurrencyUI(c){ setCurrency(c); try{ if(window.MK&&curView==='market')MK.render(); if(window.PF&&curView==='portfolio')PF.render(); if(curView==='home'&&window.HOME)HOME.render(); if(lastResult){ const fv=document.getElementById('fiatVal'); if(fv)fv.textContent=fmtFiat(lastResult.priceTON); } }catch(e){} syncSettings(); }
@@ -5446,7 +5446,7 @@ function apiDocsHTML(key){
   const ru=S.lang==='ru';
   const base=(proxyURL()||'https://<worker>').replace(/\/+$/,'');
   const k=key||'<KEY>';
-  const url=base+'/?api&key='+k+'&op=floor&collection=plushpepe';
+  const url=base+'/?api=1&key='+k+'&op=floor&collection=plushpepe';
   const curl="curl '"+url+"'";
   const box=(label,text,id)=>'<div style="margin-top:8px"><div style="font-size:10.5px;color:var(--txt-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">'+label+'</div>'+
     '<div style="display:flex;gap:6px;align-items:flex-start"><code id="'+id+'" style="flex:1;min-width:0;font-family:ui-monospace,Menlo,monospace;font-size:11px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;word-break:break-all;line-height:1.45">'+escapeHTML(text)+'</code>'+
@@ -5456,12 +5456,14 @@ function apiDocsHTML(key){
     box(ru?'Запрос':'Request', url, 'apiDocUrl')+
     box('curl', curl, 'apiDocCurl')+
     '<div style="font-size:11px;color:var(--txt-3);margin-top:8px;line-height:1.6">'+(ru
-      ? '<b>collection</b> — слаг коллекции: plushpepe, scaredcat, signetring (как в ссылке t.me/nft/…).<br>'+
+      ? '<b>Пишите именно <code>?api=1</code></b>, а не <code>?api</code>: параметры без значения некоторые клиенты и прокси выкидывают, и тогда воркер вернёт свою служебную страницу с <code>ok:true</code> вместо данных — ошибку легко не заметить.<br>'+
+        '<b>collection</b> — слаг коллекции: plushpepe, scaredcat, signetring (как в ссылке t.me/nft/…).<br>'+
         '<b>Ответ:</b> <code>{ok, collection, name, floor_gram, usd_rate, ts}</code>. Цена — в GRAM, курс — чтобы перевести в доллары.<br>'+
         '<b>Лимит:</b> 60 запросов в минуту на ключ.<br>'+
         '<b>Ошибки:</b> 401 — ключ неверный или отозван · 402 — подписка Whale неактивна · 429 — превышен лимит.<br>'+
         'Ключ — это доступ к твоему тарифу: не выкладывай его в публичный код. Выпуск нового ключа сразу отзывает старый.'
-      : '<b>collection</b> — collection slug: plushpepe, scaredcat, signetring (as in t.me/nft/… links).<br>'+
+      : '<b>Use <code>?api=1</code></b>, not <code>?api</code>: some clients and proxies drop valueless params, and then the worker returns its service page with <code>ok:true</code> instead of your data — an easy failure to miss.<br>'+
+        '<b>collection</b> — collection slug: plushpepe, scaredcat, signetring (as in t.me/nft/… links).<br>'+
         '<b>Response:</b> <code>{ok, collection, name, floor_gram, usd_rate, ts}</code>. Price in GRAM, rate to convert to USD.<br>'+
         '<b>Limit:</b> 60 requests per minute per key.<br>'+
         '<b>Errors:</b> 401 — invalid or revoked key · 402 — Whale subscription inactive · 429 — rate limited.<br>'+
@@ -5485,7 +5487,7 @@ async function whaleApiTry(){
   if(!WHALE_KEY){ out.style.color='var(--warn)'; out.textContent=ru?'Сначала выпусти ключ.':'Create a key first.'; return; }
   out.style.color='var(--txt-3)'; out.textContent=ru?'Отправляем запрос…':'Sending request…';
   const base=(proxyURL()||'').replace(/\/+$/,'');
-  const url=base+'/?api&key='+encodeURIComponent(WHALE_KEY)+'&op=floor&collection=plushpepe';
+  const url=base+'/?api=1&key='+encodeURIComponent(WHALE_KEY)+'&op=floor&collection=plushpepe';
   const t0=Date.now();
   try{
     const r=await fetch(url,{cache:'no-store'}); const ms=Date.now()-t0;
